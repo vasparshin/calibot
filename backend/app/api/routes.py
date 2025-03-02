@@ -45,7 +45,6 @@ async def telegram_webhook(update: TelegramUpdate):
     
     auth_check = calendar_service.is_authenticated()
     test = calendar_service.list_calendars()
-    # logger.info(f"------------------------------------>Test: {test}")
 
     
     if auth_check is not True:
@@ -60,7 +59,7 @@ async def telegram_webhook(update: TelegramUpdate):
     conversation_state.add_message(chat_id, "user", user_message, message_type)
     history = conversation_state.get_conversation_history(chat_id)
     
-    logger.info(f"---------------------Conversation history: {history}")
+    # logger.info(f"---------------------Conversation history: {history}")
     
     # Check relevancy before extracting intent
     relevancy_result = await nlp_agent.check_relevancy(user_message, history)
@@ -74,7 +73,7 @@ async def telegram_webhook(update: TelegramUpdate):
     
     try:
         event_data = await nlp_agent.extract_intent(user_message, history)
-        logger.info(f"===========> Event data: {event_data}")
+        # logger.info(f"===========> Event data: {event_data}")
 
         # If no confirmation is needed, proceed with the action
         if event_data["confirmation_needed"] is False:
@@ -101,7 +100,7 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
 
                 events = matched_events["events"]
-                logger.info(f"================> Matched events: {events}")
+                # logger.info(f"================> Matched events: {events}")
                 event_id = None
                 # if len(events) == 1:
                 #     event_id = events[0]["id"]
@@ -144,7 +143,7 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
 
                 events = matched_events["events"]
-                logger.info(f"================> Matched events: {events}")
+                # logger.info(f"================> Matched events: {events}")
 
                 if len(events) == 1:
                     event_id = events[0]["id"]
@@ -175,7 +174,6 @@ async def telegram_webhook(update: TelegramUpdate):
         logger.error(f"======>Error processing message: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
-    return {"status": "ok"}
 
 
 @router.get("/oauth2callback")

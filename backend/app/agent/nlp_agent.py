@@ -73,8 +73,6 @@ class NLPAgent:
 
         formatted_history = format_conversation_history(history)
         
-        # logger.info(f"++++++relvance prompt: {system_prompt.format(conversation_history=formatted_history)}")
-
         response = await acompletion(
             model="gpt-4o",
             messages=[
@@ -97,8 +95,6 @@ class NLPAgent:
             current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             system_message = self.system_prompt.format(conversation_history=formatted_history, current_date=current_datetime)
-            # logger.info(f"++++++++++++++++++++++++++==Prompt: {system_message}")
-            # logger.info(f"date: {current_datetime}")
 
             response = await acompletion(
                 model="gpt-4o",
@@ -111,7 +107,6 @@ class NLPAgent:
             )
 
             result = response['choices'][0]['message']['content']
-            logger.info(f"++++++++++++++++++++++++++==Response: {result}")
             parsed_result = json.loads(result)
             return parsed_result
         except Exception as e:
