@@ -64,7 +64,7 @@ async def telegram_webhook(update: TelegramUpdate):
     
     # Check relevancy before extracting intent
     relevancy_result = await nlp_agent.check_relevancy(user_message, history)
-    logger.info(f"------------------>RELEVANCY:{relevancy_result}")
+    # logger.info(f"------------------>RELEVANCY:{relevancy_result}")
     if not relevancy_result["relevant"]:
         ai_response = await get_small_talk_response(user_message, history)
         await send_telegram_message(chat_id, ai_response)
@@ -101,7 +101,7 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
 
                 events = matched_events["events"]
-                # logger.info(f"================> Matched events: {events}")
+                logger.info(f"================> Matched events: {events}")
                 event_id = None
                 # if len(events) == 1:
                 #     event_id = events[0]["id"]

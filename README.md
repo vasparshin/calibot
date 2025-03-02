@@ -11,6 +11,14 @@ CaliBOT is an intelligent Telegram bot that helps users manage their Google Cale
 - 🧠 **Intent Recognition**: Automatically identifies calendar-related requests vs. small talk
 - 🔐 **Secure Authentication**: OAuth 2.0 integration with Google Calendar API
 
+## System Design
+
+![system_design](calibot_system_design.png)
+
+## Sequence Diagram
+
+![sequence_diagram](calibot_sequence_diagram.png)
+
 ## Getting Started
 
 ### Prerequisites
@@ -30,9 +38,10 @@ cd calibot
 ```
 
 2. Install dependencies:
+   Make sure you have `uv` installed. See [here](https://docs.astral.sh/uv/) for complete information. Then, from within the project folder run:
 
 ```bash
-pip install -e .
+uv pip install
 ```
 
 3. Set up environment variables:
