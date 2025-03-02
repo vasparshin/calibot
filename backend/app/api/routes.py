@@ -45,6 +45,7 @@ async def telegram_webhook(update: TelegramUpdate):
     
     auth_check = calendar_service.is_authenticated()
     test = calendar_service.list_calendars()
+    # logger.info(f"------------------------------------>Test: {test}")
 
     
     if auth_check is not True:
