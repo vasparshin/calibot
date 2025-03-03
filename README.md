@@ -40,7 +40,7 @@ cd calibot
 ```
 
 2. Install dependencies:
-   Make sure you have `uv` installed. See [here](https://docs.astral.sh/uv/) for complete information. Then, from within the project folder run:
+   Make sure you have `uv` installed. See [here](https://docs.astral.sh/uv/) for complete information.
 
 ```bash
 uv pip install
