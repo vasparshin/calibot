@@ -13,11 +13,11 @@ CaliBOT is an intelligent Telegram bot that helps users manage their Google Cale
 
 ## System Design
 
+Diagram below depicts the sytem design. However, database is not implemented yet.
+
 ![system_design](calibot_system_design.png)
 
 ## Sequence Diagram
-
-Diagram below depicts the sequence diagram. However, database is not implemented yet.
 
 ![sequence_diagram](calibot_sequence_diagram.png)
 
