@@ -11,6 +11,10 @@ CaliBOT is an intelligent Telegram bot that helps users manage their Google Cale
 - 🧠 **Intent Recognition**: Automatically identifies calendar-related requests vs. small talk
 - 🔐 **Secure Authentication**: OAuth 2.0 integration with Google Calendar API
 
+## Demo
+
+![demo](calibot_demo.mov)
+
 ## System Design
 
 Diagram below depicts the sytem design. However, database is not implemented yet.
