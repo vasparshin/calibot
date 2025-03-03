@@ -13,7 +13,7 @@ CaliBOT is an intelligent Telegram bot that helps users manage their Google Cale
 
 ## Demo
 
-![demo](calibot_demo.mov)
+![demo](calibot_demo.mp4)
 
 ## System Design
 
