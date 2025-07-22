@@ -12,7 +12,7 @@ COPY backend/app ./app
 
 
 # Install dependencies
-RUN uv pip install --system
+RUN uv pip install --system --editable .
 
 # Expose the port
 EXPOSE 8060
