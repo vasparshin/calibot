@@ -14,8 +14,6 @@ COPY backend/app ./app
 # Install dependencies
 RUN uv pip install --system
 
-# Copy credentials (or mount as a volume in production)
-COPY backend/app/credentials.json /app/app/credentials.json
 
 # Expose the port
 EXPOSE 8060
