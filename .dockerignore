@@ -1,0 +1,21 @@
+# Ignore Python cache and virtualenvs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+
+# Ignore local environment files and secrets
+.env
+*.env
+*.secret
+*.key
+backend/app/credentials.json
+
+# Ignore git and editor files
+.git
+.gitignore
+.vscode/
+.DS_Store

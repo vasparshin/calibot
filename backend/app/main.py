@@ -1,5 +1,6 @@
 import uvicorn
 import httpx
+import os
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.api.routes import router
@@ -19,7 +20,7 @@ async def lifespan(app: FastAPI):
     telegram_service.start()
     
     # Set up Telegram webhook
-    backend_url = "https://cb9c-207-5-31-67.ngrok-free.app"
+    backend_url = os.getenv("BACKEND_URL", "http://localhost:8060")
     WEBHOOK_URL = f"{backend_url}/webhook"
     
     async with httpx.AsyncClient() as client:

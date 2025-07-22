@@ -1,4 +1,5 @@
-[project]
+docker build -t calibot-backend .
+docker run -p 8060:8060 --env-file backend/app/.env calibot-backend[project]
 name = "calibot"
 version = "0.1.0"
 description = "Add your description here"
