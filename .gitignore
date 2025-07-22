@@ -15,3 +15,4 @@ wheels/
 /backend/*.pickle
 /backend/*.txt
 /backend/client.json
+/backend/app/credentials.json
