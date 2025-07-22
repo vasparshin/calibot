@@ -26,9 +26,9 @@ class GoogleCalendarService:
     
     def get_auth_url(self):
         """Generate and return the Google OAuth authorization URL."""
+        print("Redirect URI being used:", flow.redirect_uri)  # This will print the redirect URI being used
         flow = Flow.from_client_secrets_file(
             GOOGLE_CLIENT_SECRET_FILE,
-            print("Redirect URI being used:", flow.redirect_uri)
             scopes=GOOGLE_API_SCOPES,
             redirect_uri=self.redirect_uri
         )
