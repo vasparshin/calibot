@@ -1,6 +1,7 @@
 from datetime import datetime
 from litellm import acompletion
 from app.utils.helpers import format_conversation_history
+from app.config import LITELLM_MODEL
 import json
 import logging
 
@@ -40,6 +41,7 @@ class NLPAgent:
 
             JSON:
         """
+        self.model = LITELLM_MODEL
 
         
     async def check_relevancy(self, user_message: str, history: list) -> dict:
@@ -74,7 +76,7 @@ class NLPAgent:
         formatted_history = format_conversation_history(history)
         
         response = await acompletion(
-            model="gpt-4o",
+            model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt.format(conversation_history=formatted_history)},
                 {"role": "user", "content": f"User message: {user_message}"}
@@ -97,7 +99,7 @@ class NLPAgent:
             system_message = self.system_prompt.format(conversation_history=formatted_history, current_date=current_datetime)
 
             response = await acompletion(
-                model="gpt-4o",
+                model=self.model,
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message}
