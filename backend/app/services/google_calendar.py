@@ -233,7 +233,7 @@ class GoogleCalendarService:
                 {'email': participant} for participant in event_data.get('participants')
                 if '@' in participant  # Simple email validation
             ]
-        
+        logger.info(f"Creating event with data: {event}")
         created_event = service.events().insert(calendarId='primary', body=event).execute()
         return {
             'success': True,
@@ -263,7 +263,8 @@ class GoogleCalendarService:
             event['start']['dateTime'] = f"{event_data['date']}T{event_data['start_time']}:00"
         if 'date' in event_data and 'end_time' in event_data:
             event['end']['dateTime'] = f"{event_data['date']}T{event_data['end_time']}:00"
-        
+            
+        logger.info(f"Updating event {event_id} with data: {event}")
         updated_event = service.events().update(
             calendarId='primary', eventId=event_id, body=event).execute()
             
