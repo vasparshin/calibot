@@ -21,5 +21,5 @@ EXPOSE 8060
 ENV GOOGLE_CREDENTIALS_FILE=/app/app/credentials.json
 
 # Start the app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8060", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8060"]
 
