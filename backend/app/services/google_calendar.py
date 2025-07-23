@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class GoogleCalendarService:
     def __init__(self):
         self.credentials = None
-        self.token_path = 'token.pickle'
+        self.token_path = '/data/token.pickle'
         self.service = None
         self.redirect_uri = os.getenv("BACKEND_URL", f"http://{API_HOST}:{API_PORT}") + OAUTH_REDIRECT_PATH
     
@@ -53,6 +53,7 @@ class GoogleCalendarService:
         state = request.query_params.get('state')
 
         if not code or not state:
+            logger.error("Missing code or state in OAuth callback")
             raise HTTPException(status_code=400, detail="Missing code or state")
 
         try:
@@ -61,12 +62,14 @@ class GoogleCalendarService:
             with open('client_config.pickle', 'rb') as f:
                 client_config = pickle.load(f)
 
-        except FileNotFoundError:
+        except FileNotFoundError as e:
+            logger.error(f"Authentication flow expired: {e}")
+            logger.error(traceback.format_exc())
             raise HTTPException(status_code=500, detail="Authentication flow expired")
 
         if state != saved_state:
+            logger.error("Invalid state parameter in OAuth callback")
             raise HTTPException(status_code=400, detail="Invalid state parameter")
-
         try:
             flow = Flow.from_client_secrets_file(
                 client_config["client_secrets_file"],
@@ -121,6 +124,7 @@ class GoogleCalendarService:
             # return {"message": "Authentication successful! Pllease close this tab."}
         except Exception as e:
             logger.error(f"Error during token exchange: {e}")
+            logger.error(traceback.format_exc())
             raise HTTPException(status_code=500, detail="Failed to authenticate")
 
     def get_calendar_service(self):
@@ -170,6 +174,20 @@ class GoogleCalendarService:
         """Check if the user is authenticated"""
         return self.get_calendar_service() is not None
     
+    def get_connected_calendar_ids(self, filename="connected_calendars.txt"):
+        """Load calendar IDs from a file, always including 'primary'."""
+        calendar_ids = set()
+        try:
+            with open(filename, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        calendar_ids.add(line)
+        except FileNotFoundError:
+            pass  # If file doesn't exist, just use 'primary'
+        calendar_ids.add("primary")
+        return list(calendar_ids)
+
     def get_user_timezone(self):
         """Fetch the user's time zone from Google Calendar settings."""
         service = self.get_calendar_service()
@@ -270,57 +288,66 @@ class GoogleCalendarService:
     
     def query_events(self, query_params):
         """Query events based on parameters"""
-        service = self.get_calendar_service()
-        if not service:
+        try:
+            service = self.get_calendar_service()
+            if not service:
+                logger.error("No authenticated Google Calendar service found.")
+                return {
+                    'success': False,
+                    'message': 'Authentication required',
+                    'auth_required': True
+                }
+            
+            date_str = query_params.get('date')  
+            if date_str:  
+                try:
+                    date_obj = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                    time_min = date_obj.isoformat()  # Start of day
+                    time_max = date_obj.replace(hour=23, minute=59, second=59).isoformat()  # End of day
+                except ValueError:
+                    return {'success': False, 'message': 'Invalid date format. Use YYYY-MM-DD'}
+
+
+            query_text = query_params.get('event_name')
+            # logger.info(f"Querying events with time: {time_min} to {time_max}")
+
+            request = service.events().list(
+                calendarId='primary',
+                timeMin=time_min if time_min else None,
+                timeMax=time_max if time_max else None,
+                # q=query_text if query_text else None,
+                singleEvents=True,
+                orderBy='startTime'
+            )
+
+            events_result = request.execute()
+            events = events_result.get('items', [])
+            
+            if not events:
+                return {'success': False, 'message': 'No matching events found'}
+
+            return {
+                'success': True,
+                'events': [
+                    {
+                        'id': event['id'],
+                        'summary': event.get('summary', 'No Title'),
+                        'start': event['start'].get('dateTime', event['start'].get('date')),
+                        'end': event['end'].get('dateTime', event['end'].get('date')),
+                        'participants': event.get('attendees', []),
+                        'description': event.get('description', ''),
+                        'link': event.get('htmlLink', ''),
+                    }
+                    for event in events
+                ]
+            }
+        except Exception as e:
+            logger.error(f"Exception in query_events: {e}")
+            logger.error(traceback.format_exc())
             return {
                 'success': False,
-                'message': 'Authentication required',
-                'auth_required': True
+                'message': f'Internal error: {e}'
             }
-        
-        date_str = query_params.get('date')  
-        if date_str:  
-            try:
-                date_obj = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                time_min = date_obj.isoformat()  # Start of day
-                time_max = date_obj.replace(hour=23, minute=59, second=59).isoformat()  # End of day
-            except ValueError:
-                return {'success': False, 'message': 'Invalid date format. Use YYYY-MM-DD'}
-
-
-        query_text = query_params.get('event_name')
-        # logger.info(f"Querying events with time: {time_min} to {time_max}")
-
-        request = service.events().list(
-            calendarId='primary',
-            timeMin=time_min if time_min else None,
-            timeMax=time_max if time_max else None,
-            # q=query_text if query_text else None,
-            singleEvents=True,
-            orderBy='startTime'
-        )
-
-        events_result = request.execute()
-        events = events_result.get('items', [])
-        
-        if not events:
-            return {'success': False, 'message': 'No matching events found'}
-
-        return {
-            'success': True,
-            'events': [
-                {
-                    'id': event['id'],
-                    'summary': event.get('summary', 'No Title'),
-                    'start': event['start'].get('dateTime', event['start'].get('date')),
-                    'end': event['end'].get('dateTime', event['end'].get('date')),
-                    'participants': event.get('attendees', []),
-                    'description': event.get('description', ''),
-                    'link': event.get('htmlLink', ''),
-                }
-                for event in events
-            ]
-        }
 
     def list_calendars(self):
         """Check if authentication works by listing calendars"""
