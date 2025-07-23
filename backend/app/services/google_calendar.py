@@ -22,7 +22,7 @@ class GoogleCalendarService:
         self.credentials = None
         self.token_path = 'token.pickle'
         self.service = None
-        self.redirect_uri = f"http://{API_HOST}:{API_PORT}{OAUTH_REDIRECT_PATH}"
+        self.redirect_uri = os.getenv("BACKEND_URL", f"http://{API_HOST}:{API_PORT}") + OAUTH_REDIRECT_PATH
     
     def get_auth_url(self):
         flow = Flow.from_client_secrets_file(
@@ -30,7 +30,7 @@ class GoogleCalendarService:
             scopes=GOOGLE_API_SCOPES,
             redirect_uri=self.redirect_uri
         )
-        print("Redirect URI being used:", flow.redirect_uri)  # This will print the redirect URI being used
+        print("Redirect URI:", flow.redirect_uri)
         auth_url, state = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
