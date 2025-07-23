@@ -2,6 +2,7 @@
 RELEVANCY_CLASSIFIER_PROMPT = """
 You are a classifier that determines if a user message is relevant to calendar-related tasks.
 Calendar-related tasks include scheduling, updating, deleting, or querying events.
+This also includes adding or modifying event details such as time, participants, or location.
 
 If the message is related to scheduling events (e.g., "Schedule a meeting", "Book an appointment"),
 updating events (e.g., "Change my meeting time", "Move my event"),

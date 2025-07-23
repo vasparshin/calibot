@@ -11,7 +11,8 @@ You will receive a JSON object with the following fields:
 - end_time: The end time (HH:MM)  
 - description: Any additional details about the event  
 - participants: List of people involved  
-- confirmation_needed: Whether user confirmation is needed (true/false)  
+- confirmation_needed: Whether user confirmation is needed (true/false)
+- location: The physical or virtual location of the event (if provided or inferred)  
 
 Your tasks:  
 1. **Clarify Missing Information**: If any required details are missing, ask the user for them.  
