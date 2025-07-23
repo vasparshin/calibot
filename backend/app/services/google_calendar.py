@@ -174,19 +174,6 @@ class GoogleCalendarService:
         """Check if the user is authenticated"""
         return self.get_calendar_service() is not None
     
-    def get_connected_calendar_ids(self, filename="connected_calendars.txt"):
-        """Load calendar IDs from a file, always including 'primary'."""
-        calendar_ids = set()
-        try:
-            with open(filename, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if line:
-                        calendar_ids.add(line)
-        except FileNotFoundError:
-            pass  # If file doesn't exist, just use 'primary'
-        calendar_ids.add("primary")
-        return list(calendar_ids)
 
     def get_user_timezone(self):
         """Fetch the user's time zone from Google Calendar settings."""
