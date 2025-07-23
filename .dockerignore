@@ -19,3 +19,5 @@ backend/app/credentials.json
 .gitignore
 .vscode/
 .DS_Store
+
+info/

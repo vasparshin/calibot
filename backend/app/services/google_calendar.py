@@ -200,7 +200,27 @@ class GoogleCalendarService:
         
         # Get user's time zone
         user_timezone = self.get_user_timezone()
-            
+        start_time = event_data.get('start_time')
+        end_time = event_data.get('end_time')
+        date = event_data.get('date')
+
+        # If end_time is missing, set it to 30 minutes after start_time
+        if start_time and not end_time:
+            try:
+                start_dt = datetime.strptime(f"{date}T{start_time}", "%Y-%m-%dT%H:%M")
+                end_dt = start_dt + timedelta(minutes=30)
+                end_time = end_dt.strftime("%H:%M")
+            except Exception as e:
+                return {
+                    'success': False,
+                    'message': f'Invalid start time or date: {e}'
+                }
+
+        if not start_time or not end_time:
+            return {
+                'success': False,
+                'message': 'Start time and end time are required.'
+            }        
         event = {
             'summary': event_data.get('event_name', 'Untitled Event'),
             'description': event_data.get('description', ''),
