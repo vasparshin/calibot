@@ -416,6 +416,10 @@ class GoogleCalendarService:
             # Ensure calendars are loaded
             await self.ensure_calendars_loaded()
             
+            # Initialize time bounds to None by default
+            time_min = None
+            time_max = None
+            
             date_str = query_params.get('date')  
             if date_str:  
                 try:
