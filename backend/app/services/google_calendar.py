@@ -443,15 +443,18 @@ class GoogleCalendarService:
             # Query each calendar
             for calendar_id in calendar_ids:
                 try:
-                    # Fix variable scope by passing variables to lambda
-                    events_result = self._handle_api_call(
-                        lambda cid=calendar_id, tmin=time_min, tmax=time_max: service.events().list(
-                            calendarId=cid,
-                            timeMin=tmin if tmin else None,
-                            timeMax=tmax if tmax else None,
+                    # Fix variable scope by properly capturing variables in lambda
+                    def make_query_call(cal_id, t_min, t_max):
+                        return lambda: service.events().list(
+                            calendarId=cal_id,
+                            timeMin=t_min if t_min else None,
+                            timeMax=t_max if t_max else None,
                             singleEvents=True,
                             orderBy='startTime'
                         ).execute()
+                    
+                    events_result = self._handle_api_call(
+                        make_query_call(calendar_id, time_min, time_max)
                     )
                     
                     events = events_result.get('items', [])
