@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import pickle
 import traceback
@@ -170,6 +170,23 @@ class GoogleCalendarService:
         # If no valid credentials are found, require authentication
         logger.info("⚠️ No valid credentials found. User must reauthenticate.")
         return None
+
+    def _handle_api_call(self, api_call_func, *args, **kwargs):
+        """Helper method to handle API calls with proper error handling for expired credentials"""
+        try:
+            return api_call_func(*args, **kwargs)
+        except Exception as e:
+            if "invalid_grant" in str(e) or "Token has been expired or revoked" in str(e):
+                logger.error(f"Credentials expired during API call: {e}")
+                # Force re-authentication by clearing credentials
+                if os.path.exists(self.token_path):
+                    os.remove(self.token_path)
+                self.credentials = None
+                self.service = None
+                raise HTTPException(status_code=401, detail="Authentication expired. Please log in again.")
+            else:
+                logger.error(f"API call failed: {e}")
+                raise e
     
     def is_authenticated(self):
         """Check if the user is authenticated"""
@@ -183,7 +200,9 @@ class GoogleCalendarService:
             return 'UTC'  # Default to UTC if authentication fails
 
         try:
-            settings = service.settings().get(setting='timezone').execute()
+            settings = self._handle_api_call(
+                lambda: service.settings().get(setting='timezone').execute()
+            )
             return settings.get('value', 'UTC')
         except Exception as e:
             logger.info(f"⚠️ Failed to retrieve user time zone: {e}")
@@ -242,12 +261,24 @@ class GoogleCalendarService:
                 if '@' in participant  # Simple email validation
             ]
         logger.info(f"Creating event with data: {event}")
-        created_event = service.events().insert(calendarId='primary', body=event).execute()
-        return {
-            'success': True,
-            'event_id': created_event['id'],
-            'event_link': created_event['htmlLink']
-        }
+        try:
+            created_event = self._handle_api_call(
+                lambda: service.events().insert(calendarId='primary', body=event).execute()
+            )
+            return {
+                'success': True,
+                'event_id': created_event['id'],
+                'event_link': created_event['htmlLink']
+            }
+        except HTTPException:
+            # Re-raise authentication errors
+            raise
+        except Exception as e:
+            logger.error(f"Failed to create event: {e}")
+            return {
+                'success': False,
+                'message': f'Failed to create event: {str(e)}'
+            }
     
     def update_event(self, event_id, event_data):
         """Update an existing event in Google Calendar"""
@@ -258,29 +289,41 @@ class GoogleCalendarService:
                 'message': 'Authentication required',
                 'auth_required': True
             }
+        try:
+            # First retrieve the event
+            event = self._handle_api_call(
+                lambda: service.events().get(calendarId='primary', eventId=event_id).execute()
+            )
             
-        # First retrieve the event
-        event = service.events().get(calendarId='primary', eventId=event_id).execute()
-        
-        # Update fields
-        if 'event_name' in event_data:
-            event['summary'] = event_data['event_name']
-        if 'description' in event_data:
-            event['description'] = event_data['description']
-        if 'date' in event_data and 'start_time' in event_data:
-            event['start']['dateTime'] = f"{event_data['date']}T{event_data['start_time']}:00"
-        if 'date' in event_data and 'end_time' in event_data:
-            event['end']['dateTime'] = f"{event_data['date']}T{event_data['end_time']}:00"
-            
-        logger.info(f"Updating event {event_id} with data: {event}")
-        updated_event = service.events().update(
-            calendarId='primary', eventId=event_id, body=event).execute()
-            
-        return {
-            'success': True,
-            'event_id': updated_event['id'],
-            'event_link': updated_event['htmlLink']
-        }
+            # Update fields
+            if 'event_name' in event_data:
+                event['summary'] = event_data['event_name']
+            if 'description' in event_data:
+                event['description'] = event_data['description']
+            if 'date' in event_data and 'start_time' in event_data:
+                event['start']['dateTime'] = f"{event_data['date']}T{event_data['start_time']}:00"
+            if 'date' in event_data and 'end_time' in event_data:
+                event['end']['dateTime'] = f"{event_data['date']}T{event_data['end_time']}:00"
+                
+            logger.info(f"Updating event {event_id} with data: {event}")
+            updated_event = self._handle_api_call(
+                lambda: service.events().update(calendarId='primary', eventId=event_id, body=event).execute()
+            )
+                
+            return {
+                'success': True,
+                'event_id': updated_event['id'],
+                'event_link': updated_event['htmlLink']
+            }
+        except HTTPException:
+            # Re-raise authentication errors
+            raise
+        except Exception as e:
+            logger.error(f"Failed to update event: {e}")
+            return {
+                'success': False,
+                'message': f'Failed to update event: {str(e)}'
+            }
     
     def delete_event(self, event_id):
         """Delete an event from Google Calendar"""
@@ -291,9 +334,20 @@ class GoogleCalendarService:
                 'message': 'Authentication required',
                 'auth_required': True
             }
-            
-        service.events().delete(calendarId='primary', eventId=event_id).execute()
-        return {'success': True, 'message': 'Event deleted successfully'}
+        try:
+            self._handle_api_call(
+                lambda: service.events().delete(calendarId='primary', eventId=event_id).execute()
+            )
+            return {'success': True, 'message': 'Event deleted successfully'}
+        except HTTPException:
+            # Re-raise authentication errors
+            raise
+        except Exception as e:
+            logger.error(f"Failed to delete event: {e}")
+            return {
+                'success': False,
+                'message': f'Failed to delete event: {str(e)}'
+            }
     
     def query_events(self, query_params):
         """Query events based on parameters"""
@@ -320,16 +374,16 @@ class GoogleCalendarService:
             query_text = query_params.get('event_name')
             # logger.info(f"Querying events with time: {time_min} to {time_max}")
 
-            request = service.events().list(
-                calendarId='primary',
-                timeMin=time_min if time_min else None,
-                timeMax=time_max if time_max else None,
-                # q=query_text if query_text else None,
-                singleEvents=True,
-                orderBy='startTime'
+            events_result = self._handle_api_call(
+                lambda: service.events().list(
+                    calendarId='primary',
+                    timeMin=time_min if time_min else None,
+                    timeMax=time_max if time_max else None,
+                    # q=query_text if query_text else None,
+                    singleEvents=True,
+                    orderBy='startTime'
+                ).execute()
             )
-
-            events_result = request.execute()
             events = events_result.get('items', [])
             
             if not events:
@@ -350,6 +404,9 @@ class GoogleCalendarService:
                     for event in events
                 ]
             }
+        except HTTPException:
+            # Re-raise authentication errors
+            raise
         except Exception as e:
             logger.error(f"Exception in query_events: {e}")
             logger.error(traceback.format_exc())
@@ -360,8 +417,18 @@ class GoogleCalendarService:
 
     def list_calendars(self):
         """Check if authentication works by listing calendars"""
-        if not self.is_authenticated():
+        service = self.get_calendar_service()
+        if not service:
             return "You are not authenticated. Please log in."
 
-        calendars = self.service.calendarList().list().execute()
-        return calendars.get("items", [])
+        try:
+            calendars = self._handle_api_call(
+                lambda: service.calendarList().list().execute()
+            )
+            return calendars.get("items", [])
+        except HTTPException:
+            # Re-raise authentication errors
+            raise
+        except Exception as e:
+            logger.error(f"Error listing calendars: {e}")
+            return f"Error listing calendars: {str(e)}"

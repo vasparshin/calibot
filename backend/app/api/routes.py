@@ -42,37 +42,35 @@ async def telegram_webhook(update: TelegramUpdate):
         )
         return {"status": "ok"}
     
-    
-    auth_check = calendar_service.is_authenticated()
-    test = calendar_service.list_calendars()
-    # logger.info(f"------------------------------------>Test: {test}")
-
-    
-    if auth_check is not True:
-        url_auth = calendar_service.get_auth_url()
-        await send_telegram_message(
-            chat_id,
-            f"To use this bot, please authenticate your Google account: [Click here]({url_auth})"
-        )
-        return {"status": "ok"}
-    
-    # Add user message to conversation history
-    conversation_state.add_message(chat_id, "user", user_message, message_type)
-    history = conversation_state.get_conversation_history(chat_id)
-    
-    # logger.info(f"---------------------Conversation history: {history}")
-    
-    # Check relevancy before extracting intent
-    relevancy_result = await nlp_agent.check_relevancy(user_message, history)
-    # logger.info(f"------------------>RELEVANCY:{relevancy_result}")
-    if not relevancy_result["relevant"]:
-        ai_response = await get_small_talk_response(user_message, history)
-        await send_telegram_message(chat_id, ai_response)
-        conversation_state.add_message(chat_id, "assistant", ai_response)
-        return {"status": "ok"}  
-    
-    
     try:
+        auth_check = calendar_service.is_authenticated()
+        # logger.info(f"------------------------------------>Auth check: {auth_check}")
+
+        
+        if auth_check is not True:
+            url_auth = calendar_service.get_auth_url()
+            await send_telegram_message(
+                chat_id,
+                f"To use this bot, please authenticate your Google account: [Click here]({url_auth})"
+            )
+            return {"status": "ok"}
+        
+        # Add user message to conversation history
+        conversation_state.add_message(chat_id, "user", user_message, message_type)
+        history = conversation_state.get_conversation_history(chat_id)
+        
+        # logger.info(f"---------------------Conversation history: {history}")
+        
+        # Check relevancy before extracting intent
+        relevancy_result = await nlp_agent.check_relevancy(user_message, history)
+        # logger.info(f"------------------>RELEVANCY:{relevancy_result}")
+        if not relevancy_result["relevant"]:
+            ai_response = await get_small_talk_response(user_message, history)
+            await send_telegram_message(chat_id, ai_response)
+            conversation_state.add_message(chat_id, "assistant", ai_response)
+            return {"status": "ok"}  
+        
+        
         event_data = await nlp_agent.extract_intent(user_message, history)
         # logger.info(f"===========> Event data: {event_data}")
 
@@ -167,6 +165,18 @@ async def telegram_webhook(update: TelegramUpdate):
         await send_telegram_message(chat_id, ai_response)
         return {"status": "ok"}
             
+    except HTTPException as he:
+        # Handle authentication errors specifically
+        if he.status_code == 401:
+            url_auth = calendar_service.get_auth_url()
+            await send_telegram_message(
+                chat_id,
+                f"Your Google authentication has expired. Please re-authenticate: [Click here]({url_auth})"
+            )
+            return {"status": "ok"}
+        else:
+            # Re-raise other HTTP exceptions
+            raise he
     except Exception as e:
         await send_telegram_message(
             chat_id,
