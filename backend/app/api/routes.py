@@ -23,7 +23,7 @@ access_token = None
 async def telegram_webhook(update: TelegramUpdate):
     """Handle incoming Telegram messages"""
     
-    # logger.info(f"------------------------------------>Received update: {update}")
+    logger.info(f"📨 Received Telegram update: {update}")
     if not update.message:
         return {"status": "ok"}
     
@@ -35,6 +35,8 @@ async def telegram_webhook(update: TelegramUpdate):
     if "text" in update.message:
         user_message = update.message["text"]
     
+    logger.info(f"👤 User message from chat {chat_id}: '{user_message}'")
+    
     if not user_message:
         await send_telegram_message(
             chat_id,
@@ -44,7 +46,7 @@ async def telegram_webhook(update: TelegramUpdate):
     
     try:
         auth_check = calendar_service.is_authenticated()
-        # logger.info(f"------------------------------------>Auth check: {auth_check}")
+        logger.info(f"🔐 Auth check result: {auth_check}")
 
         
         if auth_check is not True:
@@ -72,10 +74,11 @@ async def telegram_webhook(update: TelegramUpdate):
         
         
         event_data = await nlp_agent.extract_intent(user_message, history)
-        # logger.info(f"===========> Event data: {event_data}")
+        logger.info(f"🧠 Extracted intent: {event_data}")
 
         # If no confirmation is needed, proceed with the action
         if event_data["confirmation_needed"] is False:
+            logger.info(f"✅ Processing intent '{event_data['intent']}' without confirmation")
             if event_data["intent"] == "create":
                 # Create event in Google Calendar with intelligent calendar selection
                 calendar_response = await calendar_service.create_event(event_data)
@@ -159,8 +162,39 @@ async def telegram_webhook(update: TelegramUpdate):
                 conversation_state.add_message(chat_id, "assistant", ai_response)
                 return {"status": "ok"}
 
+            elif event_data["intent"] == "calendar_management":
+                logger.info(f"📅 Calendar management request: {event_data}")
+                calendar_action = event_data.get("calendar_action", "")
+                
+                if calendar_action == "create_calendar":
+                    calendar_name = event_data.get("calendar_name", "")
+                    response = f"I understand you want to create a new calendar called '{calendar_name}'. Unfortunately, I cannot create new calendars programmatically through the Google Calendar API. You'll need to:\n\n1. Go to calendar.google.com\n2. Click the '+' next to 'Other calendars'\n3. Choose 'Create new calendar'\n4. Enter '{calendar_name}' as the calendar name\n\nOnce created, I'll be able to help you add events to it!"
+                    await send_telegram_message(chat_id, response)
+                    conversation_state.add_message(chat_id, "assistant", response)
+                    return {"status": "ok"}
+                
+                elif calendar_action == "list_calendars":
+                    # Get list of available calendars
+                    calendars = calendar_service.calendar_agent.calendar_cache
+                    if calendars:
+                        calendar_list = "\n".join([f"• {info['name']}" for info in calendars.values()])
+                        response = f"Here are your available calendars:\n\n{calendar_list}"
+                    else:
+                        response = "No calendars found. Please ensure you're authenticated with Google Calendar."
+                    await send_telegram_message(chat_id, response)
+                    conversation_state.add_message(chat_id, "assistant", response)
+                    return {"status": "ok"}
+                
+                else:
+                    response = "I can help you list your calendars or provide guidance on creating new ones. What would you like to do?"
+                    await send_telegram_message(chat_id, response)
+                    conversation_state.add_message(chat_id, "assistant", response)
+                    return {"status": "ok"}
+
         # In case confirmation is needed (handling as needed)
+        logger.info(f"❓ Confirmation needed for intent: {event_data}")
         ai_response = await get_ai_response(event_data, history)
+        logger.info(f"🤖 Bot response: '{ai_response}'")
         # Add AI response to conversation history
         conversation_state.add_message(chat_id, "assistant", ai_response)
         await send_telegram_message(chat_id, ai_response)
