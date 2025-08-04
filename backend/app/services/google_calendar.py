@@ -1,4 +1,5 @@
 from datetime import datetime, timezone, timedelta
+from typing import Dict, List, Optional
 import os
 import pickle
 import traceback
@@ -14,6 +15,7 @@ from app.config import (
     API_PORT,
     OAUTH_REDIRECT_PATH
 )
+from app.agent.calendar_agent import CalendarAgent
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,6 +26,8 @@ class GoogleCalendarService:
         self.token_path = '/data/token.pickle'
         self.service = None
         self.redirect_uri = os.getenv("BACKEND_URL", f"http://{API_HOST}:{API_PORT}") + OAUTH_REDIRECT_PATH
+        self.calendar_agent = CalendarAgent()
+        self._calendars_loaded = False
     
     def get_auth_url(self):
         flow = Flow.from_client_secrets_file(
@@ -191,6 +195,40 @@ class GoogleCalendarService:
     def is_authenticated(self):
         """Check if the user is authenticated"""
         return self.get_calendar_service() is not None
+
+    async def ensure_calendars_loaded(self):
+        """Ensure calendars are loaded into the calendar agent"""
+        if not self._calendars_loaded and self.is_authenticated():
+            try:
+                calendars = self.list_calendars()
+                if isinstance(calendars, list):
+                    self.calendar_agent.update_calendar_cache(calendars)
+                    self._calendars_loaded = True
+                    logger.info(f"Loaded {len(calendars)} calendars into calendar agent")
+            except Exception as e:
+                logger.error(f"Failed to load calendars: {e}")
+
+    async def get_available_calendars(self) -> List[Dict]:
+        """Get all available calendars with theme information"""
+        await self.ensure_calendars_loaded()
+        return self.calendar_agent.list_all_calendars()
+
+    async def suggest_calendar(self, event_data: Dict, query: str = "") -> List[Dict]:
+        """Get calendar suggestions based on event data or query"""
+        await self.ensure_calendars_loaded()
+        if event_data:
+            suggested_id = await self.calendar_agent.select_calendar_for_event(event_data)
+            # Return the suggested calendar with high relevance, plus others
+            suggestions = self.calendar_agent.get_calendar_suggestions(query)
+            # Move suggested calendar to top
+            for i, cal in enumerate(suggestions):
+                if cal['id'] == suggested_id:
+                    suggestions[0], suggestions[i] = suggestions[i], suggestions[0]
+                    suggestions[0]['relevance'] = 'suggested'
+                    break
+            return suggestions
+        else:
+            return self.calendar_agent.get_calendar_suggestions(query)
     
 
     def get_user_timezone(self):
@@ -208,8 +246,8 @@ class GoogleCalendarService:
             logger.info(f"⚠️ Failed to retrieve user time zone: {e}")
             return 'UTC'
     
-    def create_event(self, event_data):
-        """Create a new event in Google Calendar"""
+    async def create_event(self, event_data):
+        """Create a new event in Google Calendar with intelligent calendar selection"""
         service = self.get_calendar_service()
         if not service:
             return {
@@ -217,6 +255,12 @@ class GoogleCalendarService:
                 'message': 'Authentication required',
                 'auth_required': True
             }
+        
+        # Ensure calendars are loaded for intelligent selection
+        await self.ensure_calendars_loaded()
+        
+        # Intelligently select calendar
+        selected_calendar_id = await self.calendar_agent.select_calendar_for_event(event_data)
         
         # Get user's time zone
         user_timezone = self.get_user_timezone()
@@ -260,15 +304,23 @@ class GoogleCalendarService:
                 {'email': participant} for participant in event_data.get('participants')
                 if '@' in participant  # Simple email validation
             ]
-        logger.info(f"Creating event with data: {event}")
+            
+        # Get calendar name for logging
+        calendar_info = self.calendar_agent.get_calendar_info(selected_calendar_id)
+        calendar_name = calendar_info['name'] if calendar_info else selected_calendar_id
+        
+        logger.info(f"Creating event '{event['summary']}' in calendar '{calendar_name}' ({selected_calendar_id})")
+        
         try:
             created_event = self._handle_api_call(
-                lambda: service.events().insert(calendarId='primary', body=event).execute()
+                lambda: service.events().insert(calendarId=selected_calendar_id, body=event).execute()
             )
             return {
                 'success': True,
                 'event_id': created_event['id'],
-                'event_link': created_event['htmlLink']
+                'event_link': created_event['htmlLink'],
+                'calendar_used': calendar_name,
+                'calendar_id': selected_calendar_id
             }
         except HTTPException:
             # Re-raise authentication errors
@@ -349,8 +401,8 @@ class GoogleCalendarService:
                 'message': f'Failed to delete event: {str(e)}'
             }
     
-    def query_events(self, query_params):
-        """Query events based on parameters"""
+    async def query_events(self, query_params):
+        """Query events based on parameters, supporting multiple calendars"""
         try:
             service = self.get_calendar_service()
             if not service:
@@ -361,6 +413,9 @@ class GoogleCalendarService:
                     'auth_required': True
                 }
             
+            # Ensure calendars are loaded
+            await self.ensure_calendars_loaded()
+            
             date_str = query_params.get('date')  
             if date_str:  
                 try:
@@ -370,39 +425,67 @@ class GoogleCalendarService:
                 except ValueError:
                     return {'success': False, 'message': 'Invalid date format. Use YYYY-MM-DD'}
 
-
-            query_text = query_params.get('event_name')
-            # logger.info(f"Querying events with time: {time_min} to {time_max}")
-
-            events_result = self._handle_api_call(
-                lambda: service.events().list(
-                    calendarId='primary',
-                    timeMin=time_min if time_min else None,
-                    timeMax=time_max if time_max else None,
-                    # q=query_text if query_text else None,
-                    singleEvents=True,
-                    orderBy='startTime'
-                ).execute()
-            )
-            events = events_result.get('items', [])
+            # Determine which calendars to search
+            calendar_ids = ['primary']  # Default to primary
             
-            if not events:
+            # If user specified a calendar, search only that one
+            if 'calendar' in query_params or 'calendar_name' in query_params:
+                specified_calendar = query_params.get('calendar') or query_params.get('calendar_name')
+                calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
+                if calendar_id:
+                    calendar_ids = [calendar_id]
+            else:
+                # Search all calendars for better results
+                calendar_ids = list(self.calendar_agent.calendar_cache.keys()) or ['primary']
+
+            all_events = []
+            
+            # Query each calendar
+            for calendar_id in calendar_ids:
+                try:
+                    events_result = self._handle_api_call(
+                        lambda: service.events().list(
+                            calendarId=calendar_id,
+                            timeMin=time_min if time_min else None,
+                            timeMax=time_max if time_max else None,
+                            singleEvents=True,
+                            orderBy='startTime'
+                        ).execute()
+                    )
+                    
+                    events = events_result.get('items', [])
+                    calendar_info = self.calendar_agent.get_calendar_info(calendar_id)
+                    calendar_name = calendar_info['name'] if calendar_info else calendar_id
+                    
+                    # Add calendar info to each event
+                    for event in events:
+                        event_data = {
+                            'id': event['id'],
+                            'summary': event.get('summary', 'No Title'),
+                            'start': event['start'].get('dateTime', event['start'].get('date')),
+                            'end': event['end'].get('dateTime', event['end'].get('date')),
+                            'participants': event.get('attendees', []),
+                            'description': event.get('description', ''),
+                            'link': event.get('htmlLink', ''),
+                            'calendar_name': calendar_name,
+                            'calendar_id': calendar_id
+                        }
+                        all_events.append(event_data)
+                        
+                except Exception as e:
+                    logger.warning(f"Failed to query calendar {calendar_id}: {e}")
+                    continue
+            
+            if not all_events:
                 return {'success': False, 'message': 'No matching events found'}
+
+            # Sort all events by start time
+            all_events.sort(key=lambda x: x['start'])
 
             return {
                 'success': True,
-                'events': [
-                    {
-                        'id': event['id'],
-                        'summary': event.get('summary', 'No Title'),
-                        'start': event['start'].get('dateTime', event['start'].get('date')),
-                        'end': event['end'].get('dateTime', event['end'].get('date')),
-                        'participants': event.get('attendees', []),
-                        'description': event.get('description', ''),
-                        'link': event.get('htmlLink', ''),
-                    }
-                    for event in events
-                ]
+                'events': all_events,
+                'calendars_searched': len(calendar_ids)
             }
         except HTTPException:
             # Re-raise authentication errors

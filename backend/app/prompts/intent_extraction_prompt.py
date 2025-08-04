@@ -12,7 +12,13 @@ Return a JSON object with the following fields:
 - description: Any additional details about the event (inferred from conversation)
 - participants: List of people involved (if mentioned or inferred)
 - location: The physical or virtual location of the event (if provided or inferred)
+- calendar: The calendar name/type if specified (e.g., "work", "personal", "sports", "lessons")
 - confirmation_needed: Whether user confirmation is needed (true/false)
+
+Calendar Detection:
+- Look for explicit calendar mentions: "work calendar", "sports calendar", "personal calendar"
+- Infer calendar from event type: sports events → sports calendar, lessons → education calendar, meetings → work calendar
+- Common patterns: "add to my work calendar", "schedule in sports calendar", "put in personal calendar"
 
 In the case of vague or ambiguous date references like "next week" or "next Monday":
 - For "next week", the date should be set to the beginning of the next week (the first day of the week, e.g., next Monday).

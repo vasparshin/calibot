@@ -77,17 +77,18 @@ async def telegram_webhook(update: TelegramUpdate):
         # If no confirmation is needed, proceed with the action
         if event_data["confirmation_needed"] is False:
             if event_data["intent"] == "create":
-                # Create event in Google Calendar
-                calendar_response = calendar_service.create_event(event_data)
+                # Create event in Google Calendar with intelligent calendar selection
+                calendar_response = await calendar_service.create_event(event_data)
                 if calendar_response["success"]:
+                    calendar_info = f" in your '{calendar_response.get('calendar_used', 'primary')}' calendar" if calendar_response.get('calendar_used') else ""
                     await send_telegram_message(
-                        chat_id, f"Event created successfully! Here's the link to your event: {calendar_response['event_link']}"
+                        chat_id, f"Event created successfully{calendar_info}! Here's the link to your event: {calendar_response['event_link']}"
                     )
                 return {"status": "ok"}
 
             elif event_data["intent"] in ["update", "delete"]:
                 # Query events based on event details (using the same query for both update and delete)
-                matched_events = calendar_service.query_events({
+                matched_events = await calendar_service.query_events({
                     "event_name": event_data.get("event_name", ""),
                     "date": event_data.get("date", "")
                 })
@@ -132,7 +133,7 @@ async def telegram_webhook(update: TelegramUpdate):
 
             elif event_data["intent"] == "query":
                 # Query events in Google Calendar based on the event details
-                matched_events = calendar_service.query_events({
+                matched_events = await calendar_service.query_events({
                     "event_name": event_data.get("event_name", ""),
                     "date": event_data.get("date", "")
                 })
@@ -192,3 +193,26 @@ async def oauth_callback(request: Request):
     """Handle Google OAuth callback."""
     logger.info(f"Received OAuth callback with code: {request.query_params.get('code')}")
     return await calendar_service.handle_oauth_callback(request)
+
+
+@router.get("/calendars")
+async def get_calendars():
+    """Get all available calendars with theme information"""
+    if not calendar_service.is_authenticated():
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    calendars = await calendar_service.get_available_calendars()
+    return {"calendars": calendars}
+
+
+@router.post("/calendars/suggest")
+async def suggest_calendar(data: dict):
+    """Get calendar suggestions based on event data or query"""
+    if not calendar_service.is_authenticated():
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    event_data = data.get("event_data", {})
+    query = data.get("query", "")
+    
+    suggestions = await calendar_service.suggest_calendar(event_data, query)
+    return {"suggestions": suggestions}
