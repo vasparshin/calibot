@@ -120,11 +120,18 @@ async def telegram_webhook(update: TelegramUpdate):
                 # Proceed with update or delete after getting event_id
                 if event_id:
                     if event_data["intent"] == "update":
-                        calendar_response = calendar_service.update_event(event_id, event_data)
+                        # Get the source calendar ID from the matched event
+                        source_calendar_id = events[0].get('calendar_id', 'primary')
+                        calendar_response = calendar_service.update_event(event_id, event_data, source_calendar_id)
                         if calendar_response["success"]:
-                            await send_telegram_message(
-                                chat_id, f"Event updated successfully! Here's the link to your event: {calendar_response['event_link']}"
-                            )
+                            if calendar_response.get("moved"):
+                                await send_telegram_message(
+                                    chat_id, f"Event moved successfully to {calendar_response.get('to_calendar')}! Here's the link: {calendar_response['event_link']}"
+                                )
+                            else:
+                                await send_telegram_message(
+                                    chat_id, f"Event updated successfully! Here's the link to your event: {calendar_response['event_link']}"
+                                )
                     elif event_data["intent"] == "delete":
                         calendar_response = calendar_service.delete_event(event_id)
                         logger.info(f"DELETE{calendar_response}")

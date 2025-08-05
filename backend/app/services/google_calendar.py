@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 import os
 import pickle
 import traceback
+import asyncio
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
@@ -341,8 +342,8 @@ class GoogleCalendarService:
                 'message': f'Failed to create event: {str(e)}'
             }
     
-    def update_event(self, event_id, event_data):
-        """Update an existing event in Google Calendar"""
+    def update_event(self, event_id, event_data, source_calendar_id=None):
+        """Update an existing event in Google Calendar, with support for moving between calendars"""
         service = self.get_calendar_service()
         if not service:
             return {
@@ -351,10 +352,24 @@ class GoogleCalendarService:
                 'auth_required': True
             }
         try:
-            # First retrieve the event
+            # Use provided calendar ID or default to primary
+            calendar_id = source_calendar_id or 'primary'
+            
+            # First retrieve the event from the source calendar
             event = self._handle_api_call(
-                lambda: service.events().get(calendarId='primary', eventId=event_id).execute()
+                lambda: service.events().get(calendarId=calendar_id, eventId=event_id).execute()
             )
+            
+            # Check if we need to move to a different calendar
+            target_calendar_id = calendar_id  # Default to same calendar
+            if 'calendar' in event_data or 'calendar_name' in event_data:
+                specified_calendar = event_data.get('calendar') or event_data.get('calendar_name')
+                # Use calendar agent if available and loaded
+                if hasattr(self, 'calendar_agent') and self.calendar_agent.calendar_cache:
+                    new_calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
+                    if new_calendar_id and new_calendar_id != calendar_id:
+                        target_calendar_id = new_calendar_id
+                        logger.info(f"Moving event from '{calendar_id}' to '{new_calendar_id}'")
             
             # Update fields
             if 'event_name' in event_data:
@@ -363,19 +378,47 @@ class GoogleCalendarService:
                 event['description'] = event_data['description']
             if 'date' in event_data and 'start_time' in event_data:
                 event['start']['dateTime'] = f"{event_data['date']}T{event_data['start_time']}:00"
-            if 'date' in event_data and 'end_time' in event_data:
+            if 'date' in event_data and 'end_time' in event_data and event_data['end_time'] is not None:
                 event['end']['dateTime'] = f"{event_data['date']}T{event_data['end_time']}:00"
                 
             logger.info(f"Updating event {event_id} with data: {event}")
-            updated_event = self._handle_api_call(
-                lambda: service.events().update(calendarId='primary', eventId=event_id, body=event).execute()
-            )
+            
+            # If moving to a different calendar, delete from source and create in target
+            if target_calendar_id != calendar_id:
+                # Remove fields that shouldn't be copied
+                event_copy = event.copy()
+                for field in ['id', 'etag', 'created', 'updated', 'creator', 'organizer', 'iCalUID', 'sequence', 'eventType']:
+                    event_copy.pop(field, None)
                 
-            return {
-                'success': True,
-                'event_id': updated_event['id'],
-                'event_link': updated_event['htmlLink']
-            }
+                # Create in target calendar
+                new_event = self._handle_api_call(
+                    lambda: service.events().insert(calendarId=target_calendar_id, body=event_copy).execute()
+                )
+                
+                # Delete from source calendar
+                self._handle_api_call(
+                    lambda: service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
+                )
+                
+                return {
+                    'success': True,
+                    'event_id': new_event['id'],
+                    'event_link': new_event['htmlLink'],
+                    'moved': True,
+                    'from_calendar': calendar_id,
+                    'to_calendar': target_calendar_id
+                }
+            else:
+                # Update in same calendar
+                updated_event = self._handle_api_call(
+                    lambda: service.events().update(calendarId=calendar_id, eventId=event_id, body=event).execute()
+                )
+                    
+                return {
+                    'success': True,
+                    'event_id': updated_event['id'],
+                    'event_link': updated_event['htmlLink']
+                }
         except HTTPException:
             # Re-raise authentication errors
             raise
