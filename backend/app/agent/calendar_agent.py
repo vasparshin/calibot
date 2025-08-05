@@ -78,6 +78,9 @@ class CalendarAgent:
         
     def _find_calendar_by_name(self, calendar_name: str) -> Optional[str]:
         """Find calendar ID by name (case insensitive partial match)"""
+        if not calendar_name:
+            return None
+            
         calendar_name_lower = calendar_name.lower()
         
         for cal_id, cal_info in self.calendar_cache.items():

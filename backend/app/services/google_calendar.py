@@ -289,27 +289,36 @@ class GoogleCalendarService:
             'summary': event_data.get('event_name', 'Untitled Event'),
             'description': event_data.get('description', ''),
             'start': {
-                'dateTime': f"{event_data.get('date')}T{event_data.get('start_time')}:00",
+                'dateTime': f"{date}T{start_time}:00",
                 'timeZone': user_timezone,
             },
             'end': {
-                'dateTime': f"{event_data.get('date')}T{event_data.get('end_time')}:00",
+                'dateTime': f"{date}T{end_time}:00",
                 'timeZone': user_timezone,
             },
         }
         
         # Add attendees if specified
         if event_data.get('participants'):
-            event['attendees'] = [
-                {'email': participant} for participant in event_data.get('participants')
-                if '@' in participant  # Simple email validation
-            ]
+            participants = event_data.get('participants', [])
+            valid_attendees = []
+            for participant in participants:
+                # Only add participants that look like email addresses
+                if isinstance(participant, str) and '@' in participant:
+                    valid_attendees.append({'email': participant})
+                else:
+                    logger.info(f"Skipping participant '{participant}' - not a valid email")
+            
+            if valid_attendees:
+                event['attendees'] = valid_attendees
+                logger.info(f"Added {len(valid_attendees)} attendees to event")
             
         # Get calendar name for logging
         calendar_info = self.calendar_agent.get_calendar_info(selected_calendar_id)
         calendar_name = calendar_info['name'] if calendar_info else selected_calendar_id
         
         logger.info(f"Creating event '{event['summary']}' in calendar '{calendar_name}' ({selected_calendar_id})")
+        logger.info(f"Event object: {event}")
         
         try:
             created_event = self._handle_api_call(
