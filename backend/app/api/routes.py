@@ -146,17 +146,21 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
 
                 events = matched_events["events"]
-                # logger.info(f"================> Matched events: {events}")
+                logger.info(f"📋 Found {len(events)} events with calendar info")
+                for event in events:
+                    logger.info(f"  • {event.get('summary', 'No Title')} in calendar '{event.get('calendar_name', 'Unknown')}'")
 
                 if len(events) == 1:
                     event_id = events[0]["id"]
                     ai_response = await get_ai_response(events[0], history)
                     await send_telegram_message(chat_id, ai_response)
                 else:
-                    event_list = "\n".join(
-                        [f"{idx + 1}. {event['summary']} - {event['start']}" for idx, event in enumerate(events)]
-                    )
-                    ai_response = await get_ai_response(event_list, history)
+                    # Include calendar names in the event list
+                    event_list = "\n".join([
+                        f"{idx + 1}. {event['summary']} - {event['start']} (Calendar: {event.get('calendar_name', 'Unknown')})" 
+                        for idx, event in enumerate(events)
+                    ])
+                    ai_response = await get_ai_response({"events": event_list, "action": "list_events"}, history)
                     await send_telegram_message(chat_id, ai_response)
                 # Add AI response to conversation history
                 conversation_state.add_message(chat_id, "assistant", ai_response)
@@ -174,6 +178,9 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
                 
                 elif calendar_action == "list_calendars":
+                    # Ensure calendars are loaded first
+                    await calendar_service.ensure_calendars_loaded()
+                    
                     # Get list of available calendars
                     calendars = calendar_service.calendar_agent.calendar_cache
                     if calendars:
@@ -181,6 +188,8 @@ async def telegram_webhook(update: TelegramUpdate):
                         response = f"Here are your available calendars:\n\n{calendar_list}"
                     else:
                         response = "No calendars found. Please ensure you're authenticated with Google Calendar."
+                    
+                    logger.info(f"📅 Sending calendar list: {response}")
                     await send_telegram_message(chat_id, response)
                     conversation_state.add_message(chat_id, "assistant", response)
                     return {"status": "ok"}
