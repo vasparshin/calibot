@@ -80,13 +80,72 @@ async def telegram_webhook(update: TelegramUpdate):
         if event_data["confirmation_needed"] is False:
             logger.info(f"✅ Processing intent '{event_data['intent']}' without confirmation")
             if event_data["intent"] == "create":
-                # Create event in Google Calendar with intelligent calendar selection
-                calendar_response = await calendar_service.create_event(event_data)
-                if calendar_response["success"]:
-                    calendar_info = f" in your '{calendar_response.get('calendar_used', 'primary')}' calendar" if calendar_response.get('calendar_used') else ""
-                    await send_telegram_message(
-                        chat_id, f"Event created successfully{calendar_info}! Here's the link to your event: {calendar_response['event_link']}"
-                    )
+                # Check if this is a batch creation (multiple events)
+                if 'events' in event_data and isinstance(event_data['events'], list):
+                    logger.info(f"📅 Processing batch creation of {len(event_data['events'])} events")
+                    
+                    successful_events = []
+                    failed_events = []
+                    
+                    for i, single_event_data in enumerate(event_data['events']):
+                        # Create individual event data by merging base data with specific event times
+                        individual_event = event_data.copy()
+                        individual_event.update(single_event_data)
+                        
+                        # Remove the 'events' key to avoid recursion
+                        if 'events' in individual_event:
+                            del individual_event['events']
+                        
+                        logger.info(f"Creating event {i+1}/{len(event_data['events'])}: {individual_event}")
+                        
+                        try:
+                            calendar_response = await calendar_service.create_event(individual_event)
+                            if calendar_response["success"]:
+                                successful_events.append({
+                                    'time': f"{individual_event.get('start_time', 'Unknown')}-{individual_event.get('end_time', 'Unknown')}",
+                                    'link': calendar_response['event_link'],
+                                    'calendar': calendar_response.get('calendar_used', 'primary')
+                                })
+                            else:
+                                failed_events.append({
+                                    'time': f"{individual_event.get('start_time', 'Unknown')}-{individual_event.get('end_time', 'Unknown')}",
+                                    'error': calendar_response.get('message', 'Unknown error')
+                                })
+                        except Exception as e:
+                            logger.error(f"Failed to create event {i+1}: {e}")
+                            failed_events.append({
+                                'time': f"{individual_event.get('start_time', 'Unknown')}-{individual_event.get('end_time', 'Unknown')}",
+                                'error': str(e)
+                            })
+                    
+                    # Send comprehensive response
+                    if successful_events:
+                        calendar_name = successful_events[0]['calendar']
+                        success_msg = f"✅ Successfully created {len(successful_events)} events in your '{calendar_name}' calendar:\n"
+                        for event in successful_events:
+                            success_msg += f"• {event['time']}\n"
+                        
+                        if failed_events:
+                            success_msg += f"\n❌ Failed to create {len(failed_events)} events:\n"
+                            for event in failed_events:
+                                success_msg += f"• {event['time']}: {event['error']}\n"
+                        
+                        await send_telegram_message(chat_id, success_msg)
+                    else:
+                        failure_msg = f"❌ Failed to create all {len(failed_events)} events:\n"
+                        for event in failed_events:
+                            failure_msg += f"• {event['time']}: {event['error']}\n"
+                        await send_telegram_message(chat_id, failure_msg)
+                    
+                else:
+                    # Single event creation (existing logic)
+                    calendar_response = await calendar_service.create_event(event_data)
+                    if calendar_response["success"]:
+                        calendar_info = f" in your '{calendar_response.get('calendar_used', 'primary')}' calendar" if calendar_response.get('calendar_used') else ""
+                        await send_telegram_message(
+                            chat_id, f"Event created successfully{calendar_info}! Here's the link to your event: {calendar_response['event_link']}"
+                        )
+                
                 return {"status": "ok"}
 
             elif event_data["intent"] in ["update", "delete"]:
