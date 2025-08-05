@@ -80,23 +80,53 @@ async def telegram_webhook(update: TelegramUpdate):
         if event_data["confirmation_needed"] is False:
             logger.info(f"✅ Processing intent '{event_data['intent']}' without confirmation")
             if event_data["intent"] == "create":
-                # Check if this is a batch creation (multiple events)
+                # Detect batch creation scenarios (multiple events)
+                events_to_create = []
+                
+                # Format 1: 'events' array with individual event objects
                 if 'events' in event_data and isinstance(event_data['events'], list):
-                    logger.info(f"📅 Processing batch creation of {len(event_data['events'])} events")
+                    events_to_create = event_data['events']
+                    logger.info(f"📅 Detected events array format with {len(events_to_create)} events")
+                
+                # Format 2: Arrays in start_time/end_time fields
+                elif (isinstance(event_data.get('start_time'), list) and 
+                      isinstance(event_data.get('end_time'), list) and 
+                      len(event_data.get('start_time', [])) == len(event_data.get('end_time', []))):
+                    
+                    start_times = event_data['start_time']
+                    end_times = event_data['end_time']
+                    events_to_create = []
+                    
+                    for start, end in zip(start_times, end_times):
+                        events_to_create.append({
+                            'start_time': start,
+                            'end_time': end
+                        })
+                    logger.info(f"📅 Detected array format, converted to {len(events_to_create)} events")
+                
+                # Process batch creation
+                if events_to_create:
+                    logger.info(f"📅 Processing batch creation of {len(events_to_create)} events")
                     
                     successful_events = []
                     failed_events = []
                     
-                    for i, single_event_data in enumerate(event_data['events']):
+                    for i, single_event_data in enumerate(events_to_create):
                         # Create individual event data by merging base data with specific event times
                         individual_event = event_data.copy()
                         individual_event.update(single_event_data)
                         
-                        # Remove the 'events' key to avoid recursion
-                        if 'events' in individual_event:
-                            del individual_event['events']
+                        # Remove batch-specific keys to avoid conflicts
+                        keys_to_remove = ['events', 'start_time', 'end_time']
+                        for key in keys_to_remove:
+                            if key in individual_event and key not in single_event_data:
+                                del individual_event[key]
                         
-                        logger.info(f"Creating event {i+1}/{len(event_data['events'])}: {individual_event}")
+                        # Add the specific times back
+                        individual_event['start_time'] = single_event_data.get('start_time')
+                        individual_event['end_time'] = single_event_data.get('end_time')
+                        
+                        logger.info(f"Creating event {i+1}/{len(events_to_create)}: {individual_event}")
                         
                         try:
                             calendar_response = await calendar_service.create_event(individual_event)
@@ -136,7 +166,7 @@ async def telegram_webhook(update: TelegramUpdate):
                         for event in failed_events:
                             failure_msg += f"• {event['time']}: {event['error']}\n"
                         await send_telegram_message(chat_id, failure_msg)
-                    
+                
                 else:
                     # Single event creation (existing logic)
                     calendar_response = await calendar_service.create_event(event_data)
