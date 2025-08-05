@@ -104,6 +104,26 @@ async def telegram_webhook(update: TelegramUpdate):
                         })
                     logger.info(f"📅 Detected array format, converted to {len(events_to_create)} events")
                 
+                # Format 3: Multiple times detected in description (fallback)
+                elif event_data.get('description') and ('lessons' in event_data.get('description', '').lower()):
+                    description = event_data.get('description', '')
+                    import re
+                    # Look for patterns like "at 8:00, 10:00, 11:00" or "for 8, 10, 11, 12"
+                    time_patterns = re.findall(r'\b(\d{1,2}):?(\d{2})?\b', description)
+                    if len(time_patterns) > 1:
+                        events_to_create = []
+                        for hour_match in time_patterns:
+                            hour = int(hour_match[0])
+                            if hour < 24:  # Valid hour
+                                start_time = f"{hour:02d}:00"
+                                end_time = f"{hour+1:02d}:00" if hour < 23 else "23:59"
+                                events_to_create.append({
+                                    'start_time': start_time,
+                                    'end_time': end_time
+                                })
+                        if events_to_create:
+                            logger.info(f"📅 Detected {len(events_to_create)} events from description fallback")
+                
                 # Process batch creation
                 if events_to_create:
                     logger.info(f"📅 Processing batch creation of {len(events_to_create)} events")

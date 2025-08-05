@@ -16,6 +16,33 @@ Return a JSON object with the following fields:
 - calendar_action: For calendar_management intent, specify action (create_calendar, list_calendars, delete_calendar)
 - calendar_name: For calendar_management intent, the name of the calendar to create/manage
 - confirmation_needed: Whether user confirmation is needed (true/false)
+- events: For multiple events, provide an array of event objects with start_time and end_time
+
+MULTIPLE EVENTS DETECTION:
+When the user requests multiple events in a single message (e.g., "add lessons at 8, 10, 11, 12"), create an "events" array:
+
+Example: "add 1 hr lessons for tonya tomorrow for 8, 10, 11, 12, 13"
+Response should include:
+```json
+{
+  "intent": "create",
+  "event_name": "Lesson for Tonya",
+  "date": "2025-08-06",
+  "description": "1 hour lessons for Tonya",
+  "participants": ["Tonya"],
+  "calendar": "lessons",
+  "confirmation_needed": false,
+  "events": [
+    {"start_time": "08:00", "end_time": "09:00"},
+    {"start_time": "10:00", "end_time": "11:00"},
+    {"start_time": "11:00", "end_time": "12:00"},
+    {"start_time": "12:00", "end_time": "13:00"},
+    {"start_time": "13:00", "end_time": "14:00"}
+  ]
+}
+```
+
+IMPORTANT: When detecting multiple time slots in user messages, ALWAYS use the "events" array format instead of single start_time/end_time fields.
 
 Intent Detection:
 - create: Create a new event
