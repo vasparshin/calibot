@@ -53,19 +53,33 @@ class NLPAgent:
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message}
                 ],
-                max_tokens=500,
-                response_format={"type": "json_object"}
+                max_tokens=500
+                # Temporarily removing response_format to debug
+                # response_format={"type": "json_object"}
             )
 
             result = response['choices'][0]['message']['content']
-            logger.info(f"Raw LLM response: {result}")
-            parsed_result = json.loads(result)
+            logger.info(f"Raw LLM response: '{result}'")
+            logger.info(f"Response length: {len(result)}")
+            logger.info(f"Response type: {type(result)}")
+            
+            # Try to clean the response if it has extra formatting
+            cleaned_result = result.strip()
+            if cleaned_result.startswith('```') and cleaned_result.endswith('```'):
+                # Remove code block formatting
+                lines = cleaned_result.split('\n')
+                if len(lines) > 2:
+                    cleaned_result = '\n'.join(lines[1:-1])
+            
+            logger.info(f"Cleaned response: '{cleaned_result}'")
+            parsed_result = json.loads(cleaned_result)
             return parsed_result
         except json.JSONDecodeError as e:
             logger.error(f"JSON decode error: {e}")
-            logger.error(f"Raw response content: {response['choices'][0]['message']['content'] if 'choices' in response else 'No choices in response'}")
+            logger.error(f"Raw response content: '{response['choices'][0]['message']['content'] if 'choices' in response else 'No choices in response'}'")
+            logger.error(f"Error position: {e.pos if hasattr(e, 'pos') else 'unknown'}")
             return {
-                "intent": "unknown",
+                "intent": "unknown", 
                 "error": f"JSON parsing failed: {str(e)}",
                 "confirmation_needed": True
             }
