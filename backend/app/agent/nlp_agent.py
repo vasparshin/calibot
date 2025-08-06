@@ -72,15 +72,63 @@ class NLPAgent:
                     cleaned_result = '\n'.join(lines[1:-1])
             
             logger.info(f"Cleaned response: '{cleaned_result}'")
+            
+            # If response is just "intent" or similar, create a fallback
+            if len(cleaned_result) < 20 or not cleaned_result.startswith('{'):
+                logger.error(f"Invalid LLM response, creating fallback. Raw: '{result}'")
+                # Try to infer intent from user message
+                user_lower = user_message.lower()
+                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list']):
+                    return {
+                        "intent": "query",
+                        "date": datetime.now().strftime("%Y-%m-%d"),
+                        "confirmation_needed": False
+                    }
+                elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
+                    return {
+                        "intent": "create", 
+                        "event_name": "New Event",
+                        "date": datetime.now().strftime("%Y-%m-%d"),
+                        "confirmation_needed": True
+                    }
+                else:
+                    return {
+                        "intent": "query",
+                        "confirmation_needed": False
+                    }
+            
             parsed_result = json.loads(cleaned_result)
             return parsed_result
         except json.JSONDecodeError as e:
             logger.error(f"JSON decode error: {e}")
             logger.error(f"Raw response content: '{response['choices'][0]['message']['content'] if 'choices' in response else 'No choices in response'}'")
             logger.error(f"Error position: {e.pos if hasattr(e, 'pos') else 'unknown'}")
+            
+            # Create a smart fallback based on user message
+            user_lower = user_message.lower()
+            if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list']):
+                return {
+                    "intent": "query",
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "confirmation_needed": False
+                }
+            elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
+                return {
+                    "intent": "create",
+                    "event_name": "New Event", 
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "confirmation_needed": True
+                }
+            else:
+                return {
+                    "intent": "query",
+                    "confirmation_needed": False
+                }
+        except Exception as e:
+            logger.error(f"Error extracting intent: {e}")
             return {
-                "intent": "unknown", 
-                "error": f"JSON parsing failed: {str(e)}",
+                "intent": "unknown",
+                "error": str(e),
                 "confirmation_needed": True
             }
         except Exception as e:
