@@ -58,10 +58,19 @@ class NLPAgent:
             )
 
             result = response['choices'][0]['message']['content']
+            logger.info(f"Raw LLM response: {result}")
             parsed_result = json.loads(result)
             return parsed_result
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            logger.error(f"Raw response content: {response['choices'][0]['message']['content'] if 'choices' in response else 'No choices in response'}")
+            return {
+                "intent": "unknown",
+                "error": f"JSON parsing failed: {str(e)}",
+                "confirmation_needed": True
+            }
         except Exception as e:
-            print(f"Error extracting intent: {e}")
+            logger.error(f"Error extracting intent: {e}")
             return {
                 "intent": "unknown",
                 "error": str(e),

@@ -1,7 +1,9 @@
 # Used by NLPAgent to extract event details and intent from user conversation.
 INTENT_EXTRACTION_PROMPT = """
 You are an intelligent assistant helping users manage their calendar.
-Extract event details from the conversation. 
+Extract event details from the conversation and return ONLY a valid JSON object.
+
+CRITICAL: Your response must be valid JSON that can be parsed by json.loads(). Do not include any text before or after the JSON. Do not use markdown formatting. Do not include explanations.
 
 Return a JSON object with the following fields:
 - intent: The user's intent (create, update, delete, query, calendar_management)
@@ -22,8 +24,7 @@ MULTIPLE EVENTS DETECTION:
 When the user requests multiple events in a single message (e.g., "add lessons at 8, 10, 11, 12"), create an "events" array:
 
 Example: "add 1 hr lessons for tonya tomorrow for 8, 10, 11, 12, 13"
-Response should include:
-```json
+Response format:
 {
   "intent": "create",
   "event_name": "Lesson for Tonya",
@@ -40,9 +41,15 @@ Response should include:
     {"start_time": "13:00", "end_time": "14:00"}
   ]
 }
-```
 
 IMPORTANT: When detecting multiple time slots in user messages, ALWAYS use the "events" array format instead of single start_time/end_time fields.
+
+For queries like "what's on today" or "show me today's events":
+{
+  "intent": "query",
+  "date": "2025-08-06",
+  "confirmation_needed": false
+}
 
 Intent Detection:
 - create: Create a new event
@@ -77,5 +84,5 @@ Now, extract the event details based on the most recent message.
 
 current date is: {current_date}
 
-JSON:
+Your response must be ONLY valid JSON that starts with {{ and ends with }}. No explanations, no markdown, no extra text:
 """
