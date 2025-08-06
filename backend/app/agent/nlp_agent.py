@@ -97,12 +97,38 @@ class NLPAgent:
                         "confirmation_needed": False
                     }
             
-            parsed_result = json.loads(cleaned_result)
-            return parsed_result
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {e}")
-            logger.error(f"Raw response content: '{response['choices'][0]['message']['content'] if 'choices' in response else 'No choices in response'}'")
-            logger.error(f"Error position: {e.pos if hasattr(e, 'pos') else 'unknown'}")
+            # Try to parse as single JSON first
+            try:
+                parsed_result = json.loads(cleaned_result)
+                return parsed_result
+            except json.JSONDecodeError:
+                # If single JSON fails, try to parse multiple JSON objects (batch events)
+                logger.info("Single JSON parsing failed, attempting multiple JSON objects parsing")
+                
+                # Split by lines and try to parse each as JSON
+                lines = [line.strip() for line in cleaned_result.split('\n') if line.strip()]
+                json_objects = []
+                
+                for line in lines:
+                    try:
+                        json_obj = json.loads(line)
+                        json_objects.append(json_obj)
+                    except json.JSONDecodeError:
+                        logger.warning(f"Failed to parse line as JSON: {line}")
+                        continue
+                
+                if json_objects:
+                    logger.info(f"Successfully parsed {len(json_objects)} JSON objects for batch processing")
+                    # Return the objects as a batch format
+                    return {
+                        "intent": "batch_create",
+                        "events": json_objects,
+                        "confirmation_needed": False
+                    }
+                
+                # If nothing worked, log the original error and continue to fallback
+                logger.error(f"Multiple JSON parsing also failed")
+                logger.error(f"Raw response content: '{response['choices'][0]['message']['content'] if 'choices' in response else 'No choices in response'}'")
             
             # Create a smart fallback based on user message
             user_lower = user_message.lower()

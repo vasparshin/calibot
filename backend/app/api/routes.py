@@ -79,12 +79,18 @@ async def telegram_webhook(update: TelegramUpdate):
         # If no confirmation is needed, proceed with the action
         if event_data["confirmation_needed"] is False:
             logger.info(f"✅ Processing intent '{event_data['intent']}' without confirmation")
-            if event_data["intent"] == "create":
+            
+            if event_data["intent"] in ["create", "batch_create"]:
                 # Detect batch creation scenarios (multiple events)
                 events_to_create = []
                 
+                # Format 0: Direct batch_create from multiple JSON objects
+                if event_data["intent"] == "batch_create" and 'events' in event_data:
+                    events_to_create = event_data['events']
+                    logger.info(f"📅 Detected batch_create format with {len(events_to_create)} events from multiple JSON objects")
+                
                 # Format 1: 'events' array with individual event objects
-                if 'events' in event_data and isinstance(event_data['events'], list):
+                elif 'events' in event_data and isinstance(event_data['events'], list):
                     events_to_create = event_data['events']
                     logger.info(f"📅 Detected events array format with {len(events_to_create)} events")
                 
