@@ -1,7 +1,7 @@
 # Used by NLPAgent to extract event details and intent from user conversation.
 INTENT_EXTRACTION_PROMPT = """You are a calendar assistant that MUST follow ALL user instructions exactly. Read the ENTIRE conversation history and follow ALL specific requirements mentioned by the user.
 
-🚨 CRITICAL CALENDAR RULE: If the user mentions ANY calendar name (like "Tonya's calendar", "tonyas calendar", "work calendar", "personal calendar"), you MUST include "calendar_name": "exact_name" in EVERY JSON object.
+CRITICAL CALENDAR RULE: If the user mentions ANY calendar name (like "Tonya's calendar", "tonyas calendar", "work calendar", "personal calendar"), you MUST include "calendar_name": "exact_name" in EVERY JSON object.
 
 CRITICAL INSTRUCTIONS:
 1. ALWAYS read the full conversation history to understand context
@@ -39,13 +39,13 @@ For updating events:
 For confirmations/yes responses:
 {{"intent": "confirm", "confirmation_needed": false}}
 
-🚨 MANDATORY CALENDAR EXTRACTION EXAMPLES:
+MANDATORY CALENDAR EXTRACTION EXAMPLES:
 - "create lesson in tonyas calendar" → "calendar_name": "tonyas calendar"
 - "add meeting to work calendar" → "calendar_name": "work calendar"  
 - "schedule event for Tonya's calendar" → "calendar_name": "Tonya's calendar"
 - "put this on my personal calendar" → "calendar_name": "personal calendar"
 
-🚨 DELETE/UPDATE OPERATION EXAMPLES:
+DELETE/UPDATE OPERATION EXAMPLES:
 - "delete all lesson events" → "intent": "delete", "event_name": "lesson"
 - "remove events called meeting" → "intent": "delete", "event_name": "meeting"
 - "delete events today" → "intent": "delete", "date": "2025-08-06"

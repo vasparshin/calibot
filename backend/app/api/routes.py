@@ -52,7 +52,7 @@ async def telegram_webhook(update: TelegramUpdate):
     
     try:
         auth_check = calendar_service.is_authenticated()
-        logger.info(f"🔐 Auth check result: {auth_check}")
+        logger.info(f"Auth check result: {auth_check}")
 
         
         if auth_check is not True:
@@ -80,11 +80,11 @@ async def telegram_webhook(update: TelegramUpdate):
         
         
         event_data = await nlp_agent.extract_intent(user_message, history)
-        logger.info(f"🧠 Extracted intent: {event_data}")
+        logger.info(f"Extracted intent: {event_data}")
 
         # Check if user has pending event queue (NEW: Priority check)
         if event_queue_handler.has_pending_queue(chat_id):
-            logger.info(f"🔄 Processing event queue confirmation")
+            logger.info(f"Processing event queue confirmation")
             
             queue_result = await event_queue_handler.process_queue_response(chat_id, user_message)
             await send_telegram_message(chat_id, queue_result["message"])
@@ -94,7 +94,7 @@ async def telegram_webhook(update: TelegramUpdate):
 
         # Check if this is a multi-event request that should be queued
         if event_queue_handler.detect_multi_event_request(event_data):
-            logger.info(f"🔧 Detected multi-event request, creating queue")
+            logger.info(f"Detected multi-event request, creating queue")
             
             queue_result = event_queue_handler.create_event_queue(chat_id, event_data)
             await send_telegram_message(chat_id, queue_result["message"])
@@ -104,7 +104,7 @@ async def telegram_webhook(update: TelegramUpdate):
 
         # Check if this is a confirmation for a pending multi-event operation (LEGACY)
         if multi_event_handler.has_pending_operation(chat_id):
-            logger.info(f"🔄 Processing confirmation for pending multi-event operation")
+            logger.info(f"Processing confirmation for pending multi-event operation")
             
             confirmation_result = await multi_event_handler.confirm_operation(chat_id, user_message)
             
@@ -120,7 +120,7 @@ async def telegram_webhook(update: TelegramUpdate):
 
         # Handle multi-event operations (delete, update) with queue-based approach
         if event_data["intent"] in ["delete", "update"] and not event_data.get("confirmation_needed", True):
-            logger.info(f"🔧 Processing multi-event operation: {event_data['intent']}")
+            logger.info(f"Processing multi-event operation: {event_data['intent']}")
             
             # First, find matching events
             matched_events = await calendar_service.query_events({
@@ -135,11 +135,23 @@ async def telegram_webhook(update: TelegramUpdate):
             
             events = matched_events["events"]
             
+            # Validate events is a list
+            if not isinstance(events, list):
+                logger.error(f"Expected events to be a list, got {type(events)}: {events}")
+                await send_telegram_message(chat_id, "Sorry, there was an error retrieving event data. Please try again.")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, there was an error retrieving event data. Please try again.")
+                return {"status": "ok"}
+            
             # Filter events to only include those matching the event name (if specified)
             if event_data.get("event_name"):
                 filtered_events = []
                 search_name = event_data["event_name"].lower()
                 for event in events:
+                    # Skip non-dictionary events during filtering
+                    if not isinstance(event, dict):
+                        logger.warning(f"Skipping non-dictionary event during filtering: {type(event)} - {event}")
+                        continue
+                    
                     if search_name in event.get("summary", "").lower():
                         filtered_events.append(event)
                 events = filtered_events
@@ -156,6 +168,16 @@ async def telegram_webhook(update: TelegramUpdate):
                 # Convert events to queue format
                 queue_events = []
                 for event in events:
+                    # Ensure event is a dictionary before accessing its attributes
+                    if not isinstance(event, dict):
+                        logger.warning(f"Skipping non-dictionary event: {type(event)} - {event}")
+                        continue
+                    
+                    # Validate required fields
+                    if "id" not in event:
+                        logger.warning(f"Skipping event without ID: {event}")
+                        continue
+                    
                     queue_event = {
                         "intent": event_data["intent"],
                         "event_id": event["id"],
@@ -167,6 +189,12 @@ async def telegram_webhook(update: TelegramUpdate):
                     }
                     queue_events.append(queue_event)
                 
+                # Check if we have any valid events after filtering
+                if not queue_events:
+                    await send_telegram_message(chat_id, "Sorry, no valid events found that match your criteria.")
+                    conversation_state.add_message(chat_id, "assistant", "Sorry, no valid events found that match your criteria.")
+                    return {"status": "ok"}
+                
                 # Create queue
                 queue_result = event_queue_handler.create_event_queue(chat_id, queue_events)
                 await send_telegram_message(chat_id, queue_result["message"])
@@ -175,12 +203,27 @@ async def telegram_webhook(update: TelegramUpdate):
             
             # Single event - proceed directly (but still ask for confirmation)
             event = events[0]
+            
+            # Validate single event is a dictionary
+            if not isinstance(event, dict):
+                logger.error(f"Single event is not a dictionary: {type(event)} - {event}")
+                await send_telegram_message(chat_id, "Sorry, there was an error processing the event data. Please try again.")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, there was an error processing the event data. Please try again.")
+                return {"status": "ok"}
+            
+            # Validate required fields
+            if "id" not in event:
+                logger.error(f"Single event missing ID: {event}")
+                await send_telegram_message(chat_id, "Sorry, the event data is incomplete. Please try again.")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, the event data is incomplete. Please try again.")
+                return {"status": "ok"}
+            
             event_summary = f"'{event.get('summary', 'Untitled')}' on {event.get('start', 'unknown date')}"
             
             if event_data["intent"] == "delete":
-                confirmation_msg = f"🗑️ Are you sure you want to delete {event_summary}? (yes/no)"
+                confirmation_msg = f"Are you sure you want to delete {event_summary}? (yes/no)"
             else:  # update
-                confirmation_msg = f"✏️ Are you sure you want to update {event_summary}? (yes/no)"
+                confirmation_msg = f"Are you sure you want to update {event_summary}? (yes/no)"
             
             # Store pending operation
             multi_event_handler.store_pending_operation(chat_id, {
@@ -195,7 +238,7 @@ async def telegram_webhook(update: TelegramUpdate):
 
         # Handle confirmation intent (user saying yes/confirm to something)
         if event_data["intent"] == "confirm":
-            logger.info(f"🔄 User confirmation received")
+            logger.info(f"User confirmation received")
             
             # Check if there's a pending operation
             if multi_event_handler.has_pending_operation(chat_id):
@@ -210,7 +253,7 @@ async def telegram_webhook(update: TelegramUpdate):
 
         # If no confirmation is needed, proceed with the action
         if event_data["confirmation_needed"] is False:
-            logger.info(f"✅ Processing intent '{event_data['intent']}' without confirmation")
+            logger.info(f"Processing intent '{event_data['intent']}' without confirmation")
             
             if event_data["intent"] in ["create", "batch_create"]:
                 # Detect batch creation scenarios (multiple events)
@@ -219,12 +262,12 @@ async def telegram_webhook(update: TelegramUpdate):
                 # Format 0: Direct batch_create from multiple JSON objects
                 if event_data["intent"] == "batch_create" and 'events' in event_data:
                     events_to_create = event_data['events']
-                    logger.info(f"📅 Detected batch_create format with {len(events_to_create)} events from multiple JSON objects")
+                    logger.info(f"Detected batch_create format with {len(events_to_create)} events from multiple JSON objects")
                 
                 # Format 1: 'events' array with individual event objects
                 elif 'events' in event_data and isinstance(event_data['events'], list):
                     events_to_create = event_data['events']
-                    logger.info(f"📅 Detected events array format with {len(events_to_create)} events")
+                    logger.info(f"Detected events array format with {len(events_to_create)} events")
                 
                 # Format 2: Arrays in start_time/end_time fields
                 elif (isinstance(event_data.get('start_time'), list) and 
@@ -240,7 +283,7 @@ async def telegram_webhook(update: TelegramUpdate):
                             'start_time': start,
                             'end_time': end
                         })
-                    logger.info(f"📅 Detected array format, converted to {len(events_to_create)} events")
+                    logger.info(f"Detected array format, converted to {len(events_to_create)} events")
                 
                 # Format 3: Multiple times detected in description (fallback)
                 elif event_data.get('description') and ('lessons' in event_data.get('description', '').lower()):
@@ -260,11 +303,11 @@ async def telegram_webhook(update: TelegramUpdate):
                                     'end_time': end_time
                                 })
                         if events_to_create:
-                            logger.info(f"📅 Detected {len(events_to_create)} events from description fallback")
+                            logger.info(f"Detected {len(events_to_create)} events from description fallback")
                 
                 # Process batch creation
                 if events_to_create:
-                    logger.info(f"📅 Processing batch creation of {len(events_to_create)} events")
+                    logger.info(f"Processing batch creation of {len(events_to_create)} events")
                     
                     successful_events = []
                     failed_events = []
@@ -309,18 +352,18 @@ async def telegram_webhook(update: TelegramUpdate):
                     # Send comprehensive response
                     if successful_events:
                         calendar_name = successful_events[0]['calendar']
-                        success_msg = f"✅ Successfully created {len(successful_events)} events in your '{calendar_name}' calendar:\n"
+                        success_msg = f"Successfully created {len(successful_events)} events in your '{calendar_name}' calendar:\n"
                         for event in successful_events:
                             success_msg += f"• {event['time']}\n"
                         
                         if failed_events:
-                            success_msg += f"\n❌ Failed to create {len(failed_events)} events:\n"
+                            success_msg += f"\nFailed to create {len(failed_events)} events:\n"
                             for event in failed_events:
                                 success_msg += f"• {event['time']}: {event['error']}\n"
                         
                         await send_telegram_message(chat_id, success_msg)
                     else:
-                        failure_msg = f"❌ Failed to create all {len(failed_events)} events:\n"
+                        failure_msg = f"Failed to create all {len(failed_events)} events:\n"
                         for event in failed_events:
                             failure_msg += f"• {event['time']}: {event['error']}\n"
                         await send_telegram_message(chat_id, failure_msg)
@@ -385,9 +428,9 @@ async def telegram_webhook(update: TelegramUpdate):
                         calendar_response = calendar_service.delete_event(event_id, source_calendar_id)
                         logger.info(f"DELETE{calendar_response}")
                         if calendar_response["success"]:
-                            await send_telegram_message(chat_id, f"✅ Event deleted successfully! ({len(events)} event{'s' if len(events) != 1 else ''} found)")
+                            await send_telegram_message(chat_id, f"Event deleted successfully! ({len(events)} event{'s' if len(events) != 1 else ''} found)")
                         else:
-                            await send_telegram_message(chat_id, f"❌ Failed to delete event: {calendar_response.get('message', 'Unknown error')}")
+                            await send_telegram_message(chat_id, f"Failed to delete event: {calendar_response.get('message', 'Unknown error')}")
                 # Add AI response to conversation history
                 conversation_state.add_message(chat_id, "assistant", ai_response)
                 return {"status": "ok"}
@@ -404,7 +447,7 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
 
                 events = matched_events["events"]
-                logger.info(f"📋 Found {len(events)} events with calendar info")
+                logger.info(f"Found {len(events)} events with calendar info")
                 for event in events:
                     logger.info(f"  • {event.get('summary', 'No Title')} in calendar '{event.get('calendar_name', 'Unknown')}'")
 
@@ -425,7 +468,7 @@ async def telegram_webhook(update: TelegramUpdate):
                 return {"status": "ok"}
 
             elif event_data["intent"] == "calendar_management":
-                logger.info(f"📅 Calendar management request: {event_data}")
+                logger.info(f"Calendar management request: {event_data}")
                 calendar_action = event_data.get("calendar_action", "")
                 
                 if calendar_action == "create_calendar":
@@ -447,7 +490,7 @@ async def telegram_webhook(update: TelegramUpdate):
                     else:
                         response = "No calendars found. Please ensure you're authenticated with Google Calendar."
                     
-                    logger.info(f"📅 Sending calendar list: {response}")
+                    logger.info(f"Sending calendar list: {response}")
                     await send_telegram_message(chat_id, response)
                     conversation_state.add_message(chat_id, "assistant", response)
                     return {"status": "ok"}
@@ -459,9 +502,9 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
 
         # In case confirmation is needed (handling as needed)
-        logger.info(f"❓ Confirmation needed for intent: {event_data}")
+        logger.info(f"Confirmation needed for intent: {event_data}")
         ai_response = await get_ai_response(event_data, history)
-        logger.info(f"🤖 Bot response: '{ai_response}'")
+        logger.info(f"Bot response: '{ai_response}'")
         # Add AI response to conversation history
         conversation_state.add_message(chat_id, "assistant", ai_response)
         await send_telegram_message(chat_id, ai_response)

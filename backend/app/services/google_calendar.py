@@ -136,7 +136,7 @@ class GoogleCalendarService:
     def get_calendar_service(self):
         """Get an authenticated Google Calendar service."""
         if self.service:
-            logger.info("✅ Using existing service instance.")
+            logger.info("Using existing service instance.")
             return self.service
 
         # Load existing credentials if available
@@ -145,35 +145,35 @@ class GoogleCalendarService:
                 with open(self.token_path, 'rb') as token:
                     self.credentials = pickle.load(token)
             except Exception as e:
-                logger.info(f"⚠️ Error loading credentials: {e}")
+                logger.info(f"Error loading credentials: {e}")
                 if os.path.exists(self.token_path): 
                     os.remove(self.token_path)
                 return None  # Force re-authentication
 
         # If credentials are valid, use them
         if self.credentials and self.credentials.valid:
-            logger.info("✅ Loaded valid credentials.")
+            logger.info("Loaded valid credentials.")
             self.service = build('calendar', 'v3', credentials=self.credentials)
             return self.service
 
         # If credentials are expired but refreshable, refresh them
         if self.credentials and self.credentials.expired and self.credentials.refresh_token:
             try:
-                logger.info("🔄 Refreshing expired credentials...")
+                logger.info("Refreshing expired credentials...")
                 self.credentials.refresh(GoogleRequest())
                 with open(self.token_path, 'wb') as token:
                     pickle.dump(self.credentials, token)
-                logger.info("✅ Credentials refreshed successfully.")
+                logger.info("Credentials refreshed successfully.")
                 self.service = build('calendar', 'v3', credentials=self.credentials)
                 return self.service
             except Exception as e:
-                logger.info(f"❌ Failed to refresh credentials: {e}")
+                logger.info(f"Failed to refresh credentials: {e}")
                 if os.path.exists(self.token_path):
                     os.remove(self.token_path)  # Remove invalid credentials
                 return None
 
         # If no valid credentials are found, require authentication
-        logger.info("⚠️ No valid credentials found. User must reauthenticate.")
+        logger.info("No valid credentials found. User must reauthenticate.")
         return None
 
     def _handle_api_call(self, api_call_func, *args, **kwargs):
@@ -244,7 +244,7 @@ class GoogleCalendarService:
             )
             return settings.get('value', 'UTC')
         except Exception as e:
-            logger.info(f"⚠️ Failed to retrieve user time zone: {e}")
+            logger.info(f"Failed to retrieve user time zone: {e}")
             return 'UTC'
     
     async def create_event(self, event_data):

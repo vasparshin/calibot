@@ -235,13 +235,13 @@ class MultiEventOperationHandler:
                 if result.get("success"):
                     return {
                         "success": True,
-                        "message": f"✅ Deleted event: {event['summary']}",
+                        "message": f"Deleted event: {event['summary']}",
                         "requires_user_action": False
                     }
                 else:
                     return {
                         "success": False,
-                        "message": f"❌ Failed to delete event: {result.get('message', 'Unknown error')}",
+                        "message": f"Failed to delete event: {result.get('message', 'Unknown error')}",
                         "requires_user_action": False
                     }
             
@@ -263,12 +263,12 @@ class MultiEventOperationHandler:
                 # Build response message
                 message_parts = []
                 if successful_deletes:
-                    message_parts.append(f"✅ Successfully deleted {len(successful_deletes)} events:")
+                    message_parts.append(f"Successfully deleted {len(successful_deletes)} events:")
                     for event_name in successful_deletes:
                         message_parts.append(f"  • {event_name}")
                 
                 if failed_deletes:
-                    message_parts.append(f"\n❌ Failed to delete {len(failed_deletes)} events:")
+                    message_parts.append(f"\nFailed to delete {len(failed_deletes)} events:")
                     for failure in failed_deletes:
                         message_parts.append(f"  • {failure}")
                 
@@ -305,12 +305,12 @@ class MultiEventOperationHandler:
                 # Build response message
                 message_parts = []
                 if successful_updates:
-                    message_parts.append(f"✅ Successfully updated {len(successful_updates)} events:")
+                    message_parts.append(f"Successfully updated {len(successful_updates)} events:")
                     for update_desc in successful_updates:
                         message_parts.append(f"  • {update_desc}")
                 
                 if failed_updates:
-                    message_parts.append(f"\n❌ Failed to update {len(failed_updates)} events:")
+                    message_parts.append(f"\nFailed to update {len(failed_updates)} events:")
                     for failure in failed_updates:
                         message_parts.append(f"  • {failure}")
                 

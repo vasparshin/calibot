@@ -1,8 +1,26 @@
 # CaliBOT - AI Calendar Bot Development Guide
 
-## Project Overview## Changelog Rules
+## Project Overview
+
+## Code Style Rules
+
+### Backend Files (Strict Professional Style)
+- **NO emoticons or emoji in any backend files** (.py files, CHANGELOG.md, configuration files)
+- Use clear, descriptive text instead of emoticons in log messages and user-facing text
+- Examples: 
+  - Use `"Event created successfully"` not `"✅ Event created successfully"`
+  - Use `"Error: Failed to delete"` not `"❌ Failed to delete"`
+  - Use `"Processing user request"` not `"🔄 Processing user request"`
+- **Exception**: README.md may contain emoticons for user-friendly presentation
+
+### Frontend/User-Facing Content
+- Emoticons are acceptable in README.md, user documentation, and Telegram bot responses to users
+- Keep professional in all backend code and system logs
+
+## Changelog Rules
 
 - **Every commit or PR must update `CHANGELOG.md`.**
+- **DO NOT create separate fixes summary files** - document all changes directly in CHANGELOG.md
 - Use reverse chronological order (most recent at top).
 - Summarize the change, affected files, and motivation/problem solved.
 - Reference any related summary or design doc if relevant.
@@ -10,7 +28,6 @@
 - If a change is a refactor, describe the before/after and why.
 - If a change is a new feature, describe the user impact and integration points.
 - Keep entries concise but specific.
-- If merging a summary file, include its highlights and then delete/rename the summary file.
 
 ### Changelog Categories
 - **Added**: New features
@@ -75,7 +92,14 @@ Each entry should include:
 ### Test Files
 - **ALL test files must be in the `tests/` folder** - NO test files in project root or backend folder
 - Test files should follow naming convention: `test_*.py`
-- Demo/example files (like `queue_demo.py`) are acceptable in project root if they demonstrate functionality
+- Demo/example files (like `queue_demo.py`) are acceptable in tests folder to demonstrate functionality
+- Use `scripts/organize_files.sh` to automatically move misplaced test/demo files
+
+### Scripts and Tools
+- **ALL utility scripts must be in the `scripts/` folder**
+- Examples: `organize_files.sh`, `version_check.py`, deployment scripts
+- Scripts should be executable and well-documented
+- Include brief description of script purpose in filename or header
 
 ### Docker Build Optimization
 - **tests/ folder must be excluded from Docker builds** to reduce image size and deployment time

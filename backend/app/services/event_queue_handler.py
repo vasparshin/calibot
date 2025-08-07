@@ -98,15 +98,15 @@ class EventQueueHandler:
         # Customize message based on intent
         if intent == 'delete':
             action_text = "delete this event"
-            action_emoji = "🗑️"
+            action_prefix = "DELETE"
         elif intent == 'update':
             action_text = "update this event"
-            action_emoji = "✏️"
+            action_prefix = "UPDATE"
         else:
             action_text = "create this event"
-            action_emoji = "📅"
+            action_prefix = "CREATE"
         
-        confirmation_message = f"""{action_emoji} Event {current_index + 1} of {total_events}:
+        confirmation_message = f"""{action_prefix} Event {current_index + 1} of {total_events}:
 
 {event_summary}
 
@@ -139,10 +139,10 @@ Reply with:
             if end_time:
                 time_str += f" - {end_time}"
             
-            return f"""📝 **{title}**
-📅 Date: {date}
-⏰ Time: {time_str}
-📂 Calendar: {calendar}"""
+            return f"""**{title}**
+Date: {date}
+Time: {time_str}
+Calendar: {calendar}"""
         
         else:
             # Delete/Update format (existing events)
@@ -158,9 +158,9 @@ Reply with:
                 except:
                     pass
             
-            return f"""📝 **{title}**
-⏰ Time: {start_time}
-📂 Calendar: {calendar}"""
+            return f"""**{title}**
+Time: {start_time}
+Calendar: {calendar}"""
     
     async def process_queue_response(self, chat_id: str, user_response: str) -> Dict:
         """Process user's response to queue confirmation"""
@@ -204,13 +204,13 @@ Reply with:
             if next_result.get('queue_complete'):
                 return {
                     "success": True,
-                    "message": f"⏭️ Event skipped.\n\n{next_result['message']}",
+                    "message": f"Skipped: Event skipped.\n\n{next_result['message']}",
                     "queue_complete": True
                 }
             else:
                 return {
                     "success": True,
-                    "message": f"⏭️ Event skipped.\n\n{next_result['message']}",
+                    "message": f"Skipped: Event skipped.\n\n{next_result['message']}",
                     "requires_user_action": True
                 }
         
@@ -221,7 +221,7 @@ Reply with:
             
             return {
                 "success": True,
-                "message": f"❌ Cancelled {remaining} remaining events.",
+                "message": f"Error: Cancelled {remaining} remaining events.",
                 "queue_complete": True
             }
         
@@ -261,13 +261,13 @@ Reply with:
                     if result.get('success'):
                         return {
                             "success": True,
-                            "message": "✅ Event created successfully",
+                            "message": "Success: Event created successfully",
                             "event_id": result.get('event_id', 'unknown')
                         }
                     else:
                         return {
                             "success": False,
-                            "message": f"❌ Failed to create event: {result.get('message', 'Unknown error')}"
+                            "message": f"Error: Failed to create event: {result.get('message', 'Unknown error')}"
                         }
                 
                 elif intent == 'delete':
@@ -280,12 +280,12 @@ Reply with:
                     if result.get('success'):
                         return {
                             "success": True,
-                            "message": "✅ Event deleted successfully"
+                            "message": "Success: Event deleted successfully"
                         }
                     else:
                         return {
                             "success": False,
-                            "message": f"❌ Failed to delete event: {result.get('message', 'Unknown error')}"
+                            "message": f"Error: Failed to delete event: {result.get('message', 'Unknown error')}"
                         }
                 
                 elif intent == 'update':
@@ -307,12 +307,12 @@ Reply with:
                     if result.get('success'):
                         return {
                             "success": True,
-                            "message": "✅ Event updated successfully"
+                            "message": "Success: Event updated successfully"
                         }
                     else:
                         return {
                             "success": False,
-                            "message": f"❌ Failed to update event: {result.get('message', 'Unknown error')}"
+                            "message": f"Error: Failed to update event: {result.get('message', 'Unknown error')}"
                         }
                 
             else:
@@ -322,7 +322,7 @@ Reply with:
                 
                 return {
                     "success": True,
-                    "message": f"✅ Event {action} successfully (simulated)",
+                    "message": f"Success: Event {action} successfully (simulated)",
                     "event_id": f"mock_event_{datetime.now().timestamp()}"
                 }
                 
@@ -330,7 +330,7 @@ Reply with:
             logger.error(f"Error processing single event: {e}")
             return {
                 "success": False,
-                "message": f"❌ Failed to process event: {str(e)}",
+                "message": f"Error: Failed to process event: {str(e)}",
                 "error": str(e)
             }
     

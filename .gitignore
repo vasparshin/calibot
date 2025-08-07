@@ -16,3 +16,19 @@ wheels/
 /backend/*.txt
 /backend/client.json
 /backend/app/credentials.json
+
+# Test files organization rules
+# Test files should only exist in the tests/ folder
+# This helps prevent test files from accidentally being placed in the root or other folders
+test_*.py
+*_test.py
+demo*.py
+queue_demo.py
+simple_queue_demo.py
+
+# Allow test files only in the tests folder
+!tests/test_*.py
+!tests/*_test.py  
+!tests/demo*.py
+!tests/queue_demo.py
+!tests/simple_queue_demo.py
