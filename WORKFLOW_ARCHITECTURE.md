@@ -43,12 +43,6 @@ flowchart TD
     D --> Z
     
     Z --> END[Return to Telegram]
-    
-    style A fill:#e1f5fe
-    style H fill:#fff3e0
-    style N fill:#f3e5f5
-    style M fill:#ffebee
-    style O fill:#e8f5e8
 ```
 
 ## Component Breakdown

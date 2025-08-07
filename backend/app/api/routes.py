@@ -240,8 +240,15 @@ async def telegram_webhook(update: TelegramUpdate):
         if event_data["intent"] == "confirm":
             logger.info(f"User confirmation received")
             
-            # Check if there's a pending operation
-            if multi_event_handler.has_pending_operation(chat_id):
+            # Check if there's a pending event queue first (NEW SYSTEM)
+            if event_queue_handler.has_pending_queue(chat_id):
+                logger.info(f"Processing confirmation for pending event queue")
+                queue_result = await event_queue_handler.process_queue_response(chat_id, "yes")
+                await send_telegram_message(chat_id, queue_result["message"])
+                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+            # Check if there's a pending operation (LEGACY SYSTEM)
+            elif multi_event_handler.has_pending_operation(chat_id):
+                logger.info(f"Processing confirmation for pending multi-event operation")
                 confirmation_result = await multi_event_handler.confirm_operation(chat_id, "yes")
                 await send_telegram_message(chat_id, confirmation_result["message"])
                 conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])

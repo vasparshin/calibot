@@ -9,33 +9,33 @@ PROJECT_ROOT="/workspaces/calibot"
 CHANGELOG_FILE="$PROJECT_ROOT/CHANGELOG.md"
 PYPROJECT_FILE="$PROJECT_ROOT/pyproject.toml"
 
-echo "🚀 CaliBOT GitHub Push Script"
-echo "=============================="
+echo "CaliBOT GitHub Push Script"
+echo "==========================="
 
 # Change to project directory
 cd "$PROJECT_ROOT"
 
 # Check if we're in a git repository
 if [ ! -d ".git" ]; then
-    echo "❌ Error: Not in a git repository"
+    echo "Error: Not in a git repository"
     exit 1
 fi
 
 # Check for uncommitted changes
 if [ -z "$(git status --porcelain)" ]; then
-    echo "ℹ️  No changes to commit"
-    echo "✅ Repository is up to date"
+    echo "No changes to commit"
+    echo "Repository is up to date"
     exit 0
 fi
 
 # Extract current version from pyproject.toml
 CURRENT_VERSION=$(grep -E '^version = ' "$PYPROJECT_FILE" | sed 's/version = "\(.*\)"/\1/')
 if [ -z "$CURRENT_VERSION" ]; then
-    echo "❌ Error: Could not extract version from pyproject.toml"
+    echo "Error: Could not extract version from pyproject.toml"
     exit 1
 fi
 
-echo "📋 Current version: $CURRENT_VERSION"
+echo "Current version: $CURRENT_VERSION"
 
 # Extract the latest changelog entry (everything under [Unreleased] until next version)
 extract_latest_changelog() {
@@ -77,10 +77,10 @@ extract_latest_changelog() {
 LATEST_CHANGES=$(extract_latest_changelog)
 
 if [ -z "$LATEST_CHANGES" ]; then
-    echo "⚠️  No unreleased changes found in CHANGELOG.md"
+    echo "WARNING: No unreleased changes found in CHANGELOG.md"
     COMMIT_MESSAGE="chore: update codebase - version $CURRENT_VERSION"
 else
-    echo "📝 Latest changes extracted from CHANGELOG.md:"
+    echo "INFO: Latest changes extracted from CHANGELOG.md:"
     echo "$LATEST_CHANGES" | head -5
     echo "..."
     
@@ -91,7 +91,7 @@ $(echo "$LATEST_CHANGES" | head -10)"
 fi
 
 echo ""
-echo "📤 Preparing to commit and push..."
+echo "INFO: Preparing to commit and push..."
 echo "Commit message preview:"
 echo "----------------------"
 echo "$COMMIT_MESSAGE" | head -5
@@ -101,7 +101,7 @@ echo "----------------------"
 read -p "Continue with commit and push? (y/N): " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "❌ Aborted by user"
+    echo "ERROR: Aborted by user"
     exit 1
 fi
 
@@ -111,23 +111,23 @@ git add .
 
 # Check if there are staged changes
 if [ -z "$(git diff --cached --name-only)" ]; then
-    echo "ℹ️  No staged changes to commit"
+    echo "INFO: No staged changes to commit"
     exit 0
 fi
 
 # Show what will be committed
-echo "📋 Files to be committed:"
+echo "INFO: Files to be committed:"
 git diff --cached --name-only | sed 's/^/  - /'
 
 # Commit changes
-echo "💾 Committing changes..."
+echo "INFO: Committing changes..."
 git commit -m "$COMMIT_MESSAGE"
 
 # Push to remote
-echo "🌐 Pushing to GitHub..."
+echo "INFO: Pushing to GitHub..."
 if git push origin main; then
     echo ""
-    echo "✅ Successfully pushed to GitHub!"
+    echo "SUCCESS: Successfully pushed to GitHub!"
     
     # Update CHANGELOG.md to mark as released
     update_changelog_status() {
@@ -143,31 +143,31 @@ if git push origin main; then
 \\
 " "$CHANGELOG_FILE"
             
-            echo "📝 Updated CHANGELOG.md release status"
+            echo "INFO: Updated CHANGELOG.md release status"
             
             # Commit the changelog update
             git add "$CHANGELOG_FILE"
             git commit -m "docs: update changelog release status for v$CURRENT_VERSION"
             git push origin main
             
-            echo "✅ Changelog release status updated and pushed"
+            echo "SUCCESS: Changelog release status updated and pushed"
         else
-            echo "ℹ️  No [Unreleased] section found to update"
+            echo "INFO: No [Unreleased] section found to update"
         fi
     }
     
     update_changelog_status
     
     echo ""
-    echo "🎉 All done! Changes pushed successfully."
-    echo "📊 Repository status:"
+    echo "SUCCESS: All done! Changes pushed successfully."
+    echo "INFO: Repository status:"
     echo "   - Version: $CURRENT_VERSION"
     echo "   - Branch: $(git branch --show-current)"
     echo "   - Latest commit: $(git log -1 --pretty=format:'%h - %s')"
     echo "   - Remote: $(git remote get-url origin)"
     
 else
-    echo "❌ Failed to push to GitHub"
+    echo "ERROR: Failed to push to GitHub"
     echo "Please check your network connection and GitHub authentication"
     exit 1
 fi

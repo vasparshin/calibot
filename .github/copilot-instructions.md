@@ -5,13 +5,22 @@
 ## Code Style Rules
 
 ### Backend Files (Strict Professional Style)
-- **NO emoticons or emoji in any backend files** (.py files, CHANGELOG.md, configuration files)
+- **NO emoticons or emoji in any backend files** (.py files, CHANGELOG.md, configuration files, scripts)
+- **Scripts are backend files**: All files in `scripts/` folder are considered backend files and must follow professional style
 - Use clear, descriptive text instead of emoticons in log messages and user-facing text
 - Examples: 
   - Use `"Event created successfully"` not `"✅ Event created successfully"`
   - Use `"Error: Failed to delete"` not `"❌ Failed to delete"`
   - Use `"Processing user request"` not `"🔄 Processing user request"`
+  - Use `"INFO: Preparing to commit"` not `"📤 Preparing to commit"`
 - **Exception**: README.md may contain emoticons for user-friendly presentation
+
+### File Creation Rules
+- **DO NOT create unnecessary files** unless explicitly requested by user
+- **CHANGELOG.md is the ONLY place for version logs** - never create separate summary files like "FIXES_SUMMARY.md"
+- **DO NOT create redundant documentation files** like "QUICK_SCRIPTS.md" when comprehensive documentation already exists in proper locations (e.g., scripts/README.md)
+- **Ask before creating new files** unless they are essential for the requested functionality
+- **Delete any summary files and integrate their content into CHANGELOG.md**
 
 ### Frontend/User-Facing Content
 - Emoticons are acceptable in README.md, user documentation, and Telegram bot responses to users
@@ -21,6 +30,8 @@
 
 - **Every commit or PR must update `CHANGELOG.md`.**
 - **DO NOT create separate fixes summary files** - document all changes directly in CHANGELOG.md
+- **CHANGELOG.md is the ONLY place for version history** - never create additional summary files
+- **Delete any existing summary files** and integrate their content into CHANGELOG.md
 - Use reverse chronological order (most recent at top).
 - Summarize the change, affected files, and motivation/problem solved.
 - Reference any related summary or design doc if relevant.
