@@ -30,14 +30,26 @@ For creating MULTIPLE events in specific calendar:
 {{"intent": "create", "event_name": "lesson", "date": "2025-08-06", "start_time": "10:00", "end_time": "11:00", "calendar_name": "tonyas calendar", "confirmation_needed": false}}
 {{"intent": "create", "event_name": "lesson", "date": "2025-08-06", "start_time": "11:00", "end_time": "12:00", "calendar_name": "tonyas calendar", "confirmation_needed": false}}
 
+For deleting events:
+{{"intent": "delete", "event_name": "lesson", "date": "2025-08-06", "confirmation_needed": true}}
+
+For updating events:
+{{"intent": "update", "event_name": "old_name", "new_event_name": "new_name", "date": "2025-08-06", "confirmation_needed": true}}
+
 For confirmations/yes responses:
-{{"intent": "query", "confirmation_needed": false}}
+{{"intent": "confirm", "confirmation_needed": false}}
 
 🚨 MANDATORY CALENDAR EXTRACTION EXAMPLES:
 - "create lesson in tonyas calendar" → "calendar_name": "tonyas calendar"
 - "add meeting to work calendar" → "calendar_name": "work calendar"  
 - "schedule event for Tonya's calendar" → "calendar_name": "Tonya's calendar"
 - "put this on my personal calendar" → "calendar_name": "personal calendar"
+
+🚨 DELETE/UPDATE OPERATION EXAMPLES:
+- "delete all lesson events" → "intent": "delete", "event_name": "lesson"
+- "remove events called meeting" → "intent": "delete", "event_name": "meeting"
+- "delete events today" → "intent": "delete", "date": "2025-08-06"
+- "update meeting to call" → "intent": "update", "event_name": "meeting", "new_event_name": "call"
 
 REMEMBER: 
 - Extract calendar_name EVERY TIME user mentions ANY calendar

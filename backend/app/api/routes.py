@@ -2,9 +2,12 @@ from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from app.services.telegram import TelegramBotService, send_telegram_message
 from app.services.ai_service import get_ai_response, get_small_talk_response
 from app.services.google_calendar import GoogleCalendarService
+from app.services.multi_event_operations import MultiEventOperationHandler
+from app.services.event_queue_handler import EventQueueHandler
 from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
 from app.agent.nlp_agent import NLPAgent
+from app.agent.calendar_agent import CalendarAgent
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -14,7 +17,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 telegram_service = TelegramBotService()
 calendar_service = GoogleCalendarService()
+calendar_agent = CalendarAgent()
 nlp_agent = NLPAgent()
+multi_event_handler = MultiEventOperationHandler(calendar_service, telegram_service, conversation_state)
+event_queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
 
 access_token = None
 
@@ -75,6 +81,132 @@ async def telegram_webhook(update: TelegramUpdate):
         
         event_data = await nlp_agent.extract_intent(user_message, history)
         logger.info(f"🧠 Extracted intent: {event_data}")
+
+        # Check if user has pending event queue (NEW: Priority check)
+        if event_queue_handler.has_pending_queue(chat_id):
+            logger.info(f"🔄 Processing event queue confirmation")
+            
+            queue_result = await event_queue_handler.process_queue_response(chat_id, user_message)
+            await send_telegram_message(chat_id, queue_result["message"])
+            conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+            
+            return {"status": "ok"}
+
+        # Check if this is a multi-event request that should be queued
+        if event_queue_handler.detect_multi_event_request(event_data):
+            logger.info(f"🔧 Detected multi-event request, creating queue")
+            
+            queue_result = event_queue_handler.create_event_queue(chat_id, event_data)
+            await send_telegram_message(chat_id, queue_result["message"])
+            conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+            
+            return {"status": "ok"}
+
+        # Check if this is a confirmation for a pending multi-event operation (LEGACY)
+        if multi_event_handler.has_pending_operation(chat_id):
+            logger.info(f"🔄 Processing confirmation for pending multi-event operation")
+            
+            confirmation_result = await multi_event_handler.confirm_operation(chat_id, user_message)
+            
+            if confirmation_result["success"] or not confirmation_result["requires_user_action"]:
+                await send_telegram_message(chat_id, confirmation_result["message"])
+                conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
+            else:
+                # Still waiting for proper confirmation
+                await send_telegram_message(chat_id, confirmation_result["message"])
+                conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
+            
+            return {"status": "ok"}
+
+        # Handle multi-event operations (delete, update) with queue-based approach
+        if event_data["intent"] in ["delete", "update"] and not event_data.get("confirmation_needed", True):
+            logger.info(f"🔧 Processing multi-event operation: {event_data['intent']}")
+            
+            # First, find matching events
+            matched_events = await calendar_service.query_events({
+                "event_name": event_data.get("event_name", ""),
+                "date": event_data.get("date", "")
+            })
+            
+            if not matched_events["success"] or not matched_events["events"]:
+                await send_telegram_message(chat_id, f"No matching events found for {event_data['intent']} operation.")
+                conversation_state.add_message(chat_id, "assistant", f"No matching events found for {event_data['intent']} operation.")
+                return {"status": "ok"}
+            
+            events = matched_events["events"]
+            
+            # Filter events to only include those matching the event name (if specified)
+            if event_data.get("event_name"):
+                filtered_events = []
+                search_name = event_data["event_name"].lower()
+                for event in events:
+                    if search_name in event.get("summary", "").lower():
+                        filtered_events.append(event)
+                events = filtered_events
+            
+            if not events:
+                await send_telegram_message(chat_id, f"No events matching '{event_data.get('event_name', '')}' found.")
+                conversation_state.add_message(chat_id, "assistant", f"No events matching '{event_data.get('event_name', '')}' found.")
+                return {"status": "ok"}
+            
+            logger.info(f"Found {len(events)} matching events for {event_data['intent']} operation")
+            
+            # If multiple events, use queue system for individual confirmation
+            if len(events) > 1:
+                # Convert events to queue format
+                queue_events = []
+                for event in events:
+                    queue_event = {
+                        "intent": event_data["intent"],
+                        "event_id": event["id"],
+                        "event_name": event.get("summary", "Untitled"),
+                        "start_time": event.get("start", "Unknown time"),
+                        "end_time": event.get("end", "Unknown time"),
+                        "calendar_id": event.get("calendar_id", "primary"),
+                        "calendar_name": event.get("calendar_name", "Default")
+                    }
+                    queue_events.append(queue_event)
+                
+                # Create queue
+                queue_result = event_queue_handler.create_event_queue(chat_id, queue_events)
+                await send_telegram_message(chat_id, queue_result["message"])
+                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+                return {"status": "ok"}
+            
+            # Single event - proceed directly (but still ask for confirmation)
+            event = events[0]
+            event_summary = f"'{event.get('summary', 'Untitled')}' on {event.get('start', 'unknown date')}"
+            
+            if event_data["intent"] == "delete":
+                confirmation_msg = f"🗑️ Are you sure you want to delete {event_summary}? (yes/no)"
+            else:  # update
+                confirmation_msg = f"✏️ Are you sure you want to update {event_summary}? (yes/no)"
+            
+            # Store pending operation
+            multi_event_handler.store_pending_operation(chat_id, {
+                "intent": event_data["intent"],
+                "events": [event],
+                "original_data": event_data
+            })
+            
+            await send_telegram_message(chat_id, confirmation_msg)
+            conversation_state.add_message(chat_id, "assistant", confirmation_msg)
+            return {"status": "ok"}
+
+        # Handle confirmation intent (user saying yes/confirm to something)
+        if event_data["intent"] == "confirm":
+            logger.info(f"🔄 User confirmation received")
+            
+            # Check if there's a pending operation
+            if multi_event_handler.has_pending_operation(chat_id):
+                confirmation_result = await multi_event_handler.confirm_operation(chat_id, "yes")
+                await send_telegram_message(chat_id, confirmation_result["message"])
+                conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
+            else:
+                await send_telegram_message(chat_id, "I don't have any pending operations to confirm. What would you like me to do?")
+                conversation_state.add_message(chat_id, "assistant", "I don't have any pending operations to confirm. What would you like me to do?")
+            
+            return {"status": "ok"}
 
         # If no confirmation is needed, proceed with the action
         if event_data["confirmation_needed"] is False:
@@ -248,10 +380,14 @@ async def telegram_webhook(update: TelegramUpdate):
                                     chat_id, f"Event updated successfully! Here's the link to your event: {calendar_response['event_link']}"
                                 )
                     elif event_data["intent"] == "delete":
-                        calendar_response = calendar_service.delete_event(event_id)
+                        # Get the source calendar ID from the matched event
+                        source_calendar_id = events[0].get('calendar_id', 'primary')
+                        calendar_response = calendar_service.delete_event(event_id, source_calendar_id)
                         logger.info(f"DELETE{calendar_response}")
                         if calendar_response["success"]:
-                            await send_telegram_message(chat_id, "Event deleted successfully!")
+                            await send_telegram_message(chat_id, f"✅ Event deleted successfully! ({len(events)} event{'s' if len(events) != 1 else ''} found)")
+                        else:
+                            await send_telegram_message(chat_id, f"❌ Failed to delete event: {calendar_response.get('message', 'Unknown error')}")
                 # Add AI response to conversation history
                 conversation_state.add_message(chat_id, "assistant", ai_response)
                 return {"status": "ok"}

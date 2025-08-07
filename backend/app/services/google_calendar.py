@@ -429,7 +429,7 @@ class GoogleCalendarService:
                 'message': f'Failed to update event: {str(e)}'
             }
     
-    def delete_event(self, event_id):
+    def delete_event(self, event_id, calendar_id=None):
         """Delete an event from Google Calendar"""
         service = self.get_calendar_service()
         if not service:
@@ -438,9 +438,13 @@ class GoogleCalendarService:
                 'message': 'Authentication required',
                 'auth_required': True
             }
+        
+        # Use provided calendar_id or default to primary
+        calendar_to_use = calendar_id or 'primary'
+        
         try:
             self._handle_api_call(
-                lambda: service.events().delete(calendarId='primary', eventId=event_id).execute()
+                lambda: service.events().delete(calendarId=calendar_to_use, eventId=event_id).execute()
             )
             return {'success': True, 'message': 'Event deleted successfully'}
         except HTTPException:

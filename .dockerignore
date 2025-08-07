@@ -20,4 +20,9 @@ backend/app/credentials.json
 .vscode/
 .DS_Store
 
+# Ignore development and testing files
+tests/
 info/
+*.md
+*_SUMMARY.md
+WORKFLOW_ARCHITECTURE.md
