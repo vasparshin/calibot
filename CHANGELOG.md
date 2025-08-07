@@ -3,6 +3,9 @@
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
 ## [Unreleased]
+
+
+## [0.1.0] - 2025-08-07
 ### Fixed
 - **Event Processing Bug**: Fixed `'list' object has no attribute 'get'` error in multi-event delete operations by adding proper type validation for event objects
 - **File Organization**: Moved all test files and demo scripts from project root to `tests/` folder
