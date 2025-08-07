@@ -3,6 +3,9 @@
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
 ## [Unreleased]
+
+
+## [0.1.0] - 2025-08-07
 ### Fixed
 - **Critical: Mass Delete Functionality**: Fixed broken multi-event deletion where confirmation intent wasn't checking event queue system, causing "I don't have any pending operations to confirm" error
 - **Mermaid Diagram Rendering**: Simplified WORKFLOW_ARCHITECTURE.md diagram by removing complex styling that was causing "No diagram type detected" errors
@@ -17,6 +20,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ### Enhanced
 - **Development Guidelines**: Updated copilot instructions to explicitly ban emoticons in all scripts and prevent creation of redundant documentation files
 - **Code Style Enforcement**: Clarified that all files in scripts/ folder are backend files requiring professional style
+
+
+## [Unreleased]
 
 
 ## [0.1.0] - 2025-08-07
