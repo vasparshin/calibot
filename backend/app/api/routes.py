@@ -78,14 +78,29 @@ async def telegram_webhook(update: TelegramUpdate):
             conversation_state.add_message(chat_id, "assistant", ai_response)
             return {"status": "ok"}  
         
-        event_data = await nlp_agent.extract_intent(user_message, history)
-        logger.info(f"Extracted intent: {event_data}")
+        try:
+            event_data = await nlp_agent.extract_intent(user_message, history)
+            logger.info(f"Extracted intent: {event_data}")
 
-        # Validate event_data structure
-        if not isinstance(event_data, dict):
-            logger.error(f"Invalid event_data type: {type(event_data)} - {event_data}")
-            await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
-            conversation_state.add_message(chat_id, "assistant", "Sorry, I had trouble understanding your request. Could you please try again?")
+            # Validate event_data structure with enhanced logging
+            if not isinstance(event_data, dict):
+                logger.error(f"CRITICAL: Invalid event_data type: {type(event_data)} - {event_data}")
+                logger.error(f"User message that caused this: '{user_message}'")
+                await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, I had trouble understanding your request. Could you please try again?")
+                return {"status": "ok"}
+        except Exception as e:
+            logger.error(f"CRITICAL: Error in NLP processing: {e}")
+            logger.error(f"User message: '{user_message}'")
+            await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
+            conversation_state.add_message(chat_id, "assistant", "I'm experiencing technical difficulties. Please try again in a moment.")
+            return {"status": "ok"}
+        
+        # Additional safety check for required fields
+        if "intent" not in event_data:
+            logger.error(f"CRITICAL: No 'intent' field in event_data: {event_data}")
+            await send_telegram_message(chat_id, "Sorry, I couldn't determine what you want me to do. Could you please try again?")
+            conversation_state.add_message(chat_id, "assistant", "Sorry, I couldn't determine what you want me to do. Could you please try again?")
             return {"status": "ok"}
 
         # Handle batch creation format
@@ -147,8 +162,8 @@ async def telegram_webhook(update: TelegramUpdate):
             return {"status": "ok"}
 
         # Handle multi-event operations (delete, update) with queue-based approach
-        if event_data["intent"] in ["delete", "update"] and not event_data.get("confirmation_needed", True):
-            logger.info(f"Processing multi-event operation: {event_data['intent']}")
+        if event_data.get("intent") in ["delete", "update"] and not event_data.get("confirmation_needed", True):
+            logger.info(f"Processing multi-event operation: {event_data.get('intent')}")
             
             # First, find matching events
             matched_events = await calendar_service.query_events({
@@ -157,7 +172,7 @@ async def telegram_webhook(update: TelegramUpdate):
             })
             
             if not matched_events["success"] or not matched_events["events"]:
-                await send_telegram_message(chat_id, f"No matching events found for {event_data['intent']} operation.")
+                await send_telegram_message(chat_id, f"No matching events found for {event_data.get('intent')} operation.")
                 conversation_state.add_message(chat_id, "assistant", f"No matching events found for {event_data['intent']} operation.")
                 return {"status": "ok"}
             

@@ -5,6 +5,46 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.6] - 2025-08-08
+
+### Fixed
+- **Critical: File Organization Violation Cleanup**: Removed unnecessary files that violated copilot instructions
+### Technical Details
+- **Deleted Files**: PRODUCTION_DEPLOYMENT_STATUS.md, scripts/deploy_production.sh, scripts/enforce_file_organization.sh
+- **Copilot Instructions**: Enhanced with Render.com deployment architecture information and stricter file creation rules
+- **Deployment Clarification**: Service uses Render auto-deploy via GitHub - no manual deployment scripts needed
+
+### Enhanced
+- **Deployment Architecture Documentation**: Added Render.com auto-deployment information to copilot instructions  
+- **File Creation Rules**: Strengthened prohibition against unnecessary summary, status, and deployment files
+
+## [0.1.5] - 2025-08-08
+### Fixed
+- **Critical: Production Dependencies**: Fixed missing `python-telegram-bot` dependency causing runtime failures
+- **Enhanced Error Handling**: Added comprehensive try-catch blocks and validation for `event_data` processing
+- **Type Safety**: Improved validation with enhanced logging to catch and handle malformed data structures
+- **Production Deployment**: Added explicit dependency installation in Dockerfile and requirements.txt
+
+### Technical Details
+- **routes.py**: Added try-catch around NLP processing with detailed error logging
+- **routes.py**: Enhanced event_data validation with intent field checking
+- **Dockerfile**: Added explicit installation of `backoff` and `litellm[proxy]` dependencies
+- **requirements.txt**: Created comprehensive dependency list for production deployment
+- **Root Cause**: Production environment missing dependencies causing import failures and type errors
+- **Impact**: Bot now handles errors gracefully and provides meaningful feedback instead of generic "trouble processing" messages
+
+## [0.1.4] - 2025-08-08
+### Fixed
+- **Critical: File Organization Violation**: Removed all misplaced test files and forbidden summary files from project root
+- **Development Rule Enforcement**: Strengthened copilot instructions to prevent file organization violations
+
+### Technical Details
+- **Deleted forbidden files**: Removed `FIXES_SUMMARY.md`, `MULTI_EVENT_IMPLEMENTATION_SUMMARY.md` (violate no-summary-files rule)
+- **Moved utility files**: Relocated `version_check.py` to `scripts/` folder
+- **Enhanced copilot instructions**: Added MANDATORY file organization enforcement with pre-task scanning
+- **Root Cause**: Previous rules were not strict enough to prevent file organization violations
+- **Impact**: Project structure now strictly follows approved organization rules
+
 ## [0.1.3] - 2025-08-08
 ### Fixed  
 - **Critical: Delete/Update Confirmation Workflow**: Fixed broken confirmation workflow for delete/update operations where bot would ask for confirmation but not create any pending operations, causing "I don't have any pending operations to confirm" error

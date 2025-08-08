@@ -6,6 +6,62 @@
 - **ALWAYS UPDATE CHANGELOG.MD** - Every code change MUST be documented in CHANGELOG.md before task completion
 - **NO EMOTICONS IN BACKEND FILES** - Scripts, Python files, configuration files must use professional text only
 - **NO UNNECESSARY FILES** - Don't create summary files, use existing documentation structure
+- **NO TEST FILES IN PROJECT ROOT** - ALL test files must be in tests/ folder, NEVER in project root
+- **NO SUMMARY FILES EVER** - NEVER create FIXES_SUMMARY.md, MULTI_EVENT_IMPLEMENTATION_SUMMARY.md or similar files
+
+## 🚫 ABSOLUTELY FORBIDDEN FILE PATTERNS
+- **NEVER CREATE**: Any file ending with `_SUMMARY.md`, `SUMMARY.md`, `FIXES.md`, `STATUS.md`
+- **NEVER CREATE**: Test files in project root (test_*.py, *_test.py, *_demo.py)
+- **NEVER CREATE**: Documentation files that duplicate CHANGELOG.md functionality
+- **NEVER CREATE**: Deployment scripts (service uses Render auto-deploy via GitHub)
+- **NEVER CREATE**: Utility scripts unless explicitly requested
+- **IMMEDIATELY DELETE**: Any summary files found during task execution
+
+## 🛡️ DEPLOYMENT ARCHITECTURE
+**CRITICAL: CaliBOT is deployed via Render.com with GitHub integration**
+- **Auto-deployment**: Render automatically deploys from GitHub main branch
+- **NO MANUAL DEPLOYMENT SCRIPTS**: Never create deploy scripts - Render handles this
+- **Environment Variables**: Set in Render dashboard, not in scripts
+- **Docker**: Render uses the existing Dockerfile automatically
+- **Dependencies**: Render installs from requirements.txt and pyproject.toml
+- **NEVER create deployment documentation** - this information is sufficient
+
+## 🛡️ MANDATORY PRE-TASK FILE ORGANIZATION CHECK
+**BEFORE ANY TASK EXECUTION, SCAN FOR:**
+1. IMMEDIATELY delete any `*SUMMARY*.md`, `*STATUS*.md`, `FIXES_*.md` files
+2. IMMEDIATELY move any `test_*.py`, `*_demo.py` files to `tests/`
+3. IMMEDIATELY delete any deployment scripts (service uses Render auto-deploy)
+4. Update CHANGELOG.md documenting the cleanup
+5. NEVER proceed without fixing file organization first
+
+## File Organization Rules (MANDATORY)
+
+### Project Root - ONLY These Files Allowed:
+```
+/workspaces/calibot/
+├── .dockerignore
+├── .gitignore  
+├── CHANGELOG.md          # ONLY place for change documentation
+├── Dockerfile
+├── LICENSE
+├── README.md             # Project overview only
+├── WORKFLOW_ARCHITECTURE.md  # System design only
+├── pyproject.toml        # Dependencies and version
+├── uv.lock              # Lock file
+├── backend/             # Application code
+├── tests/               # ALL test files go here
+├── scripts/             # Utility scripts only
+└── info/                # Documentation assets
+```
+
+### Strictly Forbidden in Project Root:
+- `test_*.py` files
+- `*_demo.py` files  
+- `queue_demo.py`
+- `simple_queue_demo.py`
+- `*SUMMARY*.md` files
+- `FIXES_*.md` files
+- `version_check.py` (belongs in scripts/)
 
 ## Code Style Rules
 
@@ -21,11 +77,28 @@
 - **Exception**: README.md may contain emoticons for user-friendly presentation
 
 ### File Creation Rules
-- **DO NOT create unnecessary files** unless explicitly requested by user
-- **CHANGELOG.md is the ONLY place for version logs** - never create separate summary files like "FIXES_SUMMARY.md"
-- **DO NOT create redundant documentation files** like "QUICK_SCRIPTS.md" when comprehensive documentation already exists in proper locations (e.g., scripts/README.md)
-- **Ask before creating new files** unless they are essential for the requested functionality
-- **Delete any summary files and integrate their content into CHANGELOG.md**
+- **ABSOLUTELY NO SUMMARY FILES** - NEVER create any file with "SUMMARY", "FIXES", or similar in the name
+- **MANDATORY FILE LOCATION CHECK** - Before creating ANY file, verify it goes in the correct location:
+  - Tests/demos: MUST go in `tests/` folder
+  - Utility scripts: MUST go in `scripts/` folder  
+  - Documentation: MUST go in CHANGELOG.md or existing docs
+- **PRE-TASK FILE SCAN** - At the start of every task, scan for and DELETE any misplaced files
+- **CHANGELOG.md is the ONLY place for version logs** - never create separate summary files
+- **IMMEDIATE CLEANUP** - If you find any summary files or misplaced test files, delete them immediately
+
+### Mandatory File Organization Enforcement
+**BEFORE any task execution:**
+1. Scan project root for forbidden files
+2. Delete any `*SUMMARY*.md`, `FIXES_*.md` files immediately  
+3. Move any `test_*.py`, `*_demo.py` files to `tests/`
+4. Move any utility scripts to `scripts/`
+5. Update CHANGELOG.md with cleanup actions
+
+**File Location Rules:**
+- **tests/**: ALL test files, demo files, validation scripts
+- **scripts/**: Utility scripts like version_check.py, organize_files.sh  
+- **Project root**: ONLY core project files (see approved list above)
+- **backend/**: Application source code only
 
 ### Frontend/User-Facing Content
 - Emoticons are acceptable in README.md, user documentation, and Telegram bot responses to users

@@ -7,11 +7,14 @@ WORKDIR /app
 RUN pip install uv
 
 # Copy project files
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock requirements.txt ./
 COPY backend/app ./app
 
+# Install dependencies explicitly
+RUN uv pip install --system backoff>=2.2.1
+RUN uv pip install --system 'litellm[proxy]>=1.61.16'
 
-# Install dependencies
+# Install all dependencies
 RUN uv pip install --system --editable .
 
 # Expose the port
