@@ -3,6 +3,9 @@
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
 ## [Unreleased]
+
+
+## [0.1.0] - 2025-08-08
 ### Fixed
 - **Critical: Confirmation Handler Bug**: Fixed multi-event delete confirmations failing by adding proper text normalization and ensuring event queue system is checked first before legacy handler
 - **Mermaid Diagram Parsing**: Fixed "No diagram type detected" error by changing flowchart syntax from `flowchart TD` to `graph TD` and removing problematic colon characters in node labels
@@ -29,6 +32,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.0] - 2025-08-08
 
 
 ## [0.1.0] - 2025-08-07
