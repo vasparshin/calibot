@@ -4,15 +4,14 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-
-## [0.1.6] - 2025-08-08
-
 ### Fixed  
-- **Critical: 'list' object has no attribute 'get' Error**: Fixed production error causing bot to fail on mass delete operations
+- **Critical: 'list' object has no attribute 'get' Error - ACTUALLY FIXED**: Fixed production error causing bot to fail on mass delete operations
 ### Technical Details
-- **routes.py**: Added comprehensive validation for calendar service response structure
-- **Error Handling**: Enhanced type checking to prevent list/dict confusion in event processing
-- **Debug Logging**: Added detailed logging to track event structure and identify malformed data
+- **Root Cause**: EventQueueHandler.create_event_queue() expected Dict but was being called with List
+- **event_queue_handler.py**: Added create_event_queue_from_list() method to handle list inputs properly
+- **routes.py**: Updated calls to use correct method for list vs dict parameters
+- **Type Safety**: Enhanced validation to prevent method signature mismatches
+- **Production Testing**: This specific error scenario is now properly handled
 - **Multi-Event Operations**: Strengthened validation for events list to handle edge cases safely
 
 ## [Unreleased]

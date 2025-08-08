@@ -71,9 +71,63 @@ class EventQueueHandler:
             'created_at': datetime.now(),
             'original_request': intent_data
         }
-        
+
         return self.get_next_event_confirmation(chat_id)
     
+    def create_event_queue_from_list(self, chat_id: str, events_list: List[Dict]) -> Dict:
+        """Create event queue directly from a list of events (for delete/update operations)"""
+        if not isinstance(events_list, list):
+            logger.error(f"CRITICAL: events_list is not a list! Type: {type(events_list)}")
+            return {"success": False, "message": "Invalid events data provided."}
+        
+        # Validate each event in the list
+        validated_events = []
+        for i, event in enumerate(events_list):
+            if not isinstance(event, dict):
+                logger.warning(f"Skipping non-dictionary event at index {i}: {type(event)}")
+                continue
+            validated_events.append(event)
+        
+        if not validated_events:
+            return {"success": False, "message": "No valid events to process."}
+        
+        # Store queue
+        self.pending_queues[chat_id] = {
+            'events': validated_events,
+            'current_index': 0,
+            'created_at': datetime.now(),
+            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
+        }
+
+        return self.get_next_event_confirmation(chat_id)
+    
+    def create_event_queue_from_list(self, chat_id: str, events_list: List[Dict]) -> Dict:
+        """Create event queue directly from a list of events (for delete/update operations)"""
+        if not isinstance(events_list, list):
+            logger.error(f"CRITICAL: events_list is not a list! Type: {type(events_list)}")
+            return {"success": False, "message": "Invalid events data provided."}
+        
+        # Validate each event in the list
+        validated_events = []
+        for i, event in enumerate(events_list):
+            if not isinstance(event, dict):
+                logger.warning(f"Skipping non-dictionary event at index {i}: {type(event)}")
+                continue
+            validated_events.append(event)
+        
+        if not validated_events:
+            return {"success": False, "message": "No valid events to process."}
+        
+        # Store queue
+        self.pending_queues[chat_id] = {
+            'events': validated_events,
+            'current_index': 0,
+            'created_at': datetime.now(),
+            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
+        }
+
+        return self.get_next_event_confirmation(chat_id)
+
     def get_next_event_confirmation(self, chat_id: str) -> Dict:
         """Get the next event in queue for user confirmation"""
         if not self.has_pending_queue(chat_id):

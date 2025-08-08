@@ -248,7 +248,7 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
                 
                 # Create queue
-                queue_result = event_queue_handler.create_event_queue(chat_id, queue_events)
+                queue_result = event_queue_handler.create_event_queue_from_list(chat_id, queue_events)
                 await send_telegram_message(chat_id, queue_result["message"])
                 conversation_state.add_message(chat_id, "assistant", queue_result["message"])
                 return {"status": "ok"}
@@ -639,7 +639,7 @@ async def telegram_webhook(update: TelegramUpdate):
                     queue_events.append(queue_event)
                 
                 if queue_events:
-                    queue_result = event_queue_handler.create_event_queue(chat_id, queue_events)
+                    queue_result = event_queue_handler.create_event_queue_from_list(chat_id, queue_events)
                     await send_telegram_message(chat_id, queue_result["message"])
                     conversation_state.add_message(chat_id, "assistant", queue_result["message"])
                     return {"status": "ok"}
