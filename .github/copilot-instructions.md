@@ -80,6 +80,26 @@
 - **Minor (X.Y.0)**: New features, backward compatible
 - **Patch (X.Y.Z)**: Bug fixes, backward compatible
 
+**CRITICAL VERSION ITERATION RULES:**
+- **EVERY single code change, bug fix, or feature MUST increment the version number**
+- **NO DUPLICATE VERSIONS EVER** - Each version number can only be used once
+- **VERSION SEQUENCE MUST BE INCREMENTAL** - 0.1.0 → 0.1.1 → 0.1.2 → 0.1.3, etc.
+- **ALL VERSION REFERENCES MUST MATCH** across pyproject.toml, backend/app/__init__.py, and CHANGELOG.md
+- **VERSION INCREMENT IS MANDATORY** - Even the smallest bug fix requires a version bump
+
+**Version Update Process:**
+1. Before any code change, identify the next version number (increment from current)
+2. Update ALL three files: pyproject.toml, backend/app/__init__.py, CHANGELOG.md  
+3. Use the NEW version in CHANGELOG.md entry header
+4. Commit with version-specific message: "v0.1.3: Fix mass delete confirmation workflow"
+
+**Example Version Progression:**
+- v0.1.0: Initial release
+- v0.1.1: Fix confirmation bug
+- v0.1.2: Add mermaid diagram
+- v0.1.3: Fix dependency issues
+- v0.1.4: Next change... (and so on)
+
 ### Version Control Workflow
 **Critical: Version numbers must be synchronized across all files**
 

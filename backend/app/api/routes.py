@@ -78,9 +78,37 @@ async def telegram_webhook(update: TelegramUpdate):
             conversation_state.add_message(chat_id, "assistant", ai_response)
             return {"status": "ok"}  
         
-        
         event_data = await nlp_agent.extract_intent(user_message, history)
         logger.info(f"Extracted intent: {event_data}")
+
+        # Validate event_data structure
+        if not isinstance(event_data, dict):
+            logger.error(f"Invalid event_data type: {type(event_data)} - {event_data}")
+            await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
+            conversation_state.add_message(chat_id, "assistant", "Sorry, I had trouble understanding your request. Could you please try again?")
+            return {"status": "ok"}
+
+        # Handle batch creation format
+        if event_data.get("intent") == "batch_create" and "events" in event_data:
+            logger.info(f"Processing batch creation with {len(event_data['events'])} events")
+            events_to_create = event_data["events"]
+            
+            # Process each event in the batch
+            created_count = 0
+            for single_event in events_to_create:
+                if isinstance(single_event, dict) and single_event.get("intent") == "create":
+                    try:
+                        calendar_result = await calendar_agent.process_calendar_request(single_event)
+                        if calendar_result and calendar_result.get("success"):
+                            created_count += 1
+                    except Exception as e:
+                        logger.error(f"Error creating batch event: {e}")
+                        continue
+            
+            success_message = f"Successfully created {created_count} out of {len(events_to_create)} events."
+            await send_telegram_message(chat_id, success_message)
+            conversation_state.add_message(chat_id, "assistant", success_message)
+            return {"status": "ok"}
 
         # Check if user has pending event queue (NEW: Priority check)
         if event_queue_handler.has_pending_queue(chat_id):

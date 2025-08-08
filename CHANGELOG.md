@@ -5,21 +5,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
-## [0.1.0] - 2025-08-08
+## [0.1.3] - 2025-08-08
 ### Fixed  
 - **Critical: Delete/Update Confirmation Workflow**: Fixed broken confirmation workflow for delete/update operations where bot would ask for confirmation but not create any pending operations, causing "I don't have any pending operations to confirm" error
 - **Multi-Event Queue Creation**: Added proper event queue creation for multi-event delete/update operations that require confirmation
 - **Single-Event Pending Operations**: Added proper pending operation storage for single-event delete/update operations
+- **LiteLLM Dependency**: Fixed missing 'backoff' module error by adding proper dependency specification
+- **Type Safety**: Fixed "'list' object has no attribute 'get'" error in event processing
 
 ### Technical Details
 - **routes.py**: Added dedicated handler for delete/update operations with `confirmation_needed: True` that properly creates event queues or stores pending operations before asking for confirmation
 - **Root Cause**: Delete/update operations with confirmation were falling through to generic AI response without creating any trackable pending state
 - **Impact**: Mass delete operations like "Delete all events titled 'lesson'" now work correctly through the full confirmation workflow
 
-## [Unreleased]
-
-
-## [0.1.0] - 2025-08-08
+## [0.1.2] - 2025-08-08
 ### Fixed
 - **Critical: Confirmation Handler Bug**: Fixed multi-event delete confirmations failing by adding proper text normalization and ensuring event queue system is checked first before legacy handler
 - **Mermaid Diagram Parsing**: Fixed "No diagram type detected" error by changing flowchart syntax from `flowchart TD` to `graph TD` and removing problematic colon characters in node labels
@@ -28,7 +27,7 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - **routes.py**: Updated confirmation intent handler to normalize confirmation text ("Yes", "yes", "confirm", "ok") and always check event_queue_handler.has_pending_queue() before multi_event_handler.has_pending_operation()
 - **Root Cause**: User confirmations like "Yes" were not being properly handled for event queue operations, causing "I don't have any pending operations to confirm" error
 
-## [0.1.0] - 2025-08-07
+## [0.1.1] - 2025-08-07
 ### Fixed
 - **Critical: Mass Delete Functionality**: Fixed broken multi-event deletion where confirmation intent wasn't checking event queue system, causing "I don't have any pending operations to confirm" error
 - **Mermaid Diagram Rendering**: Simplified WORKFLOW_ARCHITECTURE.md diagram by removing complex styling that was causing "No diagram type detected" errors
@@ -43,19 +42,6 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ### Enhanced
 - **Development Guidelines**: Updated copilot instructions to explicitly ban emoticons in all scripts and prevent creation of redundant documentation files
 - **Code Style Enforcement**: Clarified that all files in scripts/ folder are backend files requiring professional style
-
-
-## [Unreleased]
-
-
-## [0.1.0] - 2025-08-08
-
-
-## [Unreleased]
-
-
-## [0.1.0] - 2025-08-08
-
 
 ## [0.1.0] - 2025-08-07
 ### Fixed
@@ -110,41 +96,6 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - **Event Queue Handler**: `/backend/app/services/event_queue_handler.py` handles multi-event detection and confirmation
 - **Testing**: Production fixes validated in `tests/test_production_fixes.py`
 - **Files affected**: `google_calendar.py`, `routes.py`, `event_queue_handler.py`, `.dockerignore`, `pyproject.toml`, `backend/app/__init__.py`, all test files moved to `tests/`
-
-## [1.2.0] - 2025-08-06
-### Multi-Event Operations & Robust Intent Extraction (Production Ready)
-- Implemented robust multi-event operation system with queue-based confirmation for delete/update
-- Enhanced intent extraction prompt with explicit DELETE/UPDATE examples and warning symbols
-- Added `MultiEventOperationHandler` for batch operations (delete, update, move) with user confirmation
-- Integrated handler into FastAPI routes for Telegram webhook
-- Improved calendar selection (AI + rule-based fallback)
-- All test suites passing: batch events, context memory, calendar selection, production scenarios
-- **Files:**
-  - `app/prompts/intent_extraction_prompt.py`
-  - `app/services/multi_event_operations.py`
-  - `app/api/routes.py`
-  - `app/agent/nlp_agent.py`
-  - `tests/`
-- **Motivation:**
-  - Fix production bug: delete operations misclassified as queries
-  - Support safe batch operations with explicit user confirmation
-  - Ensure 100% calendar assignment accuracy
-
-### Fixes & Improvements (from previous summaries)
-- Batch event creation: LLM now returns and parses multiple JSON objects for batch requests
-- Calendar selection: Prompt and agent now extract and assign correct calendar names
-- Context memory: Conversation history formatting and prompt improved for context retention
-- Prompt robustness: Added explicit examples, warnings, and error handling for intent extraction
-- Time/duration validation: System requests confirmation when time or duration is missing
-- **Files:**
-  - `app/prompts/intent_extraction_prompt.py`
-  - `app/agent/nlp_agent.py`
-  - `app/utils/helpers.py`
-  - `tests/`
-- **Motivation:**
-  - Fix production bugs, improve reliability, and ensure all edge cases are handled
-
----
 
 ## [1.2.0] - 2025-08-06
 
