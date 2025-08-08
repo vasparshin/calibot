@@ -4,6 +4,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.6] - 2025-08-08
+
 ### Fixed  
 - **Critical: 'list' object has no attribute 'get' Error - ACTUALLY FIXED**: Fixed production error causing bot to fail on mass delete operations
 ### Technical Details
@@ -13,6 +16,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - **Type Safety**: Enhanced validation to prevent method signature mismatches
 - **Production Testing**: This specific error scenario is now properly handled
 - **Multi-Event Operations**: Strengthened validation for events list to handle edge cases safely
+
+## [Unreleased]
+
+
+## [0.1.6] - 2025-08-08
+
 
 ## [Unreleased]
 
