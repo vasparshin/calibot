@@ -109,9 +109,10 @@
 
 ## Changelog Rules
 
-- **MANDATORY: Every commit or PR must update `CHANGELOG.md`.**
-- **MANDATORY: Every code change, bug fix, or feature implementation MUST be documented in CHANGELOG.md before completing the task.**
-- **NO EXCEPTIONS: If you make any change to code, configuration, or documentation, you MUST update the changelog.**
+- **MANDATORY: Every commit or PR must update `CHANGELOG.md` AFTER testing is complete.**
+- **MANDATORY: Every code change, bug fix, or feature implementation MUST be documented in CHANGELOG.md AFTER verifying tests pass.**
+- **TESTING FIRST: Always run tests and verify functionality before updating changelog.**
+- **NO EXCEPTIONS: If you make any change to code, configuration, or documentation, you MUST update the changelog AFTER testing.**
 - **DO NOT create separate fixes summary files** - document all changes directly in CHANGELOG.md
 - **CHANGELOG.md is the ONLY place for version history** - never create additional summary files
 - **Delete any existing summary files** and integrate their content into CHANGELOG.md
@@ -126,11 +127,13 @@
 ### Changelog Update Workflow
 **🚨 CRITICAL: Follow this exact sequence for every task - NO EXCEPTIONS:**
 1. Make code changes
-2. **IMMEDIATELY update CHANGELOG.md with details of what was changed and why**
-3. **VERIFY CHANGELOG.md has been updated before proceeding**
-4. Commit both the code changes AND changelog update together
-5. **Never complete a task without updating the changelog - THIS IS MANDATORY**
+2. **Run comprehensive tests to verify all changes work correctly**
+3. **AFTER tests pass, update CHANGELOG.md with details of what was changed and why**
+4. **VERIFY CHANGELOG.md has been updated with the correct version increment**
+5. Commit both the code changes AND changelog update together
+6. **Never complete a task without updating the changelog AFTER successful testing - THIS IS MANDATORY**
 
+**🚨 CHANGELOG UPDATE MUST HAPPEN AFTER TESTING VERIFICATION 🚨**
 **🚨 FAILURE TO UPDATE CHANGELOG IS A CRITICAL ERROR 🚨**
 
 ### Changelog Update Examples
