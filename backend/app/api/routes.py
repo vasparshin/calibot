@@ -98,27 +98,56 @@ async def check_for_duplicate_events(chat_id, events_to_create, calendar_service
             continue
             
         # Query for existing events with same name on same date
+        event_name = event.get("event_name", "")
+        date = event.get("date", "")
+        
+        if not event_name or not date:
+            logger.warning(f"Skipping duplicate check for incomplete event: {event}")
+            continue
+            
         query_params = {
-            "event_name": event.get("event_name", ""),
-            "date": event.get("date", "")
+            "event_name": event_name,
+            "date": date
         }
         
         try:
+            logger.info(f"Checking for duplicates of '{event_name}' on {date}")
             existing_events = await calendar_service.query_events(query_params)
+            logger.info(f"Query result: {existing_events}")
+            
             if existing_events.get("success") and existing_events.get("events"):
-                # Check for exact time matches
+                # Check for events with similar names and overlapping times
                 event_start = event.get("start_time", "")
+                event_end = event.get("end_time", "")
+                
                 for existing in existing_events["events"]:
-                    existing_start = existing.get("start_time", "")
-                    if event_start == existing_start:
-                        duplicates_found.append({
-                            "new_event": event,
-                            "existing_event": existing,
-                            "index": i
-                        })
+                    existing_summary = existing.get("summary", "").lower()
+                    event_name_lower = event_name.lower()
+                    
+                    # Check if names are similar (exact match or contain each other)
+                    if (existing_summary == event_name_lower or 
+                        event_name_lower in existing_summary or 
+                        existing_summary in event_name_lower):
+                        
+                        # Check time overlap for stronger duplicate detection
+                        existing_start = existing.get("start", "")
+                        if event_start and existing_start:
+                            # Extract time from datetime string for comparison
+                            try:
+                                if event_start in existing_start:
+                                    logger.info(f"Found potential duplicate: {existing_summary} at {existing_start}")
+                                    duplicates_found.append({
+                                        "new_event": event,
+                                        "existing_event": existing,
+                                        "index": i
+                                    })
+                                    break  # Only flag one duplicate per new event
+                            except Exception as e:
+                                logger.warning(f"Error comparing times: {e}")
         except Exception as e:
             logger.warning(f"Error checking for duplicates: {e}")
     
+    logger.info(f"Found {len(duplicates_found)} potential duplicates")
     return duplicates_found
 
 

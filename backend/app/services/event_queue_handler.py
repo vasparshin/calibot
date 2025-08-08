@@ -149,13 +149,33 @@ class EventQueueHandler:
         intent = events[0].get('intent', 'process') if events else 'process'
         action_text = {'delete': 'delete', 'update': 'update', 'create': 'create'}.get(intent, 'process')
         
-        # Build event summary list
+        # Build event summary list with enhanced date/time formatting
         event_summaries = []
         for i, event in enumerate(events[:5], 1):  # Show first 5 events
             title = event.get('event_name', 'Untitled')
-            start_time = self._format_time_simple(event.get('start_time', ''))
+            
+            # Enhanced format: date + start/end times
+            start_time = event.get('start_time', '')
+            end_time = event.get('end_time', '')
+            
+            try:
+                if 'T' in str(start_time) and 'T' in str(end_time):
+                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                    
+                    date_part = start_dt.strftime('%a %b %d')
+                    start_time_part = start_dt.strftime('%I:%M %p')
+                    end_time_part = end_dt.strftime('%I:%M %p')
+                    
+                    time_display = f"{date_part}, {start_time_part} - {end_time_part}"
+                else:
+                    time_display = self._format_time_simple(start_time)
+            except Exception as e:
+                logger.warning(f"Error formatting event time: {e}")
+                time_display = self._format_time_simple(start_time)
+            
             calendar = self._format_calendar_name(event.get('calendar_name', ''))
-            event_summaries.append(f"{i}. {title} - {start_time} ({calendar})")
+            event_summaries.append(f"{i}. {title} - {time_display} ({calendar})")
         
         if total_events > 5:
             event_summaries.append(f"... and {total_events - 5} more events")

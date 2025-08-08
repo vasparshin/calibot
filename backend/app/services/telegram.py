@@ -4,21 +4,28 @@ from app.config import TELEGRAM_API_TOKEN
 TELEGRAM_API_BASE = f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}"
 
 def strip_markdown(text: str) -> str:
-    """Remove Markdown formatting characters from text"""
+    """Remove Markdown formatting characters from text, but preserve hyperlinks"""
     import re
     # Remove bold **text**
     text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
-    # Remove italic *text*
-    text = re.sub(r'\*(.*?)\*', r'\1', text)
+    # Remove italic *text* (but not hyperlinks)
+    text = re.sub(r'(?<!\])\*(.*?)\*(?!\()', r'\1', text)
     # Remove other common markdown
     text = re.sub(r'`(.*?)`', r'\1', text)  # code
     text = re.sub(r'_(.*?)_', r'\1', text)  # underline
+    # Keep hyperlinks [text](url) intact
     return text
 
 async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None):
         """Send message to Telegram chat"""
-        # Strip markdown formatting to show plain text
-        clean_text = strip_markdown(text)
+        # Check if text contains hyperlinks - if so, use Markdown mode
+        if '[' in text and '](' in text and ')' in text:
+            parse_mode = "Markdown"
+            clean_text = strip_markdown(text)  # This now preserves hyperlinks
+        else:
+            # Strip all markdown formatting for plain text
+            clean_text = strip_markdown(text)
+            
         async with httpx.AsyncClient() as client:
             payload = {
                 "chat_id": chat_id,

@@ -2,7 +2,21 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
-## [0.1.11] - 2025-08-08 🚨 CRITICAL USER EXPERIENCE FIXES
+## [0.1.12] - 2025-08-08 CRITICAL HYPERLINK AND DUPLICATE DETECTION FIXES
+
+### Fixed
+- **CRITICAL: Hyperlinks Not Working**: Fixed Telegram message sending to preserve hyperlink formatting by auto-detecting and enabling Markdown mode for messages containing hyperlinks
+- **Broken Hyperlink Display**: Modified `strip_markdown()` function to preserve hyperlink syntax `[text](url)` while cleaning other formatting
+- **Duplicate Event Detection Not Working**: Enhanced duplicate checking with better name matching (case-insensitive, partial matches) and improved time comparison logic
+- **Better Duplicate Detection**: Added comprehensive logging for duplicate checking process to help diagnose issues
+
+### Technical Details
+- **telegram.py**: Fixed `send_telegram_message()` to auto-enable Markdown mode when hyperlinks detected, preserving `[event_name](calendar_link)` formatting
+- **telegram.py**: Enhanced `strip_markdown()` to preserve hyperlinks while removing other Markdown formatting (bold, italic, code blocks)
+- **routes.py**: Improved `check_for_duplicate_events()` with case-insensitive name matching, partial name overlap detection, and better time overlap checking
+- **routes.py**: Added extensive logging to duplicate detection process for better debugging
+
+## [0.1.11] - 2025-08-08 CRITICAL USER EXPERIENCE FIXES
 
 ### Fixed
 - **CRITICAL: "Unknown date" in Event Creation**: Fixed date extraction in `format_event_for_user()` to properly parse dates from start_time ISO strings
