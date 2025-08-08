@@ -206,10 +206,10 @@ Reply with:
         # Get proper calendar name
         calendar = self._format_calendar_name(event.get('calendar_name', 'Default calendar'))
         
-        return f"""📅 {title}
-📆 Date: {date_str}
-🕒 Time: {time_str}
-📋 Calendar: {calendar}"""
+        return f"""Event: {title}
+Date: {date_str}
+Time: {time_str}
+Calendar: {calendar}"""
     
     def _format_datetime_nice(self, start_time: str, end_time: str = '') -> tuple:
         """Format datetime strings into readable date and time"""
@@ -397,11 +397,11 @@ Reply with:
         
         # Build result message
         if failed == 0:
-            message = f"✅ All {total_events} events {action_text} successfully!"
+            message = f"SUCCESS: All {total_events} events {action_text} successfully!"
         elif successful == 0:
-            message = f"❌ Failed to {intent} all {total_events} events:\n" + "\n".join(failures)
+            message = f"ERROR: Failed to {intent} all {total_events} events:\n" + "\n".join(failures)
         else:
-            message = f"⚠️ {successful} events {action_text}, {failed} failed:\n" + "\n".join(failures)
+            message = f"PARTIAL: {successful} events {action_text}, {failed} failed:\n" + "\n".join(failures)
         
         return {
             "success": True,

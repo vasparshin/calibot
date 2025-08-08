@@ -2,6 +2,18 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.8] - 2025-08-08
+
+### Fixed
+- **Critical: Batch Event Creation Failure**: Fixed production error "CalendarAgent object has no attribute process_calendar_request" causing all batch creation requests to fail
+- **Backend Code Style**: Removed all emoticons from backend files per coding standards (routes.py, event_queue_handler.py)
+### Technical Details
+- **Root Cause**: Old batch creation code was calling non-existent calendar_agent.process_calendar_request() method
+- **routes.py**: Updated batch creation to use proper calendar_service.create_event() method with comprehensive error handling
+- **event_queue_handler.py**: Removed emoticons from all backend messaging and replaced with professional text
+- **Comprehensive Testing**: Added complete test suite validating both batch creation and deletion operations
+- **Production Validation**: All batch operations (create, delete, update) now working correctly
+
 ## [0.1.7] - 2025-08-08
 
 ### Enhanced

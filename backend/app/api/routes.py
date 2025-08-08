@@ -110,17 +110,36 @@ async def telegram_webhook(update: TelegramUpdate):
             
             # Process each event in the batch
             created_count = 0
-            for single_event in events_to_create:
+            failed_count = 0
+            results = []
+            
+            for i, single_event in enumerate(events_to_create):
                 if isinstance(single_event, dict) and single_event.get("intent") == "create":
                     try:
-                        calendar_result = await calendar_agent.process_calendar_request(single_event)
+                        logger.info(f"Creating event {i+1}/{len(events_to_create)}: {single_event}")
+                        calendar_result = await calendar_service.create_event(single_event)
                         if calendar_result and calendar_result.get("success"):
                             created_count += 1
+                            results.append(f"SUCCESS Event {i+1}: {single_event.get('event_name', 'Untitled')} at {single_event.get('start_time', 'Unknown time')}")
+                        else:
+                            failed_count += 1
+                            error_msg = calendar_result.get('message', 'Unknown error') if calendar_result else 'Unknown error'
+                            results.append(f"FAILED Event {i+1}: {single_event.get('event_name', 'Untitled')} - {error_msg}")
                     except Exception as e:
                         logger.error(f"Error creating batch event: {e}")
+                        failed_count += 1
+                        results.append(f"FAILED Event {i+1}: {single_event.get('event_name', 'Untitled')} - Error: {str(e)}")
                         continue
             
-            success_message = f"Successfully created {created_count} out of {len(events_to_create)} events."
+            # Send comprehensive response
+            if created_count > 0:
+                success_message = f"Batch creation completed: {created_count} events created"
+                if failed_count > 0:
+                    success_message += f", {failed_count} failed"
+                success_message += f"\n\n" + "\n".join(results)
+            else:
+                success_message = f"Failed to create all {len(events_to_create)} events:\n" + "\n".join(results)
+            
             await send_telegram_message(chat_id, success_message)
             conversation_state.add_message(chat_id, "assistant", success_message)
             return {"status": "ok"}
