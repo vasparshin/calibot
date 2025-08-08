@@ -171,12 +171,21 @@ async def telegram_webhook(update: TelegramUpdate):
                 "date": event_data.get("date", "")
             })
             
-            if not matched_events["success"] or not matched_events["events"]:
+            logger.info(f"Calendar service response: {type(matched_events)} - {matched_events}")
+            
+            if not isinstance(matched_events, dict) or not matched_events.get("success") or not matched_events.get("events"):
                 await send_telegram_message(chat_id, f"No matching events found for {event_data.get('intent')} operation.")
                 conversation_state.add_message(chat_id, "assistant", f"No matching events found for {event_data['intent']} operation.")
                 return {"status": "ok"}
             
             events = matched_events["events"]
+            
+            # Validate events is a list
+            if not isinstance(events, list):
+                logger.error(f"CRITICAL: Events is not a list! Type: {type(events)}, Content: {events}")
+                await send_telegram_message(chat_id, "Sorry, there was an issue retrieving events. Please try again.")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, there was an issue retrieving events. Please try again.")
+                return {"status": "ok"}
             
             # Validate events is a list
             if not isinstance(events, list):
@@ -566,12 +575,21 @@ async def telegram_webhook(update: TelegramUpdate):
                 "date": event_data.get("date", "")
             })
             
-            if not matched_events["success"] or not matched_events["events"]:
+            logger.info(f"Calendar service response: {type(matched_events)} - {matched_events}")
+            
+            if not isinstance(matched_events, dict) or not matched_events.get("success") or not matched_events.get("events"):
                 await send_telegram_message(chat_id, f"No events matching '{event_data.get('event_name', '')}' found.")
                 conversation_state.add_message(chat_id, "assistant", f"No events matching '{event_data.get('event_name', '')}' found.")
                 return {"status": "ok"}
             
             events = matched_events["events"]
+            
+            # Validate events is a list
+            if not isinstance(events, list):
+                logger.error(f"CRITICAL: Events is not a list! Type: {type(events)}, Content: {events}")
+                await send_telegram_message(chat_id, "Sorry, there was an issue retrieving events. Please try again.")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, there was an issue retrieving events. Please try again.")
+                return {"status": "ok"}
             
             # Filter events to only include those matching the event name (if specified)
             if event_data.get("event_name"):
@@ -591,11 +609,22 @@ async def telegram_webhook(update: TelegramUpdate):
             
             logger.info(f"Found {len(events)} matching events for {event_data['intent']} operation")
             
+            # Debug logging for event structure
+            logger.info(f"Events structure debug - Type: {type(events)}")
+            if events:
+                logger.info(f"First event type: {type(events[0])}")
+                logger.info(f"First event content: {events[0]}")
+            
             # If multiple events, use queue system for individual confirmation
             if len(events) > 1:
                 queue_events = []
-                for event in events:
-                    if not isinstance(event, dict) or "id" not in event:
+                for i, event in enumerate(events):
+                    logger.info(f"Processing event {i}: type={type(event)}, content={event}")
+                    if not isinstance(event, dict):
+                        logger.warning(f"Skipping non-dictionary event at index {i}: {type(event)} - {event}")
+                        continue
+                    if "id" not in event:
+                        logger.warning(f"Skipping event without id at index {i}: {event}")
                         continue
                     
                     queue_event = {
