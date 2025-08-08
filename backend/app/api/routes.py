@@ -239,24 +239,29 @@ async def telegram_webhook(update: TelegramUpdate):
         # Handle confirmation intent (user saying yes/confirm to something)
         if event_data["intent"] == "confirm":
             logger.info(f"User confirmation received")
-            
-            # Check if there's a pending event queue first (NEW SYSTEM)
-            if event_queue_handler.has_pending_queue(chat_id):
-                logger.info(f"Processing confirmation for pending event queue")
-                queue_result = await event_queue_handler.process_queue_response(chat_id, "yes")
-                await send_telegram_message(chat_id, queue_result["message"])
-                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
-            # Check if there's a pending operation (LEGACY SYSTEM)
-            elif multi_event_handler.has_pending_operation(chat_id):
-                logger.info(f"Processing confirmation for pending multi-event operation")
-                confirmation_result = await multi_event_handler.confirm_operation(chat_id, "yes")
-                await send_telegram_message(chat_id, confirmation_result["message"])
-                conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
+            # Normalize confirmation text
+            confirmation_text = user_message.strip().lower()
+            if confirmation_text in ["yes", "y", "confirm", "ok", "proceed"]:
+                # Check event queue system first
+                if event_queue_handler.has_pending_queue(chat_id):
+                    logger.info(f"Processing confirmation for pending event queue")
+                    queue_result = await event_queue_handler.process_queue_response(chat_id, confirmation_text)
+                    await send_telegram_message(chat_id, queue_result["message"])
+                    conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+                # Check legacy multi-event handler
+                elif multi_event_handler.has_pending_operation(chat_id):
+                    logger.info(f"Processing confirmation for pending multi-event operation")
+                    confirmation_result = await multi_event_handler.confirm_operation(chat_id, confirmation_text)
+                    await send_telegram_message(chat_id, confirmation_result["message"])
+                    conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
+                else:
+                    await send_telegram_message(chat_id, "I don't have any pending operations to confirm. What would you like me to do?")
+                    conversation_state.add_message(chat_id, "assistant", "I don't have any pending operations to confirm. What would you like me to do?")
+                return {"status": "ok"}
             else:
-                await send_telegram_message(chat_id, "I don't have any pending operations to confirm. What would you like me to do?")
-                conversation_state.add_message(chat_id, "assistant", "I don't have any pending operations to confirm. What would you like me to do?")
-            
-            return {"status": "ok"}
+                await send_telegram_message(chat_id, "Sorry, I didn't understand your confirmation. Please reply with 'yes' to confirm.")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, I didn't understand your confirmation. Please reply with 'yes' to confirm.")
+                return {"status": "ok"}
 
         # If no confirmation is needed, proceed with the action
         if event_data["confirmation_needed"] is False:

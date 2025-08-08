@@ -3,7 +3,13 @@
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
 ## [Unreleased]
+### Fixed
+- **Critical: Confirmation Handler Bug**: Fixed multi-event delete confirmations failing by adding proper text normalization and ensuring event queue system is checked first before legacy handler
+- **Mermaid Diagram Parsing**: Fixed "No diagram type detected" error by changing flowchart syntax from `flowchart TD` to `graph TD` and removing problematic colon characters in node labels
 
+### Technical Details
+- **routes.py**: Updated confirmation intent handler to normalize confirmation text ("Yes", "yes", "confirm", "ok") and always check event_queue_handler.has_pending_queue() before multi_event_handler.has_pending_operation()
+- **Root Cause**: User confirmations like "Yes" were not being properly handled for event queue operations, causing "I don't have any pending operations to confirm" error
 
 ## [0.1.0] - 2025-08-07
 ### Fixed

@@ -2,6 +2,11 @@
 
 ## Project Overview
 
+## ⚠️ CRITICAL REMINDERS
+- **ALWAYS UPDATE CHANGELOG.MD** - Every code change MUST be documented in CHANGELOG.md before task completion
+- **NO EMOTICONS IN BACKEND FILES** - Scripts, Python files, configuration files must use professional text only
+- **NO UNNECESSARY FILES** - Don't create summary files, use existing documentation structure
+
 ## Code Style Rules
 
 ### Backend Files (Strict Professional Style)
@@ -28,7 +33,9 @@
 
 ## Changelog Rules
 
-- **Every commit or PR must update `CHANGELOG.md`.**
+- **MANDATORY: Every commit or PR must update `CHANGELOG.md`.**
+- **MANDATORY: Every code change, bug fix, or feature implementation MUST be documented in CHANGELOG.md before completing the task.**
+- **NO EXCEPTIONS: If you make any change to code, configuration, or documentation, you MUST update the changelog.**
 - **DO NOT create separate fixes summary files** - document all changes directly in CHANGELOG.md
 - **CHANGELOG.md is the ONLY place for version history** - never create additional summary files
 - **Delete any existing summary files** and integrate their content into CHANGELOG.md
@@ -39,6 +46,27 @@
 - If a change is a refactor, describe the before/after and why.
 - If a change is a new feature, describe the user impact and integration points.
 - Keep entries concise but specific.
+
+### Changelog Update Workflow
+**CRITICAL: Follow this exact sequence for every task:**
+1. Make code changes
+2. **IMMEDIATELY update CHANGELOG.md with details of what was changed and why**
+3. Commit both the code changes AND changelog update together
+4. Never complete a task without updating the changelog
+
+### Changelog Update Examples
+**Good changelog entry:**
+```
+### Fixed
+- **Critical: Confirmation Handler Bug**: Fixed multi-event delete confirmations failing by adding proper text normalization
+### Technical Details  
+- **routes.py**: Updated confirmation intent handler to normalize confirmation text and check event queue system first
+```
+
+**Bad changelog entry (missing):**
+- Making code changes without any changelog update
+- Saying "I'll update the changelog later"
+- Creating separate summary files instead of using CHANGELOG.md
 
 ### Changelog Categories
 - **Added**: New features

@@ -3,13 +3,13 @@
 ## Complete Bot Flow (v1.2.0+)
 
 ```mermaid
-flowchart TD
+graph TD
     A[User Message via Telegram] --> B[FastAPI Webhook]
     B --> C{Authenticated?}
     C -->|No| D[Send OAuth URL]
     C -->|Yes| E[Add to Conversation State]
     
-    E --> F[NLP Agent: Check Relevancy]
+    E --> F[NLP Agent Check Relevancy]
     F -->|Not Relevant| G[Small Talk Response]
     F -->|Relevant| H[Extract Intent]
     
