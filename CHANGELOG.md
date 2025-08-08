@@ -7,6 +7,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [0.1.6] - 2025-08-08
 
+
+## [Unreleased]
+
+
+## [0.1.6] - 2025-08-08
+
 ### Fixed
 - **Critical: File Organization Violation Cleanup**: Removed unnecessary files that violated copilot instructions
 ### Technical Details
