@@ -395,13 +395,28 @@ Calendar: {calendar}"""
         # Clear the queue
         del self.pending_queues[chat_id]
         
+        # Build result message with dates
+        date_info = ""
+        if events and len(events) > 0:
+            # Try to extract date from first event
+            first_event = events[0]
+            if isinstance(first_event, dict):
+                start_time = first_event.get('start_time', '')
+                if 'T' in str(start_time):
+                    try:
+                        from datetime import datetime
+                        dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                        date_info = f" on {dt.strftime('%A, %B %d, %Y')}"
+                    except:
+                        pass
+        
         # Build result message
         if failed == 0:
-            message = f"SUCCESS: All {total_events} events {action_text} successfully!"
+            message = f"Successfully {action_text} all {total_events} events{date_info}!"
         elif successful == 0:
-            message = f"ERROR: Failed to {intent} all {total_events} events:\n" + "\n".join(failures)
+            message = f"Failed to {intent} all {total_events} events{date_info}:\n" + "\n".join(failures)
         else:
-            message = f"PARTIAL: {successful} events {action_text}, {failed} failed:\n" + "\n".join(failures)
+            message = f"Partially completed: {successful} events {action_text}, {failed} failed{date_info}:\n" + "\n".join(failures)
         
         return {
             "success": True,
@@ -470,26 +485,96 @@ Calendar: {calendar}"""
                     event_id = event.get('event_id')
                     calendar_id = event.get('calendar_id', 'primary')
                     
-                    update_data = {
-                        'event_name': event.get('event_name'),
-                        'start_time': event.get('start_time'),
-                        'end_time': event.get('end_time'),
-                        'date': event.get('date'),
-                        'description': event.get('description'),
-                        'location': event.get('location')
-                    }
+                    if not event_id:
+                        return {
+                            "success": False,
+                            "message": "Error: Missing event ID for update operation"
+                        }
+                    
+                    # Build update data - handle time shifts if specified
+                    update_data = {}
+                    
+                    # Handle time shift (e.g., "move 1 hour later")
+                    if event.get('time_shift'):
+                        try:
+                            from datetime import datetime, timedelta
+                            import re
+                            
+                            # Parse current times
+                            current_start = event.get('start_time')
+                            current_end = event.get('end_time')
+                            
+                            if current_start and 'T' in str(current_start):
+                                start_dt = datetime.fromisoformat(current_start.replace('Z', '+00:00'))
+                                
+                                # Parse time shift (e.g., "1 hour", "30 minutes")
+                                time_shift = event.get('time_shift', '')
+                                hours = 0
+                                minutes = 0
+                                
+                                # Extract hours
+                                hour_match = re.search(r'(\d+)\s*(?:hour|hr)', time_shift, re.IGNORECASE)
+                                if hour_match:
+                                    hours = int(hour_match.group(1))
+                                
+                                # Extract minutes  
+                                minute_match = re.search(r'(\d+)\s*(?:minute|min)', time_shift, re.IGNORECASE)
+                                if minute_match:
+                                    minutes = int(minute_match.group(1))
+                                
+                                # Apply shift
+                                shift_delta = timedelta(hours=hours, minutes=minutes)
+                                new_start = start_dt + shift_delta
+                                
+                                update_data['start_time'] = new_start.isoformat()
+                                
+                                # Also shift end time if available
+                                if current_end and 'T' in str(current_end):
+                                    end_dt = datetime.fromisoformat(current_end.replace('Z', '+00:00'))
+                                    new_end = end_dt + shift_delta
+                                    update_data['end_time'] = new_end.isoformat()
+                                    
+                        except Exception as e:
+                            logger.error(f"Error processing time shift: {e}")
+                            return {
+                                "success": False,
+                                "message": f"Error: Failed to process time shift: {str(e)}"
+                            }
+                    
+                    # Handle direct time updates
+                    if event.get('new_start_time'):
+                        update_data['start_time'] = event.get('new_start_time')
+                    if event.get('new_end_time'):
+                        update_data['end_time'] = event.get('new_end_time')
+                    if event.get('new_event_name'):
+                        update_data['event_name'] = event.get('new_event_name')
+                    if event.get('description'):
+                        update_data['description'] = event.get('description')
+                    if event.get('location'):
+                        update_data['location'] = event.get('location')
+                    
+                    # If no specific updates provided, default to current values
+                    if not update_data:
+                        update_data = {
+                            'event_name': event.get('event_name'),
+                            'start_time': event.get('start_time'),
+                            'end_time': event.get('end_time'),
+                            'date': event.get('date'),
+                            'description': event.get('description', ''),
+                            'location': event.get('location', '')
+                        }
                     
                     result = self.calendar_service.update_event(event_id, update_data, calendar_id)
                     
                     if result.get('success'):
                         return {
                             "success": True,
-                            "message": "Success: Event updated successfully"
+                            "message": "Event updated successfully"
                         }
                     else:
                         return {
                             "success": False,
-                            "message": f"Error: Failed to update event: {result.get('message', 'Unknown error')}"
+                            "message": f"Failed to update event: {result.get('message', 'Unknown error')}"
                         }
                 
             else:

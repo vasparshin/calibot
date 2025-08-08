@@ -8,10 +8,51 @@ from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
 from app.agent.nlp_agent import NLPAgent
 from app.agent.calendar_agent import CalendarAgent
+from datetime import datetime
 
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def format_event_for_user(event_data, calendar_result=None, operation="created"):
+    """Format event information consistently for user messages"""
+    title = event_data.get('event_name', 'Untitled Event')
+    
+    # Format date and time
+    date_str = "Unknown date"
+    time_str = "Unknown time"
+    
+    if event_data.get('date'):
+        try:
+            date_obj = datetime.fromisoformat(event_data['date'])
+            date_str = date_obj.strftime('%A, %B %d, %Y')
+        except:
+            date_str = event_data.get('date', 'Unknown date')
+    
+    start_time = event_data.get('start_time', '')
+    end_time = event_data.get('end_time', '')
+    
+    if start_time and end_time:
+        time_str = f"{start_time} - {end_time}"
+    elif start_time:
+        time_str = start_time
+    
+    # Format calendar name
+    calendar_name = event_data.get('calendar_name', 'Personal Calendar')
+    if '@' in calendar_name:
+        if 'group.calendar.google.com' in calendar_name:
+            calendar_name = 'Shared Calendar'
+        elif calendar_name == 'zoutna@gmail.com':
+            calendar_name = 'Personal'
+        else:
+            calendar_name = calendar_name.split('@')[0].replace('.', ' ').title()
+    
+    # Get event link if available
+    event_link = ""
+    if calendar_result and calendar_result.get('event_link'):
+        event_link = f"\nLink: {calendar_result['event_link']}"
+    
+    return f"• {title} on {date_str} at {time_str} ({calendar_name}){event_link}"
 
 
 router = APIRouter()
@@ -111,7 +152,8 @@ async def telegram_webhook(update: TelegramUpdate):
             # Process each event in the batch
             created_count = 0
             failed_count = 0
-            results = []
+            success_events = []
+            failed_events = []
             
             for i, single_event in enumerate(events_to_create):
                 if isinstance(single_event, dict) and single_event.get("intent") == "create":
@@ -120,28 +162,32 @@ async def telegram_webhook(update: TelegramUpdate):
                         calendar_result = await calendar_service.create_event(single_event)
                         if calendar_result and calendar_result.get("success"):
                             created_count += 1
-                            results.append(f"SUCCESS Event {i+1}: {single_event.get('event_name', 'Untitled')} at {single_event.get('start_time', 'Unknown time')}")
+                            formatted_event = format_event_for_user(single_event, calendar_result, "created")
+                            success_events.append(formatted_event)
                         else:
                             failed_count += 1
                             error_msg = calendar_result.get('message', 'Unknown error') if calendar_result else 'Unknown error'
-                            results.append(f"FAILED Event {i+1}: {single_event.get('event_name', 'Untitled')} - {error_msg}")
+                            failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - {error_msg}")
                     except Exception as e:
                         logger.error(f"Error creating batch event: {e}")
                         failed_count += 1
-                        results.append(f"FAILED Event {i+1}: {single_event.get('event_name', 'Untitled')} - Error: {str(e)}")
+                        failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - Error: {str(e)}")
                         continue
             
-            # Send comprehensive response
-            if created_count > 0:
-                success_message = f"Batch creation completed: {created_count} events created"
-                if failed_count > 0:
-                    success_message += f", {failed_count} failed"
-                success_message += f"\n\n" + "\n".join(results)
+            # Build comprehensive response message
+            if created_count > 0 and failed_count == 0:
+                # All successful
+                message = f"Successfully created {created_count} events:\n\n" + "\n".join(success_events)
+            elif created_count > 0 and failed_count > 0:
+                # Mixed results
+                message = f"Created {created_count} events, {failed_count} failed:\n\nSuccessful:\n" + "\n".join(success_events)
+                message += f"\n\nFailed:\n" + "\n".join(failed_events)
             else:
-                success_message = f"Failed to create all {len(events_to_create)} events:\n" + "\n".join(results)
+                # All failed
+                message = f"Failed to create all {len(events_to_create)} events:\n\n" + "\n".join(failed_events)
             
-            await send_telegram_message(chat_id, success_message)
-            conversation_state.add_message(chat_id, "assistant", success_message)
+            await send_telegram_message(chat_id, message)
+            conversation_state.add_message(chat_id, "assistant", message)
             return {"status": "ok"}
 
         # Check if user has pending event queue (NEW: Priority check)
@@ -258,6 +304,15 @@ async def telegram_webhook(update: TelegramUpdate):
                         "calendar_id": event.get("calendar_id", "primary"),
                         "calendar_name": event.get("calendar_name", "Default")
                     }
+                    
+                    # For update operations, include the update parameters
+                    if event_data["intent"] == "update":
+                        # Add any update-specific data from the original event_data
+                        for key in ["new_start_time", "new_end_time", "new_date", "new_event_name", 
+                                   "time_shift", "date_shift", "description", "location"]:
+                            if key in event_data:
+                                queue_event[key] = event_data[key]
+                    
                     queue_events.append(queue_event)
                 
                 # Check if we have any valid events after filtering

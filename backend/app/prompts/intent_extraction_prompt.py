@@ -50,10 +50,14 @@ DELETE/UPDATE OPERATION EXAMPLES:
 - "remove events called meeting" → "intent": "delete", "event_name": "meeting"
 - "delete events today" → "intent": "delete", "date": "2025-08-06"
 - "update meeting to call" → "intent": "update", "event_name": "meeting", "new_event_name": "call"
+- "move all events 1 hour later" → "intent": "update", "time_shift": "1 hour"
+- "move lesson events tomorrow later by 30 minutes" → "intent": "update", "event_name": "lesson", "date": "2025-08-07", "time_shift": "30 minutes"
+- "shift all events in work calendar 2 hours earlier" → "intent": "update", "calendar_name": "work", "time_shift": "-2 hours"
 
 REMEMBER: 
 - Extract calendar_name EVERY TIME user mentions ANY calendar
 - Use exact event titles from user message
+- For time shifts, include "time_shift" field with amount and direction (e.g., "1 hour", "-30 minutes")
 - Check conversation history for context and previous instructions
 - Return ONLY JSON - no explanations, no markdown formatting
 - If start time missing, set "confirmation_needed": true
