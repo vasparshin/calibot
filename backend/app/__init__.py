@@ -1,6 +1,8 @@
 """
 CaliBOT - AI Calendar Bot
-A sophisticated Telegram bot for Google Calendar management through natural language.
+
+An intelligent Telegram bot that manages Google Calendar through natural language.
+Built with FastAPI, uses GPT-4.1-mini for intent extraction and conversation management.
 """
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"

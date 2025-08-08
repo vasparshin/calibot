@@ -99,34 +99,50 @@ class EventQueueHandler:
             'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
         }
 
-        return self.get_next_event_confirmation(chat_id)
+        # Return initial message with options
+        return self._get_initial_batch_message(chat_id)
     
-    def create_event_queue_from_list(self, chat_id: str, events_list: List[Dict]) -> Dict:
-        """Create event queue directly from a list of events (for delete/update operations)"""
-        if not isinstance(events_list, list):
-            logger.error(f"CRITICAL: events_list is not a list! Type: {type(events_list)}")
-            return {"success": False, "message": "Invalid events data provided."}
+    def _get_initial_batch_message(self, chat_id: str) -> Dict:
+        """Get initial message showing found events and batch options"""
+        if not self.has_pending_queue(chat_id):
+            return {"success": False, "message": "No pending events found."}
         
-        # Validate each event in the list
-        validated_events = []
-        for i, event in enumerate(events_list):
-            if not isinstance(event, dict):
-                logger.warning(f"Skipping non-dictionary event at index {i}: {type(event)}")
-                continue
-            validated_events.append(event)
+        queue = self.pending_queues[chat_id]
+        events = queue['events']
+        total_events = len(events)
         
-        if not validated_events:
-            return {"success": False, "message": "No valid events to process."}
+        # Get the intent from first event
+        intent = events[0].get('intent', 'process') if events else 'process'
+        action_text = {'delete': 'delete', 'update': 'update', 'create': 'create'}.get(intent, 'process')
         
-        # Store queue
-        self.pending_queues[chat_id] = {
-            'events': validated_events,
-            'current_index': 0,
-            'created_at': datetime.now(),
-            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
-        }
+        # Build event summary list
+        event_summaries = []
+        for i, event in enumerate(events[:5], 1):  # Show first 5 events
+            title = event.get('event_name', 'Untitled')
+            start_time = self._format_time_simple(event.get('start_time', ''))
+            calendar = self._format_calendar_name(event.get('calendar_name', ''))
+            event_summaries.append(f"{i}. {title} - {start_time} ({calendar})")
+        
+        if total_events > 5:
+            event_summaries.append(f"... and {total_events - 5} more events")
+        
+        events_list = '\n'.join(event_summaries)
+        
+        initial_message = f"""Found {total_events} events to {action_text}:
 
-        return self.get_next_event_confirmation(chat_id)
+{events_list}
+
+Choose an option:
+• 'one' or '1' - Review and {action_text} one by one
+• 'all' or 'yes' - {action_text.title()} all events now
+• 'cancel' - Cancel operation"""
+        
+        return {
+            "success": True,
+            "message": initial_message,
+            "requires_user_action": True,
+            "batch_options": True
+        }
 
     def get_next_event_confirmation(self, chat_id: str) -> Dict:
         """Get the next event in queue for user confirmation"""
@@ -178,43 +194,75 @@ Reply with:
     
     def _format_event_summary(self, event: Dict) -> str:
         """Format a single event for user confirmation"""
-        intent = event.get('intent', 'create')
         title = event.get('event_name', 'Untitled Event')
         
-        # Handle different data formats
-        if 'start_time' in event and 'end_time' in event:
-            # Creation format
-            date = event.get('date', 'Date not specified')
-            start_time = event.get('start_time', 'Time not specified')
-            end_time = event.get('end_time', '')
-            calendar = event.get('calendar_name', 'Default calendar')
-            
-            time_str = f"{start_time}"
-            if end_time:
-                time_str += f" - {end_time}"
-            
-            return f"""**{title}**
-Date: {date}
-Time: {time_str}
-Calendar: {calendar}"""
+        # Extract and format the time properly
+        start_time = event.get('start_time', 'Unknown time')
+        end_time = event.get('end_time', '')
         
-        else:
-            # Delete/Update format (existing events)
-            start_time = event.get('start_time', 'Unknown time')
-            calendar = event.get('calendar_name', 'Default calendar')
-            
-            # Clean up datetime format if needed
+        # Parse the datetime and format it nicely
+        date_str, time_str = self._format_datetime_nice(start_time, end_time)
+        
+        # Get proper calendar name
+        calendar = self._format_calendar_name(event.get('calendar_name', 'Default calendar'))
+        
+        return f"""📅 {title}
+📆 Date: {date_str}
+🕒 Time: {time_str}
+📋 Calendar: {calendar}"""
+    
+    def _format_datetime_nice(self, start_time: str, end_time: str = '') -> tuple:
+        """Format datetime strings into readable date and time"""
+        try:
             if 'T' in str(start_time):
-                try:
-                    from datetime import datetime
-                    dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                    start_time = dt.strftime('%Y-%m-%d %H:%M')
-                except:
-                    pass
-            
-            return f"""**{title}**
-Time: {start_time}
-Calendar: {calendar}"""
+                # Parse ISO format datetime
+                dt_start = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                date_str = dt_start.strftime('%A, %B %d, %Y')  # "Monday, August 06, 2025"
+                start_str = dt_start.strftime('%I:%M %p')  # "08:00 AM"
+                
+                if end_time and 'T' in str(end_time):
+                    dt_end = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                    end_str = dt_end.strftime('%I:%M %p')
+                    time_str = f"{start_str} - {end_str}"
+                else:
+                    time_str = start_str
+                
+                return date_str, time_str
+            else:
+                # Fallback for other formats
+                return "Date not available", str(start_time)
+        except Exception as e:
+            logger.warning(f"Error formatting datetime {start_time}: {e}")
+            return "Date not available", str(start_time)
+    
+    def _format_time_simple(self, start_time: str) -> str:
+        """Format time for list display"""
+        try:
+            if 'T' in str(start_time):
+                dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                return dt.strftime('%I:%M %p')  # "08:00 AM"
+            else:
+                return str(start_time)
+        except:
+            return str(start_time)
+    
+    def _format_calendar_name(self, calendar_name: str) -> str:
+        """Format calendar name to be more user-friendly"""
+        if not calendar_name or calendar_name == 'Default calendar':
+            return 'Personal Calendar'
+        
+        # If it's an email address, extract the name part
+        if '@' in calendar_name:
+            if calendar_name == 'zoutna@gmail.com':
+                return 'Personal'
+            elif 'group.calendar.google.com' in calendar_name:
+                return 'Shared Calendar'
+            else:
+                # Extract name before @ symbol
+                name = calendar_name.split('@')[0]
+                return name.title()
+        
+        return calendar_name
     
     async def process_queue_response(self, chat_id: str, user_response: str) -> Dict:
         """Process user's response to queue confirmation"""
@@ -224,6 +272,31 @@ Calendar: {calendar}"""
         user_response = user_response.lower().strip()
         queue = self.pending_queues[chat_id]
         current_index = queue['current_index']
+        
+        # Handle initial batch options (when current_index is 0)
+        if current_index == 0:
+            if user_response in ['one', '1', 'review']:
+                # Start one-by-one confirmation
+                return self.get_next_event_confirmation(chat_id)
+            
+            elif user_response in ['all', 'yes', 'delete all', 'confirm all']:
+                # Process all events at once
+                return await self._process_all_events(chat_id)
+            
+            elif user_response in ['cancel', 'no', 'stop']:
+                # Cancel operation
+                total_events = len(queue['events'])
+                del self.pending_queues[chat_id]
+                return {
+                    "success": True,
+                    "message": f"Operation cancelled. No events were processed.",
+                    "queue_complete": True
+                }
+            else:
+                # Invalid response for initial options
+                return self._get_initial_batch_message(chat_id)
+        
+        # Handle individual event confirmations
         current_event = queue['events'][current_index]
         
         if user_response in ['yes', 'y', 'confirm']:
@@ -287,6 +360,56 @@ Calendar: {calendar}"""
                 "requires_user_action": True
             }
     
+    async def _process_all_events(self, chat_id: str) -> Dict:
+        """Process all events in the queue at once"""
+        if not self.has_pending_queue(chat_id):
+            return {"success": False, "message": "No pending events found."}
+        
+        queue = self.pending_queues[chat_id]
+        events = queue['events']
+        total_events = len(events)
+        
+        # Get intent for messaging
+        intent = events[0].get('intent', 'process') if events else 'process'
+        action_text = {'delete': 'deleted', 'update': 'updated', 'create': 'created'}.get(intent, 'processed')
+        
+        successful = 0
+        failed = 0
+        failures = []
+        
+        # Process each event
+        for i, event in enumerate(events):
+            try:
+                result = await self._process_single_event(event)
+                if result.get('success'):
+                    successful += 1
+                else:
+                    failed += 1
+                    event_name = event.get('event_name', f'Event {i+1}')
+                    failures.append(f"• {event_name}: {result.get('message', 'Unknown error')}")
+            except Exception as e:
+                failed += 1
+                event_name = event.get('event_name', f'Event {i+1}')
+                failures.append(f"• {event_name}: {str(e)}")
+        
+        # Clear the queue
+        del self.pending_queues[chat_id]
+        
+        # Build result message
+        if failed == 0:
+            message = f"✅ All {total_events} events {action_text} successfully!"
+        elif successful == 0:
+            message = f"❌ Failed to {intent} all {total_events} events:\n" + "\n".join(failures)
+        else:
+            message = f"⚠️ {successful} events {action_text}, {failed} failed:\n" + "\n".join(failures)
+        
+        return {
+            "success": True,
+            "message": message,
+            "queue_complete": True,
+            "stats": {"successful": successful, "failed": failed, "total": total_events}
+        }
+
     async def _process_single_event(self, event: Dict) -> Dict:
         """Process a single event using existing logic"""
         try:

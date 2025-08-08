@@ -2,8 +2,19 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
-## [Unreleased]
+## [0.1.7] - 2025-08-08
 
+### Enhanced
+- **User Experience: Batch Operations Interface**: Dramatically improved user interface for multi-event operations with intuitive options and professional formatting
+- **DateTime Display**: Enhanced datetime formatting from ISO strings to user-friendly format (Monday, August 06, 2025)
+- **Calendar Names**: Improved calendar name display showing "Personal" instead of email addresses
+- **Batch Processing**: Added comprehensive batch options - 'all', 'one by one', or 'cancel' with clear instructions
+### Technical Details
+- **event_queue_handler.py**: Added _get_initial_batch_message() method for better user option presentation
+- **event_queue_handler.py**: Enhanced _format_event_summary() with proper datetime parsing and calendar name formatting
+- **event_queue_handler.py**: Added _process_all_events() method for efficient batch processing of all events at once
+- **User Workflow**: Complete batch operation flow with proper option handling in process_queue_response()
+- **File Organization**: Cleaned up project root by removing forbidden test files per coding standards
 
 ## [0.1.6] - 2025-08-08
 
@@ -16,17 +27,6 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - **Type Safety**: Enhanced validation to prevent method signature mismatches
 - **Production Testing**: This specific error scenario is now properly handled
 - **Multi-Event Operations**: Strengthened validation for events list to handle edge cases safely
-
-## [Unreleased]
-
-
-## [0.1.6] - 2025-08-08
-
-
-## [Unreleased]
-
-
-## [0.1.6] - 2025-08-08
 
 ### Fixed
 - **Critical: Docker Deployment Failure**: Fixed missing requirements.txt file causing Render deployment failures
