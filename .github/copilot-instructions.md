@@ -3,6 +3,9 @@
 ## Project Overview
 
 ## ⚠️ CRITICAL REMINDERS
+- **🚨 MANDATORY CHANGELOG UPDATE 🚨** - EVERY code change MUST be documented in CHANGELOG.md IMMEDIATELY before task completion
+- **NO EXCEPTIONS TO CHANGELOG RULE** - Even the smallest bug fix, file organization, or code tweak requires CHANGELOG.md update
+- **CHANGELOG UPDATE IS PART OF THE FIX** - A change is NOT complete until CHANGELOG.md is updated
 - **ALWAYS UPDATE CHANGELOG.MD** - Every code change MUST be documented in CHANGELOG.md before task completion
 - **NO EMOTICONS IN BACKEND FILES** - Scripts, Python files, configuration files must use professional text only
 - **NO UNNECESSARY FILES** - Don't create summary files, use existing documentation structure
@@ -121,11 +124,14 @@
 - Keep entries concise but specific.
 
 ### Changelog Update Workflow
-**CRITICAL: Follow this exact sequence for every task:**
+**🚨 CRITICAL: Follow this exact sequence for every task - NO EXCEPTIONS:**
 1. Make code changes
 2. **IMMEDIATELY update CHANGELOG.md with details of what was changed and why**
-3. Commit both the code changes AND changelog update together
-4. Never complete a task without updating the changelog
+3. **VERIFY CHANGELOG.md has been updated before proceeding**
+4. Commit both the code changes AND changelog update together
+5. **Never complete a task without updating the changelog - THIS IS MANDATORY**
+
+**🚨 FAILURE TO UPDATE CHANGELOG IS A CRITICAL ERROR 🚨**
 
 ### Changelog Update Examples
 **Good changelog entry:**
@@ -159,12 +165,14 @@
 - **VERSION SEQUENCE MUST BE INCREMENTAL** - 0.1.0 → 0.1.1 → 0.1.2 → 0.1.3, etc.
 - **ALL VERSION REFERENCES MUST MATCH** across pyproject.toml, backend/app/__init__.py, and CHANGELOG.md
 - **VERSION INCREMENT IS MANDATORY** - Even the smallest bug fix requires a version bump
+- **🚨 CHANGELOG.MD UPDATE IS REQUIRED WITH EVERY VERSION BUMP 🚨**
 
-**Version Update Process:**
+**Version Update Process (MANDATORY FOR EVERY CHANGE):**
 1. Before any code change, identify the next version number (increment from current)
 2. Update ALL three files: pyproject.toml, backend/app/__init__.py, CHANGELOG.md  
 3. Use the NEW version in CHANGELOG.md entry header
-4. Commit with version-specific message: "v0.1.3: Fix mass delete confirmation workflow"
+4. **VERIFY CHANGELOG.MD HAS BEEN UPDATED** before completing task
+5. Commit with version-specific message: "v0.1.11: Description of change"
 
 **Example Version Progression:**
 - v0.1.0: Initial release

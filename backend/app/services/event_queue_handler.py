@@ -5,8 +5,30 @@ This approach reuses existi        # Build event summaries for display
         for i, event in enumerate(events[:5], 1):  # Show first 5 events
             title = event.get('event_name', 'Untitled')
             
-            # Format date and time together
-            date_time_str = self._format_datetime_for_display(event.get('start_time', ''))
+            # Format date and time together with more detail
+            start_time = event.get('start_time', '')
+            end_time = event.get('end_time', '')
+            
+            # Extract and format date and times
+            date_time_str = "Unknown time"
+            try:
+                if 'T' in str(start_time):
+                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    date_part = start_dt.strftime('%a %b %d')
+                    start_time_part = start_dt.strftime('%I:%M %p')
+                    
+                    if 'T' in str(end_time):
+                        end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                        end_time_part = end_dt.strftime('%I:%M %p')
+                        date_time_str = f"{date_part}, {start_time_part} - {end_time_part}"
+                    else:
+                        date_time_str = f"{date_part}, {start_time_part}"
+                else:
+                    date_time_str = self._format_datetime_for_display(start_time)
+            except Exception as e:
+                logger.warning(f"Error formatting event time: {e}")
+                date_time_str = self._format_datetime_for_display(start_time)
+            
             calendar = self._format_calendar_name(event.get('calendar_name', ''))
             
             event_summaries.append(f"{i}. {title} - {date_time_str} ({calendar})")
@@ -147,7 +169,7 @@ class EventQueueHandler:
 Choose an option:
 • 'one' or '1' - Review and {action_text} one by one
 • 'all' or 'yes' - {action_text.title()} all events now
-• 'cancel' - Cancel operation"""
+• 'cancel' or 'c' - Cancel operation"""
         
         return {
             "success": True,
@@ -307,7 +329,7 @@ Calendar: {calendar}"""
                 # Process all events at once
                 return await self._process_all_events(chat_id)
             
-            elif user_response in ['cancel', 'no', 'stop']:
+            elif user_response in ['cancel', 'c', 'no', 'stop']:
                 # Cancel operation
                 total_events = len(queue['events'])
                 del self.pending_queues[chat_id]
@@ -365,7 +387,7 @@ Calendar: {calendar}"""
                     "requires_user_action": True
                 }
         
-        elif user_response in ['cancel', 'stop', 'quit']:
+        elif user_response in ['cancel', 'c', 'stop', 'quit']:
             # Cancel remaining events
             remaining = len(queue['events']) - current_index
             del self.pending_queues[chat_id]

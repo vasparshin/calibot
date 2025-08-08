@@ -22,8 +22,15 @@ def format_event_for_user(event_data, calendar_result=None, operation="created")
     date_str = "Unknown date"
     time_str = "Unknown time"
     
-    # Try multiple date field names
-    date_value = event_data.get('date') or event_data.get('start_time', '').split('T')[0] if 'T' in event_data.get('start_time', '') else None
+    # Try multiple date field names and extract from start_time if needed
+    date_value = event_data.get('date')
+    if not date_value and event_data.get('start_time') and 'T' in str(event_data.get('start_time')):
+        # Extract date from start_time ISO string
+        try:
+            start_dt = datetime.fromisoformat(event_data['start_time'].replace('Z', '+00:00'))
+            date_value = start_dt.strftime('%Y-%m-%d')
+        except:
+            pass
     
     if date_value:
         try:
@@ -31,6 +38,13 @@ def format_event_for_user(event_data, calendar_result=None, operation="created")
             date_str = date_obj.strftime('%A, %B %d, %Y')
         except:
             date_str = date_value
+    elif event_data.get('start_time') and 'T' in str(event_data.get('start_time')):
+        # Fallback: extract date from start_time
+        try:
+            start_dt = datetime.fromisoformat(event_data['start_time'].replace('Z', '+00:00'))
+            date_str = start_dt.strftime('%A, %B %d, %Y')
+        except:
+            date_str = "Unknown date"
     
     start_time = event_data.get('start_time', '')
     end_time = event_data.get('end_time', '')
@@ -73,6 +87,39 @@ def format_event_for_user(event_data, calendar_result=None, operation="created")
         return f"• {clickable_title} on {date_str} at {time_str} ({calendar_name})"
     else:
         return f"• {title} on {date_str} at {time_str} ({calendar_name})"
+
+
+async def check_for_duplicate_events(chat_id, events_to_create, calendar_service):
+    """Check for potential duplicate events and ask user for confirmation"""
+    duplicates_found = []
+    
+    for i, event in enumerate(events_to_create):
+        if not isinstance(event, dict):
+            continue
+            
+        # Query for existing events with same name on same date
+        query_params = {
+            "event_name": event.get("event_name", ""),
+            "date": event.get("date", "")
+        }
+        
+        try:
+            existing_events = await calendar_service.query_events(query_params)
+            if existing_events.get("success") and existing_events.get("events"):
+                # Check for exact time matches
+                event_start = event.get("start_time", "")
+                for existing in existing_events["events"]:
+                    existing_start = existing.get("start_time", "")
+                    if event_start == existing_start:
+                        duplicates_found.append({
+                            "new_event": event,
+                            "existing_event": existing,
+                            "index": i
+                        })
+        except Exception as e:
+            logger.warning(f"Error checking for duplicates: {e}")
+    
+    return duplicates_found
 
 
 router = APIRouter()
@@ -168,6 +215,24 @@ async def telegram_webhook(update: TelegramUpdate):
         if event_data.get("intent") == "batch_create" and "events" in event_data:
             logger.info(f"Processing batch creation with {len(event_data['events'])} events")
             events_to_create = event_data["events"]
+            
+            # Check for duplicate events
+            duplicates = await check_for_duplicate_events(chat_id, events_to_create, calendar_service)
+            if duplicates:
+                duplicate_msg = f"Found {len(duplicates)} potential duplicate event(s):\n\n"
+                for dup in duplicates[:3]:  # Show first 3 duplicates
+                    event_name = dup["new_event"].get("event_name", "Event")
+                    start_time = dup["new_event"].get("start_time", "")
+                    duplicate_msg += f"• {event_name} at {start_time}\n"
+                
+                duplicate_msg += f"\nDo you want to create duplicate events?\n• 'yes' - Create all events anyway\n• 'no' or 'cancel' - Cancel creation"
+                
+                await send_telegram_message(chat_id, duplicate_msg)
+                conversation_state.add_message(chat_id, "assistant", duplicate_msg)
+                
+                # Store the pending creation for user confirmation
+                conversation_state.add_message(chat_id, "system", f"PENDING_DUPLICATE_CREATION:{len(events_to_create)} events")
+                return {"status": "ok"}
             
             # Process each event in the batch
             created_count = 0

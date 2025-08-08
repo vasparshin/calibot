@@ -2,6 +2,29 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.11] - 2025-08-08 🚨 CRITICAL USER EXPERIENCE FIXES
+
+### Fixed
+- **CRITICAL: "Unknown date" in Event Creation**: Fixed date extraction in `format_event_for_user()` to properly parse dates from start_time ISO strings
+- **Missing Event Details in "Found X events"**: Enhanced event lists to show full date/time details: "lesson - Sat Aug 09, 08:00 AM - 09:00 AM (tonyas calendar)"
+- **Cancel Option Enhancement**: Added "c" shortcut for cancel operations (now accepts both "cancel" and "c")
+
+### Added
+- **Duplicate Event Detection**: System now checks for potential duplicate events (same title, date, time, calendar) and asks for user confirmation before creating
+- **Enhanced Event Display**: "Found X events to update/delete" messages now include complete date and time ranges for clarity
+
+### Technical Details
+- **routes.py**: Fixed `format_event_for_user()` date extraction to handle events without explicit date field by parsing from start_time ISO format
+- **routes.py**: Added `check_for_duplicate_events()` function to detect potential duplicates before creation
+- **event_queue_handler.py**: Enhanced event list formatting to show "Sat Aug 09, 08:00 AM - 09:00 AM" format with start and end times
+- **event_queue_handler.py**: Added "c" option handling in user response processing for batch operations
+
+### User Experience Impact
+- **Clear Event Information**: Users now see complete date/time details in all event confirmations
+- **Duplicate Prevention**: System prevents accidental duplicate event creation with user confirmation workflow
+- **Faster Cancellation**: Users can quickly cancel operations with "c" instead of typing "cancel"
+- **Professional Display**: All event lists show comprehensive timing information for better decision making
+
 ## [0.1.10] - 2025-08-08 🔥 CRITICAL UPDATE FIXES
 
 ### Fixed
