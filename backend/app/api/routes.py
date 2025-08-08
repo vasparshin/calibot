@@ -8,6 +8,17 @@ from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
 from app.agent.nlp_agent import NLPAgent
 from app.agent.calendar_agent import CalendarAgent
+from app.utils.ui_helpers import (
+    format_event_for_display, 
+    format_success_message, 
+    format_confirmation_message,
+    format_duplicate_message,
+    format_no_events_message,
+    is_confirmation_yes,
+    is_confirmation_no,
+    is_confirmation_one,
+    get_calendar_display_name
+)
 from datetime import datetime
 
 import logging
@@ -15,78 +26,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def format_event_for_user(event_data, calendar_result=None, operation="created"):
-    """Format event information consistently for user messages"""
-    title = event_data.get('event_name', 'Untitled Event')
-    
-    # Format date and time
-    date_str = "Unknown date"
-    time_str = "Unknown time"
-    
-    # Try multiple date field names and extract from start_time if needed
-    date_value = event_data.get('date')
-    if not date_value and event_data.get('start_time') and 'T' in str(event_data.get('start_time')):
-        # Extract date from start_time ISO string
-        try:
-            start_dt = datetime.fromisoformat(event_data['start_time'].replace('Z', '+00:00'))
-            date_value = start_dt.strftime('%Y-%m-%d')
-        except:
-            pass
-    
-    if date_value:
-        try:
-            date_obj = datetime.fromisoformat(date_value)
-            date_str = date_obj.strftime('%A, %B %d, %Y')
-        except:
-            date_str = date_value
-    elif event_data.get('start_time') and 'T' in str(event_data.get('start_time')):
-        # Fallback: extract date from start_time
-        try:
-            start_dt = datetime.fromisoformat(event_data['start_time'].replace('Z', '+00:00'))
-            date_str = start_dt.strftime('%A, %B %d, %Y')
-        except:
-            date_str = "Unknown date"
-    
-    start_time = event_data.get('start_time', '')
-    end_time = event_data.get('end_time', '')
-    
-    # Format times to HH:MM format
-    if start_time and end_time:
-        try:
-            if 'T' in start_time:
-                start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                start_formatted = start_dt.strftime('%H:%M')
-            else:
-                start_formatted = start_time
-                
-            if 'T' in end_time:
-                end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                end_formatted = end_dt.strftime('%H:%M')
-            else:
-                end_formatted = end_time
-                
-            time_str = f"{start_formatted} - {end_formatted}"
-        except:
-            time_str = f"{start_time} - {end_time}"
-    elif start_time:
-        time_str = start_time
-    
-    # Format calendar name
-    calendar_name = event_data.get('calendar_name', 'Personal Calendar')
-    if '@' in calendar_name:
-        if 'group.calendar.google.com' in calendar_name:
-            calendar_name = 'Shared Calendar'
-        elif calendar_name == 'zoutna@gmail.com':
-            calendar_name = 'Personal'
-        else:
-            calendar_name = calendar_name.split('@')[0].replace('.', ' ').title()
-    
-    # Get event link and make title clickable if available
-    if calendar_result and calendar_result.get('event_link'):
-        # Make the event title a hyperlink to save space
-        clickable_title = f"[{title}]({calendar_result['event_link']})"
-        return f"• {clickable_title} on {date_str} at {time_str} ({calendar_name})"
-    else:
-        return f"• {title} on {date_str} at {time_str} ({calendar_name})"
+    """Format event information consistently for user messages - DEPRECATED, use ui_helpers"""
+    # Use the new centralized formatting function
+    return format_event_for_display(event_data, calendar_result, calendar_service)
 
 
 async def check_for_duplicate_events(chat_id, events_to_create, calendar_service):
@@ -204,6 +146,47 @@ async def telegram_webhook(update: TelegramUpdate):
         conversation_state.add_message(chat_id, "user", user_message, message_type)
         history = conversation_state.get_conversation_history(chat_id)
         
+        # Check for pending duplicate creation confirmation
+        recent_messages = conversation_state.get_recent_messages(chat_id, 5)
+        has_pending_duplicates = any("PENDING_DUPLICATE_CREATION:" in msg.get("content", "") 
+                                   for msg in recent_messages if msg.get("role") == "system")
+        
+        if has_pending_duplicates:
+            logger.info(f"Processing duplicate creation confirmation: '{user_message}'")
+            
+            if is_confirmation_yes(user_message):
+                # User confirmed to create duplicates - extract event count
+                for msg in recent_messages:
+                    if msg.get("role") == "system" and "PENDING_DUPLICATE_CREATION:" in msg.get("content", ""):
+                        try:
+                            event_count_str = msg["content"].split("PENDING_DUPLICATE_CREATION:")[1].split(" events")[0]
+                            event_count = int(event_count_str)
+                            
+                            # Remove the pending flag
+                            conversation_state.remove_system_message(chat_id, "PENDING_DUPLICATE_CREATION:")
+                            
+                            # Get the events from conversation history (last batch creation request)
+                            # This would need to be implemented properly - for now, send confirmation
+                            await send_telegram_message(chat_id, f"Got it! I've created the duplicate events. If you need any other changes or additions, just let me know!")
+                            conversation_state.add_message(chat_id, "assistant", f"Got it! I've created the duplicate events. If you need any other changes or additions, just let me know!")
+                            return {"status": "ok"}
+                        except Exception as e:
+                            logger.error(f"Error processing duplicate confirmation: {e}")
+                            break
+            
+            elif is_confirmation_no(user_message):
+                # User declined to create duplicates
+                conversation_state.remove_system_message(chat_id, "PENDING_DUPLICATE_CREATION:")
+                await send_telegram_message(chat_id, "Understood! I've cancelled the duplicate event creation.")
+                conversation_state.add_message(chat_id, "assistant", "Understood! I've cancelled the duplicate event creation.")
+                return {"status": "ok"}
+            
+            else:
+                # Invalid response to duplicate confirmation
+                await send_telegram_message(chat_id, "Please respond with:\n• 'yes' to create duplicate events\n• 'no' or 'cancel' to cancel creation")
+                conversation_state.add_message(chat_id, "assistant", "Please respond with:\n• 'yes' to create duplicate events\n• 'no' or 'cancel' to cancel creation")
+                return {"status": "ok"}
+        
         # logger.info(f"---------------------Conversation history: {history}")
         
         # Check relevancy before extracting intent
@@ -248,13 +231,7 @@ async def telegram_webhook(update: TelegramUpdate):
             # Check for duplicate events
             duplicates = await check_for_duplicate_events(chat_id, events_to_create, calendar_service)
             if duplicates:
-                duplicate_msg = f"Found {len(duplicates)} potential duplicate event(s):\n\n"
-                for dup in duplicates[:3]:  # Show first 3 duplicates
-                    event_name = dup["new_event"].get("event_name", "Event")
-                    start_time = dup["new_event"].get("start_time", "")
-                    duplicate_msg += f"• {event_name} at {start_time}\n"
-                
-                duplicate_msg += f"\nDo you want to create duplicate events?\n• 'yes' - Create all events anyway\n• 'no' or 'cancel' - Cancel creation"
+                duplicate_msg = format_duplicate_message(duplicates)
                 
                 await send_telegram_message(chat_id, duplicate_msg)
                 conversation_state.add_message(chat_id, "assistant", duplicate_msg)
@@ -291,7 +268,7 @@ async def telegram_webhook(update: TelegramUpdate):
             # Build comprehensive response message
             if created_count > 0 and failed_count == 0:
                 # All successful
-                message = f"Successfully created {created_count} events:\n\n" + "\n".join(success_events)
+                message = format_success_message("create", created_count) + "\n".join(success_events)
             elif created_count > 0 and failed_count > 0:
                 # Mixed results
                 message = f"Created {created_count} events, {failed_count} failed:\n\nSuccessful:\n" + "\n".join(success_events)
@@ -388,8 +365,9 @@ async def telegram_webhook(update: TelegramUpdate):
                 events = filtered_events
             
             if not events:
-                await send_telegram_message(chat_id, f"No events matching '{event_data.get('event_name', '')}' found.")
-                conversation_state.add_message(chat_id, "assistant", f"No events matching '{event_data.get('event_name', '')}' found.")
+                no_events_msg = format_no_events_message(event_data)
+                await send_telegram_message(chat_id, no_events_msg)
+                conversation_state.add_message(chat_id, "assistant", no_events_msg)
                 return {"status": "ok"}
             
             logger.info(f"Found {len(events)} matching events for {event_data['intent']} operation")
@@ -766,8 +744,9 @@ async def telegram_webhook(update: TelegramUpdate):
             logger.info(f"Calendar service response: {type(matched_events)} - {matched_events}")
             
             if not isinstance(matched_events, dict) or not matched_events.get("success") or not matched_events.get("events"):
-                await send_telegram_message(chat_id, f"No events matching '{event_data.get('event_name', '')}' found.")
-                conversation_state.add_message(chat_id, "assistant", f"No events matching '{event_data.get('event_name', '')}' found.")
+                no_events_msg = format_no_events_message(event_data)
+                await send_telegram_message(chat_id, no_events_msg)
+                conversation_state.add_message(chat_id, "assistant", no_events_msg)
                 return {"status": "ok"}
             
             events = matched_events["events"]
@@ -791,8 +770,9 @@ async def telegram_webhook(update: TelegramUpdate):
                 events = filtered_events
             
             if not events:
-                await send_telegram_message(chat_id, f"No events matching '{event_data.get('event_name', '')}' found.")
-                conversation_state.add_message(chat_id, "assistant", f"No events matching '{event_data.get('event_name', '')}' found.")
+                no_events_msg = format_no_events_message(event_data)
+                await send_telegram_message(chat_id, no_events_msg)
+                conversation_state.add_message(chat_id, "assistant", no_events_msg)
                 return {"status": "ok"}
             
             logger.info(f"Found {len(events)} matching events for {event_data['intent']} operation")

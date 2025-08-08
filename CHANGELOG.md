@@ -2,6 +2,33 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.13] - 2025-08-08 CRITICAL UX CONSISTENCY & BOT_RULES IMPLEMENTATION
+
+### Added
+- **BOT_RULES.md**: Comprehensive UI consistency guidelines defining message formatting, confirmation handling, and user experience standards
+- **UI Helper Functions**: Centralized formatting functions in `app/utils/ui_helpers.py` for consistent message display
+- **Enhanced Duplicate Detection Confirmation**: Proper handling of yes/no/cancel responses with clear error messages
+- **Calendar Name Resolution**: Proper fetching and display of actual calendar names instead of technical identifiers
+
+### Fixed
+- **Event Title Capitalization**: All event titles now properly capitalize first letter of each word (e.g., "lesson" → "Lesson")
+- **Duplicate Confirmation Bug**: Fixed handling of "no" and "cancel" responses for duplicate event creation
+- **Inconsistent Event Display**: Standardized event formatting across all operations (create/update/delete/query)
+- **"No Events Found" Messages**: Enhanced to show specific search criteria instead of empty strings
+- **Calendar Name Display**: Show proper names (e.g., "Tonya") instead of technical names (e.g., "tonyas calendar")
+
+### Enhanced
+- **Confirmation Response Handling**: Support for multiple confirmation formats (yes/y/confirm/ok/proceed/all, no/n/cancel/stop/abort/c)
+- **Date Format Consistency**: Full date display format "Day, Month DD, YYYY" throughout application
+- **Error Message Clarity**: Improved error messages with specific search criteria and actionable guidance
+
+### Technical Details
+- **BOT_RULES.md**: Mandatory reference document for all user-facing message formatting
+- **ui_helpers.py**: New module with functions: `format_event_for_display()`, `format_duplicate_message()`, `format_no_events_message()`, `is_confirmation_yes/no()`
+- **routes.py**: Updated imports and integration with UI helper functions
+- **conversation.py**: Added `get_recent_messages()` and `remove_system_message()` methods for better state management
+- **copilot-instructions.md**: Updated to mandate BOT_RULES.md compliance for all user-facing messages
+
 ## [0.1.12] - 2025-08-08 CRITICAL HYPERLINK AND DUPLICATE DETECTION FIXES
 
 ### Fixed

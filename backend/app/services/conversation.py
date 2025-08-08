@@ -18,5 +18,17 @@ class ConversationState:
         
     def get_conversation_history(self, user_id: int, max_messages: int = 10) -> list:
         return self.conversations.get(user_id, [])[-max_messages:]
+    
+    def get_recent_messages(self, user_id: int, count: int = 5) -> list:
+        """Get the most recent messages for a user"""
+        return self.conversations.get(user_id, [])[-count:]
+    
+    def remove_system_message(self, user_id: int, content_pattern: str):
+        """Remove system messages containing the pattern"""
+        if user_id in self.conversations:
+            self.conversations[user_id] = [
+                msg for msg in self.conversations[user_id]
+                if not (msg.get("role") == "system" and content_pattern in msg.get("content", ""))
+            ]
 
 conversation_state = ConversationState()

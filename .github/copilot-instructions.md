@@ -4,6 +4,7 @@
 
 ## ⚠️ CRITICAL REMINDERS
 - **🚨 MANDATORY CHANGELOG UPDATE 🚨** - EVERY code change MUST be documented in CHANGELOG.md IMMEDIATELY before task completion
+- **🤖 MANDATORY BOT RULES COMPLIANCE 🤖** - ALL user-facing messages MUST follow formatting rules in BOT_RULES.md
 - **NO EXCEPTIONS TO CHANGELOG RULE** - Even the smallest bug fix, file organization, or code tweak requires CHANGELOG.md update
 - **CHANGELOG UPDATE IS PART OF THE FIX** - A change is NOT complete until CHANGELOG.md is updated
 - **ALWAYS UPDATE CHANGELOG.MD** - Every code change MUST be documented in CHANGELOG.md before task completion
@@ -11,6 +12,15 @@
 - **NO UNNECESSARY FILES** - Don't create summary files, use existing documentation structure
 - **NO TEST FILES IN PROJECT ROOT** - ALL test files must be in tests/ folder, NEVER in project root
 - **NO SUMMARY FILES EVER** - NEVER create FIXES_SUMMARY.md, MULTI_EVENT_IMPLEMENTATION_SUMMARY.md or similar files
+
+## 🤖 USER INTERFACE CONSISTENCY
+**CRITICAL: All user-facing messages must follow BOT_RULES.md**
+- **Mandatory Reference**: Always consult `/workspaces/calibot/BOT_RULES.md` for message formatting
+- **Event Display Format**: Must include clickable links, full dates, proper calendar names
+- **Calendar Names**: Always fetch and display actual calendar names, never technical names
+- **Title Capitalization**: All event titles must be properly capitalized
+- **Confirmation Handling**: Support all specified confirmation responses (yes/no/cancel/all/one)
+- **Message Consistency**: Use centralized formatting functions for all similar operations
 
 ## 🚫 ABSOLUTELY FORBIDDEN FILE PATTERNS
 - **NEVER CREATE**: Any file ending with `_SUMMARY.md`, `SUMMARY.md`, `FIXES.md`, `STATUS.md`
