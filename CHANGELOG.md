@@ -5,26 +5,33 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [0.1.9] - 2025-08-08 ✅ COMPLETE
 
 ### Fixed
+- **Critical: Update Operations Error**: Fixed `'confirmation_needed'` error causing 500 Internal Server Error in update operations
 - **Critical: User Experience Overhaul**: Completely redesigned messaging across all operations for professional, consistent formatting
 - **Critical: Update Operations Failure**: Fixed missing eventId and bad request errors in update operations
 - **Message Format Consistency**: Standardized format across create/delete/update operations with proper date, time, calendar, and link information
+
 ### Enhanced
+- **Space-Saving Hyperlinks**: Event titles are now hyperlinks to save space (e.g., `[lesson](https://calendar.google.com/event/...)`)
 - **Professional Messaging**: Removed horrible "SUCCESS" caps messages, replaced with clean professional format
 - **Time Shift Support**: Added intelligent time shift parsing for "move events 1 hour later" style requests
 - **Date Information**: All summary messages now include date information for clarity
-- **Event Links**: Batch creation now includes event links for easy access
+- **Consistent Event Formatting**: Update/delete summaries now match create operation formatting with dates and hyperlinks
 - **Update Intelligence**: Enhanced update operations to handle time shifts, new names, and other modifications
+
 ### Technical Details
-- **routes.py**: Added format_event_for_user() helper for consistent event formatting across all operations
-- **routes.py**: Enhanced batch creation with proper success/failure reporting and event links
+- **routes.py**: Fixed `event_data["confirmation_needed"]` to use `.get()` method preventing KeyError exceptions
+- **routes.py**: Enhanced `format_event_for_user()` to create hyperlinked event titles saving message space
+- **routes.py**: Enhanced batch creation with proper success/failure reporting and hyperlinked event titles
 - **routes.py**: Fixed update operations to include time_shift and other update parameters in queue events
-- **event_queue_handler.py**: Completely rewrote messaging system removing caps and adding professional format
+- **event_queue_handler.py**: Completely rewrote messaging system removing caps and adding professional format with date information
 - **event_queue_handler.py**: Added intelligent time shift calculation for update operations
 - **event_queue_handler.py**: Enhanced error handling with proper eventId validation
 - **intent_extraction_prompt.py**: Added time shift examples for "move events X hours later" requests
+
 ### Testing
 - **Enhanced UX Test Suite**: Complete test coverage validating professional messaging, consistent formatting, date information, event links, and time shift parsing
-- **All Tests Passing**: ✅ Professional messaging ✅ Event formatting ✅ Batch operations ✅ Time shift parsing
+- **Update Operation Fixes**: Resolved 500 errors and improved error handling for update operations
+- **All Tests Passing**: ✅ Professional messaging ✅ Event formatting ✅ Batch operations ✅ Time shift parsing ✅ Hyperlinked titles ✅ Update operations
 
 ## [0.1.8] - 2025-08-08
 

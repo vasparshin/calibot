@@ -22,18 +22,37 @@ def format_event_for_user(event_data, calendar_result=None, operation="created")
     date_str = "Unknown date"
     time_str = "Unknown time"
     
-    if event_data.get('date'):
+    # Try multiple date field names
+    date_value = event_data.get('date') or event_data.get('start_time', '').split('T')[0] if 'T' in event_data.get('start_time', '') else None
+    
+    if date_value:
         try:
-            date_obj = datetime.fromisoformat(event_data['date'])
+            date_obj = datetime.fromisoformat(date_value)
             date_str = date_obj.strftime('%A, %B %d, %Y')
         except:
-            date_str = event_data.get('date', 'Unknown date')
+            date_str = date_value
     
     start_time = event_data.get('start_time', '')
     end_time = event_data.get('end_time', '')
     
+    # Format times to HH:MM format
     if start_time and end_time:
-        time_str = f"{start_time} - {end_time}"
+        try:
+            if 'T' in start_time:
+                start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                start_formatted = start_dt.strftime('%H:%M')
+            else:
+                start_formatted = start_time
+                
+            if 'T' in end_time:
+                end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                end_formatted = end_dt.strftime('%H:%M')
+            else:
+                end_formatted = end_time
+                
+            time_str = f"{start_formatted} - {end_formatted}"
+        except:
+            time_str = f"{start_time} - {end_time}"
     elif start_time:
         time_str = start_time
     
@@ -47,12 +66,13 @@ def format_event_for_user(event_data, calendar_result=None, operation="created")
         else:
             calendar_name = calendar_name.split('@')[0].replace('.', ' ').title()
     
-    # Get event link if available
-    event_link = ""
+    # Get event link and make title clickable if available
     if calendar_result and calendar_result.get('event_link'):
-        event_link = f"\nLink: {calendar_result['event_link']}"
-    
-    return f"• {title} on {date_str} at {time_str} ({calendar_name}){event_link}"
+        # Make the event title a hyperlink to save space
+        clickable_title = f"[{title}]({calendar_result['event_link']})"
+        return f"• {clickable_title} on {date_str} at {time_str} ({calendar_name})"
+    else:
+        return f"• {title} on {date_str} at {time_str} ({calendar_name})"
 
 
 router = APIRouter()
@@ -390,8 +410,8 @@ async def telegram_webhook(update: TelegramUpdate):
                 return {"status": "ok"}
 
         # If no confirmation is needed, proceed with the action
-        if event_data["confirmation_needed"] is False:
-            logger.info(f"Processing intent '{event_data['intent']}' without confirmation")
+        if event_data.get("confirmation_needed") is False:
+            logger.info(f"Processing intent '{event_data.get('intent')}' without confirmation")
             
             if event_data["intent"] in ["create", "batch_create"]:
                 # Detect batch creation scenarios (multiple events)
@@ -640,8 +660,8 @@ async def telegram_webhook(update: TelegramUpdate):
                     return {"status": "ok"}
 
         # Handle delete/update operations that need confirmation
-        if event_data["intent"] in ["delete", "update"] and event_data.get("confirmation_needed", True):
-            logger.info(f"Processing {event_data['intent']} operation with confirmation")
+        if event_data.get("intent") in ["delete", "update"] and event_data.get("confirmation_needed", True):
+            logger.info(f"Processing {event_data.get('intent')} operation with confirmation")
             
             # First, find matching events
             matched_events = await calendar_service.query_events({
