@@ -4,12 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.6] - 2025-08-08
+
 ### Fixed
 - **Critical: Docker Deployment Failure**: Fixed missing requirements.txt file causing Render deployment failures
 ### Technical Details
 - **requirements.txt**: Created from pyproject.toml dependencies for Render compatibility
 - **Dockerfile**: Fixed COPY instruction to properly reference requirements.txt
 - **Render Deployment**: Service should now deploy successfully via GitHub auto-deploy
+
+## [Unreleased]
+
 
 ## [0.1.6] - 2025-08-08
 
