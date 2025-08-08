@@ -2,6 +2,34 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.10] - 2025-08-08 🔥 CRITICAL UPDATE FIXES
+
+### Fixed
+- **CRITICAL: Update Operations Actually Work Now**: Fixed events not being updated - time shifts and changes are now properly applied to Google Calendar
+- **CRITICAL: DateTime Format Bug**: Fixed Google Calendar service to handle ISO datetime strings properly in update operations  
+- **Missing Event Details**: Event confirmation messages now show actual times, dates, and changes made
+- **Missing Hyperlinks**: All event names are now hyperlinked in confirmation and summary messages
+- **Inconsistent Messaging**: Update/delete operations now show detailed summaries matching create operation format
+
+### Enhanced
+- **Detailed Change Tracking**: Update summaries now show exactly what changed (e.g., "shifted by 1 hour", "renamed to X")
+- **Enhanced Event Display**: Initial event lists now include dates: "lesson - Sat Aug 09, 08:00 AM (tonyas calendar)"
+- **Comprehensive Update Summaries**: Batch updates show individual event details with hyperlinks and changes made
+- **Before/After Context**: Users can see exactly what modifications were applied to their events
+
+### Technical Details
+- **google_calendar.py**: Fixed `update_event()` method to properly handle ISO datetime format instead of expecting separate date+time
+- **event_queue_handler.py**: Enhanced `_process_single_event()` to track and report specific changes made to events
+- **event_queue_handler.py**: Added `_format_datetime_for_display()` for consistent date/time display in event lists
+- **event_queue_handler.py**: Improved batch completion messages to show individual event results with hyperlinks
+- **Hyperlink Integration**: Event titles are now clickable links in all confirmation and summary messages
+
+### User Experience Impact
+- **Functional Updates**: Events are now actually updated in Google Calendar (was previously broken)
+- **Clear Communication**: Users see exactly what changes were made to their events
+- **Space-Efficient Design**: Hyperlinked event titles save message space while providing direct access
+- **Consistent Format**: All operations (create/update/delete) now use the same professional messaging style
+
 ## [0.1.9] - 2025-08-08 ✅ COMPLETE
 
 ### Fixed

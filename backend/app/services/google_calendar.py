@@ -376,10 +376,25 @@ class GoogleCalendarService:
                 event['summary'] = event_data['event_name']
             if 'description' in event_data:
                 event['description'] = event_data['description']
-            if 'date' in event_data and 'start_time' in event_data:
-                event['start']['dateTime'] = f"{event_data['date']}T{event_data['start_time']}:00"
-            if 'date' in event_data and 'end_time' in event_data and event_data['end_time'] is not None:
-                event['end']['dateTime'] = f"{event_data['date']}T{event_data['end_time']}:00"
+            
+            # Handle datetime updates - support both ISO format and date+time format
+            if 'start_time' in event_data:
+                start_time = event_data['start_time']
+                if 'T' in str(start_time):
+                    # ISO format datetime
+                    event['start']['dateTime'] = start_time
+                elif 'date' in event_data:
+                    # Separate date and time
+                    event['start']['dateTime'] = f"{event_data['date']}T{start_time}:00"
+            
+            if 'end_time' in event_data:
+                end_time = event_data['end_time']
+                if 'T' in str(end_time):
+                    # ISO format datetime
+                    event['end']['dateTime'] = end_time
+                elif 'date' in event_data:
+                    # Separate date and time
+                    event['end']['dateTime'] = f"{event_data['date']}T{end_time}:00"
                 
             logger.info(f"Updating event {event_id} with data: {event}")
             

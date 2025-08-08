@@ -240,7 +240,25 @@ Each entry should include:
 
 ## Performance Considerations
 
+## Project Overview
+
 CaliBOT is an intelligent Telegram bot that manages Google Calendar through natural language. Built with FastAPI, it uses GPT-4.1-mini for intent extraction and conversation management, implementing a sophisticated multi-agent architecture.
+
+## 🎯 Feature Development Guidelines
+
+### PLANNED_FEATURES.md Integration
+- **ALWAYS consult PLANNED_FEATURES.md** before implementing new features
+- **MANDATORY: Log new feature requests** to PLANNED_FEATURES.md with implementation analysis
+- **Architecture Assessment Required**: Analyze impact on current system before coding
+- **Priority-Based Development**: Follow the priority order defined in PLANNED_FEATURES.md
+- **Implementation Analysis**: Include technology stack, integration points, dependencies, and effort estimates
+
+### Feature Request Workflow
+1. **Log Request**: Add feature to PLANNED_FEATURES.md with detailed analysis
+2. **Architecture Review**: Assess impact on existing systems and services
+3. **Dependency Check**: Identify required libraries, APIs, and system changes
+4. **Implementation Plan**: Create step-by-step development approach
+5. **Update Documentation**: Keep PLANNED_FEATURES.md current with status updates
 
 ## Critical Architecture Patterns
 

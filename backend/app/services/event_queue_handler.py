@@ -1,6 +1,18 @@
 """
 Event Queue Handler for processing multiple events one by one with user confirmation.
-This approach reuses existing single-event logic while handling multi-event requests.
+This approach reuses existi        # Build event summaries for display
+        event_summaries = []
+        for i, event in enumerate(events[:5], 1):  # Show first 5 events
+            title = event.get('event_name', 'Untitled')
+            
+            # Format date and time together
+            date_time_str = self._format_datetime_for_display(event.get('start_time', ''))
+            calendar = self._format_calendar_name(event.get('calendar_name', ''))
+            
+            event_summaries.append(f"{i}. {title} - {date_time_str} ({calendar})")
+        
+        if total_events > 5:
+            event_summaries.append(f"... and {total_events - 5} more events")event logic while handling multi-event requests.
 """
 
 import logging
@@ -246,6 +258,18 @@ Calendar: {calendar}"""
         except:
             return str(start_time)
     
+    def _format_datetime_for_display(self, start_time: str) -> str:
+        """Format datetime for event list display with date and time"""
+        try:
+            if 'T' in str(start_time):
+                dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                # Format as "Sat Aug 09, 08:00 AM"
+                return dt.strftime('%a %b %d, %I:%M %p')
+            else:
+                return str(start_time)
+        except:
+            return str(start_time)
+    
     def _format_calendar_name(self, calendar_name: str) -> str:
         """Format calendar name to be more user-friendly"""
         if not calendar_name or calendar_name == 'Default calendar':
@@ -378,19 +402,28 @@ Calendar: {calendar}"""
         failures = []
         
         # Process each event
+        successful_events = []
+        failed_events = []
+        
         for i, event in enumerate(events):
             try:
                 result = await self._process_single_event(event)
                 if result.get('success'):
                     successful += 1
+                    # Collect successful event details for detailed summary
+                    if result.get('message') and 'Updated' in result.get('message', ''):
+                        successful_events.append(result.get('message'))
+                    else:
+                        event_name = event.get('event_name', f'Event {i+1}')
+                        successful_events.append(f"• {event_name}")
                 else:
                     failed += 1
                     event_name = event.get('event_name', f'Event {i+1}')
-                    failures.append(f"• {event_name}: {result.get('message', 'Unknown error')}")
+                    failed_events.append(f"• {event_name}: {result.get('message', 'Unknown error')}")
             except Exception as e:
                 failed += 1
                 event_name = event.get('event_name', f'Event {i+1}')
-                failures.append(f"• {event_name}: {str(e)}")
+                failed_events.append(f"• {event_name}: {str(e)}")
         
         # Clear the queue
         del self.pending_queues[chat_id]
@@ -410,13 +443,21 @@ Calendar: {calendar}"""
                     except:
                         pass
         
-        # Build result message
+        # Build detailed result message
         if failed == 0:
-            message = f"Successfully {action_text} all {total_events} events{date_info}!"
+            if intent == 'update' and successful_events:
+                # For updates, show detailed changes made
+                message = f"Successfully updated all {total_events} events{date_info}:\n\n" + "\n".join(successful_events)
+            else:
+                message = f"Successfully {action_text} all {total_events} events{date_info}!"
         elif successful == 0:
-            message = f"Failed to {intent} all {total_events} events{date_info}:\n" + "\n".join(failures)
+            message = f"Failed to {intent} all {total_events} events{date_info}:\n\n" + "\n".join(failed_events)
         else:
-            message = f"Partially completed: {successful} events {action_text}, {failed} failed{date_info}:\n" + "\n".join(failures)
+            message = f"Partially completed: {successful} events {action_text}, {failed} failed{date_info}:\n\n"
+            if successful_events:
+                message += "Successful:\n" + "\n".join(successful_events) + "\n\n"
+            if failed_events:
+                message += "Failed:\n" + "\n".join(failed_events)
         
         return {
             "success": True,
@@ -564,12 +605,32 @@ Calendar: {calendar}"""
                             'location': event.get('location', '')
                         }
                     
+                    # Perform the update
                     result = self.calendar_service.update_event(event_id, update_data, calendar_id)
                     
                     if result.get('success'):
+                        # Build detailed success message showing changes made
+                        changes_made = []
+                        if event.get('time_shift'):
+                            changes_made.append(f"shifted by {event.get('time_shift')}")
+                        if event.get('new_event_name'):
+                            changes_made.append(f"renamed to '{event.get('new_event_name')}'")
+                        if event.get('new_calendar'):
+                            changes_made.append(f"moved to {event.get('new_calendar')}")
+                        
+                        change_description = ", ".join(changes_made) if changes_made else "updated"
+                        
+                        # Format the updated event with hyperlink if available
+                        event_link = result.get('event_link', '')
+                        if event_link:
+                            event_title = f"[{event.get('event_name', 'Event')}]({event_link})"
+                        else:
+                            event_title = event.get('event_name', 'Event')
+                        
                         return {
                             "success": True,
-                            "message": "Event updated successfully"
+                            "message": f"Updated {event_title} - {change_description}",
+                            "event_link": event_link
                         }
                     else:
                         return {
