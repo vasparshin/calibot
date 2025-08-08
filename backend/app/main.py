@@ -1,11 +1,16 @@
 import uvicorn
 import httpx
 import os
+import logging
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.api.routes import router
 from app.services.telegram import TelegramBotService
 from app.config import API_HOST, API_PORT, TELEGRAM_API_TOKEN
+from app import __version__
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Global Telegram service instance
 telegram_service = None
@@ -15,9 +20,17 @@ async def lifespan(app: FastAPI):
     """Manage startup and shutdown events."""
     global telegram_service
     
+    # Log version at startup
+    print(f"=== CaliBOT Starting ===")
+    print(f"Version: {__version__}")
+    print(f"Environment: {os.getenv('ENVIRONMENT', 'development')}")
+    print(f"Backend URL: {os.getenv('BACKEND_URL', 'http://localhost:8060')}")
+    logger.info(f"CaliBOT v{__version__} starting up")
+    
     # Startup: Initialize Telegram bot service
     telegram_service = TelegramBotService()
     telegram_service.start()
+    print("Telegram bot started...")
     
     # Set up Telegram webhook
     backend_url = os.getenv("BACKEND_URL", "http://localhost:8060")
@@ -37,6 +50,7 @@ async def lifespan(app: FastAPI):
     # Shutdown: Clean up Telegram service
     if telegram_service:
         telegram_service.stop()
+        print("Telegram bot stopped...")
     
     # Remove webhook on shutdown
     async with httpx.AsyncClient() as client:
@@ -48,7 +62,11 @@ app.include_router(router)
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"message": "Calendar AI Agent is running"}
+    return {
+        "message": "CaliBOT - AI Calendar Bot is running",
+        "version": __version__,
+        "status": "operational"
+    }
 
 def start():
     """Start the FastAPI application"""
