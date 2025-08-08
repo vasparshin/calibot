@@ -3,6 +3,9 @@
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
 ## [Unreleased]
+
+
+## [0.1.0] - 2025-08-08
 ### Fixed  
 - **Critical: Delete/Update Confirmation Workflow**: Fixed broken confirmation workflow for delete/update operations where bot would ask for confirmation but not create any pending operations, causing "I don't have any pending operations to confirm" error
 - **Multi-Event Queue Creation**: Added proper event queue creation for multi-event delete/update operations that require confirmation
@@ -12,6 +15,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - **routes.py**: Added dedicated handler for delete/update operations with `confirmation_needed: True` that properly creates event queues or stores pending operations before asking for confirmation
 - **Root Cause**: Delete/update operations with confirmation were falling through to generic AI response without creating any trackable pending state
 - **Impact**: Mass delete operations like "Delete all events titled 'lesson'" now work correctly through the full confirmation workflow
+
+## [Unreleased]
+
 
 ## [0.1.0] - 2025-08-08
 ### Fixed
@@ -37,6 +43,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ### Enhanced
 - **Development Guidelines**: Updated copilot instructions to explicitly ban emoticons in all scripts and prevent creation of redundant documentation files
 - **Code Style Enforcement**: Clarified that all files in scripts/ folder are backend files requiring professional style
+
+
+## [Unreleased]
+
+
+## [0.1.0] - 2025-08-08
 
 
 ## [Unreleased]
