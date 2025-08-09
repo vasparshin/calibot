@@ -4,6 +4,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.15] - 2025-08-09
+
 ### Fixed 🐛 - CRITICAL UX FIXES (Version 0.1.16)
 
 #### Message Formatting Consistency 
@@ -31,6 +34,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - Google Workspace banners eliminated from all event creation confirmations
 - Pronoun references like "delete these 2 events" correctly identify recent events
 - Duplicate confirmations provide clean single-step workflow
+
+
+## [Unreleased]
 
 
 ## [0.1.15] - 2025-08-09
