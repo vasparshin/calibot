@@ -4,14 +4,14 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-
-## [0.1.14] - 2025-08-09
-
-### Added
-- New features and improvements will be added here
-
-## [Unreleased]
-
+### Fixed
+- **CRITICAL: File Organization Compliance**: Moved all test files from project root to tests/ folder to comply with mandatory copilot rules
+  - test_delete_scenario.py → tests/test_delete_scenario.py
+  - test_final_integration.py → tests/test_final_integration.py  
+  - test_immediate_fixes.py → tests/test_immediate_fixes.py
+  - test_inline_keyboards_and_ui.py → tests/test_inline_keyboards_and_ui.py
+  - test_update_fixes.py → tests/test_update_fixes.py
+  - test_update_operation_fixes.py → tests/test_update_operation_fixes.py
 
 ## [0.1.14] - 2025-08-09 INLINE KEYBOARDS & COMPREHENSIVE UX IMPLEMENTATION
 
