@@ -16,6 +16,8 @@ class MultiEventOperationHandler:
         self.telegram_service = telegram_service
         self.conversation_state = conversation_state
         self.pending_operations = {}  # Store pending operations by chat_id
+        # Clear any stale operations on startup
+        self.clear_all_pending_operations()
     
     async def handle_delete_operation(self, chat_id: int, event_data: Dict) -> Dict:
         """Handle delete operations - find matching events and confirm with user"""
@@ -357,3 +359,8 @@ class MultiEventOperationHandler:
         ]
         for op_id in to_remove:
             del self.pending_operations[op_id]
+    
+    def clear_all_pending_operations(self):
+        """Clear all pending operations (useful for startup cleanup)"""
+        self.pending_operations.clear()
+        logger.info("Cleared all pending operations on startup")

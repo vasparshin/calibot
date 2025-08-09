@@ -216,8 +216,8 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
             message_id, 
             f"{original_message}\n\n❌ Cancelled: Event creation cancelled"
         )
-    else:
-        # For other confirmations: standard behavior
+    elif confirmation in ["all", "one", "cancel"]:
+        # For multi-event operations: standard behavior
         choice_text = {
             "all": "🔄 Processing all events...",
             "one": "1️⃣ Processing one by one...",
@@ -228,6 +228,17 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
             chat_id, 
             message_id, 
             f"Operation confirmed: {choice_text}"
+        )
+        
+        # Clear any pending operations if cancelled
+        if confirmation == "cancel":
+            multi_event_handler.clear_pending_operations(chat_id)
+    else:
+        # Unknown confirmation type
+        await edit_message_text(
+            chat_id, 
+            message_id, 
+            f"Choice: {confirmation}"
         )
     
     # Process the confirmation as if it was a text message
@@ -350,16 +361,45 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             # Check for duplicate events
             duplicates = await check_for_duplicate_events(chat_id, events_to_create, calendar_service)
             if duplicates:
+                # For each duplicate, ask user what to do but continue with non-duplicates
+                duplicate_indices = [dup["index"] for dup in duplicates]
+                non_duplicate_events = [event for i, event in enumerate(events_to_create) if i not in duplicate_indices]
+                
+                # If there are non-duplicate events, create them first
+                if non_duplicate_events:
+                    created_count = 0
+                    success_events = []
+                    
+                    for single_event in non_duplicate_events:
+                        if isinstance(single_event, dict) and single_event.get("intent") == "create":
+                            try:
+                                logger.info(f"Creating non-duplicate event: {single_event}")
+                                calendar_result = await calendar_service.create_event(single_event)
+                                if calendar_result and calendar_result.get("success"):
+                                    created_count += 1
+                                    formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
+                                    success_events.append(formatted_event)
+                            except Exception as e:
+                                logger.error(f"Error creating non-duplicate event: {e}")
+                                continue
+                    
+                    # Send success message for non-duplicates
+                    if success_events:
+                        success_message = format_success_message("create", created_count) + "\n".join(success_events)
+                        await send_telegram_message(chat_id, success_message)
+                        conversation_state.add_message(chat_id, "assistant", success_message)
+                
+                # Now ask about duplicates
                 duplicate_msg, keyboard = format_duplicate_confirmation_with_keyboard(duplicates, "create")
                 
                 await send_telegram_message(chat_id, duplicate_msg, reply_markup=keyboard)
                 conversation_state.add_message(chat_id, "assistant", duplicate_msg)
                 
-                # Store the pending creation for user confirmation
-                conversation_state.add_message(chat_id, "system", f"PENDING_DUPLICATE_CREATION:{len(events_to_create)} events")
+                # Store the pending duplicate creation for user confirmation
+                conversation_state.add_message(chat_id, "system", f"PENDING_DUPLICATE_CREATION:{len(duplicates)} events")
                 return {"status": "ok"}
             
-            # Process each event in the batch
+            # Process each event in the batch (no duplicates found)
             created_count = 0
             failed_count = 0
             success_events = []
@@ -417,22 +457,6 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             queue_result = event_queue_handler.create_event_queue(chat_id, event_data)
             await send_telegram_message(chat_id, queue_result["message"])
             conversation_state.add_message(chat_id, "assistant", queue_result["message"])
-            
-            return {"status": "ok"}
-
-        # Check if this is a confirmation for a pending multi-event operation (LEGACY)
-        if multi_event_handler.has_pending_operation(chat_id):
-            logger.info(f"Processing confirmation for pending multi-event operation")
-            
-            confirmation_result = await multi_event_handler.confirm_operation(chat_id, user_message)
-            
-            if confirmation_result["success"] or not confirmation_result["requires_user_action"]:
-                await send_telegram_message(chat_id, confirmation_result["message"])
-                conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
-            else:
-                # Still waiting for proper confirmation
-                await send_telegram_message(chat_id, confirmation_result["message"])
-                conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
             
             return {"status": "ok"}
 
