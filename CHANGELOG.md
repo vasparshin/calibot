@@ -4,8 +4,14 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.14] - 2025-08-09
+
 ### Added
 - New features and improvements will be added here
+
+## [Unreleased]
+
 
 ## [0.1.14] - 2025-08-09 INLINE KEYBOARDS & COMPREHENSIVE UX IMPLEMENTATION
 
