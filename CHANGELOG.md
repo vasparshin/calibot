@@ -7,6 +7,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [0.1.17] - 2025-08-09
 
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
 ## [Unreleased]
 
 
@@ -41,6 +53,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - **After**: `Found 7 events to delete: 1. [Lesson](link) on Sunday, August 10, 2025 at 08:00 AM - 09:00 AM (Tonya)` [ALL 7 EVENTS SHOWN]
 - **Before**: Users type "yes"/"all"/"cancel" responses
 - **After**: Users click intuitive buttons with emojis
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
@@ -93,6 +111,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [0.1.17] - 2025-08-09
 
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
 ### Fixed 🐛 - CRITICAL PRODUCTION BUGS
 
 #### Intent Routing Bug (CRITICAL)
@@ -115,6 +139,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - UPDATE operations with confirmation now correctly show event selection interfaces instead of being ignored
 - Time filtering works for "delete all lessons after 10am today" type requests  
 - Version 0.1.16 displayed consistently across application startup, logs, and API endpoints
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
 
 ## [Unreleased]
 
@@ -227,6 +257,84 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [0.1.17] - 2025-08-09
 
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
 ### Fixed 🐛
 
 #### Critical UX Fixes Based on Production Testing
@@ -254,6 +362,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - Multi-event delete functionality tested with inline keyboards working correctly
 - Calendar name resolution confirmed working for "calendar" suffix removal
 - Duplicate detection enhanced to handle multiple Google Calendar API data formats
+
+## [Unreleased]
+
+
+## [0.1.17] - 2025-08-09
+
 
 ## [Unreleased]
 
