@@ -6,6 +6,7 @@ following BOT_RULES.md specifications.
 """
 from datetime import datetime
 import re
+from app.services.telegram import create_confirmation_keyboard, create_event_selection_keyboard
 
 def format_event_title(title):
     """Format event title with proper capitalization"""
@@ -24,7 +25,15 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
     if calendar_id == 'primary':
         return "Personal"
     
-    # If we have calendar service, try to get actual name
+    # If we have calendar service, try to get actual name from API
+    if calendar_service and hasattr(calendar_service, 'get_calendar_display_name'):
+        try:
+            display_name = calendar_service.get_calendar_display_name(calendar_id)
+            return display_name
+        except Exception:
+            pass  # Fall through to manual parsing
+    
+    # Try calendar agent method
     if calendar_service and hasattr(calendar_service, 'calendar_agent'):
         calendar_info = calendar_service.calendar_agent.get_calendar_info(calendar_id)
         if calendar_info and calendar_info.get('name'):
@@ -48,6 +57,9 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
             return 'Shared Calendar'
         else:
             return calendar_id.split('@')[0].replace('.', ' ').title()
+    elif '.' in calendar_id and not calendar_id.startswith('http'):
+        # Handle patterns like "some.calendar.id"
+        return calendar_id.replace('.', ' ').title()
     
     return calendar_id
 
@@ -99,51 +111,73 @@ def format_event_for_display(event_data, calendar_result=None, calendar_service=
     Following BOT_RULES.md format:
     • [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
     """
-    # Format title with proper capitalization
-    title = format_event_title(event_data.get('event_name', 'Untitled Event'))
+    # Handle both Google Calendar event format and our internal format
+    title = ""
+    if 'summary' in event_data:
+        # Google Calendar format
+        title = format_event_title(event_data.get('summary', 'Untitled Event'))
+    else:
+        # Our internal format
+        title = format_event_title(event_data.get('event_name', 'Untitled Event'))
     
-    # Format date
+    # Format date - handle multiple possible sources
     date_str = "Unknown date"
-    date_value = event_data.get('date')
-    if not date_value and event_data.get('start_time') and 'T' in str(event_data.get('start_time')):
-        # Extract date from start_time ISO string
+    
+    # Try Google Calendar format first
+    if event_data.get('start', {}).get('dateTime'):
         try:
-            start_dt = datetime.fromisoformat(event_data['start_time'].replace('Z', '+00:00'))
-            date_value = start_dt.strftime('%Y-%m-%d')
+            start_dt = datetime.fromisoformat(event_data['start']['dateTime'].replace('Z', '+00:00'))
+            date_str = start_dt.strftime('%A, %B %d, %Y')
         except:
             pass
-    
-    if date_value:
-        date_str = format_date_full(date_value)
+    # Try our internal format
+    elif event_data.get('date'):
+        date_str = format_date_full(event_data['date'])
     elif event_data.get('start_time') and 'T' in str(event_data.get('start_time')):
-        # Fallback: extract date from start_time
         try:
             start_dt = datetime.fromisoformat(event_data['start_time'].replace('Z', '+00:00'))
             date_str = start_dt.strftime('%A, %B %d, %Y')
         except:
             pass
     
-    # Format times
-    start_time = event_data.get('start_time', '')
-    end_time = event_data.get('end_time', '')
-    
+    # Format times - handle multiple possible sources
     time_str = "Unknown time"
-    if start_time and end_time:
-        start_formatted = format_time_12hour(start_time)
-        end_formatted = format_time_12hour(end_time)
+    
+    # Try Google Calendar format
+    if event_data.get('start', {}).get('dateTime') and event_data.get('end', {}).get('dateTime'):
+        try:
+            start_dt = datetime.fromisoformat(event_data['start']['dateTime'].replace('Z', '+00:00'))
+            end_dt = datetime.fromisoformat(event_data['end']['dateTime'].replace('Z', '+00:00'))
+            start_formatted = start_dt.strftime('%I:%M %p')
+            end_formatted = end_dt.strftime('%I:%M %p')
+            time_str = f"{start_formatted} - {end_formatted}"
+        except:
+            pass
+    # Try our internal format
+    elif event_data.get('start_time') and event_data.get('end_time'):
+        start_formatted = format_time_12hour(event_data['start_time'])
+        end_formatted = format_time_12hour(event_data['end_time'])
         time_str = f"{start_formatted} - {end_formatted}"
-    elif start_time:
-        time_str = format_time_12hour(start_time)
+    elif event_data.get('start_time'):
+        time_str = format_time_12hour(event_data['start_time'])
     
     # Get proper calendar name
-    calendar_name = get_calendar_display_name(
-        event_data.get('calendar_name') or event_data.get('calendar_id', 'primary'),
-        calendar_service
+    calendar_id = (
+        event_data.get('calendar_id') or 
+        event_data.get('calendar_name') or 
+        'primary'
     )
+    calendar_name = get_calendar_display_name(calendar_id, calendar_service)
     
     # Create hyperlink if available
+    event_link = None
     if calendar_result and calendar_result.get('event_link'):
-        clickable_title = f"[{title}]({calendar_result['event_link']})"
+        event_link = calendar_result['event_link']
+    elif event_data.get('htmlLink'):
+        event_link = event_data['htmlLink']
+    
+    if event_link:
+        clickable_title = f"[{title}]({event_link})"
         return f"• {clickable_title} on {date_str} at {time_str} ({calendar_name})"
     else:
         return f"• {title} on {date_str} at {time_str} ({calendar_name})"
@@ -295,3 +329,50 @@ def is_confirmation_one(text):
     
     text = text.strip().lower()
     return text in ["one", "1", "individual", "step"]
+
+def format_duplicate_confirmation_with_keyboard(events, action="create"):
+    """Format duplicate confirmation message with inline keyboard"""
+    count = len(events)
+    
+    message = f"Found {count} potential duplicate event(s):\n\n"
+    
+    for event in events:
+        event_name = format_event_title(event.get('summary', 'Untitled Event'))
+        start_time = format_time_12hour(event.get('start', {}).get('dateTime', ''))
+        date = format_date_full(event.get('start', {}).get('dateTime', ''))
+        message += f"• {event_name} at {start_time} on {date}\n"
+    
+    message += f"\nDo you want to {action} duplicate events?"
+    
+    keyboard = create_confirmation_keyboard("duplicate")
+    return message, keyboard
+
+def format_multi_event_confirmation_with_keyboard(events, action="delete"):
+    """Format multi-event confirmation message with inline keyboard"""
+    count = len(events)
+    
+    message = f"Found {count} events to {action}:\n\n"
+    
+    for i, event in enumerate(events[:10], 1):  # Show first 10
+        event_name = format_event_title(event.get('summary', 'Untitled Event'))
+        start_time = format_time_12hour(event.get('start', {}).get('dateTime', ''))
+        date_short = event.get('start', {}).get('dateTime', '')[:10] if event.get('start', {}).get('dateTime') else ''
+        calendar_name = get_calendar_display_name(event.get('calendar_id', ''))
+        message += f"{i}. {event_name} - {date_short} {start_time} ({calendar_name})\n"
+    
+    if count > 10:
+        message += f"... and {count - 10} more events\n"
+    
+    message += f"\nChoose an option:"
+    
+    keyboard = create_confirmation_keyboard("multi_event")
+    return message, keyboard
+
+def format_event_selection_with_keyboard(events, action="select"):
+    """Format event selection message with inline keyboard for individual selection"""
+    count = len(events)
+    
+    message = f"Select which events to {action} ({count} total):\n\n"
+    
+    keyboard = create_event_selection_keyboard(events)
+    return message, keyboard

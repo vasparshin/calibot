@@ -2,6 +2,65 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [Unreleased]
+
+### Added
+- New features and improvements will be added here
+
+## [0.1.14] - 2025-08-09 INLINE KEYBOARDS & COMPREHENSIVE UX IMPLEMENTATION
+
+### Added
+- **Inline Keyboard Buttons**: Replaced text-based confirmations with professional Telegram inline keyboard buttons
+  - ✅ Yes/❌ No buttons for duplicate confirmations
+  - 🔄 All/1️⃣ One by One/❌ Cancel buttons for multi-event operations
+  - Individual event selection buttons with ✅ Select All/❌ Cancel options
+- **Callback Query Handling**: Complete webhook support for inline keyboard button presses
+  - Proper callback query parsing and response handling
+  - Message editing after button selection
+  - Seamless integration with existing confirmation logic
+- **Real Calendar Name Fetching**: Direct Google Calendar API integration for accurate calendar display names
+  - `GoogleCalendarService.get_calendar_display_name()` method for API-based name resolution
+  - `CalendarAgent.update_single_calendar_cache()` method for efficient caching
+  - Fallback handling for offline or error scenarios
+- **Enhanced UI Helper Functions**: Complete formatting library with inline keyboard support
+  - `format_duplicate_confirmation_with_keyboard()` for duplicate confirmations
+  - `format_multi_event_confirmation_with_keyboard()` for multi-event operations
+  - `format_event_selection_with_keyboard()` for individual event selection
+- **Comprehensive Test Suite**: Real-world scenario testing and validation
+  - Inline keyboard functionality tests
+  - Event title capitalization validation
+  - Calendar name resolution verification
+  - Integration flow testing with simulated Telegram webhooks
+
+### Fixed
+- **Event Title Capitalization**: Enhanced `format_event_title()` to handle all edge cases properly
+- **Event Formatting with Hyperlinks**: Fixed `format_event_for_display()` to handle both Google Calendar and internal event formats
+- **Calendar Name Resolution**: Improved pattern matching for various calendar ID formats
+- **Webhook Structure**: Refactored webhook handling to support both messages and callback queries
+- **TelegramUpdate Model**: Added `callback_query` field support for inline keyboard responses
+
+### Enhanced
+- **User Experience**: Eliminated typing requirements for confirmations - users now click buttons
+- **Error Handling**: Comprehensive edge case handling for malformed callback data
+- **Code Organization**: Centralized all UI formatting logic in reusable helper functions
+- **Documentation**: Updated BOT_RULES.md with inline keyboard button specifications
+- **Integration**: Seamless integration between text messages and inline keyboard interactions
+
+### Technical Implementation
+- **backend/app/services/telegram.py**: Added `create_confirmation_keyboard()`, `create_event_selection_keyboard()`, `answer_callback_query()`, `edit_message_text()`
+- **backend/app/utils/ui_helpers.py**: Enhanced with keyboard formatting functions and improved event display handling
+- **backend/app/api/routes.py**: Added `handle_callback_query()`, `handle_confirmation_callback()`, `handle_event_selection()` functions
+- **backend/app/api/models.py**: Extended `TelegramUpdate` model with `callback_query` support
+- **backend/app/services/google_calendar.py**: Added `get_calendar_display_name()` method for API-based name resolution
+- **backend/app/agent/calendar_agent.py**: Added `update_single_calendar_cache()` for individual calendar updates
+
+### User Impact
+- **Faster Interactions**: One-click confirmations instead of typing responses
+- **Better Visual Experience**: Professional button-based interface
+- **Accurate Information**: Real calendar names and properly formatted event titles
+- **Reduced Errors**: Eliminated typos in confirmation responses
+- **Professional Appearance**: Consistent with modern chat applications
+
 ## [0.1.13] - 2025-08-08 CRITICAL UX CONSISTENCY & BOT_RULES IMPLEMENTATION
 
 ### Added

@@ -1,5 +1,10 @@
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
-from app.services.telegram import TelegramBotService, send_telegram_message
+from app.services.telegram import (
+    TelegramBotService, 
+    send_telegram_message, 
+    answer_callback_query,
+    edit_message_text
+)
 from app.services.ai_service import get_ai_response, get_small_talk_response
 from app.services.google_calendar import GoogleCalendarService
 from app.services.multi_event_operations import MultiEventOperationHandler
@@ -17,7 +22,10 @@ from app.utils.ui_helpers import (
     is_confirmation_yes,
     is_confirmation_no,
     is_confirmation_one,
-    get_calendar_display_name
+    get_calendar_display_name,
+    format_duplicate_confirmation_with_keyboard,
+    format_multi_event_confirmation_with_keyboard,
+    format_event_selection_with_keyboard
 )
 from datetime import datetime
 
@@ -25,6 +33,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Deprecated - use format_event_for_display from ui_helpers instead
 def format_event_for_user(event_data, calendar_result=None, operation="created"):
     """Format event information consistently for user messages - DEPRECATED, use ui_helpers"""
     # Use the new centralized formatting function
@@ -106,9 +115,15 @@ access_token = None
 
 @router.post("/webhook")
 async def telegram_webhook(update: TelegramUpdate):
-    """Handle incoming Telegram messages"""
+    """Handle incoming Telegram messages and callback queries"""
     
     logger.info(f"📨 Received Telegram update: {update}")
+    
+    # Handle callback queries (inline keyboard button presses)
+    if hasattr(update, 'callback_query') and update.callback_query:
+        return await handle_callback_query(update.callback_query)
+    
+    # Handle regular messages
     if not update.message:
         return {"status": "ok"}
     
@@ -128,6 +143,85 @@ async def telegram_webhook(update: TelegramUpdate):
             "I'm sorry, I didn't understand that. Can you please rephrase your message?"
         )
         return {"status": "ok"}
+    
+    # Process the message through the main logic
+    return await process_user_message(chat_id, user_message, message_type)
+
+async def handle_callback_query(callback_query):
+    """Handle inline keyboard button presses"""
+    chat_id = callback_query["message"]["chat"]["id"]
+    message_id = callback_query["message"]["message_id"]
+    callback_data = callback_query["data"]
+    callback_query_id = callback_query["id"]
+    
+    logger.info(f"🔘 Callback query from chat {chat_id}: {callback_data}")
+    
+    # Answer the callback query to remove loading indicator
+    await answer_callback_query(callback_query_id, "Processing...")
+    
+    # Handle different callback types
+    if callback_data == "confirm_yes":
+        return await handle_confirmation_callback(chat_id, message_id, "yes")
+    elif callback_data == "confirm_no":
+        return await handle_confirmation_callback(chat_id, message_id, "no")
+    elif callback_data == "confirm_all":
+        return await handle_confirmation_callback(chat_id, message_id, "all")
+    elif callback_data == "confirm_one":
+        return await handle_confirmation_callback(chat_id, message_id, "one")
+    elif callback_data == "confirm_cancel":
+        return await handle_confirmation_callback(chat_id, message_id, "cancel")
+    elif callback_data.startswith("select_event_"):
+        event_index = int(callback_data.split("_")[-1])
+        return await handle_event_selection(chat_id, message_id, event_index)
+    elif callback_data == "select_all":
+        return await handle_event_selection(chat_id, message_id, "all")
+    elif callback_data == "select_cancel":
+        return await handle_event_selection(chat_id, message_id, "cancel")
+    else:
+        logger.warning(f"Unknown callback data: {callback_data}")
+        return {"status": "ok"}
+
+async def handle_confirmation_callback(chat_id: int, message_id: int, confirmation: str):
+    """Handle confirmation responses from inline keyboards"""
+    # Update the conversation state with the user's choice
+    conversation_state.add_message(chat_id, confirmation, "user")
+    
+    # Edit the message to show the choice was made
+    choice_text = {
+        "yes": "✅ Confirmed: Yes",
+        "no": "❌ Cancelled", 
+        "all": "🔄 Processing all events...",
+        "one": "1️⃣ Processing one by one...",
+        "cancel": "❌ Operation cancelled"
+    }.get(confirmation, f"Choice: {confirmation}")
+    
+    await edit_message_text(
+        chat_id, 
+        message_id, 
+        f"Operation confirmed: {choice_text}"
+    )
+    
+    # Process the confirmation as if it was a text message
+    return await process_user_message(chat_id, confirmation, "callback")
+
+async def handle_event_selection(chat_id: int, message_id: int, selection):
+    """Handle event selection from inline keyboards"""
+    if selection == "cancel":
+        await edit_message_text(chat_id, message_id, "❌ Selection cancelled")
+        return {"status": "ok"}
+    elif selection == "all":
+        await edit_message_text(chat_id, message_id, "✅ All events selected")
+        # Process as "all" confirmation
+        return await process_user_message(chat_id, "all", "callback")
+    else:
+        # Handle individual event selection
+        await edit_message_text(chat_id, message_id, f"✅ Selected event #{selection + 1}")
+        # Store the selection and continue with individual processing
+        conversation_state.set_data(chat_id, "selected_event_index", selection)
+        return await process_user_message(chat_id, "one", "callback")
+
+async def process_user_message(chat_id: int, user_message: str, message_type: str = "text"):
+    """Process user message (from regular text or callback)"""
     
     try:
         auth_check = calendar_service.is_authenticated()
@@ -231,9 +325,9 @@ async def telegram_webhook(update: TelegramUpdate):
             # Check for duplicate events
             duplicates = await check_for_duplicate_events(chat_id, events_to_create, calendar_service)
             if duplicates:
-                duplicate_msg = format_duplicate_message(duplicates)
+                duplicate_msg, keyboard = format_duplicate_confirmation_with_keyboard(duplicates, "create")
                 
-                await send_telegram_message(chat_id, duplicate_msg)
+                await send_telegram_message(chat_id, duplicate_msg, reply_markup=keyboard)
                 conversation_state.add_message(chat_id, "assistant", duplicate_msg)
                 
                 # Store the pending creation for user confirmation
@@ -253,7 +347,7 @@ async def telegram_webhook(update: TelegramUpdate):
                         calendar_result = await calendar_service.create_event(single_event)
                         if calendar_result and calendar_result.get("success"):
                             created_count += 1
-                            formatted_event = format_event_for_user(single_event, calendar_result, "created")
+                            formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
                             success_events.append(formatted_event)
                         else:
                             failed_count += 1

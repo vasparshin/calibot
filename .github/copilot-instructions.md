@@ -134,17 +134,46 @@
 - If a change is a new feature, describe the user impact and integration points.
 - Keep entries concise but specific.
 
-### Changelog Update Workflow
-**🚨 CRITICAL: Follow this exact sequence for every task - NO EXCEPTIONS:**
-1. Make code changes
-2. **Run comprehensive tests to verify all changes work correctly**
-3. **AFTER tests pass, update CHANGELOG.md with details of what was changed and why**
-4. **VERIFY CHANGELOG.md has been updated with the correct version increment**
-5. Commit both the code changes AND changelog update together
-6. **Never complete a task without updating the changelog AFTER successful testing - THIS IS MANDATORY**
+### Complete Implementation Process
+**🚨 CRITICAL: Follow this exact sequence for EVERY feature/fix - NO EXCEPTIONS:**
 
-**🚨 CHANGELOG UPDATE MUST HAPPEN AFTER TESTING VERIFICATION 🚨**
-**🚨 FAILURE TO UPDATE CHANGELOG IS A CRITICAL ERROR 🚨**
+#### Phase 1: Analysis & Planning
+1. **Analyze Requirements**: Break down feature into specific components and acceptance criteria
+2. **Identify Dependencies**: Check what files, functions, and services need modification  
+3. **Architecture Assessment**: Ensure changes align with existing patterns and don't break current functionality
+4. **Create Implementation Plan**: Step-by-step approach with specific files and functions to modify
+
+#### Phase 2: Implementation
+5. **Implement Core Functionality**: Write the actual feature code following project patterns
+6. **Add Error Handling**: Ensure graceful failure modes and user-friendly error messages
+7. **Integration Points**: Connect new functionality with existing systems (routes, services, agents)
+8. **Code Review**: Verify code follows project conventions and is maintainable
+
+#### Phase 3: Testing & Validation
+9. **Unit Testing**: Test individual functions and components in isolation
+10. **Integration Testing**: Test feature works with existing system components
+11. **Real-World Scenario Testing**: Test with actual user scenarios and edge cases
+12. **Performance Testing**: Verify feature doesn't degrade system performance
+13. **User Experience Testing**: Ensure feature provides good UX and follows BOT_RULES.md
+
+#### Phase 4: Optimization & Polish
+14. **Code Optimization**: Refactor for efficiency, readability, and maintainability
+15. **Documentation Update**: Update relevant documentation and code comments
+16. **Error Message Improvement**: Ensure all error messages are helpful and actionable
+17. **Final Validation**: Complete end-to-end testing of the entire feature
+
+#### Phase 5: Release & Documentation
+18. **Version Increment**: Update version in pyproject.toml, backend/app/__init__.py
+19. **CHANGELOG.md Update**: Document what was implemented, why, and impact
+20. **Git Commit**: Commit all changes with descriptive commit message
+21. **Push to Repository**: Deploy changes and verify successful deployment
+
+**🚨 NO FEATURE IS COMPLETE UNTIL ALL 21 STEPS ARE FINISHED 🚨**
+**🚨 CLAIMING IMPLEMENTATION WITHOUT COMPLETING ALL PHASES IS FORBIDDEN 🚨**
+**🚨 TESTING MUST BE REAL-WORLD SCENARIOS, NOT JUST SYNTAX CHECKS 🚨**
+
+### Changelog Update Workflow
+**🚨 CRITICAL: Changelog update is STEP 19 and happens ONLY after testing verification 🚨**
 
 ### Changelog Update Examples
 **Good changelog entry:**

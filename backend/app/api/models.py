@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Any, Union
 class TelegramUpdate(BaseModel):
     update_id: int
     message: Optional[Dict] = None
+    callback_query: Optional[Dict] = None
 
 class TelegramMessage(BaseModel):
     chat_id: int

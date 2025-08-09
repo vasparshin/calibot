@@ -246,6 +246,42 @@ class GoogleCalendarService:
         except Exception as e:
             logger.info(f"Failed to retrieve user time zone: {e}")
             return 'UTC'
+
+    def get_calendar_display_name(self, calendar_id: str) -> str:
+        """Get the actual display name for a calendar from Google Calendar API"""
+        if not calendar_id:
+            return "Unknown Calendar"
+        
+        # Handle primary calendar
+        if calendar_id == 'primary':
+            return "Personal"
+        
+        # Try to get from calendar agent cache first
+        calendar_info = self.calendar_agent.get_calendar_info(calendar_id)
+        if calendar_info and calendar_info.get('name'):
+            return calendar_info['name']
+        
+        # Fallback to API call
+        service = self.get_calendar_service()
+        if not service:
+            return calendar_id  # Return ID if no service available
+        
+        try:
+            calendar = self._handle_api_call(
+                lambda: service.calendars().get(calendarId=calendar_id).execute()
+            )
+            display_name = calendar.get('summary', calendar_id)
+            
+            # Update cache with new information
+            self.calendar_agent.update_single_calendar_cache(calendar_id, {
+                'name': display_name,
+                'id': calendar_id
+            })
+            
+            return display_name
+        except Exception as e:
+            logger.warning(f"Failed to get calendar name for {calendar_id}: {e}")
+            return calendar_id  # Return ID as fallback
     
     async def create_event(self, event_data):
         """Create a new event in Google Calendar with intelligent calendar selection"""

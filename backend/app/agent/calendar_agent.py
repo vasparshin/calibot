@@ -26,6 +26,21 @@ class CalendarAgent:
             for cal in calendars
         }
         logger.info(f"Updated calendar cache with {len(self.calendar_cache)} calendars")
+
+    def update_single_calendar_cache(self, calendar_id: str, calendar_data: Dict):
+        """Update a single calendar in the cache"""
+        if not self.calendar_cache:
+            self.calendar_cache = {}
+        
+        self.calendar_cache[calendar_id] = {
+            'id': calendar_id,
+            'name': calendar_data.get('name', calendar_data.get('summary', 'Unknown')),
+            'description': calendar_data.get('description', ''),
+            'primary': calendar_data.get('primary', False),
+            'color': calendar_data.get('backgroundColor', '#ffffff'),
+            'themes': self._extract_themes_from_name(calendar_data.get('name', calendar_data.get('summary', '')))
+        }
+        logger.info(f"Updated single calendar cache for {calendar_id}")
         
     def _extract_themes_from_name(self, calendar_name: str) -> List[str]:
         """Extract potential themes from calendar name"""
