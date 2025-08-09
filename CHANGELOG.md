@@ -2,8 +2,30 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
-## [Unreleased]
+## [0.1.16] - 2025-08-09
 
+### Fixed 🐛 - CRITICAL PRODUCTION BUGS
+
+#### Intent Routing Bug (CRITICAL)
+- **UPDATE Operations Completely Broken**: Fixed critical bug where UPDATE operations with `confirmation_needed: true` were being ignored entirely
+- **Wrong Logic Condition**: Fixed `not event_data.get("confirmation_needed", True)` condition that was backwards - causing operations to be skipped when confirmation was needed
+- **Production Impact**: User requests like "move all lessons tomorrow forward by 1 hr" were being ignored and routed to delete operations instead
+
+#### Time Filtering Support
+- **"After X Time" Queries**: Added support for time-based filtering like "delete all lessons after 10am today"
+- **Time Range Operations**: Enhanced intent extraction to recognize `start_time_after` and `start_time_before` parameters  
+- **Calendar Query Enhancement**: Added time filtering logic to Google Calendar queries using ISO datetime parsing
+- **Examples**: "delete events after 10am", "remove meetings before 2pm" now work correctly
+
+#### Code Cleanup
+- **Duplicate Code Removal**: Removed duplicate 80+ line section in routes.py that was handling delete/update operations redundantly
+- **Version Management**: Updated version to 0.1.16 across pyproject.toml and backend/app/__init__.py
+- **Startup Logging**: Version already properly displayed in logs at startup and API root endpoint
+
+#### Validation ✅
+- UPDATE operations with confirmation now correctly show event selection interfaces instead of being ignored
+- Time filtering works for "delete all lessons after 10am today" type requests  
+- Version 0.1.16 displayed consistently across application startup, logs, and API endpoints
 
 ## [0.1.15] - 2025-08-09
 

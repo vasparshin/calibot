@@ -48,13 +48,15 @@ MANDATORY CALENDAR EXTRACTION EXAMPLES:
 DELETE/UPDATE OPERATION EXAMPLES:
 - "delete all lesson events" → "intent": "delete", "event_name": "lesson"
 - "remove events called meeting" → "intent": "delete", "event_name": "meeting"
-- "delete events today" → "intent": "delete", "date": "2025-08-06"
+- "delete events today" → "intent": "delete", "date": "2025-08-09"
+- "delete all lessons after 10am today" → "intent": "delete", "event_name": "lesson", "date": "2025-08-09", "start_time_after": "10:00"
+- "remove events before 2pm tomorrow" → "intent": "delete", "date": "2025-08-10", "start_time_before": "14:00"
 - "delete these events" → "intent": "delete" (refer to most recently mentioned events)
 - "delete these 2 events" → "intent": "delete" (refer to most recently created/mentioned events)
 - "remove those" → "intent": "delete" (refer to most recently mentioned events)
 - "update meeting to call" → "intent": "update", "event_name": "meeting", "new_event_name": "call"
 - "move all events 1 hour later" → "intent": "update", "time_shift": "1 hour"
-- "move lesson events tomorrow later by 30 minutes" → "intent": "update", "event_name": "lesson", "date": "2025-08-07", "time_shift": "30 minutes"
+- "move lesson events tomorrow later by 30 minutes" → "intent": "update", "event_name": "lesson", "date": "2025-08-10", "time_shift": "30 minutes"
 - "shift all events in work calendar 2 hours earlier" → "intent": "update", "calendar_name": "work", "time_shift": "-2 hours"
 
 REMEMBER: 

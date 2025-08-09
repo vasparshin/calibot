@@ -594,6 +594,41 @@ class GoogleCalendarService:
             if not all_events:
                 return {'success': False, 'message': 'No matching events found'}
 
+            # Apply time filtering if specified
+            if 'start_time_after' in query_params or 'start_time_before' in query_params:
+                filtered_events = []
+                start_time_after = query_params.get('start_time_after')
+                start_time_before = query_params.get('start_time_before')
+                
+                for event in all_events:
+                    event_start = event.get('start', '')
+                    if not event_start:
+                        continue
+                    
+                    try:
+                        # Extract time from ISO datetime string (e.g., "2025-08-09T10:00:00+01:00" -> "10:00")
+                        if 'T' in event_start:
+                            time_part = event_start.split('T')[1].split('+')[0].split('-')[0]  # Handle timezone
+                            event_time = time_part[:5]  # Get HH:MM format
+                        else:
+                            continue  # Skip all-day events
+                        
+                        # Apply time filters
+                        skip_event = False
+                        if start_time_after and event_time < start_time_after:
+                            skip_event = True
+                        if start_time_before and event_time > start_time_before:
+                            skip_event = True
+                        
+                        if not skip_event:
+                            filtered_events.append(event)
+                    except Exception as e:
+                        logger.warning(f"Error filtering event by time: {e}")
+                        # Include event if time filtering fails
+                        filtered_events.append(event)
+                
+                all_events = filtered_events
+
             # Sort all events by start time
             all_events.sort(key=lambda x: x['start'])
 
