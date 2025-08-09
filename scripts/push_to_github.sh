@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # CaliBOT GitHub Push Script
-# Automatically commits changes, pushes to GitHub, and updates release status
+# Automatically commits changes, pushes to GitHub, and ensures version control accuracy
 
 set -e  # Exit on any error
 
 PROJECT_ROOT="/workspaces/calibot"
 CHANGELOG_FILE="$PROJECT_ROOT/CHANGELOG.md"
 PYPROJECT_FILE="$PROJECT_ROOT/pyproject.toml"
+INIT_FILE="$PROJECT_ROOT/backend/app/__init__.py"
 
 echo "CaliBOT GitHub Push Script"
 echo "==========================="
@@ -17,25 +18,103 @@ cd "$PROJECT_ROOT"
 
 # Check if we're in a git repository
 if [ ! -d ".git" ]; then
-    echo "Error: Not in a git repository"
+    echo "ERROR: Not in a git repository"
     exit 1
 fi
 
-# Check for uncommitted changes
-if [ -z "$(git status --porcelain)" ]; then
-    echo "No changes to commit"
-    echo "Repository is up to date"
-    exit 0
+# Function to extract version from different files
+extract_pyproject_version() {
+    grep -E '^version = ' "$PYPROJECT_FILE" | sed 's/version = "\(.*\)"/\1/' || echo ""
+}
+
+extract_init_version() {
+    grep -E '^__version__ = ' "$INIT_FILE" | sed 's/__version__ = "\(.*\)"/\1/' || echo ""
+}
+
+extract_changelog_version() {
+    grep -E '^## \[.*\].*2025-' "$CHANGELOG_FILE" | head -1 | sed 's/## \[\(.*\)\] -.*/\1/' || echo ""
+}
+
+# Extract versions from all files
+PYPROJECT_VERSION=$(extract_pyproject_version)
+INIT_VERSION=$(extract_init_version)
+CHANGELOG_VERSION=$(extract_changelog_version)
+
+echo "🔍 Version Control Check:"
+echo "   pyproject.toml: $PYPROJECT_VERSION"
+echo "   __init__.py: $INIT_VERSION"
+echo "   CHANGELOG.md: $CHANGELOG_VERSION"
+
+# Validate version consistency
+VERSION_MISMATCH=false
+if [ "$PYPROJECT_VERSION" != "$INIT_VERSION" ]; then
+    echo "❌ ERROR: Version mismatch between pyproject.toml ($PYPROJECT_VERSION) and __init__.py ($INIT_VERSION)"
+    VERSION_MISMATCH=true
 fi
 
-# Extract current version from pyproject.toml
-CURRENT_VERSION=$(grep -E '^version = ' "$PYPROJECT_FILE" | sed 's/version = "\(.*\)"/\1/')
-if [ -z "$CURRENT_VERSION" ]; then
-    echo "Error: Could not extract version from pyproject.toml"
-    exit 1
+if [ "$PYPROJECT_VERSION" != "$CHANGELOG_VERSION" ]; then
+    echo "❌ ERROR: Version mismatch between pyproject.toml ($PYPROJECT_VERSION) and CHANGELOG.md ($CHANGELOG_VERSION)"
+    VERSION_MISMATCH=true
+fi
+
+if [ "$VERSION_MISMATCH" = true ]; then
+    echo ""
+    echo "🛠️  FIXING VERSION MISMATCHES..."
+    
+    # Use pyproject.toml as the source of truth
+    CURRENT_VERSION="$PYPROJECT_VERSION"
+    
+    if [ -z "$CURRENT_VERSION" ]; then
+        echo "ERROR: Could not extract version from pyproject.toml"
+        exit 1
+    fi
+    
+    # Fix __init__.py version
+    if [ "$INIT_VERSION" != "$CURRENT_VERSION" ]; then
+        echo "   Updating __init__.py: $INIT_VERSION → $CURRENT_VERSION"
+        sed -i "s/__version__ = \".*\"/__version__ = \"$CURRENT_VERSION\"/" "$INIT_FILE"
+    fi
+    
+    # Fix CHANGELOG.md version if needed
+    if [ "$CHANGELOG_VERSION" != "$CURRENT_VERSION" ]; then
+        echo "   Updating CHANGELOG.md: $CHANGELOG_VERSION → $CURRENT_VERSION"
+        CURRENT_DATE=$(date +%Y-%m-%d)
+        sed -i "s/^## \[.*\] - $CURRENT_DATE/## [$CURRENT_VERSION] - $CURRENT_DATE/" "$CHANGELOG_FILE"
+    fi
+    
+    echo "✅ Version synchronization complete"
+else
+    CURRENT_VERSION="$PYPROJECT_VERSION"
+    echo "✅ All versions are synchronized: $CURRENT_VERSION"
 fi
 
 echo "Current version: $CURRENT_VERSION"
+
+# Check for uncommitted changes after version sync
+if [ -z "$(git status --porcelain)" ]; then
+    echo "📡 Checking remote status..."
+    
+    # Check if local is ahead of remote
+    LOCAL_COMMITS=$(git rev-list --count HEAD ^origin/main 2>/dev/null || echo "0")
+    
+    if [ "$LOCAL_COMMITS" -gt 0 ]; then
+        echo "⚠️  Local repository is $LOCAL_COMMITS commit(s) ahead of remote"
+        echo "📤 Pushing existing commits to GitHub..."
+        
+        if git push origin main; then
+            echo "✅ Successfully pushed existing commits to GitHub"
+            echo "🚀 This should trigger Render deployment to version $CURRENT_VERSION"
+            exit 0
+        else
+            echo "❌ Failed to push to GitHub"
+            exit 1
+        fi
+    else
+        echo "✅ Repository is up to date with remote"
+        echo "ℹ️  No changes to commit or push"
+        exit 0
+    fi
+fi
 
 # Extract the latest changelog entry (everything under [Unreleased] until next version)
 extract_latest_changelog() {
