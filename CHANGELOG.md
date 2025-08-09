@@ -4,6 +4,38 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.17] - 2025-08-09
+
+### Enhanced - CRITICAL MESSAGE CONSISTENCY FIXES
+
+#### Complete Message Formatting Standardization (CRITICAL)
+- **FIXED: Event List Truncation**: Eliminated "... and X more events" truncation - ALL events now always shown regardless of count
+- **FIXED: Missing Hyperlinks**: ALL events now display as clickable links `[Event Name](calendar_link)` instead of plain text
+- **FIXED: Inconsistent Date Formats**: Standardized to full format "Sunday, August 10, 2025" across all operations
+- **FIXED: Text-Based Confirmations**: Implemented inline keyboard buttons for all confirmations (🔄 All, 1️⃣ One by One, ❌ Cancel)
+- **Root Cause**: Multiple message generation points with inconsistent formatting logic
+- **User Impact**: Professional, consistent experience with complete event information and easy button interactions
+
+#### Centralized Message Formatting System
+- **Created**: `/backend/app/utils/message_formatter.py` - Centralized formatting following BOT_RULES.md specifications
+- **Created**: `/backend/app/utils/inline_keyboard.py` - Consistent inline keyboard generation
+- **Updated**: `/backend/app/services/event_queue_handler.py` - Uses new formatters, shows ALL events with hyperlinks
+- **Updated**: `/backend/app/services/multi_event_operations.py` - Removed truncation, added hyperlink support
+- **Updated**: `/backend/app/utils/ui_helpers.py` - Delegates to new formatters for consistency
+
+### Technical Details
+- **BOT_RULES.md**: Added explicit "no truncation" and hyperlink requirements
+- **Message Format**: Standardized to `• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)`
+- **Success Messages**: Consistent across create/update/delete operations
+- **Confirmation Messages**: Show ALL events with proper formatting and inline keyboards
+- **File Organization**: Moved test files to tests/ folder, removed forbidden summary files per coding guidelines
+
+### Fixed User Experience Issues
+- **Before**: `Found 7 events to delete: 1. lesson - Sun Aug 10, 08:00 AM... and 2 more events`
+- **After**: `Found 7 events to delete: 1. [Lesson](link) on Sunday, August 10, 2025 at 08:00 AM - 09:00 AM (Tonya)` [ALL 7 EVENTS SHOWN]
+- **Before**: Users type "yes"/"all"/"cancel" responses
+- **After**: Users click intuitive buttons with emojis
+
 
 ## [0.1.17] - 2025-08-09
 
@@ -47,7 +79,7 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - Multi-event handler starts with clean state on every service restart
 - System recovers gracefully from any corrupted states
 
-## [0.1.16] - 2025-08-09
+## [0.1.17] - 2025-08-09
 
 ### Fixed 🐛 - CRITICAL PRODUCTION BUGS
 
@@ -72,7 +104,7 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - Time filtering works for "delete all lessons after 10am today" type requests  
 - Version 0.1.16 displayed consistently across application startup, logs, and API endpoints
 
-## [0.1.15] - 2025-08-09
+## [0.1.17] - 2025-08-09
 
 ### Fixed 🐛 - CRITICAL UX FIXES (Version 0.1.16)
 
@@ -109,7 +141,7 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [0.1.17] - 2025-08-09
 
 
-## [0.1.16] - 2025-08-09
+## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
@@ -118,7 +150,7 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [0.1.17] - 2025-08-09
 
 
-## [0.1.16] - 2025-08-09
+## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
@@ -127,7 +159,7 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [0.1.17] - 2025-08-09
 
 
-## [0.1.16] - 2025-08-09
+## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
@@ -136,10 +168,10 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [0.1.17] - 2025-08-09
 
 
-## [0.1.16] - 2025-08-09
+## [0.1.17] - 2025-08-09
 
 
-## [0.1.15] - 2025-08-09
+## [0.1.17] - 2025-08-09
 
 ### Fixed 🐛
 
@@ -169,7 +201,7 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - Calendar name resolution confirmed working for "calendar" suffix removal
 - Duplicate detection enhanced to handle multiple Google Calendar API data formats
 
-## [0.1.14] - 2025-08-09 INLINE KEYBOARDS & COMPREHENSIVE UX IMPLEMENTATION
+## [0.1.17] - 2025-08-09 INLINE KEYBOARDS & COMPREHENSIVE UX IMPLEMENTATION
 
 ### Added
 - **Inline Keyboard Buttons**: Replaced text-based confirmations with professional Telegram inline keyboard buttons

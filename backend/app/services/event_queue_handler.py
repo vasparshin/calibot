@@ -42,6 +42,15 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 import json
 
+# Import centralized formatters for consistent messaging
+try:
+    from ..utils.message_formatter import MessageFormatter
+    from ..utils.inline_keyboard import InlineKeyboardHelper
+except ImportError:
+    # Fallback for development/testing
+    MessageFormatter = None
+    InlineKeyboardHelper = None
+
 logger = logging.getLogger(__name__)
 
 class EventQueueHandler:
@@ -137,7 +146,10 @@ class EventQueueHandler:
         return self._get_initial_batch_message(chat_id)
     
     def _get_initial_batch_message(self, chat_id: str) -> Dict:
-        """Get initial message showing found events and batch options"""
+        """
+        Get initial message showing found events and batch options.
+        CRITICAL: Updated to follow BOT_RULES.md - shows ALL events with hyperlinks.
+        """
         if not self.has_pending_queue(chat_id):
             return {"success": False, "message": "No pending events found."}
         
@@ -149,53 +161,92 @@ class EventQueueHandler:
         intent = events[0].get('intent', 'process') if events else 'process'
         action_text = {'delete': 'delete', 'update': 'update', 'create': 'create'}.get(intent, 'process')
         
-        # Build event summary list with enhanced date/time formatting
-        event_summaries = []
-        for i, event in enumerate(events[:5], 1):  # Show first 5 events
-            title = event.get('event_name', 'Untitled')
+        # Use centralized formatter if available
+        if MessageFormatter:
+            # Convert events to proper format for the formatter
+            formatted_events = []
+            for event in events:
+                formatted_event = {
+                    'summary': event.get('event_name', 'Untitled'),
+                    'start': event.get('start_time', ''),
+                    'end': event.get('end_time', ''),
+                    'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                    'id': event.get('event_id', ''),
+                    'htmlLink': event.get('calendar_link', '')
+                }
+                formatted_events.append(formatted_event)
             
-            # Enhanced format: date + start/end times
+            message = MessageFormatter.format_confirmation_message(action_text, formatted_events, total_events)
+            keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action_text) if InlineKeyboardHelper else None
+            
+            return {
+                "success": True,
+                "message": message,
+                "requires_user_action": True,
+                "batch_options": True,
+                "keyboard": keyboard
+            }
+        
+        # Legacy fallback implementation (FIXED to show ALL events)
+        message = f"Found {total_events} events to {action_text}:\n\n"
+        
+        # CRITICAL CHANGE: Show ALL events, never truncate
+        for i, event in enumerate(events, 1):
+            title = event.get('event_name', 'Untitled')
             start_time = event.get('start_time', '')
             end_time = event.get('end_time', '')
+            calendar_name = self._format_calendar_name(event.get('calendar_name', ''))
             
+            # Format with hyperlink if available
+            event_id = event.get('event_id', '')
+            calendar_link = event.get('calendar_link', '')
+            
+            if calendar_link:
+                formatted_title = f"[{title}]({calendar_link})"
+            elif event_id:
+                formatted_title = f"[{title}](https://calendar.google.com/calendar/event?eid={event_id})"
+            else:
+                formatted_title = title
+            
+            # Format date and time
             try:
-                if 'T' in str(start_time) and 'T' in str(end_time):
+                if 'T' in str(start_time):
                     start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                    end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                    date_str = start_dt.strftime('%A, %B %d, %Y')
+                    start_time_str = start_dt.strftime('%I:%M %p')
                     
-                    date_part = start_dt.strftime('%a %b %d')
-                    start_time_part = start_dt.strftime('%I:%M %p')
-                    end_time_part = end_dt.strftime('%I:%M %p')
-                    
-                    time_display = f"{date_part}, {start_time_part} - {end_time_part}"
+                    if 'T' in str(end_time):
+                        end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                        end_time_str = end_dt.strftime('%I:%M %p')
+                        time_display = f"{start_time_str} - {end_time_str}"
+                    else:
+                        time_display = start_time_str
                 else:
-                    time_display = self._format_time_simple(start_time)
+                    date_str = "Unknown date"
+                    time_display = "Unknown time"
             except Exception as e:
                 logger.warning(f"Error formatting event time: {e}")
-                time_display = self._format_time_simple(start_time)
+                date_str = "Unknown date"
+                time_display = "Unknown time"
             
-            calendar = self._format_calendar_name(event.get('calendar_name', ''))
-            event_summaries.append(f"{i}. {title} - {time_display} ({calendar})")
+            message += f"{i}. {formatted_title} on {date_str} at {time_display} ({calendar_name})\n"
         
-        if total_events > 5:
-            event_summaries.append(f"... and {total_events - 5} more events")
+        # REMOVED: Truncation logic that violated BOT_RULES.md
         
-        events_list = '\n'.join(event_summaries)
+        message += f"\nChoose an option:\n"
+        message += f"• 'one' or '1' - Review and {action_text} one by one\n"
+        message += f"• 'all' or 'yes' - {action_text.title()} all events now\n"
+        message += f"• 'cancel' or 'c' - Cancel operation"
         
-        initial_message = f"""Found {total_events} events to {action_text}:
-
-{events_list}
-
-Choose an option:
-• 'one' or '1' - Review and {action_text} one by one
-• 'all' or 'yes' - {action_text.title()} all events now
-• 'cancel' or 'c' - Cancel operation"""
+        # Create inline keyboard for better UX
+        keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action_text) if InlineKeyboardHelper else None
         
         return {
             "success": True,
-            "message": initial_message,
+            "message": message,
             "requires_user_action": True,
-            "batch_options": True
+            "batch_options": True,
+            "keyboard": keyboard
         }
 
     def get_next_event_confirmation(self, chat_id: str) -> Dict:
@@ -470,7 +521,7 @@ Calendar: {calendar}"""
         # Clear the queue
         del self.pending_queues[chat_id]
         
-        # Build result message with dates
+        # Build result message with proper formatting following BOT_RULES.md
         date_info = ""
         if events and len(events) > 0:
             # Try to extract date from first event
@@ -479,27 +530,57 @@ Calendar: {calendar}"""
                 start_time = first_event.get('start_time', '')
                 if 'T' in str(start_time):
                     try:
-                        from datetime import datetime
                         dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                        date_info = f" on {dt.strftime('%A, %B %d, %Y')}"
+                        date_info = dt.strftime('%A, %B %d, %Y')
                     except:
                         pass
         
-        # Build detailed result message
-        if failed == 0:
-            if intent == 'update' and successful_events:
-                # For updates, show detailed changes made
-                message = f"Successfully updated all {total_events} events{date_info}:\n\n" + "\n".join(successful_events)
+        # Use centralized formatters if available
+        if MessageFormatter and failed == 0:
+            # Convert events to proper format for success messages
+            formatted_events = []
+            for event in events:
+                formatted_event = {
+                    'summary': event.get('event_name', 'Untitled'),
+                    'start': event.get('start_time', ''),
+                    'end': event.get('end_time', ''),
+                    'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                    'id': event.get('event_id', ''),
+                    'htmlLink': event.get('calendar_link', '')
+                }
+                formatted_events.append(formatted_event)
+            
+            if intent == 'create':
+                message = MessageFormatter.format_success_message_create(formatted_events, total_events)
+            elif intent == 'update':
+                message = MessageFormatter.format_success_message_update(formatted_events, total_events, date_info)
+            elif intent == 'delete':
+                message = MessageFormatter.format_success_message_delete(total_events, date_info)
             else:
-                message = f"Successfully {action_text} all {total_events} events{date_info}!"
-        elif successful == 0:
-            message = f"Failed to {intent} all {total_events} events{date_info}:\n\n" + "\n".join(failed_events)
+                message = f"Successfully {action_text} all {total_events} events!"
         else:
-            message = f"Partially completed: {successful} events {action_text}, {failed} failed{date_info}:\n\n"
-            if successful_events:
-                message += "Successful:\n" + "\n".join(successful_events) + "\n\n"
-            if failed_events:
-                message += "Failed:\n" + "\n".join(failed_events)
+            # Legacy implementation for mixed results or when formatter unavailable
+            if failed == 0:
+                if intent == 'update' and successful_events:
+                    # For updates, show detailed changes made
+                    date_suffix = f" on {date_info}" if date_info else ""
+                    message = f"Successfully updated all {total_events} events{date_suffix}:\n\n" + "\n".join(successful_events)
+                elif intent == 'delete':
+                    date_suffix = f" on {date_info}" if date_info else ""
+                    message = f"Successfully deleted all {total_events} events{date_suffix}!"
+                else:
+                    date_suffix = f" on {date_info}" if date_info else ""
+                    message = f"Successfully {action_text} all {total_events} events{date_suffix}!"
+            elif successful == 0:
+                date_suffix = f" on {date_info}" if date_info else ""
+                message = f"Failed to {intent} all {total_events} events{date_suffix}:\n\n" + "\n".join(failed_events)
+            else:
+                date_suffix = f" on {date_info}" if date_info else ""
+                message = f"Partially completed: {successful} events {action_text}, {failed} failed{date_suffix}:\n\n"
+                if successful_events:
+                    message += "Successful:\n" + "\n".join(successful_events) + "\n\n"
+                if failed_events:
+                    message += "Failed:\n" + "\n".join(failed_events)
         
         return {
             "success": True,

@@ -3,10 +3,22 @@ CaliBOT UI Helper Functions
 
 Centralized formatting functions to ensure consistent user-facing messages
 following BOT_RULES.md specifications.
+
+IMPORTANT: New implementations should use message_formatter.py and inline_keyboard.py
+for consistent formatting. This file contains legacy functions for backward compatibility.
 """
 from datetime import datetime
 import re
 from app.services.telegram import create_confirmation_keyboard, create_event_selection_keyboard
+
+# Import new centralized formatters
+try:
+    from .message_formatter import MessageFormatter
+    from .inline_keyboard import InlineKeyboardHelper
+except ImportError:
+    # Fallback for when new modules are not available
+    MessageFormatter = None
+    InlineKeyboardHelper = None
 
 def format_event_title(title):
     """Format event title with proper capitalization"""
@@ -269,7 +281,15 @@ def format_success_message(operation, count, events=None, date=None):
     return f"Successfully {operation}d {count} event(s)!"
 
 def format_confirmation_message(operation, count, events):
-    """Format confirmation messages consistently"""
+    """
+    Format confirmation messages consistently - UPDATED TO FOLLOW BOT_RULES.md
+    CRITICAL: Shows ALL events, never truncates with "... and X more"
+    """
+    # Use new centralized formatter if available
+    if MessageFormatter:
+        return MessageFormatter.format_confirmation_message(operation, events, count)
+    
+    # Legacy fallback implementation
     action_verb = operation
     if operation == "delete":
         action_verb = "delete"
@@ -278,12 +298,12 @@ def format_confirmation_message(operation, count, events):
     
     message = f"Found {count} events to {action_verb}:\n\n"
     
-    # Add event list
-    for i, event in enumerate(events[:10], 1):  # Limit to 10 events for readability
-        message += format_event_list_item(event, i) + "\n"
+    # CRITICAL CHANGE: Show ALL events, never truncate
+    for i, event in enumerate(events, 1):
+        event_display = format_event_list_item(event, i)
+        message += event_display + "\n"
     
-    if len(events) > 10:
-        message += f"... and {len(events) - 10} more events\n"
+    # REMOVED: Truncation logic that violated BOT_RULES.md
     
     message += f"\nChoose an option:\n"
     message += f"• 'one' or '1' - Review and {action_verb} one by one\n"
@@ -293,19 +313,34 @@ def format_confirmation_message(operation, count, events):
     return message
 
 def format_duplicate_message(duplicates):
-    """Format duplicate detection message"""
+    """
+    Format duplicate detection message - UPDATED TO FOLLOW BOT_RULES.md
+    CRITICAL: Shows ALL duplicates, never truncates with "... and X more"
+    """
+    # Use new centralized formatter if available
+    if MessageFormatter:
+        return MessageFormatter.format_duplicate_message(duplicates)
+    
+    # Legacy fallback implementation
     count = len(duplicates)
     message = f"Found {count} potential duplicate event(s):\n\n"
     
-    for dup in duplicates[:5]:  # Show first 5 duplicates
+    # CRITICAL CHANGE: Show ALL duplicates, never truncate
+    for dup in duplicates:
         event = dup["new_event"]
         event_name = format_event_title(event.get("event_name", "Event"))
         start_time = format_time_12hour(event.get("start_time", ""))
         date = format_date_full(event.get("date", ""))
-        message += f"• {event_name} at {start_time} on {date}\n"
+        calendar_name = event.get("calendar_name", "Unknown Calendar")
+        message += f"• {event_name} on {date} at {start_time} ({calendar_name})\n"
     
-    if count > 5:
-        message += f"... and {count - 5} more duplicates\n"
+    # REMOVED: Truncation logic that violated BOT_RULES.md
+    
+    message += f"\nDo you want to create these events anyway?\n"
+    message += f"• 'yes' - Create all events anyway\n"
+    message += f"• 'no' or 'cancel' - Cancel creation"
+    
+    return message
     
     message += f"\nDo you want to create duplicate events?\n"
     message += f"• 'yes' - Create all events anyway\n"

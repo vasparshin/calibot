@@ -31,7 +31,7 @@ All event displays must follow this exact format:
 
 ### Success Messages
 
-#### Event Creation
+#### Event Creation Success
 ```
 Successfully created {count} event(s):
 
@@ -39,15 +39,15 @@ Successfully created {count} event(s):
 • [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
 ```
 
-#### Event Updates
+#### Event Update Success
 ```
 Successfully updated all {count} events on Day, Month DD, YYYY:
 
-Updated [Event Name](link) - description of change
-Updated [Event Name](link) - description of change
+• Updated [Event Name](link) - description of change
+• Updated [Event Name](link) - description of change
 ```
 
-#### Event Deletion
+#### Event Deletion Success
 ```
 Successfully deleted all {count} events on Day, Month DD, YYYY!
 ```
@@ -58,34 +58,67 @@ Successfully deleted all {count} events on Day, Month DD, YYYY!
 ```
 Found {count} events to {action}:
 
-• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)  
-• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+1. [Event Name](calendar_link) - Day Mon DD, HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+2. [Event Name](calendar_link) - Day Mon DD, HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+3. [Event Name](calendar_link) - Day Mon DD, HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
 
 Choose an option:
-[🔄 All] [1️⃣ One by One]
-[❌ Cancel]
+• 'one' or '1' - Review and {action} one by one
+• 'all' or 'yes' - {Action} all events now
+• 'cancel' or 'c' - Cancel operation
 ```
+
+**CRITICAL RULES:**
+- **ALWAYS show ALL events** - NEVER use "... and X more events"
+- **ALWAYS include hyperlinks** for every event
+- **ALWAYS show full date and time** for every event  
+- **ALWAYS show calendar name** for every event
+- **ALWAYS use inline keyboard buttons** for user responses
 
 #### Duplicate Detection
 ```
 Found {count} potential duplicate event(s):
 
-• Event Name on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
-• Event Name on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
 
 Do you want to create these events anyway?
-[✅ Yes - Create duplicates] [❌ No - Cancel]
+• 'yes' - Create all events anyway
+• 'no' or 'cancel' - Cancel creation
 ```
 
 #### Single Event Confirmations
 ```
-Are you sure you want to {action} [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM?
-[✅ Yes] [❌ No]
+Are you sure you want to {action} [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)?
+• 'yes' - Confirm {action}
+• 'no' or 'cancel' - Cancel operation
 ```
+
+## Inline Keyboard Implementation
+
+### Required Inline Buttons (MANDATORY)
+All user confirmations MUST use inline keyboard buttons instead of text responses:
+
+#### Multi-Event Operations
+- **"🔄 All"** - Process all events
+- **"1️⃣ One by One"** - Review individually  
+- **"❌ Cancel"** - Cancel operation
+
+#### Single Event Operations
+- **"✅ Yes"** - Confirm action
+- **"❌ No"** - Cancel action
+
+#### Duplicate Detection
+- **"✅ Create Anyway"** - Create duplicate events
+- **"❌ Cancel"** - Cancel creation
+
+**CRITICAL:** Users should NEVER need to type text responses for confirmations
 
 ## User Input Handling
 
-### Confirmation Responses
+### Confirmation Responses (Legacy Text Support)
+**NOTE: These are fallback options. Primary interface should use inline buttons.**
+
 **Accepted "Yes" responses:**
 - "yes", "y", "confirm", "ok", "proceed", "all"
 
@@ -156,3 +189,22 @@ All message formatting MUST use these centralized functions:
 - Integration with additional calendar providers
 
 **Note**: Inline keyboard buttons are FULLY IMPLEMENTED as of v0.1.14
+
+## Message Consistency Requirements (CRITICAL)
+
+### Mandatory Formatting Rules
+1. **ALL events MUST include hyperlinks** - Every event name must be clickable
+2. **NEVER truncate event lists** - Show ALL events, never use "... and X more"
+3. **ALWAYS include complete information** - Date, start time, end time, calendar name
+4. **Use consistent date format** - "Day, Month DD, YYYY" (e.g., "Sunday, August 10, 2025")
+5. **Use 12-hour time format** - "HH:MM AM/PM" (e.g., "08:00 AM", "02:00 PM")
+6. **ALWAYS fetch actual calendar names** - Never show technical/email names
+7. **ALL confirmations use inline buttons** - No text-based responses required
+
+### Event Display Consistency
+**Format:** `• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)`
+
+**Examples:**
+- ✅ `• [Lesson](https://calendar.google.com/...) on Sunday, August 10, 2025 at 08:00 AM - 09:00 AM (Tonya)`
+- ❌ `• lesson - Sun Aug 10, 08:00 AM - 09:00 AM (Tonya)` (missing link, wrong format)
+- ❌ `... and 2 more events` (truncated list)

@@ -1,12 +1,23 @@
 """
 Multi-event operation handler for batch operations like delete, update, move.
 Handles operations that affect multiple events with user confirmation.
+
+UPDATED: Now uses centralized message formatting from BOT_RULES.md specifications.
 """
 
 import logging
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 import json
+
+# Import centralized formatters for consistent messaging
+try:
+    from ..utils.message_formatter import MessageFormatter
+    from ..utils.inline_keyboard import InlineKeyboardHelper
+except ImportError:
+    # Fallback for development/testing
+    MessageFormatter = None
+    InlineKeyboardHelper = None
 
 logger = logging.getLogger(__name__)
 
@@ -62,16 +73,60 @@ class MultiEventOperationHandler:
                     "original_request": event_data
                 }
                 
-                event_list = "\n".join([
-                    f"• {event['summary']} on {event['date']} at {event['start_time']} (Calendar: {event.get('calendar_name', 'Unknown')})"
-                    for event in matching_events
-                ])
+                # Use centralized formatter if available
+                if MessageFormatter:
+                    # Convert events to proper format
+                    formatted_events = []
+                    for event in matching_events:
+                        formatted_event = {
+                            'summary': event.get('summary', 'Untitled'),
+                            'start': event.get('date', '') + 'T' + event.get('start_time', ''),
+                            'end': event.get('date', '') + 'T' + event.get('end_time', ''),
+                            'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                            'id': event.get('event_id', ''),
+                            'htmlLink': event.get('calendar_link', '')
+                        }
+                        formatted_events.append(formatted_event)
+                    
+                    message = MessageFormatter.format_confirmation_message("delete", formatted_events, len(matching_events))
+                    keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("delete") if InlineKeyboardHelper else None
+                else:
+                    # Legacy fallback - FIXED to follow BOT_RULES.md
+                    message = f"Found {len(matching_events)} events to delete:\n\n"
+                    
+                    # Show ALL events with proper formatting
+                    for i, event in enumerate(matching_events, 1):
+                        event_name = event.get('summary', 'Untitled')
+                        date = event.get('date', 'Unknown date')
+                        start_time = event.get('start_time', 'Unknown time')
+                        calendar_name = event.get('calendar_name', 'Unknown')
+                        
+                        # Add hyperlink if available
+                        event_id = event.get('event_id', '')
+                        calendar_link = event.get('calendar_link', '')
+                        
+                        if calendar_link:
+                            formatted_name = f"[{event_name}]({calendar_link})"
+                        elif event_id:
+                            formatted_name = f"[{event_name}](https://calendar.google.com/calendar/event?eid={event_id})"
+                        else:
+                            formatted_name = event_name
+                        
+                        message += f"{i}. {formatted_name} on {date} at {start_time} ({calendar_name})\n"
+                    
+                    message += f"\nChoose an option:\n"
+                    message += f"• 'one' or '1' - Review and delete one by one\n"
+                    message += f"• 'all' or 'yes' - Delete all events now\n"
+                    message += f"• 'cancel' or 'c' - Cancel operation"
+                    
+                    keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("delete") if InlineKeyboardHelper else None
                 
                 return {
                     "success": True,
-                    "message": f"Found {len(matching_events)} events to delete:\n{event_list}\n\nType 'yes' to delete ALL these events, or 'cancel' to abort.",
+                    "message": message,
                     "requires_user_action": True,
-                    "operation_id": operation_id
+                    "operation_id": operation_id,
+                    "keyboard": keyboard
                 }
                 
         except Exception as e:

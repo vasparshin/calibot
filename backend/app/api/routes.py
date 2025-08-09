@@ -28,6 +28,15 @@ from app.utils.ui_helpers import (
     format_multi_event_confirmation_with_keyboard,
     format_event_selection_with_keyboard
 )
+
+# Import new centralized formatters for consistency
+try:
+    from app.utils.message_formatter import MessageFormatter
+    from app.utils.inline_keyboard import InlineKeyboardHelper
+except ImportError:
+    # Fallback for development/testing
+    MessageFormatter = None
+    InlineKeyboardHelper = None
 from datetime import datetime
 
 import logging
@@ -455,7 +464,11 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             logger.info(f"Detected multi-event request, creating queue")
             
             queue_result = event_queue_handler.create_event_queue(chat_id, event_data)
-            await send_telegram_message(chat_id, queue_result["message"])
+            keyboard = queue_result.get("keyboard")
+            if keyboard:
+                await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
+            else:
+                await send_telegram_message(chat_id, queue_result["message"])
             conversation_state.add_message(chat_id, "assistant", queue_result["message"])
             
             return {"status": "ok"}
@@ -566,7 +579,11 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 
                 # Create queue
                 queue_result = event_queue_handler.create_event_queue_from_list(chat_id, queue_events)
-                await send_telegram_message(chat_id, queue_result["message"])
+                keyboard = queue_result.get("keyboard")
+                if keyboard:
+                    await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
+                else:
+                    await send_telegram_message(chat_id, queue_result["message"])
                 conversation_state.add_message(chat_id, "assistant", queue_result["message"])
                 return {"status": "ok"}
             
