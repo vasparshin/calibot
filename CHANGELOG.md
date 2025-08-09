@@ -2,6 +2,9 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [Unreleased]
+
+
 ## [0.1.16] - 2025-08-09
 
 ### Fixed 🐛 - CRITICAL PRODUCTION BUGS
@@ -59,6 +62,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.16] - 2025-08-09
 
 
 ## [0.1.15] - 2025-08-09
