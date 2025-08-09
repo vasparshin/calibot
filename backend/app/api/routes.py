@@ -5,13 +5,12 @@ from app.services.telegram import (
     answer_callback_query,
     edit_message_text
 )
-from app.services.ai_service import get_ai_response, get_small_talk_response
+from app.services.ai_service import ai_service
 from app.services.google_calendar import GoogleCalendarService
 from app.services.multi_event_operations import MultiEventOperationHandler
 from app.services.event_queue_handler import EventQueueHandler
 from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
-from app.agent.nlp_agent import NLPAgent
 from app.agent.calendar_agent import CalendarAgent
 from app.services.telegram import create_confirmation_keyboard
 from app.utils.ui_helpers import (
@@ -112,11 +111,11 @@ async def check_for_duplicate_events(chat_id, events_to_create, calendar_service
     return duplicates_found
 
 
+# Initialize services
 router = APIRouter()
 telegram_service = TelegramBotService()
 calendar_service = GoogleCalendarService()
 calendar_agent = CalendarAgent()
-nlp_agent = NLPAgent()
 multi_event_handler = MultiEventOperationHandler(calendar_service, telegram_service, conversation_state)
 event_queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
 
@@ -329,28 +328,23 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         # logger.info(f"---------------------Conversation history: {history}")
         
         # Check relevancy before extracting intent
-        relevancy_result = await nlp_agent.check_relevancy(user_message, history)
+        relevancy_result = await ai_service.check_relevancy(user_message, history)
         # logger.info(f"------------------>RELEVANCY:{relevancy_result}")
-        if not relevancy_result["relevant"]:
-            ai_response = await get_small_talk_response(user_message, history)
+        if not relevancy_result.get("relevant"):
+            ai_response = await ai_service.get_small_talk_response(user_message, history)
             await send_telegram_message(chat_id, ai_response)
             conversation_state.add_message(chat_id, "assistant", ai_response)
             return {"status": "ok"}  
-        
         try:
-            event_data = await nlp_agent.extract_intent(user_message, history)
+            event_data = await ai_service.extract_intent(user_message, history)
             logger.info(f"Extracted intent: {event_data}")
-
-            # Validate event_data structure with enhanced logging
             if not isinstance(event_data, dict):
                 logger.error(f"CRITICAL: Invalid event_data type: {type(event_data)} - {event_data}")
-                logger.error(f"User message that caused this: '{user_message}'")
                 await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
                 conversation_state.add_message(chat_id, "assistant", "Sorry, I had trouble understanding your request. Could you please try again?")
                 return {"status": "ok"}
         except Exception as e:
-            logger.error(f"CRITICAL: Error in NLP processing: {e}")
-            logger.error(f"User message: '{user_message}'")
+            logger.error(f"CRITICAL: Error in AI intent extraction: {e}")
             await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
             conversation_state.add_message(chat_id, "assistant", "I'm experiencing technical difficulties. Please try again in a moment.")
             return {"status": "ok"}
@@ -896,7 +890,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
 
                 if len(events) == 1:
                     event_id = events[0]["id"]
-                    ai_response = await get_ai_response(events[0], history)
+                    ai_response = await ai_service.get_ai_response(events[0], history)
                     await send_telegram_message(chat_id, ai_response)
                 else:
                     # Include calendar names in the event list
@@ -904,7 +898,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         f"{idx + 1}. {event['summary']} - {event['start']} (Calendar: {event.get('calendar_name', 'Unknown')})" 
                         for idx, event in enumerate(events)
                     ])
-                    ai_response = await get_ai_response({"events": event_list, "action": "list_events"}, history)
+                    ai_response = await ai_service.get_ai_response({"events": event_list, "action": "list_events"}, history)
                     await send_telegram_message(chat_id, ai_response)
                 # Add AI response to conversation history
                 conversation_state.add_message(chat_id, "assistant", ai_response)
@@ -946,7 +940,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
 
         # In case confirmation is needed (handling as needed)
         logger.info(f"Confirmation needed for intent: {event_data}")
-        ai_response = await get_ai_response(event_data, history)
+        ai_response = await ai_service.get_ai_response(event_data, history)
         logger.info(f"Bot response: '{ai_response}'")
         # Add AI response to conversation history
         conversation_state.add_message(chat_id, "assistant", ai_response)
@@ -1003,3 +997,8 @@ async def suggest_calendar(data: dict):
     
     suggestions = await calendar_service.suggest_calendar(event_data, query)
     return {"suggestions": suggestions}
+
+# Backward compatibility alias expected by older tests
+async def process_webhook(chat_id: int, user_message: str):
+    """Compatibility wrapper mapping old test import to current processing function."""
+    return await process_user_message(chat_id, user_message, "text")
