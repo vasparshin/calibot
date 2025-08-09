@@ -22,6 +22,34 @@ All event displays must follow this exact format:
 4. **Time**: 12-hour format with AM/PM, include both start and end times
 5. **Calendar Name**: Display actual calendar name (e.g., "Tonya"), not technical name (e.g., "tonyas calendar")
 
+### Standard Response Titles (MANDATORY)
+All event query responses MUST use these exact titles:
+
+**Single Event Query:**
+```
+Here's your event:
+
+• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+```
+
+**Multiple Events - Today Context:**
+```
+Today's schedule includes:
+
+• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+```
+
+**Multiple Events - General Context:**
+```
+Found {count} events:
+
+• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+```
+
+**CRITICAL RULE: NEVER vary the title format** - users asking the same question ("what's scheduled today", "what events are on my calendar today", "what's on the schedule for today") MUST receive the EXACT same response format every time.
+
 ### Calendar Name Resolution
 - **ALWAYS fetch and display the actual calendar display name**
 - **NEVER use technical/email-based names in user messages**

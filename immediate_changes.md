@@ -60,7 +60,33 @@
 
 ---
 
-### 4. **UI/UX Consistency and Interactive Buttons**
+### 4. **CRITICAL: Event Display Format Consistency**
+
+**Problem:** User asking the same question ("what's scheduled today", "what events are on my calendar today", "what's on the schedule for today") get different response formats. The query intent handler uses AI service for formatting instead of MessageFormatter, resulting in inconsistent event displays that don't follow BOT_RULES.md specifications.
+
+**Solution:** ALL event displays (query, create, update, delete confirmations) MUST use MessageFormatter.format_single_event_display() and follow the exact BOT_RULES.md format: `• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)`
+
+**Files to Modify:**
+1. `backend/app/api/routes.py`: Fix query intent handler (lines 875-902) to use MessageFormatter instead of AI service
+2. `backend/app/services/ai_service.py`: Remove event formatting responsibility from AI service
+3. `backend/app/prompts/agent_system_prompt.py`: Update to focus on conversation, not formatting
+
+**Change Description:**
+- In `routes.py` query intent handler:
+    - Replace AI service formatting with direct MessageFormatter usage
+    - For single event: Use MessageFormatter.format_single_event_display()
+    - For multiple events: Use MessageFormatter.format_event_list_display() 
+    - Add consistent title: "Today's schedule includes:" or "Found X events:"
+    - Ensure ALL event displays include hyperlinks, full dates, times, and calendar names
+- In `ai_service.py`:
+    - Remove event formatting logic - AI should only handle conversational responses
+    - Focus on small talk and confirmation guidance only
+- In `agent_system_prompt.py`:
+    - Remove formatting instructions - events should be pre-formatted before AI processing
+
+---
+
+### 5. **UI/UX Consistency and Interactive Buttons**
 
 **Problem:** The bot's responses are inconsistent. Some use plain text for confirmations, while others use keyboards. This leads to a confusing user experience. Buttons are not used consistently, and when they are, they are not in a single row.
 

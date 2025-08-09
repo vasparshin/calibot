@@ -888,20 +888,27 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 for event in events:
                     logger.info(f"  • {event.get('summary', 'No Title')} in calendar '{event.get('calendar_name', 'Unknown')}'")
 
+                # Format events consistently using MessageFormatter
+                from app.utils.message_formatter import MessageFormatter
+                
                 if len(events) == 1:
-                    event_id = events[0]["id"]
-                    ai_response = await ai_service.get_ai_response(events[0], history)
-                    await send_telegram_message(chat_id, ai_response)
+                    # Single event display
+                    formatted_event = MessageFormatter.format_single_event_display(events[0], include_hyperlink=True)
+                    response = f"Here's your event:\n\n{formatted_event}"
                 else:
-                    # Include calendar names in the event list
-                    event_list = "\n".join([
-                        f"{idx + 1}. {event['summary']} - {event['start']} (Calendar: {event.get('calendar_name', 'Unknown')})" 
-                        for idx, event in enumerate(events)
-                    ])
-                    ai_response = await ai_service.get_ai_response({"events": event_list, "action": "list_events"}, history)
-                    await send_telegram_message(chat_id, ai_response)
-                # Add AI response to conversation history
-                conversation_state.add_message(chat_id, "assistant", ai_response)
+                    # Multiple events display - use consistent title and formatting
+                    date_context = event_data.get("date", "")
+                    if date_context and "today" in str(date_context).lower():
+                        title = "Today's schedule includes:"
+                    else:
+                        title = f"Found {len(events)} events:"
+                    
+                    formatted_events = MessageFormatter.format_event_list_display(events, numbered=False, include_hyperlink=True)
+                    response = f"{title}\n\n{formatted_events}"
+                
+                await send_telegram_message(chat_id, response)
+                # Add formatted response to conversation history
+                conversation_state.add_message(chat_id, "assistant", response)
                 return {"status": "ok"}
 
             elif event_data["intent"] == "calendar_management":
