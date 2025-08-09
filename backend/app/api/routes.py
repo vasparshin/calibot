@@ -13,6 +13,7 @@ from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
 from app.agent.nlp_agent import NLPAgent
 from app.agent.calendar_agent import CalendarAgent
+from app.services.telegram import create_confirmation_keyboard
 from app.utils.ui_helpers import (
     format_event_for_display, 
     format_success_message, 
@@ -565,9 +566,12 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             event_summary = f"'{event.get('summary', 'Untitled')}' on {event.get('start', 'unknown date')}"
             
             if event_data["intent"] == "delete":
-                confirmation_msg = f"Are you sure you want to delete {event_summary}? (yes/no)"
+                confirmation_msg = f"Are you sure you want to delete {event_summary}?"
             else:  # update
-                confirmation_msg = f"Are you sure you want to update {event_summary}? (yes/no)"
+                confirmation_msg = f"Are you sure you want to update {event_summary}?"
+            
+            # Create inline keyboard for single event confirmation
+            keyboard = create_confirmation_keyboard("single_event")
             
             # Store pending operation
             multi_event_handler.store_pending_operation(chat_id, {
@@ -576,7 +580,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 "original_data": event_data
             })
             
-            await send_telegram_message(chat_id, confirmation_msg)
+            await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
             conversation_state.add_message(chat_id, "assistant", confirmation_msg)
             return {"status": "ok"}
 
@@ -708,9 +712,11 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     # Send comprehensive response
                     if successful_events:
                         calendar_name = successful_events[0]['calendar']
-                        success_msg = f"Successfully created {len(successful_events)} events in your '{calendar_name}' calendar:\n"
+                        success_msg = format_success_message("create", len(successful_events))
                         for event in successful_events:
-                            success_msg += f"• {event['time']}\n"
+                            # Format each event with hyperlink and full details
+                            formatted_event = format_event_for_display(event, {"success": True}, calendar_service)
+                            success_msg += f"{formatted_event}\n"
                         
                         if failed_events:
                             success_msg += f"\nFailed to create {len(failed_events)} events:\n"

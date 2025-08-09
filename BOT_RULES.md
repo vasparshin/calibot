@@ -58,25 +58,29 @@ Successfully deleted all {count} events on Day, Month DD, YYYY!
 ```
 Found {count} events to {action}:
 
-1. Event Name - Day Mon DD, HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
-2. Event Name - Day Mon DD, HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)  
+• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
 
 Choose an option:
-• 'one' or '1' - Review and {action} one by one
-• 'all' or 'yes' - {Action} all events now
-• 'cancel' or 'c' - Cancel operation
+[🔄 All] [1️⃣ One by One]
+[❌ Cancel]
 ```
 
 #### Duplicate Detection
 ```
 Found {count} potential duplicate event(s):
 
-• Event Name at HH:MM AM/PM on Day, Month DD
-• Event Name at HH:MM AM/PM on Day, Month DD
+• Event Name on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+• Event Name on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
 
-Do you want to create duplicate events?
-• 'yes' - Create all events anyway
-• 'no' or 'cancel' - Cancel creation
+Do you want to create these events anyway?
+[✅ Yes - Create duplicates] [❌ No - Cancel]
+```
+
+#### Single Event Confirmations
+```
+Are you sure you want to {action} [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM?
+[✅ Yes] [❌ No]
 ```
 
 ## User Input Handling
@@ -145,10 +149,10 @@ All message formatting MUST use these centralized functions:
 
 ## Future Enhancements
 
-### Inline Keyboard Buttons (Planned)
-Replace text-based confirmations with inline keyboard buttons:
-- ✅ Yes / ❌ No
-- 🔄 All / 1️⃣ One by One / ❌ Cancel
-- Implementation: Telegram inline keyboard markup
+### Advanced Features (Planned)
+- Enhanced event templates and recurring event patterns
+- Calendar sharing and collaboration features  
+- Smart scheduling conflict detection
+- Integration with additional calendar providers
 
-This will improve user experience by eliminating typing and potential misunderstandings in confirmation flows.
+**Note**: Inline keyboard buttons are FULLY IMPLEMENTED as of v0.1.14
