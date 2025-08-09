@@ -49,6 +49,10 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
                     # Extract name before @ and clean it up
                     name = display_name.split('@')[0].replace('.', ' ').title()
                     return name
+            elif 'calendar' in display_name.lower():
+                # Handle "tonyas calendar" → "Tonya"
+                clean_name = display_name.lower().replace(' calendar', '').replace('calendar', '').strip()
+                return clean_name.title()
             return display_name
     
     # Fallback for known patterns
@@ -330,17 +334,46 @@ def is_confirmation_one(text):
     text = text.strip().lower()
     return text in ["one", "1", "individual", "step"]
 
-def format_duplicate_confirmation_with_keyboard(events, action="create"):
+def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
     """Format duplicate confirmation message with inline keyboard"""
-    count = len(events)
+    count = len(duplicates)
     
     message = f"Found {count} potential duplicate event(s):\n\n"
     
-    for event in events:
-        event_name = format_event_title(event.get('summary', 'Untitled Event'))
-        start_time = format_time_12hour(event.get('start', {}).get('dateTime', ''))
-        date = format_date_full(event.get('start', {}).get('dateTime', ''))
-        message += f"• {event_name} at {start_time} on {date}\n"
+    for duplicate_item in duplicates:
+        # Handle different data structures
+        if isinstance(duplicate_item, dict) and 'new_event' in duplicate_item:
+            # New structure from check_for_duplicate_events
+            event = duplicate_item['new_event']
+            event_name = format_event_title(event.get('event_name', 'Untitled Event'))
+            start_time = event.get('start_time', '')
+            date = event.get('date', '')
+        else:
+            # Direct event structure
+            event = duplicate_item
+            event_name = format_event_title(event.get('summary', event.get('event_name', 'Untitled Event')))
+            start_time = event.get('start', {}).get('dateTime', event.get('start_time', ''))
+            date = event.get('start', {}).get('dateTime', event.get('date', ''))
+        
+        # Format time and date
+        if start_time:
+            if 'T' in start_time:
+                # ISO format
+                try:
+                    dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    formatted_time = dt.strftime('%I:%M %p')
+                    formatted_date = dt.strftime('%A, %B %d, %Y')
+                except:
+                    formatted_time = format_time_12hour(start_time)
+                    formatted_date = format_date_full(date) if date else "Unknown date"
+            else:
+                formatted_time = format_time_12hour(start_time)
+                formatted_date = format_date_full(date) if date else "Unknown date"
+        else:
+            formatted_time = "Unknown time"
+            formatted_date = format_date_full(date) if date else "Unknown date"
+        
+        message += f"• {event_name} at {formatted_time} on {formatted_date}\n"
     
     message += f"\nDo you want to {action} duplicate events?"
     
@@ -355,8 +388,25 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
     
     for i, event in enumerate(events[:10], 1):  # Show first 10
         event_name = format_event_title(event.get('summary', 'Untitled Event'))
-        start_time = format_time_12hour(event.get('start', {}).get('dateTime', ''))
-        date_short = event.get('start', {}).get('dateTime', '')[:10] if event.get('start', {}).get('dateTime') else ''
+        
+        # Handle different datetime formats
+        start_time = ""
+        date_short = ""
+        
+        if event.get('start', {}).get('dateTime'):
+            # Google Calendar format
+            try:
+                dt = datetime.fromisoformat(event['start']['dateTime'].replace('Z', '+00:00'))
+                start_time = dt.strftime('%I:%M %p')
+                date_short = dt.strftime('%a %b %d')
+            except:
+                start_time = format_time_12hour(event['start']['dateTime'])
+                date_short = event['start']['dateTime'][:10] if event['start']['dateTime'] else ''
+        elif event.get('start'):
+            # Handle string format
+            start_time = format_time_12hour(str(event['start']))
+            date_short = str(event['start'])[:10] if str(event['start']) else ''
+        
         calendar_name = get_calendar_display_name(event.get('calendar_id', ''))
         message += f"{i}. {event_name} - {date_short} {start_time} ({calendar_name})\n"
     

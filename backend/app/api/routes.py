@@ -183,23 +183,51 @@ async def handle_callback_query(callback_query):
 
 async def handle_confirmation_callback(chat_id: int, message_id: int, confirmation: str):
     """Handle confirmation responses from inline keyboards"""
+    # Get the original message content for duplicates
+    original_message = None
+    try:
+        # For duplicate confirmations, we want to preserve the message and remove buttons
+        if confirmation in ["yes", "no"]:
+            # Get the recent messages to find the duplicate confirmation message
+            recent_messages = conversation_state.get_recent_messages(chat_id, 3)
+            for msg in recent_messages:
+                if msg.get("role") == "assistant" and "Found" in msg.get("content", "") and "potential duplicate" in msg.get("content", ""):
+                    original_message = msg.get("content", "")
+                    break
+    except Exception as e:
+        logger.warning(f"Could not retrieve original message: {e}")
+    
     # Update the conversation state with the user's choice
     conversation_state.add_message(chat_id, confirmation, "user")
     
-    # Edit the message to show the choice was made
-    choice_text = {
-        "yes": "✅ Confirmed: Yes",
-        "no": "❌ Cancelled", 
-        "all": "🔄 Processing all events...",
-        "one": "1️⃣ Processing one by one...",
-        "cancel": "❌ Operation cancelled"
-    }.get(confirmation, f"Choice: {confirmation}")
-    
-    await edit_message_text(
-        chat_id, 
-        message_id, 
-        f"Operation confirmed: {choice_text}"
-    )
+    # Edit the message based on confirmation type
+    if confirmation == "yes" and original_message:
+        # For duplicates: keep original message, remove buttons, add confirmation
+        await edit_message_text(
+            chat_id, 
+            message_id, 
+            f"{original_message}\n\n✅ Confirmed: Creating duplicate events..."
+        )
+    elif confirmation == "no" and original_message:
+        # For duplicates: keep original message, remove buttons, add cancellation
+        await edit_message_text(
+            chat_id, 
+            message_id, 
+            f"{original_message}\n\n❌ Cancelled: Duplicate event creation cancelled"
+        )
+    else:
+        # For other confirmations: standard behavior
+        choice_text = {
+            "all": "🔄 Processing all events...",
+            "one": "1️⃣ Processing one by one...",
+            "cancel": "❌ Operation cancelled"
+        }.get(confirmation, f"Choice: {confirmation}")
+        
+        await edit_message_text(
+            chat_id, 
+            message_id, 
+            f"Operation confirmed: {choice_text}"
+        )
     
     # Process the confirmation as if it was a text message
     return await process_user_message(chat_id, confirmation, "callback")
@@ -704,52 +732,63 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 return {"status": "ok"}
 
             elif event_data["intent"] in ["update", "delete"]:
-                # Query events based on event details (using the same query for both update and delete)
+                # Query events based on event details
                 matched_events = await calendar_service.query_events({
                     "event_name": event_data.get("event_name", ""),
                     "date": event_data.get("date", "")
                 })
 
                 if not matched_events["success"] or not matched_events["events"]:
-                    response = "No matching events found."
+                    response = format_no_events_message(event_data)
                     await send_telegram_message(chat_id, response)
                     conversation_state.add_message(chat_id, "assistant", response)
                     return {"status": "ok"}
 
                 events = matched_events["events"]
                 logger.info(f"================> Matched events: {events}")
-                event_id = None
-                # if len(events) == 1:
-                #     event_id = events[0]["id"]
-                #     ai_response = await get_ai_response(event_data, history)
-                #     await send_telegram_message(chat_id, ai_response)
-                # else:
-                event_list = "\n".join(
-                    [f"{idx + 1}. {event['summary']} - {event['start']}" for idx, event in enumerate(events)]
-                )
+                
+                # If multiple events, use inline keyboard for confirmation
+                if len(events) > 1:
+                    action = event_data["intent"]
+                    confirmation_msg, keyboard = format_multi_event_confirmation_with_keyboard(events, action)
+                    
+                    await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
+                    conversation_state.add_message(chat_id, "assistant", confirmation_msg)
+                    
+                    # Store pending operation for confirmation handling
+                    multi_event_handler.store_pending_operation(chat_id, {
+                        "intent": action,
+                        "events": events,
+                        "event_data": event_data
+                    })
+                    
+                    return {"status": "ok"}
+                
+                # Single event processing
                 event_id = events[0]["id"]
-                ai_response = await get_ai_response(event_data, history)
-                await send_telegram_message(chat_id, ai_response)
-
+                
                 # Proceed with update or delete after getting event_id
-                if event_id:
-                    if event_data["intent"] == "update":
-                        # Get the source calendar ID from the matched event
-                        source_calendar_id = events[0].get('calendar_id', 'primary')
-                        calendar_response = calendar_service.update_event(event_id, event_data, source_calendar_id)
-                        if calendar_response["success"]:
-                            if calendar_response.get("moved"):
-                                await send_telegram_message(
-                                    chat_id, f"Event moved successfully to {calendar_response.get('to_calendar')}! Here's the link: {calendar_response['event_link']}"
-                                )
-                            else:
-                                await send_telegram_message(
-                                    chat_id, f"Event updated successfully! Here's the link to your event: {calendar_response['event_link']}"
-                                )
-                    elif event_data["intent"] == "delete":
-                        # Get the source calendar ID from the matched event
-                        source_calendar_id = events[0].get('calendar_id', 'primary')
-                        calendar_response = calendar_service.delete_event(event_id, source_calendar_id)
+                if event_data["intent"] == "update":
+                    # Get the source calendar ID from the matched event
+                    source_calendar_id = events[0].get('calendar_id', 'primary')
+                    calendar_response = calendar_service.update_event(event_id, event_data, source_calendar_id)
+                    if calendar_response["success"]:
+                        formatted_event = format_event_for_display(events[0], calendar_response, calendar_service)
+                        if calendar_response.get("moved"):
+                            success_msg = f"Event moved successfully:\n\n{formatted_event}"
+                        else:
+                            success_msg = f"Event updated successfully:\n\n{formatted_event}"
+                        await send_telegram_message(chat_id, success_msg)
+                        conversation_state.add_message(chat_id, "assistant", success_msg)
+                elif event_data["intent"] == "delete":
+                    # Get the source calendar ID from the matched event
+                    source_calendar_id = events[0].get('calendar_id', 'primary')
+                    calendar_response = calendar_service.delete_event(event_id, source_calendar_id)
+                    if calendar_response["success"]:
+                        event_name = format_event_title(events[0].get('summary', 'Event'))
+                        success_msg = f"Successfully deleted: {event_name}"
+                        await send_telegram_message(chat_id, success_msg)
+                        conversation_state.add_message(chat_id, "assistant", success_msg)
                         logger.info(f"DELETE{calendar_response}")
                         if calendar_response["success"]:
                             await send_telegram_message(chat_id, f"Event deleted successfully! ({len(events)} event{'s' if len(events) != 1 else ''} found)")

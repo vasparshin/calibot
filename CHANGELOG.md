@@ -4,7 +4,21 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-### Fixed
+### Fixed 🐛
+
+#### Critical UX Fixes Based on Production Testing
+- **Delete Intent Routing**: Fixed delete requests with multiple events to show inline keyboards instead of processing as updates
+- **Multi-Event Delete Keyboards**: Delete operations with multiple matching events now show "All", "One by One", and "Cancel" buttons for user selection
+- **Calendar Name Display**: Enhanced calendar name cleaning to properly display "Tonya" instead of "tonyas calendar"
+- **Duplicate Event Detection**: Improved data structure handling for duplicate confirmation messages to prevent "Untitled Event" displays
+- **Confirmation Message Persistence**: Modified callback handling to preserve original confirmation messages while removing buttons
+
+#### Technical Improvements
+- Added `store_pending_operation()` method to MultiEventOperationHandler for proper operation tracking
+- Enhanced route logic to detect multiple events and trigger appropriate keyboard responses
+- Improved event formatting with better datetime handling and calendar name resolution
+
+#### File Organization Compliance
 - **CRITICAL: File Organization Compliance**: Moved all test files from project root to tests/ folder to comply with mandatory copilot rules
   - test_delete_scenario.py → tests/test_delete_scenario.py
   - test_final_integration.py → tests/test_final_integration.py  
@@ -12,6 +26,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
   - test_inline_keyboards_and_ui.py → tests/test_inline_keyboards_and_ui.py
   - test_update_fixes.py → tests/test_update_fixes.py
   - test_update_operation_fixes.py → tests/test_update_operation_fixes.py
+
+### Validation ✅
+- Multi-event delete functionality tested with inline keyboards working correctly
+- Calendar name resolution confirmed working for "calendar" suffix removal
+- Duplicate detection enhanced to handle multiple Google Calendar API data formats
 
 ## [0.1.14] - 2025-08-09 INLINE KEYBOARDS & COMPREHENSIVE UX IMPLEMENTATION
 

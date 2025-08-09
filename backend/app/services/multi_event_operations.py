@@ -339,6 +339,16 @@ class MultiEventOperationHandler:
         """Check if there's a pending operation for this chat"""
         return any(op["chat_id"] == chat_id for op in self.pending_operations.values())
     
+    def store_pending_operation(self, chat_id: int, operation_data: Dict):
+        """Store a pending operation for later processing"""
+        operation_id = f"{chat_id}_{len(self.pending_operations)}"
+        self.pending_operations[operation_id] = {
+            "chat_id": chat_id,
+            "operation_id": operation_id,
+            **operation_data
+        }
+        logger.info(f"Stored pending operation {operation_id} for chat {chat_id}")
+    
     def clear_pending_operations(self, chat_id: int):
         """Clear all pending operations for a chat (useful for cleanup)"""
         to_remove = [
