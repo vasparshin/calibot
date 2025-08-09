@@ -4,6 +4,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.15] - 2025-08-09
+
 ### Fixed 🐛
 
 #### Critical UX Fixes Based on Production Testing
