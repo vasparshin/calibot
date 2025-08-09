@@ -30,6 +30,7 @@ async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None,
             payload = {
                 "chat_id": chat_id,
                 "text": clean_text,
+                "disable_web_page_preview": True  # Disable Google Workspace banner previews
             }
             # Only add parse_mode if specified
             if parse_mode:

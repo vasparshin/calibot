@@ -4,6 +4,34 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+### Fixed 🐛 - CRITICAL UX FIXES (Version 0.1.16)
+
+#### Message Formatting Consistency 
+- **Inline Keyboard Integration**: Fixed update/delete operations to show proper inline keyboards with consistent formatting
+- **Hyperlink Support**: Added hyperlinks to event names in all confirmation messages (update/delete/duplicate) for consistency with creation messages
+- **Complete Event Details**: Enhanced all confirmation messages to include full event information: event name (with hyperlink), date, start-end time, and calendar name
+- **Calendar Name Display**: Improved calendar name resolution across all message types using consistent `get_calendar_display_name()` function
+
+#### Google Workspace Banner Elimination
+- **Link Preview Disabled**: Added `disable_web_page_preview: True` to all Telegram messages to eliminate Google Workspace banner clutter
+- **Clean Message Display**: Event links now appear as clean hyperlinks without large preview banners taking up unnecessary space
+
+#### Context Understanding Enhancement  
+- **Pronoun Reference Resolution**: Added intelligent handling for "delete these events", "remove those", etc. by checking recent conversation history
+- **Recent Event Detection**: System now correctly identifies recently created/mentioned events when user uses pronouns
+- **Smart Event Matching**: Enhanced intent extraction with specific examples for pronoun-based event references
+
+#### Duplicate Confirmation Simplification
+- **Single-Step Confirmation**: Removed redundant second confirmation message after duplicate event yes/no response  
+- **Clean Button Updates**: Duplicate confirmation buttons now update to show status (✅ Confirmed/❌ Cancelled) without additional messages
+- **Streamlined UX**: Users see immediate visual feedback in the original message instead of cluttering chat with extra confirmations
+
+#### Validation ✅
+- All confirmation messages now follow consistent format: Event (hyperlink) on Date at Time (Calendar)
+- Google Workspace banners eliminated from all event creation confirmations
+- Pronoun references like "delete these 2 events" correctly identify recent events
+- Duplicate confirmations provide clean single-step workflow
+
 
 ## [0.1.15] - 2025-08-09
 

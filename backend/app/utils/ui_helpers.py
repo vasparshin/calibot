@@ -25,6 +25,21 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
     if calendar_id == 'primary':
         return "Personal"
     
+    # Handle calendar names (not IDs) directly
+    if isinstance(calendar_id, str) and 'calendar' in calendar_id.lower():
+        # Handle "tonyas calendar" → "Tonya"
+        clean_name = calendar_id.lower().replace(' calendar', '').replace('calendar', '').strip()
+        if clean_name == 'tonyas':
+            return 'Tonya'
+        elif clean_name == 'work':
+            return 'Work'
+        elif clean_name == 'personal':
+            return 'Personal'
+        elif clean_name:
+            return clean_name.title()
+        else:
+            return 'Personal'
+    
     # If we have calendar service, try to get actual name from API
     if calendar_service and hasattr(calendar_service, 'get_calendar_display_name'):
         try:
@@ -347,35 +362,64 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
             event = duplicate_item['new_event']
             event_name = format_event_title(event.get('event_name', 'Untitled Event'))
             start_time = event.get('start_time', '')
+            end_time = event.get('end_time', '')
             date = event.get('date', '')
+            # Get proper calendar name
+            raw_calendar_name = event.get('calendar_name', 'Default')
+            if 'calendar' in raw_calendar_name.lower():
+                calendar_name = get_calendar_display_name(raw_calendar_name)
+            else:
+                calendar_name = raw_calendar_name
         else:
             # Direct event structure
             event = duplicate_item
             event_name = format_event_title(event.get('summary', event.get('event_name', 'Untitled Event')))
-            start_time = event.get('start', {}).get('dateTime', event.get('start_time', ''))
-            date = event.get('start', {}).get('dateTime', event.get('date', ''))
+            
+            # Handle different datetime formats
+            if event.get('start', {}).get('dateTime'):
+                start_time = event['start']['dateTime']
+                end_time = event.get('end', {}).get('dateTime', '')
+                date = event['start']['dateTime']
+            else:
+                start_time = event.get('start_time', '')
+                end_time = event.get('end_time', '')
+                date = event.get('date', '')
+            
+            calendar_name = get_calendar_display_name(event.get('calendar_id', 'primary'))
         
         # Format time and date
         if start_time:
             if 'T' in start_time:
                 # ISO format
                 try:
-                    dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                    formatted_time = dt.strftime('%I:%M %p')
-                    formatted_date = dt.strftime('%A, %B %d, %Y')
+                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    formatted_start = start_dt.strftime('%I:%M %p')
+                    formatted_date = start_dt.strftime('%A, %B %d, %Y')
+                    
+                    # Handle end time
+                    if end_time and 'T' in end_time:
+                        end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                        formatted_end = end_dt.strftime('%I:%M %p')
+                        time_display = f"at {formatted_start} - {formatted_end}"
+                    else:
+                        time_display = f"at {formatted_start}"
+                        
                 except:
                     formatted_time = format_time_12hour(start_time)
                     formatted_date = format_date_full(date) if date else "Unknown date"
+                    time_display = f"at {formatted_time}"
             else:
                 formatted_time = format_time_12hour(start_time)
                 formatted_date = format_date_full(date) if date else "Unknown date"
+                time_display = f"at {formatted_time}"
         else:
-            formatted_time = "Unknown time"
+            time_display = "at Unknown time"
             formatted_date = format_date_full(date) if date else "Unknown date"
         
-        message += f"• {event_name} at {formatted_time} on {formatted_date}\n"
+        # Use consistent format: Event on Date at Time (Calendar)
+        message += f"• {event_name} on {formatted_date} {time_display} ({calendar_name})\n"
     
-    message += f"\nDo you want to {action} duplicate events?"
+    message += f"\nDo you want to {action} these events anyway?"
     
     keyboard = create_confirmation_keyboard("duplicate")
     return message, keyboard
@@ -387,28 +431,50 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
     message = f"Found {count} events to {action}:\n\n"
     
     for i, event in enumerate(events[:10], 1):  # Show first 10
+        # Get event name and create hyperlink if event has link
         event_name = format_event_title(event.get('summary', 'Untitled Event'))
         
-        # Handle different datetime formats
+        # Create hyperlink if event has a link
+        event_link = event.get('htmlLink') or event.get('event_link')
+        if event_link:
+            event_display = f"[{event_name}]({event_link})"
+        else:
+            event_display = event_name
+        
+        # Handle different datetime formats for start time
         start_time = ""
-        date_short = ""
+        end_time = ""
+        date_display = ""
         
         if event.get('start', {}).get('dateTime'):
             # Google Calendar format
             try:
-                dt = datetime.fromisoformat(event['start']['dateTime'].replace('Z', '+00:00'))
-                start_time = dt.strftime('%I:%M %p')
-                date_short = dt.strftime('%a %b %d')
+                start_dt = datetime.fromisoformat(event['start']['dateTime'].replace('Z', '+00:00'))
+                start_time = start_dt.strftime('%I:%M %p')
+                date_display = start_dt.strftime('%A, %B %d, %Y')
+                
+                # Get end time if available
+                if event.get('end', {}).get('dateTime'):
+                    end_dt = datetime.fromisoformat(event['end']['dateTime'].replace('Z', '+00:00'))
+                    end_time = end_dt.strftime('%I:%M %p')
             except:
                 start_time = format_time_12hour(event['start']['dateTime'])
-                date_short = event['start']['dateTime'][:10] if event['start']['dateTime'] else ''
+                date_display = event['start']['dateTime'][:10] if event['start']['dateTime'] else ''
         elif event.get('start'):
             # Handle string format
             start_time = format_time_12hour(str(event['start']))
-            date_short = str(event['start'])[:10] if str(event['start']) else ''
+            date_display = str(event['start'])[:10] if str(event['start']) else ''
         
-        calendar_name = get_calendar_display_name(event.get('calendar_id', ''))
-        message += f"{i}. {event_name} - {date_short} {start_time} ({calendar_name})\n"
+        # Get proper calendar name
+        calendar_name = get_calendar_display_name(event.get('calendar_id', 'primary'))
+        
+        # Format time range
+        time_range = f"at {start_time}"
+        if end_time and end_time != start_time:
+            time_range = f"at {start_time} - {end_time}"
+        
+        # Create consistent format: Event (link) on Date at Time (Calendar)
+        message += f"• {event_display} on {date_display} {time_range} ({calendar_name})\n"
     
     if count > 10:
         message += f"... and {count - 10} more events\n"

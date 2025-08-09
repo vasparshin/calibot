@@ -202,18 +202,18 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
     
     # Edit the message based on confirmation type
     if confirmation == "yes" and original_message:
-        # For duplicates: keep original message, remove buttons, add confirmation
+        # For duplicates: keep original message, remove buttons, add confirmation status
         await edit_message_text(
             chat_id, 
             message_id, 
-            f"{original_message}\n\n✅ Confirmed: Creating duplicate events..."
+            f"{original_message}\n\n✅ Confirmed: Creating events..."
         )
     elif confirmation == "no" and original_message:
-        # For duplicates: keep original message, remove buttons, add cancellation
+        # For duplicates: keep original message, remove buttons, add cancellation status
         await edit_message_text(
             chat_id, 
             message_id, 
-            f"{original_message}\n\n❌ Cancelled: Duplicate event creation cancelled"
+            f"{original_message}\n\n❌ Cancelled: Event creation cancelled"
         )
     else:
         # For other confirmations: standard behavior
@@ -287,10 +287,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                             # Remove the pending flag
                             conversation_state.remove_system_message(chat_id, "PENDING_DUPLICATE_CREATION:")
                             
-                            # Get the events from conversation history (last batch creation request)
-                            # This would need to be implemented properly - for now, send confirmation
-                            await send_telegram_message(chat_id, f"Got it! I've created the duplicate events. If you need any other changes or additions, just let me know!")
-                            conversation_state.add_message(chat_id, "assistant", f"Got it! I've created the duplicate events. If you need any other changes or additions, just let me know!")
+                            # The confirmation is already shown in the edited message, no need for additional message
                             return {"status": "ok"}
                         except Exception as e:
                             logger.error(f"Error processing duplicate confirmation: {e}")
@@ -299,8 +296,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             elif is_confirmation_no(user_message):
                 # User declined to create duplicates
                 conversation_state.remove_system_message(chat_id, "PENDING_DUPLICATE_CREATION:")
-                await send_telegram_message(chat_id, "Understood! I've cancelled the duplicate event creation.")
-                conversation_state.add_message(chat_id, "assistant", "Understood! I've cancelled the duplicate event creation.")
+                # The cancellation is already shown in the edited message, no need for additional message
                 return {"status": "ok"}
             
             else:
@@ -732,6 +728,35 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 return {"status": "ok"}
 
             elif event_data["intent"] in ["update", "delete"]:
+                # Check if user is referring to recent events with pronouns
+                user_message_lower = user_message.lower()
+                is_pronoun_reference = any(word in user_message_lower for word in 
+                    ["these", "those", "this", "that", "them", "it"])
+                
+                if is_pronoun_reference and not event_data.get("event_name"):
+                    # Look for recently created/mentioned events in conversation history
+                    recent_messages = conversation_state.get_recent_messages(chat_id, 5)
+                    recent_event_names = []
+                    
+                    for msg in reversed(recent_messages):
+                        if msg.get("role") == "assistant" and "successfully created" in msg.get("content", "").lower():
+                            # Extract event names from recent creation confirmations
+                            content = msg["content"]
+                            import re
+                            # Look for pattern like "Lesson (" to extract event names
+                            matches = re.findall(r'([A-Z][a-zA-Z\s]+)\s*\(', content)
+                            if matches:
+                                # Use the most recent event name found
+                                event_data["event_name"] = matches[0].strip().lower()
+                                logger.info(f"Resolved pronoun reference to recent event: {event_data['event_name']}")
+                                break
+                    
+                    # If still no event name found, get today's events as fallback
+                    if not event_data.get("event_name"):
+                        from datetime import datetime
+                        today = datetime.now().strftime("%Y-%m-%d")
+                        event_data["date"] = today
+                
                 # Query events based on event details
                 matched_events = await calendar_service.query_events({
                     "event_name": event_data.get("event_name", ""),
