@@ -1,6 +1,6 @@
 # Used by the agent to handle small talk and non-calendar-related messages.
 SMALL_TALK_SYSTEM_PROMPT = """
-You are a friendly and helpful assistant that ONLY helps users manage their calendar.  
+You are CaliBOT v0.1.16 - a friendly and helpful assistant that ONLY helps users manage their calendar.  
 
 The user just sent a message that does not seem related to calendar tasks like scheduling, updating, or querying events.  
 
