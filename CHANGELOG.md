@@ -2,26 +2,47 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
-## [Unreleased]
+## [0.1.17] - 2025-08-09
 
+### Fixed - CRITICAL PRODUCTION BUGS
 
-## [0.1.16] - 2025-08-09
+#### Intent Routing System Complete Breakdown (CRITICAL)
+- **All Intents Misrouted to Delete Operations**: Fixed critical bug where ALL user messages were being interpreted as delete confirmations instead of their actual intent (create/query/update)
+- **Root Cause**: The `multi_event_handler.has_pending_operation(chat_id)` check was happening BEFORE normal intent processing, causing the system to always think there were pending delete operations
+- **Production Impact**: Commands like "create 3 lessons tomorrow" and "whats on the schedule" were all being treated as delete confirmations
+- **Files Modified**: `/backend/app/api/routes.py` - Removed premature multi-event handler check from main routing logic
 
+#### Persistent Corrupted State in Multi-Event Handler (CRITICAL)
+- **Permanent Broken State**: Fixed bug where `pending_operations` dictionary never got cleared, causing `has_pending_operation()` to always return `True`
+- **System Never Recovered**: Once corrupted, the bot would remain broken until complete restart
+- **Solution**: Added `clear_all_pending_operations()` method called during handler initialization
+- **Files Modified**: `/backend/app/services/multi_event_operations.py` - Added startup cleanup and enhanced state management
 
-## [Unreleased]
+#### Broken Duplicate Event Handling (HIGH PRIORITY)
+- **All Events Cancelled**: Fixed bug where creating multiple events with some duplicates would cancel ALL events instead of creating the non-duplicates
+- **Wrong Logic**: System treated any duplicate detection as complete failure
+- **Solution**: Split duplicate and non-duplicate events into separate lists, create non-duplicates immediately, only ask about actual duplicates
+- **User Impact**: Now creates valid events first, then asks about duplicates separately
+- **Files Modified**: `/backend/app/api/routes.py` - Enhanced batch creation logic
 
+#### Missing Inline Keyboard Buttons for Confirmations
+- **No User Action Possible**: Delete and update confirmation messages were missing inline keyboard buttons
+- **Enhanced Callback Handling**: Improved `handle_confirmation_callback()` to properly clear operations when cancelled
+- **Better UX**: Enhanced message editing for confirmation responses with proper cleanup
+- **Files Modified**: `/backend/app/api/routes.py` - Enhanced callback processing
 
-## [0.1.16] - 2025-08-09
+### Technical Details
+- **Startup Cleanup**: Added automatic cleanup of corrupted states on service initialization
+- **State Management**: Enhanced conversation state cleanup with proper system message removal
+- **Error Handling**: Added comprehensive error handling for stale operations and corrupted states
+- **Test Coverage**: Created comprehensive test suite to verify fixes work correctly
 
-
-## [Unreleased]
-
-
-## [0.1.16] - 2025-08-09
-
-
-## [Unreleased]
-
+### Validation
+- All user intents (create/query/update/delete) now route correctly without false delete confirmations
+- Duplicate event handling creates non-duplicates first, then asks about duplicates
+- Inline keyboard buttons appear properly for all confirmation operations
+- Multi-event handler starts with clean state on every service restart
+- System recovers gracefully from any corrupted states
 
 ## [0.1.16] - 2025-08-09
 
