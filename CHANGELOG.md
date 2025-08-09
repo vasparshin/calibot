@@ -13,6 +13,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [0.1.16] - 2025-08-09
 
+
+## [Unreleased]
+
+
+## [0.1.16] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.16] - 2025-08-09
+
 ### Fixed 🐛 - CRITICAL PRODUCTION BUGS
 
 #### Intent Routing Bug (CRITICAL)
@@ -65,6 +77,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - Google Workspace banners eliminated from all event creation confirmations
 - Pronoun references like "delete these 2 events" correctly identify recent events
 - Duplicate confirmations provide clean single-step workflow
+
+
+## [Unreleased]
+
+
+## [0.1.16] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.16] - 2025-08-09
 
 
 ## [Unreleased]
