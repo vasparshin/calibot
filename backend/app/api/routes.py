@@ -238,22 +238,13 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
                 "❌ **Cancelled** - Request has been cancelled"
             )
     elif confirmation in ["all", "one", "cancel"]:
-        # For multi-event operations: standard behavior
-        choice_text = {
-            "all": "🔄 Processing all events...",
-            "one": "1️⃣ Processing one by one...",
-            "cancel": "❌ Operation cancelled"
-        }.get(confirmation, f"Choice: {confirmation}")
-        
-        await edit_message_text(
-            chat_id, 
-            message_id, 
-            f"Operation confirmed: {choice_text}"
-        )
+        # For multi-event operations: Don't edit the original message, just process
+        # This preserves the event list for user reference
         
         # Clear any pending operations if cancelled
         if confirmation == "cancel":
             multi_event_handler.clear_pending_operations(chat_id)
+            await send_telegram_message(chat_id, "❌ Operation cancelled")
             return {"status": "ok"}
     else:
         # Fallback - should rarely be used

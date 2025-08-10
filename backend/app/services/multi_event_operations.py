@@ -482,17 +482,20 @@ class MultiEventOperationHandler:
                                         unit = shift_match.group(2)
                                         
                                         if unit in ['hour', 'hr']:
-                                            # Extend end time by X hours
+                                            # Set end time to be exactly X hours after start
                                             new_end_dt = start_dt + timedelta(hours=amount)
                                         elif unit in ['minute', 'min']:
-                                            # Extend end time by X minutes  
+                                            # Set end time to be exactly X minutes after start  
                                             new_end_dt = start_dt + timedelta(minutes=amount)
                                         
-                                        # Update the event data with new times
+                                        # CRITICAL: Keep start time unchanged, only modify end time
                                         update_data['start_time'] = start_dt.isoformat()
                                         update_data['end_time'] = new_end_dt.isoformat()
                                         
-                                        logger.info(f"Time shift applied: {time_shift} -> new end time: {new_end_dt.isoformat()}")
+                                        logger.info(f"BEFORE UPDATE: Event start={original_start}, end={original_end}")
+                                        logger.info(f"TIME SHIFT: {time_shift} parsed as {amount} {unit}")
+                                        logger.info(f"AFTER CALCULATION: start={update_data['start_time']}, end={update_data['end_time']}")
+                                        logger.info(f"EXPECTED RESULT: Start time unchanged, end time = start + {amount} {unit}")
                                         logger.info(f"Sending to calendar service: start={update_data['start_time']}, end={update_data['end_time']}")
                                     else:
                                         logger.warning(f"Could not parse time shift: {time_shift}")

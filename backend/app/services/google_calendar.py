@@ -416,6 +416,7 @@ class GoogleCalendarService:
             # Handle datetime updates - support both ISO format and date+time format
             if 'start_time' in event_data:
                 start_time = event_data['start_time']
+                logger.info(f"CALENDAR SERVICE: Updating start_time to {start_time}")
                 if 'T' in str(start_time):
                     # ISO format datetime
                     event['start']['dateTime'] = start_time
@@ -425,6 +426,7 @@ class GoogleCalendarService:
             
             if 'end_time' in event_data:
                 end_time = event_data['end_time']
+                logger.info(f"CALENDAR SERVICE: Updating end_time to {end_time}")
                 if 'T' in str(end_time):
                     # ISO format datetime
                     event['end']['dateTime'] = end_time
@@ -432,6 +434,8 @@ class GoogleCalendarService:
                     # Separate date and time
                     event['end']['dateTime'] = f"{event_data['date']}T{end_time}:00"
                 
+            logger.info(f"CALENDAR SERVICE: Final event object start={event.get('start', {}).get('dateTime', 'MISSING')}")
+            logger.info(f"CALENDAR SERVICE: Final event object end={event.get('end', {}).get('dateTime', 'MISSING')}")
             logger.info(f"Updating event {event_id} with data: {event}")
             
             # If moving to a different calendar, delete from source and create in target
