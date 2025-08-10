@@ -4,6 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.37] - 2025-08-10
+
+### Fixed
+- **Critical: Callback Processing**: Fixed `handle_confirmation_callback` to process pending multi-event operations directly instead of triggering new intent extraction
+- **Critical: Button Response Flow**: Resolved issue where "One by One" button presses were not properly initiating queue-based processing
+- **Enhanced: Intent Extraction**: Added specific examples in prompt for "move end time to X hour after start" patterns
+- **Enhanced: Time Shift Recognition**: Updated intent extraction patterns to better recognize duration change requests
+
+### Technical Details
+- **routes.py**: Modified `handle_confirmation_callback` to check for pending operations (multi_event_handler and event_queue_handler) before falling back to `process_user_message`
+- **intent_extraction_prompt.py**: Added examples for time shift patterns like "move the end time to one hour after the start times" → `time_shift: "1 hour"`
+- **Flow Fix**: Prevents double intent extraction when inline keyboard buttons are pressed, ensuring smooth transition from confirmation to execution
+
+### Issues Resolved
+- Inline keyboard buttons disappearing after selection without executing operations
+- "One by one" processing not working due to callback handling issues
+- Time shift parameters not being extracted from natural language requests
+- New intent extraction being triggered instead of processing pending operations
+
 ## [0.1.36] - 2025-08-10
 
 ### Fixed
