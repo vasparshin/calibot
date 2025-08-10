@@ -4,6 +4,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.26] - 2025-08-10
+
+## [Unreleased]
+
+
 ## [0.1.26] - 2025-08-10
 
 ### Fixed
@@ -244,6 +250,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -254,6 +263,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -290,6 +302,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -300,6 +315,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -342,6 +360,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -352,6 +373,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -366,6 +390,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -376,6 +403,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -390,6 +420,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -400,6 +433,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -414,6 +450,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -424,6 +463,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -438,6 +480,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -448,6 +493,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -462,6 +510,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -472,6 +523,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -486,6 +540,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -496,6 +553,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -510,6 +570,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -520,6 +583,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -534,6 +600,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -544,6 +613,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -558,6 +630,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -568,6 +643,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -582,6 +660,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -592,6 +673,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -606,6 +690,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -616,6 +703,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -630,6 +720,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -640,6 +733,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -654,6 +750,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -664,6 +763,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -678,6 +780,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -688,6 +793,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -702,6 +810,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -712,6 +823,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -726,6 +840,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -736,6 +853,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -750,6 +870,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -760,6 +883,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -774,6 +900,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -784,6 +913,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -798,6 +930,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -808,6 +943,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -822,6 +960,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -832,6 +973,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -846,6 +990,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -856,6 +1003,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -870,6 +1020,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -880,6 +1033,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -894,6 +1050,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -904,6 +1063,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -918,6 +1080,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -928,6 +1093,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -942,6 +1110,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -952,6 +1123,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -966,6 +1140,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -976,6 +1153,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -990,6 +1170,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1000,6 +1183,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1014,6 +1200,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1024,6 +1213,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1038,6 +1230,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1048,6 +1243,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1062,6 +1260,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1072,6 +1273,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1086,6 +1290,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1096,6 +1303,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1110,6 +1320,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1120,6 +1333,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1134,6 +1350,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1144,6 +1363,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1158,6 +1380,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1168,6 +1393,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1182,6 +1410,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1192,6 +1423,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1206,6 +1440,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1216,6 +1453,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1230,6 +1470,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1240,6 +1483,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1254,6 +1500,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1264,6 +1513,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1278,6 +1530,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1288,6 +1543,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1302,6 +1560,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1312,6 +1573,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1326,6 +1590,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1336,6 +1603,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1350,6 +1620,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1360,6 +1633,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1374,6 +1650,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1384,6 +1663,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1398,6 +1680,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1408,6 +1693,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1422,6 +1710,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1432,6 +1723,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1446,6 +1740,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1456,6 +1753,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1470,6 +1770,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1480,6 +1783,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1494,6 +1800,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1504,6 +1813,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1518,6 +1830,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1528,6 +1843,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1542,6 +1860,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1552,6 +1873,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1566,6 +1890,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1576,6 +1903,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1590,6 +1920,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1600,6 +1933,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1614,6 +1950,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1624,6 +1963,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1638,6 +1980,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1648,6 +1993,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1662,6 +2010,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1672,6 +2023,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1686,6 +2040,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1696,6 +2053,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1710,6 +2070,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1720,6 +2083,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1734,6 +2100,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1744,6 +2113,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1758,6 +2130,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1768,6 +2143,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1782,6 +2160,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1792,6 +2173,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1806,6 +2190,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1816,6 +2203,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1830,6 +2220,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1840,6 +2233,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -1854,6 +2250,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1866,6 +2265,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1878,9 +2280,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
-## [0.1.24] - 2025-08-10
+## [0.1.26] - 2025-08-10
 
 
+## [0.1.24] - 2025-08-10
+
+
 ## [0.1.23] - 2025-08-10
 
 
@@ -1888,8 +2293,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1900,8 +2308,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1912,8 +2323,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1924,8 +2338,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1936,8 +2353,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1948,8 +2368,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1960,8 +2383,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1972,8 +2398,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1984,8 +2413,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -1996,8 +2428,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2008,8 +2443,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2020,8 +2458,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2032,8 +2473,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2044,8 +2488,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2056,8 +2503,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2068,8 +2518,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2080,8 +2533,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2092,8 +2548,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2104,8 +2563,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2116,8 +2578,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2128,8 +2593,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2140,8 +2608,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2152,8 +2623,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2164,8 +2638,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2176,8 +2653,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2188,8 +2668,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2200,8 +2683,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2212,8 +2698,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2224,8 +2713,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2236,8 +2728,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2248,6 +2743,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2262,6 +2760,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2272,6 +2773,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2286,6 +2790,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2296,6 +2803,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2310,6 +2820,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2320,6 +2833,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2334,6 +2850,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2344,6 +2863,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2358,6 +2880,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2368,6 +2893,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2382,6 +2910,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2392,6 +2923,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2406,6 +2940,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2416,6 +2953,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2430,6 +2970,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2442,6 +2985,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2452,8 +2998,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2464,8 +3013,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2476,8 +3028,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2488,8 +3043,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2500,8 +3058,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2512,8 +3073,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2524,8 +3088,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2536,8 +3103,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2548,8 +3118,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2560,8 +3133,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2572,8 +3148,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2584,8 +3163,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2596,8 +3178,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2608,8 +3193,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2620,8 +3208,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2632,8 +3223,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2644,6 +3238,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2658,6 +3255,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2668,6 +3268,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2682,6 +3285,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2692,6 +3298,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2706,6 +3315,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2716,6 +3328,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2730,6 +3345,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2740,6 +3358,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2754,6 +3375,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2764,6 +3388,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2778,6 +3405,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2788,6 +3418,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2802,6 +3435,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2812,6 +3448,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2826,6 +3465,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2836,6 +3478,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2850,6 +3495,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2860,6 +3508,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2874,6 +3525,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2884,6 +3538,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2898,6 +3555,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2908,6 +3568,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2922,6 +3585,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2932,6 +3598,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2946,6 +3615,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2956,6 +3628,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2970,6 +3645,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -2980,6 +3658,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -2994,6 +3675,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3004,6 +3688,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3018,6 +3705,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3030,6 +3720,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3040,8 +3733,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3052,8 +3748,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3064,8 +3763,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3076,8 +3778,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3088,8 +3793,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3100,8 +3808,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3112,8 +3823,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3124,8 +3838,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3136,8 +3853,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3148,8 +3868,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3160,8 +3883,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3172,8 +3898,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3184,8 +3913,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3196,8 +3928,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3208,8 +3943,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3220,8 +3958,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3232,6 +3973,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3246,6 +3990,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3256,6 +4003,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3270,6 +4020,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3280,6 +4033,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3294,6 +4050,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3304,6 +4063,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3318,6 +4080,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3328,6 +4093,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3342,6 +4110,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3352,6 +4123,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3366,6 +4140,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3376,6 +4153,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3390,6 +4170,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3400,6 +4183,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3414,6 +4200,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3421,9 +4210,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
 
 
-## [Unreleased]
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -3436,8 +4228,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3448,8 +4243,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3460,8 +4258,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3472,8 +4273,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3484,8 +4288,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3496,8 +4303,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3508,8 +4318,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3520,8 +4333,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3532,8 +4348,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3544,8 +4363,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3556,8 +4378,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3568,8 +4393,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3580,8 +4408,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3592,8 +4423,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3604,8 +4438,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3616,8 +4453,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3628,8 +4468,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3640,8 +4483,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3652,8 +4498,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3664,8 +4513,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3676,8 +4528,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3688,8 +4543,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3700,8 +4558,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3712,8 +4573,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3724,8 +4588,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3736,8 +4603,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3748,8 +4618,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3760,8 +4633,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3772,8 +4648,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3784,8 +4663,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3796,8 +4678,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3808,8 +4693,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3820,8 +4708,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3832,8 +4723,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3844,8 +4738,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3856,8 +4753,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3868,8 +4768,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3880,8 +4783,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3892,8 +4798,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3904,8 +4813,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3916,8 +4828,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3928,8 +4843,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3940,8 +4858,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3952,8 +4873,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3964,8 +4888,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3976,8 +4903,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -3988,8 +4918,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4000,8 +4933,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4012,8 +4948,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4024,8 +4963,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4036,8 +4978,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4048,8 +4993,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4060,8 +5008,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4072,8 +5023,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4084,8 +5038,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4096,8 +5053,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4108,8 +5068,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4120,8 +5083,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4132,8 +5098,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4144,8 +5113,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4156,8 +5128,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4168,8 +5143,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4180,8 +5158,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4192,8 +5173,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4204,8 +5188,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4216,8 +5203,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4228,8 +5218,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4240,8 +5233,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4252,8 +5248,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4264,8 +5263,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4276,8 +5278,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4288,8 +5293,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4300,8 +5308,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4312,8 +5323,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4324,8 +5338,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4336,8 +5353,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4348,8 +5368,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4360,8 +5383,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4372,8 +5398,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4384,8 +5413,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4396,8 +5428,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4408,8 +5443,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4420,8 +5458,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4432,8 +5473,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4444,8 +5488,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4456,8 +5503,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4468,8 +5518,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4480,8 +5533,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4492,8 +5548,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4504,8 +5563,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4516,8 +5578,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4528,8 +5593,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4540,8 +5608,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4552,8 +5623,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4564,8 +5638,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4576,8 +5653,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4588,8 +5668,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4600,8 +5683,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4612,8 +5698,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4624,8 +5713,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4636,8 +5728,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4648,8 +5743,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4660,8 +5758,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4672,8 +5773,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4684,8 +5788,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4696,8 +5803,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4708,8 +5818,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4720,8 +5833,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4732,8 +5848,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4744,8 +5863,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4756,8 +5878,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4768,8 +5893,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4780,8 +5908,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4792,8 +5923,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4804,8 +5938,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4816,8 +5953,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4828,8 +5968,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4840,8 +5983,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4852,8 +5998,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4864,8 +6013,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4876,8 +6028,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4888,8 +6043,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4900,8 +6058,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4912,8 +6073,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4924,8 +6088,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4936,8 +6103,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4948,8 +6118,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4960,6 +6133,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -4974,6 +6150,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -4984,6 +6163,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -4998,6 +6180,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5008,6 +6193,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5022,6 +6210,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5032,6 +6223,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5046,6 +6240,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5056,6 +6253,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5070,6 +6270,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5080,6 +6283,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5094,6 +6300,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5104,6 +6313,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5118,6 +6330,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5128,6 +6343,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5142,6 +6360,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5152,6 +6373,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5166,6 +6390,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5176,6 +6403,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5190,6 +6420,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5200,6 +6433,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5214,6 +6450,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5224,6 +6463,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5238,6 +6480,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5248,6 +6493,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5262,6 +6510,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5272,6 +6523,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5286,6 +6540,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5296,6 +6553,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5310,6 +6570,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5320,6 +6583,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5334,6 +6600,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5344,6 +6613,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5358,6 +6630,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5368,6 +6643,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5382,6 +6660,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5392,6 +6673,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5406,6 +6690,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5416,6 +6703,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5430,6 +6720,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5440,6 +6733,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5454,6 +6750,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5464,6 +6763,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5478,6 +6780,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5488,6 +6793,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5502,6 +6810,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5512,6 +6823,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5526,6 +6840,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5536,6 +6853,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5550,6 +6870,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5560,6 +6883,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5574,6 +6900,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5584,6 +6913,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5598,6 +6930,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5608,6 +6943,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5622,6 +6960,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5632,6 +6973,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5646,6 +6990,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5656,6 +7003,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5670,6 +7020,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5680,6 +7033,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5694,6 +7050,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5704,6 +7063,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5718,6 +7080,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5728,6 +7093,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5742,6 +7110,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5752,6 +7123,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5766,6 +7140,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5776,6 +7153,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5790,6 +7170,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5800,6 +7183,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5814,6 +7200,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5824,6 +7213,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5838,6 +7230,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5848,6 +7243,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5862,6 +7260,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5872,6 +7273,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5886,6 +7290,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5896,6 +7303,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5910,6 +7320,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5920,6 +7333,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5934,6 +7350,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5944,6 +7363,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5958,6 +7380,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5968,6 +7393,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -5982,6 +7410,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -5992,6 +7423,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6006,6 +7440,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6016,6 +7453,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6030,6 +7470,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6040,6 +7483,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6054,6 +7500,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6064,6 +7513,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6078,6 +7530,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6088,6 +7543,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6102,6 +7560,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6112,6 +7573,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6126,6 +7590,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6136,6 +7603,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6150,6 +7620,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6160,6 +7633,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6174,6 +7650,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6184,6 +7663,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6198,6 +7680,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6208,6 +7693,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6222,6 +7710,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6232,6 +7723,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6246,6 +7740,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6256,6 +7753,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6270,6 +7770,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6280,6 +7783,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6294,6 +7800,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6304,6 +7813,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6318,6 +7830,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6328,6 +7843,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6342,6 +7860,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6352,6 +7873,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6366,6 +7890,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6376,6 +7903,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6390,6 +7920,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6400,6 +7933,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6414,6 +7950,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6424,6 +7963,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6438,6 +7980,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6448,6 +7993,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6462,6 +8010,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6472,6 +8023,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6486,6 +8040,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.26] - 2025-08-10
+
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6493,9 +8050,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
 
 
-## [Unreleased]
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
@@ -6508,8 +8068,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6520,8 +8083,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6532,8 +8098,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6544,8 +8113,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6556,8 +8128,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6568,8 +8143,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6580,8 +8158,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6592,8 +8173,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6604,8 +8188,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6616,8 +8203,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6628,8 +8218,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6640,8 +8233,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6652,8 +8248,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6664,8 +8263,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6676,8 +8278,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6688,8 +8293,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6700,8 +8308,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6712,8 +8323,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6724,8 +8338,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6736,8 +8353,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6748,8 +8368,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6760,8 +8383,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6772,8 +8398,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6784,8 +8413,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6796,8 +8428,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6808,8 +8443,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6820,8 +8458,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6832,8 +8473,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6844,8 +8488,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6856,8 +8503,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6868,8 +8518,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6880,8 +8533,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6892,8 +8548,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6904,8 +8563,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6916,8 +8578,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6928,8 +8593,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6940,8 +8608,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6952,8 +8623,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6964,8 +8638,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6976,8 +8653,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -6988,8 +8668,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7000,8 +8683,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7012,8 +8698,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7024,8 +8713,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7036,8 +8728,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7048,8 +8743,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7060,8 +8758,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7072,8 +8773,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7084,8 +8788,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7096,8 +8803,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7108,8 +8818,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7120,8 +8833,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7132,8 +8848,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7144,8 +8863,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7156,8 +8878,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7168,8 +8893,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7180,8 +8908,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7192,8 +8923,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7204,8 +8938,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7216,8 +8953,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7228,8 +8968,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7240,8 +8983,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7252,8 +8998,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7264,8 +9013,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7276,8 +9028,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7288,8 +9043,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7300,8 +9058,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7312,8 +9073,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7324,8 +9088,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7336,8 +9103,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7348,8 +9118,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7360,8 +9133,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7372,8 +9148,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7384,8 +9163,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7396,8 +9178,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7408,8 +9193,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7420,8 +9208,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7432,8 +9223,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7444,8 +9238,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7456,8 +9253,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7468,8 +9268,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7480,8 +9283,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7492,8 +9298,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7504,8 +9313,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7516,8 +9328,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7528,8 +9343,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7540,8 +9358,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7552,8 +9373,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7564,8 +9388,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7576,8 +9403,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7588,8 +9418,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7600,8 +9433,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7612,8 +9448,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7624,8 +9463,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7636,8 +9478,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7648,8 +9493,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7660,8 +9508,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7672,8 +9523,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7684,8 +9538,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7696,8 +9553,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7708,8 +9568,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7720,8 +9583,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7732,8 +9598,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7744,8 +9613,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7756,8 +9628,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7768,8 +9643,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7780,8 +9658,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7792,8 +9673,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7804,8 +9688,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7816,8 +9703,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7828,8 +9718,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7840,8 +9733,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7852,8 +9748,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7864,8 +9763,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7876,8 +9778,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7888,8 +9793,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7900,8 +9808,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7912,8 +9823,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7924,8 +9838,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7936,8 +9853,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7948,8 +9868,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7960,8 +9883,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7972,8 +9898,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7984,8 +9913,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -7996,8 +9928,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -8008,8 +9943,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -8020,8 +9958,11 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
 
+## [0.1.26] - 2025-08-10
 
+
 ## [0.1.24] - 2025-08-10
 
 
@@ -8032,6 +9973,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 
 ## [Unreleased]
+
+
+## [0.1.26] - 2025-08-10
 
 
 ## [0.1.24] - 2025-08-10
