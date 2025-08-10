@@ -234,14 +234,57 @@ class MultiEventOperationHandler:
             
             user_response = user_confirmation.lower().strip()
             
-            if user_response in ['yes', 'y', 'confirm', 'proceed']:
-                # Execute the operation
+            if user_response in ['yes', 'y', 'confirm', 'proceed', 'all']:
+                # Execute all operations immediately
                 result = await self._execute_operation(pending_op)
                 
                 # Clean up pending operation
                 del self.pending_operations[operation_id]
                 
                 return result
+            
+            elif user_response in ['one', '1', 'individual', 'step']:
+                # Switch to one-by-one processing using event queue handler
+                events = pending_op["events"]
+                original_request = pending_op["original_request"]
+                op_type = pending_op["type"]
+                
+                # Convert to queue format
+                queue_events = []
+                for event in events:
+                    queue_event = {
+                        "intent": "update" if "update" in op_type else "delete",
+                        "event_id": event.get("id", event.get("event_id")),
+                        "event_name": event.get("summary", ""),
+                        "start_time": event.get("start", event.get("start_time", "")),
+                        "end_time": event.get("end", event.get("end_time", "")),
+                        "calendar_id": event.get("calendar_id", "primary"),
+                        "calendar_name": event.get("calendar_name", "Unknown"),
+                        **original_request  # Include the update parameters
+                    }
+                    queue_events.append(queue_event)
+                
+                # Create event queue (need to import EventQueueHandler)
+                try:
+                    from .event_queue_handler import EventQueueHandler
+                    # Pass required dependencies
+                    queue_handler = EventQueueHandler(
+                        self.telegram_service,
+                        self.conversation_state,
+                        self.calendar_service,
+                        getattr(self.calendar_service, 'calendar_agent', None)
+                    )
+                    queue_result = queue_handler.create_event_queue_from_list(chat_id, queue_events)
+                    
+                    # Clean up pending operation
+                    del self.pending_operations[operation_id]
+                    
+                    return queue_result
+                except ImportError:
+                    # Fallback if queue handler not available
+                    result = await self._execute_operation(pending_op)
+                    del self.pending_operations[operation_id]
+                    return result
             
             elif user_response in ['no', 'n', 'cancel', 'abort']:
                 # Cancel operation
@@ -412,34 +455,49 @@ class MultiEventOperationHandler:
                             original_start = event.get('start', '')
                             original_end = event.get('end', '')
                             
-                            if 'T' in original_start and 'T' in original_end:
+                            # Handle different event data formats
+                            if not original_start and 'start_time' in event:
+                                original_start = event['start_time']
+                            if not original_end and 'end_time' in event:
+                                original_end = event['end_time']
+                            
+                            logger.info(f"Time shift request: {time_shift} for event {event.get('summary', 'Unknown')}")
+                            logger.info(f"Original times: start={original_start}, end={original_end}")
+                            
+                            if original_start and original_end and 'T' in original_start and 'T' in original_end:
                                 from datetime import datetime, timedelta
                                 import re
                                 
-                                # Parse original datetime strings
-                                start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
-                                end_dt = datetime.fromisoformat(original_end.replace('Z', '+00:00'))
-                                
-                                # Parse time shift (e.g., "1 hour", "30 minutes", "2 hours")
-                                shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
-                                if shift_match:
-                                    amount = int(shift_match.group(1))
-                                    unit = shift_match.group(2)
+                                try:
+                                    # Parse original datetime strings
+                                    start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
+                                    end_dt = datetime.fromisoformat(original_end.replace('Z', '+00:00'))
                                     
-                                    if unit in ['hour', 'hr']:
-                                        # Extend end time by X hours
-                                        end_dt = end_dt + timedelta(hours=amount)
-                                    elif unit in ['minute', 'min']:
-                                        # Extend end time by X minutes  
-                                        end_dt = end_dt + timedelta(minutes=amount)
+                                    logger.info(f"Parsed times: start={start_dt}, end={end_dt}")
                                     
-                                    # Update the event data with new times
-                                    update_data['start_time'] = start_dt.isoformat()
-                                    update_data['end_time'] = end_dt.isoformat()
-                                    
-                                    logger.info(f"Time shift applied: {time_shift} -> new end time: {end_dt.isoformat()}")
-                                else:
-                                    logger.warning(f"Could not parse time shift: {time_shift}")
+                                    # Parse time shift (e.g., "1 hour", "30 minutes", "2 hours")
+                                    shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
+                                    if shift_match:
+                                        amount = int(shift_match.group(1))
+                                        unit = shift_match.group(2)
+                                        
+                                        if unit in ['hour', 'hr']:
+                                            # Extend end time by X hours
+                                            new_end_dt = start_dt + timedelta(hours=amount)
+                                        elif unit in ['minute', 'min']:
+                                            # Extend end time by X minutes  
+                                            new_end_dt = start_dt + timedelta(minutes=amount)
+                                        
+                                        # Update the event data with new times
+                                        update_data['start_time'] = start_dt.isoformat()
+                                        update_data['end_time'] = new_end_dt.isoformat()
+                                        
+                                        logger.info(f"Time shift applied: {time_shift} -> new end time: {new_end_dt.isoformat()}")
+                                        logger.info(f"Sending to calendar service: start={update_data['start_time']}, end={update_data['end_time']}")
+                                    else:
+                                        logger.warning(f"Could not parse time shift: {time_shift}")
+                                except Exception as parse_error:
+                                    logger.error(f"Error parsing datetime for time shift: {parse_error}")
                             else:
                                 logger.warning(f"Invalid datetime format for time shift: start={original_start}, end={original_end}")
                         

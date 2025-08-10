@@ -4,6 +4,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.36] - 2025-08-10
+
+### Fixed
+- **Critical: Inline Keyboard Implementation**: Removed text-based confirmation options from MessageFormatter to ensure only inline buttons are shown
+- **Critical: Time Shift Logic Fix**: Fixed time shift calculation to properly set end time = start time + shift amount (not extend current end time)
+- **Critical: One-by-One Processing**: Integrated multi-event operations with EventQueueHandler for proper step-by-step processing with inline keyboards
+- **Enhanced: Date Formatting**: Fixed "Invalid isoformat string" warnings by checking if date is already formatted before parsing
+- **Enhanced: Event Data Parsing**: Improved event time extraction with fallback handling for different data formats
+
+### Technical Details
+- **message_formatter.py**: Removed text options from confirmation messages since inline keyboards handle user choices
+- **multi_event_operations.py**: Fixed time shift to calculate new_end = start + shift_amount, added integration with EventQueueHandler for one-by-one processing, enhanced logging for debugging time shift operations
+- **Time Shift Logic**: Now correctly interprets "move end time to 1 hour after start" as setting duration to 1 hour total, not adding 1 hour to existing duration
+
 ## [0.1.35] - 2025-08-10
 
 ### Fixed

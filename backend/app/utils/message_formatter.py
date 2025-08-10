@@ -25,6 +25,11 @@ class MessageFormatter:
         if not date_str:
             return "Unknown date"
         
+        # If already formatted, return as-is
+        if ',' in date_str and any(month in date_str for month in ['January', 'February', 'March', 'April', 'May', 'June', 
+                                                                    'July', 'August', 'September', 'October', 'November', 'December']):
+            return date_str
+        
         try:
             # Handle various date formats
             if 'T' in date_str:
@@ -34,7 +39,7 @@ class MessageFormatter:
             return dt.strftime('%A, %B %d, %Y')
         except Exception as e:
             logger.warning(f"Error formatting date {date_str}: {e}")
-            return "Unknown date"
+            return date_str  # Return original if can't parse
     
     @staticmethod
     def format_time_12hour(time_str: str) -> str:
@@ -190,6 +195,7 @@ class MessageFormatter:
         """
         Format confirmation message for multi-event operations.
         NEVER truncates event list - shows ALL events.
+        NOTE: Does NOT include text options since we use inline keyboards.
         """
         count = count or len(events)
         action_verb = action.lower()
@@ -201,13 +207,7 @@ class MessageFormatter:
         event_list = MessageFormatter.format_event_list_display(events, numbered=True, include_hyperlink=True)
         message += event_list
         
-        # Options
-        action_title = action_verb.title()
-        message += f"\n\nChoose an option:\n"
-        message += f"• 'one' or '1' - Review and {action_verb} one by one\n"
-        message += f"• 'all' or 'yes' - {action_title} all events now\n"
-        message += f"• 'cancel' or 'c' - Cancel operation"
-        
+        # No text options - inline keyboard handles this
         return message
     
     @staticmethod
