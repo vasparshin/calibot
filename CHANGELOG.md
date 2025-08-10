@@ -4,6 +4,26 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.32] - 2025-08-10
+
+### Fixed
+- **CRITICAL: Event Update Operations**: Fixed update operations not actually modifying events - now properly handles date changes, time shifts, and name updates
+- **Enhanced Confirmation Messages**: Improved confirmation messages with proper event details, calendar names, clickable links, and formatted dates
+- **Message Persistence**: Fixed confirmation messages disappearing after user selection - now shows confirmation status while preserving original details
+- **Comprehensive Update Logic**: Enhanced multi-event update handler to support new_date, time_shift, new_event_name, description, and location changes
+
+### Enhanced
+- **Update Operation Types**: Added support for moving events to new dates ("move to tomorrow"), time shifting, and comprehensive event modifications
+- **Event Targeting**: Improved numerical event targeting (2nd, 3rd, 4th events) to work correctly with actual calendar operations
+- **Confirmation UX**: Enhanced confirmation flow with clear status indicators and preserved event context
+- **Error Handling**: Better error reporting for failed update operations with detailed feedback
+
+### Technical Details
+- **multi_event_operations.py**: Complete rewrite of update_multiple operation to handle all update types (date, time, name, etc.)
+- **routes.py**: Enhanced confirmation message formatting with proper event details, calendar names, and links
+- **Confirmation Flow**: Fixed callback handling to preserve original messages with status indicators instead of generic "Choice: yes"
+- **Calendar Integration**: Improved update_event calls with proper calendar_id and source_calendar_id handling
+
 ## [0.1.31] - 2025-08-10
 
 ### Fixed

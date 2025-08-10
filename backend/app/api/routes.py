@@ -25,7 +25,8 @@ from app.utils.ui_helpers import (
     get_calendar_display_name,
     format_duplicate_confirmation_with_keyboard,
     format_multi_event_confirmation_with_keyboard,
-    format_event_selection_with_keyboard
+    format_event_selection_with_keyboard,
+    format_event_title
 )
 from app.agent.nlp_agent import NLPAgent
 from app.utils.message_formatter import MessageFormatter
@@ -195,38 +196,47 @@ async def handle_callback_query(callback_query):
 
 async def handle_confirmation_callback(chat_id: int, message_id: int, confirmation: str):
     """Handle confirmation responses from inline keyboards"""
-    # Get the original message content for duplicates
-    original_message = None
-    try:
-        # For duplicate confirmations, we want to preserve the message and remove buttons
-        if confirmation in ["yes", "no"]:
-            # Get the recent messages to find the duplicate confirmation message
-            recent_messages = conversation_state.get_recent_messages(chat_id, 3)
-            for msg in recent_messages:
-                if msg.get("role") == "assistant" and "Found" in msg.get("content", "") and "potential duplicate" in msg.get("content", ""):
-                    original_message = msg.get("content", "")
-                    break
-    except Exception as e:
-        logger.warning(f"Could not retrieve original message: {e}")
-    
     # Update the conversation state with the user's choice
     conversation_state.add_message(chat_id, confirmation, "user")
     
+    # Get the original confirmation message from conversation history
+    recent_messages = conversation_state.get_recent_messages(chat_id, 3)
+    original_confirmation_msg = None
+    for msg in recent_messages:
+        if (msg.get("role") == "assistant" and 
+            "Are you sure you want to" in msg.get("content", "")):
+            original_confirmation_msg = msg.get("content", "")
+            break
+    
     # Edit the message based on confirmation type
-    if confirmation == "yes" and original_message:
-        # For duplicates: keep original message, remove buttons, add confirmation status
-        await edit_message_text(
-            chat_id, 
-            message_id, 
-            f"{original_message}\n\n✅ Confirmed: Creating events..."
-        )
-    elif confirmation == "no" and original_message:
-        # For duplicates: keep original message, remove buttons, add cancellation status
-        await edit_message_text(
-            chat_id, 
-            message_id, 
-            f"{original_message}\n\n❌ Cancelled: Event creation cancelled"
-        )
+    if confirmation == "yes":
+        # Keep original message but add confirmation status
+        if original_confirmation_msg:
+            await edit_message_text(
+                chat_id, 
+                message_id, 
+                f"{original_confirmation_msg}\n\n✅ **Confirmed** - Processing your request..."
+            )
+        else:
+            await edit_message_text(
+                chat_id, 
+                message_id, 
+                "✅ **Confirmed** - Processing your request..."
+            )
+    elif confirmation == "no":
+        # Keep original message but add cancellation status  
+        if original_confirmation_msg:
+            await edit_message_text(
+                chat_id, 
+                message_id, 
+                f"{original_confirmation_msg}\n\n❌ **Cancelled** - Request has been cancelled"
+            )
+        else:
+            await edit_message_text(
+                chat_id, 
+                message_id, 
+                "❌ **Cancelled** - Request has been cancelled"
+            )
     elif confirmation in ["all", "one", "cancel"]:
         # For multi-event operations: standard behavior
         choice_text = {
@@ -245,7 +255,7 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
         if confirmation == "cancel":
             multi_event_handler.clear_pending_operations(chat_id)
     else:
-        # Unknown confirmation type
+        # Fallback - should rarely be used
         await edit_message_text(
             chat_id, 
             message_id, 
@@ -633,21 +643,55 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 conversation_state.add_message(chat_id, "assistant", "Sorry, the event data is incomplete. Please try again.")
                 return {"status": "ok"}
             
-            event_summary = f"'{event.get('summary', 'Untitled')}' on {event.get('start', 'unknown date')}"
+            # Format event details properly with calendar name and clickable link
+            event_title = format_event_title(event.get('summary', 'Untitled'))
+            
+            # Format the date properly
+            start_time = event.get('start', '')
+            if 'T' in start_time:
+                # Parse ISO datetime format
+                try:
+                    from datetime import datetime
+                    dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    formatted_date = dt.strftime("%A, %B %d, %Y at %I:%M %p")
+                except:
+                    formatted_date = start_time
+            else:
+                formatted_date = start_time
+            
+            # Get calendar name
+            calendar_name = event.get('calendar_name', 'Unknown Calendar')
+            
+            # Get event link if available
+            event_link = event.get('link', '')
+            
+            # Create comprehensive event description
+            if event_link:
+                event_summary = f"[{event_title}]({event_link}) on {formatted_date} ({calendar_name})"
+            else:
+                event_summary = f"'{event_title}' on {formatted_date} ({calendar_name})"
             
             if event_data["intent"] == "delete":
                 confirmation_msg = f"Are you sure you want to delete {event_summary}?"
             else:  # update
-                confirmation_msg = f"Are you sure you want to update {event_summary}?"
+                if event_data.get('new_date'):
+                    action_desc = f"move to {event_data['new_date']}"
+                elif event_data.get('new_event_name'):
+                    action_desc = f"rename to '{event_data['new_event_name']}'"
+                elif event_data.get('time_shift'):
+                    action_desc = f"shift time by {event_data['time_shift']}"
+                else:
+                    action_desc = "update"
+                confirmation_msg = f"Are you sure you want to {action_desc} {event_summary}?"
             
             # Create inline keyboard for single event confirmation
             keyboard = create_confirmation_keyboard("single_event")
             
             # Store pending operation
             multi_event_handler.store_pending_operation(chat_id, {
-                "intent": event_data["intent"],
+                "type": f"{event_data['intent']}_single" if event_data["intent"] == "delete" else "update_multiple",
                 "events": [event],
-                "original_data": event_data
+                "original_request": event_data
             })
             
             await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
@@ -866,9 +910,9 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     
                     # Store pending operation for confirmation handling
                     multi_event_handler.store_pending_operation(chat_id, {
-                        "intent": action,
+                        "type": f"{action}_multiple",
                         "events": events,
-                        "event_data": event_data
+                        "original_request": event_data
                     })
                     
                     return {"status": "ok"}

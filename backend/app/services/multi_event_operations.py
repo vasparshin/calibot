@@ -292,7 +292,7 @@ class MultiEventOperationHandler:
                 if result.get("success"):
                     return {
                         "success": True,
-                        "message": f"Deleted event: {event['summary']}",
+                        "message": f"Deleted event: {event.get('summary', 'Untitled')}",
                         "requires_user_action": False
                     }
                 else:
@@ -311,11 +311,12 @@ class MultiEventOperationHandler:
                     try:
                         result = await self.calendar_service.delete_event(event["id"])
                         if result.get("success"):
-                            successful_deletes.append(event['summary'])
+                            successful_deletes.append(event.get('summary', 'Untitled'))
                         else:
-                            failed_deletes.append(f"{event['summary']}: {result.get('message', 'Unknown error')}")
+                            failed_deletes.append(f"{event.get('summary', 'Untitled')}: {result.get('message', 'Unknown error')}")
                     except Exception as e:
-                        failed_deletes.append(f"{event['summary']}: {str(e)}")
+                        failed_deletes.append(f"{event.get('summary', 'Untitled')}: {str(e)}")
+                        logger.error(f"Error deleting event {event.get('id', 'unknown')}: {e}")
                 
                 # Build response message
                 message_parts = []
@@ -338,26 +339,72 @@ class MultiEventOperationHandler:
             elif op_type == "update_multiple":
                 # Update multiple events
                 original_request = operation["original_request"]
-                new_title = original_request.get('new_event_name', 'Updated Event')
                 
                 successful_updates = []
                 failed_updates = []
                 
                 for event in events:
                     try:
-                        # Prepare update data
+                        # Prepare update data based on what fields are provided
                         update_data = {
-                            "event_id": event["id"],
-                            "new_event_name": new_title
+                            "event_id": event["id"]
                         }
                         
-                        result = await self.calendar_service.update_event(update_data)
+                        # Handle different types of updates
+                        if 'new_event_name' in original_request:
+                            update_data['event_name'] = original_request['new_event_name']
+                        
+                        if 'new_date' in original_request:
+                            # Parse the original event start and end times
+                            original_start = event.get('start', '')
+                            original_end = event.get('end', '')
+                            
+                            # Extract time portion if datetime format
+                            if 'T' in original_start:
+                                start_time = original_start.split('T')[1].split('+')[0]  # Get time part
+                                end_time = original_end.split('T')[1].split('+')[0] if 'T' in original_end else start_time
+                            else:
+                                start_time = "14:00:00"  # Default time
+                                end_time = "14:30:00"
+                            
+                            # Create new datetime strings
+                            new_date = original_request['new_date']
+                            update_data['start_time'] = f"{new_date}T{start_time}"
+                            update_data['end_time'] = f"{new_date}T{end_time}"
+                        
+                        if 'time_shift' in original_request:
+                            # Handle time shifting logic
+                            time_shift = original_request['time_shift']
+                            update_data['time_shift'] = time_shift
+                        
+                        if 'description' in original_request:
+                            update_data['description'] = original_request['description']
+                        
+                        if 'location' in original_request:
+                            update_data['location'] = original_request['location']
+                        
+                        # Get the calendar ID for the update
+                        calendar_id = event.get('calendar_id', 'primary')
+                        
+                        result = await self.calendar_service.update_event(
+                            event["id"], 
+                            update_data, 
+                            source_calendar_id=calendar_id
+                        )
+                        
                         if result.get("success"):
-                            successful_updates.append(f"{event['summary']} → {new_title}")
+                            # Create descriptive update message
+                            update_desc = f"{event.get('summary', 'Untitled')}"
+                            if 'new_date' in original_request:
+                                update_desc += f" moved to {original_request['new_date']}"
+                            if 'new_event_name' in original_request:
+                                update_desc += f" renamed to {original_request['new_event_name']}"
+                            successful_updates.append(update_desc)
                         else:
-                            failed_updates.append(f"{event['summary']}: {result.get('message', 'Unknown error')}")
+                            failed_updates.append(f"{event.get('summary', 'Untitled')}: {result.get('message', 'Unknown error')}")
                     except Exception as e:
-                        failed_updates.append(f"{event['summary']}: {str(e)}")
+                        failed_updates.append(f"{event.get('summary', 'Untitled')}: {str(e)}")
+                        logger.error(f"Error updating event {event.get('id', 'unknown')}: {e}")
                 
                 # Build response message
                 message_parts = []
