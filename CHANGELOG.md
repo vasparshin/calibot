@@ -4,11 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.25] - 2025-08-10
 
-## [0.1.24] - 2025-08-10
+### Fixed
+- **NLP Intent Extraction Error**: Fixed critical issue where LLM returned invalid JSON `"intent"` causing extraction failures
+- **JSON Parsing Validation**: Added type checking to ensure parsed JSON is actually a dict object, not just a string
+- **Fallback Detection**: Enhanced detection of malformed LLM responses to trigger intelligent fallbacks
+- **Response Format**: Re-enabled JSON object response format to force valid JSON from LLM
 
-## [Unreleased]
+### Technical Details
+- **nlp_agent.py**: Added `isinstance(parsed_result, dict)` check after JSON parsing
+- **nlp_agent.py**: Enhanced fallback detection for `'"intent"'` and `'"query"'` responses
+- **intent_extraction_prompt.py**: Added explicit JSON format requirements to prevent string-only responses
+- Re-enabled `response_format={"type": "json_object"}` parameter for LLM calls
 
+### Production Status
+✅ **HOTFIX DEPLOYED**
+- Intent extraction errors eliminated
+- Query operations ("what's the schedule") now work correctly
+- Fallback system properly handles malformed LLM responses
 
 ## [0.1.24] - 2025-08-10
 

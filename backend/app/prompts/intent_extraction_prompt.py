@@ -71,4 +71,7 @@ REMEMBER:
 - If start time missing, set "confirmation_needed": true
 - If duration missing, set "confirmation_needed": true
 
+IMPORTANT: Your response must be valid JSON. Do not return just a string like "intent" or "query". 
+Always return a complete JSON object like: {"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
+
 Return ONLY the JSON object(s) - one line per event for multiple events:"""

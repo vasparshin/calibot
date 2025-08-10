@@ -53,9 +53,8 @@ class NLPAgent:
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message}
                 ],
-                max_tokens=500
-                # Temporarily removing response_format to debug
-                # response_format={"type": "json_object"}
+                max_tokens=500,
+                response_format={"type": "json_object"}
             )
 
             result = response['choices'][0]['message']['content']
@@ -76,9 +75,10 @@ class NLPAgent:
             # If response is just "intent" or similar, create a fallback
             if (len(cleaned_result) < 20 or 
                 not cleaned_result.startswith('{') or 
-                cleaned_result.strip() in ['"intent"', 'intent', '"query"', 'query']):
+                cleaned_result.strip() in ['"intent"', 'intent', '"query"', 'query'] or
+                cleaned_result == '"intent"' or cleaned_result == '"query"'):
                 
-                logger.error(f"Invalid LLM response, creating fallback. Raw: '{result}'")
+                logger.error(f"Invalid LLM response, creating fallback. Raw: '{result}', Cleaned: '{cleaned_result}'")
                 # Try to infer intent from user message
                 user_lower = user_message.lower()
                 if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
@@ -104,6 +104,10 @@ class NLPAgent:
             # Try to parse as single JSON first
             try:
                 parsed_result = json.loads(cleaned_result)
+                # Ensure the parsed result is actually a dict/object, not just a string
+                if not isinstance(parsed_result, dict):
+                    logger.error(f"LLM returned non-object JSON: {type(parsed_result)} - {parsed_result}")
+                    raise json.JSONDecodeError("Result is not a JSON object", cleaned_result, 0)
                 return parsed_result
             except json.JSONDecodeError:
                 # If single JSON fails, try to parse multiple JSON objects (batch events)
