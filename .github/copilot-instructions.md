@@ -344,17 +344,21 @@ Automatic calendar selection using dual approach:
 
 ## Development Workflows
 
-### Running the Application
+### Local Development and Testing (Testing Purposes Only)
+**IMPORTANT: Local hosting is ONLY for testing and validation purposes. Production deployment happens automatically via Render.com when changes are pushed to GitHub.**
+
 ```bash
-# From project root
+# For testing EventQueueHandler fixes, time shift logic, etc.
 cd backend
 python -m app.main
 
-# For webhook mode (production):
+# For webhook testing (development only):
 # 1. Set BACKEND_URL in environment
 # 2. Use ngrok: ngrok http 8060
 # 3. Update webhook URL in main.py
 ```
+
+**Note**: Once testing is complete and fixes are validated, push changes to GitHub for automatic production deployment via Render.com. No manual deployment needed.
 
 
 ### Testing Strategy

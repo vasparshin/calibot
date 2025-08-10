@@ -281,18 +281,19 @@ class EventQueueHandler:
             action_text = "create this event"
             action_prefix = "CREATE"
         
+        # Create inline keyboard for one-by-one confirmation
+        keyboard = InlineKeyboardHelper.create_single_event_confirmation_keyboard(action_text) if InlineKeyboardHelper else None
+        
         confirmation_message = f"""{action_prefix} Event {current_index + 1} of {total_events}:
 
 {event_summary}
 
-Reply with:
-• 'yes' or 'y' to {action_text}
-• 'no' or 'n' to skip this event  
-• 'cancel' to cancel remaining events"""
+Choose your action:"""
 
         return {
             "success": True,
             "message": confirmation_message,
+            "keyboard": keyboard,
             "requires_user_action": True,
             "queue_position": f"{current_index + 1}/{total_events}"
         }
@@ -413,10 +414,16 @@ Calendar: {calendar}"""
                 # Invalid response for initial options
                 return self._get_initial_batch_message(chat_id)
         
-        # Handle individual event confirmations
+        # Handle individual event confirmations (both text and callback data)
         current_event = queue['events'][current_index]
         
-        if user_response in ['yes', 'y', 'confirm']:
+        # Handle callback data patterns (e.g., "confirm_update", "cancel_delete")
+        is_confirm = (user_response in ['yes', 'y', 'confirm'] or 
+                     user_response.startswith('confirm_'))
+        is_cancel = (user_response in ['no', 'n', 'skip'] or 
+                    user_response.startswith('cancel_'))
+        
+        if is_confirm:
             # Process the current event
             result = await self._process_single_event(current_event)
             
@@ -436,10 +443,11 @@ Calendar: {calendar}"""
                 return {
                     "success": True,
                     "message": f"{result['message']}\n\n{next_result['message']}",
+                    "keyboard": next_result.get('keyboard'),
                     "requires_user_action": True
                 }
         
-        elif user_response in ['no', 'n', 'skip']:
+        elif is_cancel:
             # Skip current event, move to next
             queue['current_index'] += 1
             
@@ -455,6 +463,7 @@ Calendar: {calendar}"""
                 return {
                     "success": True,
                     "message": f"Skipped: Event skipped.\n\n{next_result['message']}",
+                    "keyboard": next_result.get('keyboard'),
                     "requires_user_action": True
                 }
         
@@ -658,7 +667,7 @@ Calendar: {calendar}"""
                     # Build update data - handle time shifts if specified
                     update_data = {}
                     
-                    # Handle time shift (e.g., "move 1 hour later")
+                    # Handle time shift (e.g., "move end time 1 hour after start")
                     if event.get('time_shift'):
                         try:
                             from datetime import datetime, timedelta
@@ -673,30 +682,35 @@ Calendar: {calendar}"""
                                 
                                 # Parse time shift (e.g., "1 hour", "30 minutes")
                                 time_shift = event.get('time_shift', '')
-                                hours = 0
-                                minutes = 0
                                 
-                                # Extract hours
-                                hour_match = re.search(r'(\d+)\s*(?:hour|hr)', time_shift, re.IGNORECASE)
-                                if hour_match:
-                                    hours = int(hour_match.group(1))
+                                logger.info(f"EventQueue: Time shift request: {time_shift} for event")
+                                logger.info(f"EventQueue: BEFORE UPDATE: Event start={current_start}, end={current_end}")
                                 
-                                # Extract minutes  
-                                minute_match = re.search(r'(\d+)\s*(?:minute|min)', time_shift, re.IGNORECASE)
-                                if minute_match:
-                                    minutes = int(minute_match.group(1))
-                                
-                                # Apply shift
-                                shift_delta = timedelta(hours=hours, minutes=minutes)
-                                new_start = start_dt + shift_delta
-                                
-                                update_data['start_time'] = new_start.isoformat()
-                                
-                                # Also shift end time if available
-                                if current_end and 'T' in str(current_end):
-                                    end_dt = datetime.fromisoformat(current_end.replace('Z', '+00:00'))
-                                    new_end = end_dt + shift_delta
-                                    update_data['end_time'] = new_end.isoformat()
+                                # Extract hours and minutes using same pattern as MultiEventOperationHandler
+                                shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
+                                if shift_match:
+                                    amount = int(shift_match.group(1))
+                                    unit = shift_match.group(2)
+                                    
+                                    if unit in ['hour', 'hr']:
+                                        # Set end time to be exactly X hours after start
+                                        new_end_dt = start_dt + timedelta(hours=amount)
+                                    elif unit in ['minute', 'min']:
+                                        # Set end time to be exactly X minutes after start  
+                                        new_end_dt = start_dt + timedelta(minutes=amount)
+                                    
+                                    # CRITICAL: Keep start time unchanged, only modify end time
+                                    update_data['start_time'] = start_dt.isoformat()
+                                    update_data['end_time'] = new_end_dt.isoformat()
+                                    
+                                    logger.info(f"EventQueue: TIME SHIFT: {time_shift} parsed as {amount} {unit}")
+                                    logger.info(f"EventQueue: AFTER CALCULATION: start={update_data['start_time']}, end={update_data['end_time']}")
+                                    logger.info(f"EventQueue: EXPECTED RESULT: Start time unchanged, end time = start + {amount} {unit}")
+                                else:
+                                    logger.warning(f"EventQueue: Could not parse time shift: {time_shift}")
+                                    
+                            else:
+                                logger.warning(f"EventQueue: Invalid datetime format for time shift: start={current_start}, end={current_end}")
                                     
                         except Exception as e:
                             logger.error(f"Error processing time shift: {e}")

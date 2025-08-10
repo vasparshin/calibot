@@ -4,7 +4,21 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-## [0.1.37] - 2025-08-10
+## [0.1.39] - 2025-01-04
+
+### Fixed
+- **Critical: EventQueueHandler Time Shift Bug**: Fixed incorrect time shift logic that was moving both start AND end times instead of keeping start time unchanged and extending end time
+- **Critical: Message Persistence in EventQueueHandler**: Fixed missing keyboard in `get_next_event_confirmation` responses causing buttons to disappear after selection
+- **Enhanced: Callback Data Handling**: Updated `process_queue_response` to properly handle inline keyboard callback data patterns (confirm_action, cancel_action)
+- **Enhanced: User Experience**: Replaced text-based confirmations in EventQueueHandler with inline buttons matching MultiEventOperationHandler
+
+### Technical Details
+- **event_queue_handler.py**: Fixed time shift calculation to match MultiEventOperationHandler (keep start unchanged, set end = start + duration)
+- **event_queue_handler.py**: Added keyboard parameter to `get_next_event_confirmation` responses
+- **event_queue_handler.py**: Enhanced `process_queue_response` to handle callback data patterns and maintain keyboard persistence
+- **Added comprehensive logging**: EventQueueHandler now includes detailed time shift calculation logging to match MultiEventOperationHandler
+
+## [0.1.38] - 2025-01-04
 
 ### Fixed
 - **Critical: Callback Processing**: Fixed `handle_confirmation_callback` to process pending multi-event operations directly instead of triggering new intent extraction
