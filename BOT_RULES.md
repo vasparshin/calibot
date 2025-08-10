@@ -2,6 +2,21 @@
 
 This document defines the consistent formatting and behavior rules for CaliBOT responses to ensure a professional and consistent user experience.
 
+## 🚨 CRITICAL BUTTON BEHAVIOR RULES
+
+### Temporary Button Policy (ABSOLUTE RULE)
+**ALL INLINE KEYBOARDS AND BUTTONS MUST BE TEMPORARY AND REMOVED IMMEDIATELY AFTER USER INTERACTION**
+
+1. **Button Removal**: EVERY button click MUST remove the keyboard from the original message
+2. **Status Updates**: After button removal, ALWAYS add status text to indicate processing ("Processing...", "Cancelled", etc.)
+3. **No Persistent Buttons**: Buttons should NEVER remain visible after user makes a choice
+4. **Immediate Feedback**: User must see immediate visual feedback that their choice was registered
+
+**Implementation Requirements:**
+- Use `edit_message_text()` with `reply_markup={}` to remove keyboards
+- Add status text like "✅ Processing..." or "❌ Cancelled" 
+- Apply this rule to ALL confirmation scenarios: create, delete, update, multi-event operations
+
 ## Message Formatting Standards
 
 ### Event Display Format (MANDATORY)

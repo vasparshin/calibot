@@ -4,6 +4,23 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.43] - 2025-01-04
+
+### Fixed - Critical Batch Creation Issues
+- **CRITICAL: Batch Event Creation Failure**: Fixed the root cause where batch events were missing required fields (event_name, date, intent) preventing calendar service from creating events
+- **Enhanced Event Processing**: Added event enhancement logic to inherit missing fields from parent event_data before processing
+- **Robust Error Handling**: Improved error reporting for batch creation scenarios with detailed failure messages
+
+### Enhanced - Button Behavior Rules
+- **Updated BOT_RULES.md**: Added absolute rule requiring ALL buttons to be temporary and removed immediately after interaction
+- **Critical UI Rule**: Established that buttons must disappear with status updates ("Processing...", "Cancelled") after every click
+- **Developer Guidance**: Clear implementation requirements for button removal using edit_message_text() with reply_markup={}
+
+### Technical Improvements
+- **routes.py**: Fixed batch creation logic to enhance events with missing fields from parent event_data
+- **routes.py**: Added intent="create" field to all batch events before sending to calendar service
+- **BOT_RULES.md**: Added comprehensive button behavior section with implementation requirements
+
 ## [0.1.42] - 2025-01-04
 
 ### Fixed - Multiple Event Creation

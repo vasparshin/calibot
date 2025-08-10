@@ -446,12 +446,22 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             logger.info(f"Processing batch creation with {len(event_data['events'])} events")
             events_to_create = event_data["events"]
             
-            # Check for duplicate events
-            duplicates = await check_for_duplicate_events(chat_id, events_to_create, calendar_service)
+            # Enhance events with missing fields from parent event_data
+            enhanced_events = []
+            for single_event in events_to_create:
+                enhanced_event = single_event.copy()
+                # Add missing fields from parent event_data
+                for key in ["event_name", "date", "calendar_name", "description"]:
+                    if key in event_data and key not in enhanced_event:
+                        enhanced_event[key] = event_data[key]
+                enhanced_events.append(enhanced_event)
+            
+            # Check for duplicate events with enhanced data
+            duplicates = await check_for_duplicate_events(chat_id, enhanced_events, calendar_service)
             if duplicates:
                 # For each duplicate, ask user what to do but continue with non-duplicates
                 duplicate_indices = [dup["index"] for dup in duplicates]
-                non_duplicate_events = [event for i, event in enumerate(events_to_create) if i not in duplicate_indices]
+                non_duplicate_events = [event for i, event in enumerate(enhanced_events) if i not in duplicate_indices]
                 
                 # If there are non-duplicate events, create them first
                 if non_duplicate_events:
@@ -459,17 +469,18 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     success_events = []
                     
                     for single_event in non_duplicate_events:
-                        if isinstance(single_event, dict) and single_event.get("intent") == "create":
-                            try:
-                                logger.info(f"Creating non-duplicate event: {single_event}")
-                                calendar_result = await calendar_service.create_event(single_event)
-                                if calendar_result and calendar_result.get("success"):
-                                    created_count += 1
-                                    formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
-                                    success_events.append(formatted_event)
-                            except Exception as e:
-                                logger.error(f"Error creating non-duplicate event: {e}")
-                                continue
+                        try:
+                            # Add intent field for calendar service
+                            single_event["intent"] = "create"
+                            logger.info(f"Creating non-duplicate event: {single_event}")
+                            calendar_result = await calendar_service.create_event(single_event)
+                            if calendar_result and calendar_result.get("success"):
+                                created_count += 1
+                                formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
+                                success_events.append(formatted_event)
+                        except Exception as e:
+                            logger.error(f"Error creating non-duplicate event: {e}")
+                            continue
                     
                     # Send success message for non-duplicates
                     if success_events:
@@ -496,24 +507,25 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             success_events = []
             failed_events = []
             
-            for i, single_event in enumerate(events_to_create):
-                if isinstance(single_event, dict) and single_event.get("intent") == "create":
-                    try:
-                        logger.info(f"Creating event {i+1}/{len(events_to_create)}: {single_event}")
-                        calendar_result = await calendar_service.create_event(single_event)
-                        if calendar_result and calendar_result.get("success"):
-                            created_count += 1
-                            formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
-                            success_events.append(formatted_event)
-                        else:
-                            failed_count += 1
-                            error_msg = calendar_result.get('message', 'Unknown error') if calendar_result else 'Unknown error'
-                            failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - {error_msg}")
-                    except Exception as e:
-                        logger.error(f"Error creating batch event: {e}")
+            for i, single_event in enumerate(enhanced_events):
+                # Add intent field for calendar service
+                single_event["intent"] = "create"
+                try:
+                    logger.info(f"Creating event {i+1}/{len(enhanced_events)}: {single_event}")
+                    calendar_result = await calendar_service.create_event(single_event)
+                    if calendar_result and calendar_result.get("success"):
+                        created_count += 1
+                        formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
+                        success_events.append(formatted_event)
+                    else:
                         failed_count += 1
-                        failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - Error: {str(e)}")
-                        continue
+                        error_msg = calendar_result.get('message', 'Unknown error') if calendar_result else 'Unknown error'
+                        failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - {error_msg}")
+                except Exception as e:
+                    logger.error(f"Error creating batch event: {e}")
+                    failed_count += 1
+                    failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - Error: {str(e)}")
+                    continue
             
             # Build comprehensive response message
             if created_count > 0 and failed_count == 0:
@@ -528,7 +540,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 message += f"\n\nFailed:\n" + "\n".join(failed_events)
             else:
                 # All failed
-                message = f"Failed to create all {len(events_to_create)} events:\n\n" + "\n".join(failed_events)
+                message = f"Failed to create all {len(enhanced_events)} events:\n\n" + "\n".join(failed_events)
             
             await send_telegram_message(chat_id, message)
             conversation_state.add_message(chat_id, "assistant", message)
