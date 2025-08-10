@@ -163,6 +163,28 @@ class EventQueueHandler:
         
         # Use centralized formatter if available
         if MessageFormatter:
+            # Determine what changes will be made for the header
+            first_event = events[0] if events else {}
+            proposed_changes = []
+            if first_event.get('time_shift'):
+                time_shift = first_event.get('time_shift')
+                # Check for negative shifts (earlier) or keywords
+                is_earlier = time_shift.startswith('-') or any(keyword in time_shift.lower() for keyword in ['earlier', 'back'])
+                is_extend = any(keyword in time_shift.lower() for keyword in ['extend', 'make it', 'long', 'after start'])
+                
+                if is_earlier:
+                    # Remove the minus sign for display
+                    display_shift = time_shift.replace('-', '').strip()
+                    proposed_changes.append(f"move {display_shift} earlier")
+                elif is_extend:
+                    proposed_changes.append(f"extend duration to {time_shift}")
+                else:
+                    proposed_changes.append(f"shift by {time_shift}")
+            if first_event.get('new_event_name'):
+                proposed_changes.append(f"rename to '{first_event.get('new_event_name')}'")
+            if first_event.get('new_date'):
+                proposed_changes.append(f"move to {first_event.get('new_date')}")
+            
             # Convert events to proper format for the formatter
             formatted_events = []
             for event in events:
@@ -176,19 +198,60 @@ class EventQueueHandler:
                 }
                 formatted_events.append(formatted_event)
             
-            message = MessageFormatter.format_confirmation_message(action_text, formatted_events, total_events)
+            # Get base message from formatter
+            base_message = MessageFormatter.format_confirmation_message(action_text, formatted_events, total_events)
+            
+            # Add proposed changes to the message
+            if proposed_changes:
+                change_description = ", ".join(proposed_changes)
+                # Insert the proposed changes into the first line
+                lines = base_message.split('\n')
+                if lines:
+                    first_line = lines[0]
+                    # Replace "Found X events to update:" with "Found X events to update (proposed changes):"
+                    if f"Found {total_events} events to {action_text}:" in first_line:
+                        lines[0] = f"Found {total_events} events to {action_text} ({change_description}):"
+                        base_message = '\n'.join(lines)
+            
             keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action_text) if InlineKeyboardHelper else None
             
             return {
                 "success": True,
-                "message": message,
+                "message": base_message,
                 "requires_user_action": True,
                 "batch_options": True,
                 "keyboard": keyboard
             }
         
-        # Legacy fallback implementation (FIXED to show ALL events)
-        message = f"Found {total_events} events to {action_text}:\n\n"
+        # Legacy fallback implementation (FIXED to show ALL events with proposed changes)
+        # Determine what changes will be made
+        first_event = events[0] if events else {}
+        proposed_changes = []
+        if first_event.get('time_shift'):
+            time_shift = first_event.get('time_shift')
+            # Check for negative shifts (earlier) or keywords
+            is_earlier = time_shift.startswith('-') or any(keyword in time_shift.lower() for keyword in ['earlier', 'back'])
+            is_extend = any(keyword in time_shift.lower() for keyword in ['extend', 'make it', 'long', 'after start'])
+            
+            if is_earlier:
+                # Remove the minus sign for display
+                display_shift = time_shift.replace('-', '').strip()
+                proposed_changes.append(f"move {display_shift} earlier")
+            elif is_extend:
+                proposed_changes.append(f"extend duration to {time_shift}")
+            else:
+                proposed_changes.append(f"shift by {time_shift}")
+        if first_event.get('new_event_name'):
+            proposed_changes.append(f"rename to '{first_event.get('new_event_name')}'")
+        if first_event.get('new_date'):
+            proposed_changes.append(f"move to {first_event.get('new_date')}")
+        
+        change_description = ", ".join(proposed_changes) if proposed_changes else action_text
+        
+        message = f"Found {total_events} events to {action_text}"
+        if proposed_changes:
+            message += f" ({change_description})"
+        message += ":\n\n"
         
         # CRITICAL CHANGE: Show ALL events, never truncate
         for i, event in enumerate(events, 1):
@@ -667,7 +730,7 @@ Calendar: {calendar}"""
                     # Build update data - handle time shifts if specified
                     update_data = {}
                     
-                    # Handle time shift (e.g., "move end time 1 hour after start")
+                    # Handle time shift (supports both "move earlier/later" and "extend duration")
                     if event.get('time_shift'):
                         try:
                             from datetime import datetime, timedelta
@@ -679,33 +742,63 @@ Calendar: {calendar}"""
                             
                             if current_start and 'T' in str(current_start):
                                 start_dt = datetime.fromisoformat(current_start.replace('Z', '+00:00'))
+                                end_dt = datetime.fromisoformat(current_end.replace('Z', '+00:00')) if current_end and 'T' in str(current_end) else None
                                 
-                                # Parse time shift (e.g., "1 hour", "30 minutes")
+                                # Parse time shift (e.g., "1 hour", "30 minutes", "-3 hours")
                                 time_shift = event.get('time_shift', '')
                                 
                                 logger.info(f"EventQueue: Time shift request: {time_shift} for event")
                                 logger.info(f"EventQueue: BEFORE UPDATE: Event start={current_start}, end={current_end}")
                                 
-                                # Extract hours and minutes using same pattern as MultiEventOperationHandler
+                                # Determine if this is a duration change or a time shift
+                                is_duration_change = any(keyword in time_shift.lower() for keyword in [
+                                    'extend', 'make it', 'long', 'duration', 'end time to', 'after start'
+                                ])
+                                is_time_shift = any(keyword in time_shift.lower() for keyword in [
+                                    'move', 'shift', 'earlier', 'later', 'forward', 'back'
+                                ])
+                                
+                                # Extract amount and direction
+                                negative_shift = '-' in time_shift or any(word in time_shift.lower() for word in ['earlier', 'back'])
                                 shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
+                                
                                 if shift_match:
                                     amount = int(shift_match.group(1))
                                     unit = shift_match.group(2)
                                     
-                                    if unit in ['hour', 'hr']:
-                                        # Set end time to be exactly X hours after start
-                                        new_end_dt = start_dt + timedelta(hours=amount)
-                                    elif unit in ['minute', 'min']:
-                                        # Set end time to be exactly X minutes after start  
-                                        new_end_dt = start_dt + timedelta(minutes=amount)
+                                    if negative_shift:
+                                        amount = -amount
                                     
-                                    # CRITICAL: Keep start time unchanged, only modify end time
-                                    update_data['start_time'] = start_dt.isoformat()
-                                    update_data['end_time'] = new_end_dt.isoformat()
+                                    if is_duration_change:
+                                        # Duration change: keep start time, modify end time to be X hours/minutes after start
+                                        if unit in ['hour', 'hr']:
+                                            new_end_dt = start_dt + timedelta(hours=abs(amount))  # Duration is always positive
+                                        elif unit in ['minute', 'min']:
+                                            new_end_dt = start_dt + timedelta(minutes=abs(amount))
+                                        
+                                        update_data['start_time'] = start_dt.isoformat()
+                                        update_data['end_time'] = new_end_dt.isoformat()
+                                        
+                                        logger.info(f"EventQueue: DURATION CHANGE: {time_shift} -> duration = {abs(amount)} {unit}")
+                                        logger.info(f"EventQueue: RESULT: start unchanged, end = start + {abs(amount)} {unit}")
+                                        
+                                    else:
+                                        # Time shift: move both start and end times by the same amount
+                                        if unit in ['hour', 'hr']:
+                                            time_delta = timedelta(hours=amount)
+                                        elif unit in ['minute', 'min']:
+                                            time_delta = timedelta(minutes=amount)
+                                        
+                                        new_start_dt = start_dt + time_delta
+                                        new_end_dt = end_dt + time_delta if end_dt else new_start_dt + timedelta(hours=1)  # Default 1hr if no end
+                                        
+                                        update_data['start_time'] = new_start_dt.isoformat()
+                                        update_data['end_time'] = new_end_dt.isoformat()
+                                        
+                                        logger.info(f"EventQueue: TIME SHIFT: {time_shift} -> shift = {amount} {unit}")
+                                        logger.info(f"EventQueue: RESULT: both start and end moved by {amount} {unit}")
                                     
-                                    logger.info(f"EventQueue: TIME SHIFT: {time_shift} parsed as {amount} {unit}")
                                     logger.info(f"EventQueue: AFTER CALCULATION: start={update_data['start_time']}, end={update_data['end_time']}")
-                                    logger.info(f"EventQueue: EXPECTED RESULT: Start time unchanged, end time = start + {amount} {unit}")
                                 else:
                                     logger.warning(f"EventQueue: Could not parse time shift: {time_shift}")
                                     

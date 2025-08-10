@@ -4,6 +4,23 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.40] - 2025-01-04
+
+### Fixed
+- **Critical: Time Shift Logic**: Fixed distinction between "move earlier/later" (shifts both start/end times) vs "extend duration" (only changes end time)
+- **Critical: Button Persistence**: Buttons now properly disappear after selection with empty reply_markup to remove keyboard
+- **Critical: Callback Handling**: Enhanced routes to handle single event confirmation callback patterns (confirm_action, cancel_action)
+- **Enhanced: Success Messages**: Updated messages now show specific changes made (e.g., "shifted by -3 hours", "renamed to X")
+- **Enhanced: Proposed Changes**: "Found X events to update" messages now show what changes will be made (e.g., "move 3 hours earlier")
+- **Enhanced: Intent Extraction**: Updated prompt examples to distinguish between move operations and duration changes
+
+### Technical Details
+- **event_queue_handler.py**: Enhanced time shift logic to detect move vs extend operations using keywords and negative values
+- **routes.py**: Fixed `handle_confirmation_callback` to remove keyboards using `reply_markup={}` parameter
+- **routes.py**: Added specific handling for single event confirmation callbacks (`confirm_` patterns)
+- **intent_extraction_prompt.py**: Updated examples to clarify "move X earlier" vs "extend X duration" patterns
+- **Comprehensive testing**: All fixes validated with test suite covering time shift logic, button persistence, and message improvements
+
 ## [0.1.39] - 2025-01-04
 
 ### Fixed

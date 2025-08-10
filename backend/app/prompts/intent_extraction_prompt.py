@@ -33,11 +33,12 @@ TARGET FIELD EXAMPLES:
 - "change all lessons" → "target": "all"
 
 TIME SHIFT EXAMPLES:
-- "move forward 1 hour" → "time_shift": "1 hour"
-- "shift back 30 minutes" → "time_shift": "-30 minutes"
-- "extend by 30 minutes" → "time_shift": "30 minutes"
-- "move the end time to one hour after the start times" → "time_shift": "1 hour"
-- "make it 2 hours long" → "time_shift": "2 hours"
+- "move forward 1 hour" → "time_shift": "1 hour"  (moves both start and end)
+- "shift back 30 minutes" → "time_shift": "-30 minutes"  (moves both start and end)
+- "move 3 hours earlier" → "time_shift": "-3 hours"  (moves both start and end)
+- "extend by 30 minutes" → "time_shift": "extend 30 minutes"  (only changes end time)
+- "move the end time to one hour after the start times" → "time_shift": "extend 1 hour"  (only changes end time)
+- "make it 2 hours long" → "time_shift": "extend 2 hours"  (only changes end time)
 
 DATE EXAMPLES:
 - "move to tomorrow" → "new_date": "2025-08-11"

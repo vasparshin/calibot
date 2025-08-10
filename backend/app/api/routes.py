@@ -181,6 +181,9 @@ async def handle_callback_query(callback_query):
         return await handle_confirmation_callback(chat_id, message_id, "all")
     elif callback_data == "confirm_one" or callback_data.startswith("confirm_one_"):
         return await handle_confirmation_callback(chat_id, message_id, "one")
+    elif callback_data.startswith("confirm_") and not callback_data.startswith("confirm_all"):
+        # Handle single event confirmation (e.g., "confirm_update this event")
+        return await handle_confirmation_callback(chat_id, message_id, "yes")
     elif callback_data == "confirm_cancel" or callback_data.startswith("cancel_"):
         return await handle_confirmation_callback(chat_id, message_id, "cancel")
     elif callback_data.startswith("select_event_"):
@@ -208,34 +211,38 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
             original_confirmation_msg = msg.get("content", "")
             break
     
-    # Edit the message based on confirmation type
+    # Edit the message based on confirmation type and remove keyboard
     if confirmation == "yes":
-        # Keep original message but add confirmation status
+        # Keep original message but add confirmation status and remove keyboard
         if original_confirmation_msg:
             await edit_message_text(
                 chat_id, 
                 message_id, 
-                f"{original_confirmation_msg}\n\n✅ **Confirmed** - Processing your request..."
+                f"{original_confirmation_msg}\n\n✅ **Confirmed** - Processing your request...",
+                reply_markup={}
             )
         else:
             await edit_message_text(
                 chat_id, 
                 message_id, 
-                "✅ **Confirmed** - Processing your request..."
+                "✅ **Confirmed** - Processing your request...",
+                reply_markup={}
             )
     elif confirmation == "no":
-        # Keep original message but add cancellation status  
+        # Keep original message but add cancellation status and remove keyboard
         if original_confirmation_msg:
             await edit_message_text(
                 chat_id, 
                 message_id, 
-                f"{original_confirmation_msg}\n\n❌ **Cancelled** - Request has been cancelled"
+                f"{original_confirmation_msg}\n\n❌ **Cancelled** - Request has been cancelled",
+                reply_markup={}
             )
         else:
             await edit_message_text(
                 chat_id, 
                 message_id, 
-                "❌ **Cancelled** - Request has been cancelled"
+                "❌ **Cancelled** - Request has been cancelled",
+                reply_markup={}
             )
     elif confirmation in ["all", "one", "cancel"]:
         # For multi-event operations: Don't edit the original message, just process
