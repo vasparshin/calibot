@@ -846,12 +846,26 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 
                 else:
                     # Single event creation (existing logic)
-                    calendar_response = await calendar_service.create_event(event_data)
-                    if calendar_response["success"]:
-                        calendar_info = f" in your '{calendar_response.get('calendar_used', 'primary')}' calendar" if calendar_response.get('calendar_used') else ""
-                        await send_telegram_message(
-                            chat_id, f"Event created successfully{calendar_info}! Here's the link to your event: {calendar_response['event_link']}"
-                        )
+                    try:
+                        logger.info(f"Creating single event: {event_data}")
+                        calendar_response = await calendar_service.create_event(event_data)
+                        
+                        if calendar_response.get("success"):
+                            calendar_info = f" in your '{calendar_response.get('calendar_used', 'primary')}' calendar" if calendar_response.get('calendar_used') else ""
+                            success_message = f"Event created successfully{calendar_info}! Here's the link to your event: {calendar_response['event_link']}"
+                            await send_telegram_message(chat_id, success_message)
+                            conversation_state.add_message(chat_id, "assistant", success_message)
+                            logger.info(f"Successfully created event: {calendar_response}")
+                        else:
+                            error_message = f"Failed to create event: {calendar_response.get('message', 'Unknown error')}"
+                            await send_telegram_message(chat_id, error_message)
+                            conversation_state.add_message(chat_id, "assistant", error_message)
+                            logger.error(f"Failed to create event: {calendar_response}")
+                    except Exception as e:
+                        error_message = f"Error creating event: {str(e)}"
+                        await send_telegram_message(chat_id, error_message)
+                        conversation_state.add_message(chat_id, "assistant", error_message)
+                        logger.error(f"Exception during event creation: {e}")
                 
                 return {"status": "ok"}
 

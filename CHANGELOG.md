@@ -4,6 +4,24 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.33] - 2025-08-10
+
+### Fixed
+- **CRITICAL: Single Event Creation Response**: Fixed missing user feedback for single event creation - users now receive confirmation messages and error handling
+- **Event Creation Logging**: Added comprehensive logging for event creation success/failure tracking
+- **Conversation State**: Fixed missing conversation state updates for single event operations
+- **Error Handling**: Added proper exception handling for calendar service failures during event creation
+
+### Enhanced
+- **User Experience**: Single event creation now provides immediate feedback with calendar info and event links
+- **Debugging**: Improved logging for easier troubleshooting of event creation issues
+- **Reliability**: Added try-catch blocks to prevent silent failures during event creation
+
+### Technical Details
+- **routes.py**: Fixed single event creation response handling with proper success/error messages and conversation state updates
+- **Logging**: Added detailed logging for event creation flow to aid in debugging
+- **Error Recovery**: Enhanced error handling to ensure users always receive feedback
+
 ## [0.1.32] - 2025-08-10
 
 ### Fixed
