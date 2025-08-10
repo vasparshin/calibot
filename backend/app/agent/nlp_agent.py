@@ -53,8 +53,7 @@ class NLPAgent:
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message}
                 ],
-                max_tokens=500,
-                response_format={"type": "json_object"}
+                max_tokens=500
             )
 
             result = response['choices'][0]['message']['content']
@@ -72,16 +71,26 @@ class NLPAgent:
             
             logger.info(f"Cleaned response: '{cleaned_result}'")
             
-            # If response is just "intent" or similar, create a fallback
-            if (len(cleaned_result) < 20 or 
+            # Enhanced detection for invalid LLM responses
+            is_invalid_response = (
+                len(cleaned_result) < 20 or 
                 not cleaned_result.startswith('{') or 
                 cleaned_result.strip() in ['"intent"', 'intent', '"query"', 'query'] or
-                cleaned_result == '"intent"' or cleaned_result == '"query"'):
+                cleaned_result == '"intent"' or 
+                cleaned_result == '"query"' or
+                cleaned_result.strip('"') in ['intent', 'query'] or
+                cleaned_result.strip().strip('"') in ['intent', 'query']
+            )
+            
+            if is_invalid_response:
+                logger.error(f"DETECTED INVALID LLM RESPONSE - triggering fallback")
+                logger.error(f"Raw: '{result}', Cleaned: '{cleaned_result}', Length: {len(cleaned_result)}")
+                logger.error(f"Starts with curly: {cleaned_result.startswith('{')}")
+                logger.error(f"Stripped: '{cleaned_result.strip()}'")
                 
-                logger.error(f"Invalid LLM response, creating fallback. Raw: '{result}', Cleaned: '{cleaned_result}'")
                 # Try to infer intent from user message
                 user_lower = user_message.lower()
-                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
+                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan', 'calendar']):
                     return {
                         "intent": "query",
                         "date": datetime.now().strftime("%Y-%m-%d"),

@@ -4,11 +4,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.27] - 2025-08-10
 
-## [0.1.26] - 2025-08-10
+### Fixed
+- **CRITICAL: LLM Invalid Response Detection**: Enhanced fallback detection for when LLM returns `"intent"` instead of valid JSON
+- **Enhanced Error Logging**: Added detailed logging to identify exactly why invalid responses aren't caught
+- **Prompt Reinforcement**: Added explicit warnings in prompt about forbidden single-word responses
+- **Response Format**: Removed `response_format={"type": "json_object"}` parameter that was causing invalid LLM responses
+- **Robust Fallback Logic**: Multiple detection methods for invalid responses like `"intent"`, `'"intent"'`, `intent`
 
-## [Unreleased]
-
+### Technical Details
+- **nlp_agent.py**: Enhanced invalid response detection with multiple string checks and detailed logging
+- **nlp_agent.py**: Removed `response_format` parameter to allow LLM more flexibility in response formatting
+- **intent_extraction_prompt.py**: Added explicit forbidden response warnings with emojis to catch LLM attention
+- **Fallback Triggers**: Added calendar-specific keywords to query detection for better user experience
 
 ## [0.1.26] - 2025-08-10
 

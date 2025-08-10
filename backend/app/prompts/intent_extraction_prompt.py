@@ -74,4 +74,11 @@ REMEMBER:
 IMPORTANT: Your response must be valid JSON. Do not return just a string like "intent" or "query". 
 Always return a complete JSON object like: {"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
 
+🚨 CRITICAL: NEVER return just the word "intent" or "query" by itself. ALWAYS return a full JSON object.
+🚨 FORBIDDEN RESPONSES: "intent", "query", '"intent"', '"query"' - these will break the system
+🚨 REQUIRED FORMAT: {"intent": "actual_intent", "other_fields": "values"}
+
+For simple queries about today's schedule, ALWAYS use:
+{"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
+
 Return ONLY the JSON object(s) - one line per event for multiple events:"""
