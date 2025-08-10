@@ -4,6 +4,26 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.21] - 2025-08-10
+
+### Fixed
+- **Critical Import Error Resolution**: Fixed deployment-breaking ImportError in routes.py
+- Updated ai_service import to use direct function imports (get_ai_response, get_small_talk_response)
+- Added NLPAgent import for check_relevancy and extract_intent functionality
+- Added format_event_title import from message_formatter for proper event formatting
+- All import dependencies now correctly resolved for production deployment
+
+### Technical Details
+- **routes.py**: Changed from `from app.services.ai_service import ai_service` to direct function imports
+- **routes.py**: Added `from app.agent.nlp_agent import NLPAgent` and created ai_agent instance
+- **routes.py**: Updated all ai_service.method_name() calls to use appropriate service instances
+- **routes.py**: Added missing format_event_title import from message_formatter
+
+### Validated
+- Comprehensive validation tests pass (5/5)
+- All import errors resolved
+- System ready for production deployment
+
 ## [0.1.20] - 2025-01-09
 
 ### Fixed

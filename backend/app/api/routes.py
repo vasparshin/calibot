@@ -5,7 +5,7 @@ from app.services.telegram import (
     answer_callback_query,
     edit_message_text
 )
-from app.services.ai_service import ai_service
+from app.services.ai_service import get_ai_response, get_small_talk_response
 from app.services.google_calendar import GoogleCalendarService
 from app.services.multi_event_operations import MultiEventOperationHandler
 from app.services.event_queue_handler import EventQueueHandler
@@ -27,6 +27,8 @@ from app.utils.ui_helpers import (
     format_multi_event_confirmation_with_keyboard,
     format_event_selection_with_keyboard
 )
+from app.agent.nlp_agent import NLPAgent
+from app.utils.message_formatter import format_event_title
 
 # Import new centralized formatters for consistency
 try:
@@ -118,6 +120,7 @@ calendar_service = GoogleCalendarService()
 calendar_agent = CalendarAgent()
 multi_event_handler = MultiEventOperationHandler(calendar_service, telegram_service, conversation_state)
 event_queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
+ai_agent = NLPAgent()
 
 access_token = None
 
@@ -328,15 +331,15 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         # logger.info(f"---------------------Conversation history: {history}")
         
         # Check relevancy before extracting intent
-        relevancy_result = await ai_service.check_relevancy(user_message, history)
+        relevancy_result = await ai_agent.check_relevancy(user_message, history)
         # logger.info(f"------------------>RELEVANCY:{relevancy_result}")
         if not relevancy_result.get("relevant"):
-            ai_response = await ai_service.get_small_talk_response(user_message, history)
+            ai_response = await get_small_talk_response(user_message, history)
             await send_telegram_message(chat_id, ai_response)
             conversation_state.add_message(chat_id, "assistant", ai_response)
             return {"status": "ok"}  
         try:
-            event_data = await ai_service.extract_intent(user_message, history)
+            event_data = await ai_agent.extract_intent(user_message, history)
             logger.info(f"Extracted intent: {event_data}")
             if not isinstance(event_data, dict):
                 logger.error(f"CRITICAL: Invalid event_data type: {type(event_data)} - {event_data}")
@@ -947,7 +950,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
 
         # In case confirmation is needed (handling as needed)
         logger.info(f"Confirmation needed for intent: {event_data}")
-        ai_response = await ai_service.get_ai_response(event_data, history)
+        ai_response = await get_ai_response(event_data, history)
         logger.info(f"Bot response: '{ai_response}'")
         # Add AI response to conversation history
         conversation_state.add_message(chat_id, "assistant", ai_response)
