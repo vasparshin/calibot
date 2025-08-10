@@ -4,6 +4,21 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.28] - 2025-08-10
+
+### Fixed
+- **CRITICAL: Direct '"intent"' Response Detection**: Added immediate check for exact bad LLM responses before JSON parsing
+- **Enhanced Exception Handling**: Improved error catching in JSON parsing to prevent exceptions from reaching outer handler
+- **Yes/Confirm Intent Handling**: Added specific handling for "yes" responses to return confirm intent instead of unknown
+- **Production Bug Resolution**: Fixed root cause where `'"intent"'` responses were causing exceptions instead of fallback detection
+- **Better Logging**: Added detailed logging throughout JSON parsing pipeline to track exact failure points
+
+### Technical Details
+- **nlp_agent.py**: Added immediate string comparison check for `'"intent"'` and `'"query"'` responses
+- **nlp_agent.py**: Enhanced exception handling with specific JSON decode error catching
+- **nlp_agent.py**: Added confirmation intent detection for "yes" responses in fallback logic
+- **nlp_agent.py**: Improved logging to track parsed result types and values
+
 ## [0.1.27] - 2025-08-10
 
 ### Fixed

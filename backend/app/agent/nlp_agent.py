@@ -71,6 +71,28 @@ class NLPAgent:
             
             logger.info(f"Cleaned response: '{cleaned_result}'")
             
+            # IMMEDIATE check for known bad responses before any processing
+            if cleaned_result.strip() == '"intent"' or cleaned_result.strip() == '"query"':
+                logger.error(f"DETECTED EXACT BAD RESPONSE: '{cleaned_result}' - immediate fallback")
+                user_lower = user_message.lower()
+                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan', 'calendar']):
+                    return {
+                        "intent": "query",
+                        "date": datetime.now().strftime("%Y-%m-%d"),
+                        "confirmation_needed": False
+                    }
+                elif 'yes' in user_lower:
+                    return {
+                        "intent": "confirm",
+                        "confirmation_needed": False
+                    }
+                else:
+                    return {
+                        "intent": "query",
+                        "date": datetime.now().strftime("%Y-%m-%d"),
+                        "confirmation_needed": False
+                    }
+            
             # Enhanced detection for invalid LLM responses
             is_invalid_response = (
                 len(cleaned_result) < 20 or 
@@ -113,14 +135,21 @@ class NLPAgent:
             # Try to parse as single JSON first
             try:
                 parsed_result = json.loads(cleaned_result)
+                logger.info(f"JSON parsing successful, result type: {type(parsed_result)}")
+                
                 # Ensure the parsed result is actually a dict/object, not just a string
                 if not isinstance(parsed_result, dict):
                     logger.error(f"LLM returned non-object JSON: {type(parsed_result)} - {parsed_result}")
-                    # Fall through to fallback logic
+                    # Trigger fallback by setting parsed_result to None
                     parsed_result = None
                 else:
+                    logger.info(f"Valid JSON dict received: {parsed_result}")
                     return parsed_result
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as json_error:
+                logger.error(f"JSON parsing failed: {json_error}")
+                parsed_result = None
+            except Exception as unexpected_error:
+                logger.error(f"Unexpected error in JSON parsing: {unexpected_error}")
                 parsed_result = None
                 
             # If single JSON parsing failed or returned non-dict, try multiple JSON
