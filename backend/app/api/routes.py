@@ -954,6 +954,42 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
 
         # In case confirmation is needed (handling as needed)
         logger.info(f"Confirmation needed for intent: {event_data}")
+        
+        # For specific intents that need confirmation, use buttons instead of AI response
+        intent = event_data.get("intent", "")
+        
+        if intent == "create" and event_data.get("confirmation_needed"):
+            # Missing information for event creation - ask for details with buttons if appropriate
+            missing_fields = []
+            if not event_data.get("start_time"):
+                missing_fields.append("start time")
+            if not event_data.get("end_time"):
+                missing_fields.append("end time")
+            
+            if missing_fields:
+                response = f"I need more information to create your event:\n\n"
+                response += f"• Event: {event_data.get('event_name', 'New Event')}\n"
+                response += f"• Date: {event_data.get('date', 'today')}\n"
+                response += f"• Missing: {', '.join(missing_fields)}\n\n"
+                response += f"Please provide the missing information."
+                
+                await send_telegram_message(chat_id, response)
+                conversation_state.add_message(chat_id, "assistant", response)
+                return {"status": "ok"}
+        
+        elif intent in ["delete", "update"] and event_data.get("confirmation_needed"):
+            # Use confirmation buttons for destructive operations
+            action_text = "delete" if intent == "delete" else "update"
+            target = event_data.get("event_name", "the event")
+            
+            confirmation_msg = f"Are you sure you want to {action_text} '{target}'?"
+            keyboard = create_confirmation_keyboard("single_event")
+            
+            await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
+            conversation_state.add_message(chat_id, "assistant", confirmation_msg)
+            return {"status": "ok"}
+        
+        # Fallback to AI response for other cases
         ai_response = await get_ai_response(event_data, history)
         logger.info(f"Bot response: '{ai_response}'")
         # Add AI response to conversation history

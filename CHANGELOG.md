@@ -4,6 +4,24 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.29] - 2025-08-10
+
+### Fixed
+- **CRITICAL: Query Intent Confirmation Bug**: Fixed unnecessary confirmation requests for simple query intents like "what's the plan for today"
+- **Enhanced LLM Response Error Handling**: Improved detection and handling of malformed LLM responses that return just "intent" or "query" strings
+- **Intelligent Intent Fallback**: Added smart fallback system that analyzes user messages to determine correct intent when LLM parsing fails
+- **Button-Based Confirmations**: Replaced text-based confirmation requests with proper inline keyboard buttons for better UX
+
+### Enhanced
+- **NLP Agent Robustness**: Enhanced JSON parsing with multiple layers of error detection and recovery
+- **Route Logic Improvements**: Added intent-specific confirmation handling that uses appropriate UI elements
+- **Prompt Reinforcement**: Strengthened intent extraction prompt with explicit examples and format requirements
+
+### Technical Details
+- **nlp_agent.py**: Enhanced JSON parsing error handling, added intelligent fallback based on user message analysis
+- **routes.py**: Implemented intent-specific confirmation logic with button-based UI for delete/update operations
+- **intent_extraction_prompt.py**: Added explicit examples for common queries to reduce malformed responses
+
 ## [0.1.28] - 2025-08-10
 
 ### Fixed

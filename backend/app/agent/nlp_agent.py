@@ -140,13 +140,18 @@ class NLPAgent:
                 # Ensure the parsed result is actually a dict/object, not just a string
                 if not isinstance(parsed_result, dict):
                     logger.error(f"LLM returned non-object JSON: {type(parsed_result)} - {parsed_result}")
-                    # Trigger fallback by setting parsed_result to None
+                    # This is likely the "intent" or "query" string response - trigger fallback
+                    logger.error(f"Detected string response instead of JSON object - triggering intelligent fallback")
                     parsed_result = None
                 else:
                     logger.info(f"Valid JSON dict received: {parsed_result}")
                     return parsed_result
             except json.JSONDecodeError as json_error:
                 logger.error(f"JSON parsing failed: {json_error}")
+                logger.error(f"Raw content that failed: '{cleaned_result}'")
+                # Check if this is the problematic "intent" or "query" response
+                if cleaned_result.strip(' "') in ['intent', 'query']:
+                    logger.error(f"Detected malformed LLM response: '{cleaned_result}' - using intelligent fallback")
                 parsed_result = None
             except Exception as unexpected_error:
                 logger.error(f"Unexpected error in JSON parsing: {unexpected_error}")
@@ -204,8 +209,35 @@ class NLPAgent:
                 }
         except Exception as e:
             logger.error(f"Error extracting intent: {e}")
-            return {
-                "intent": "unknown",
-                "error": str(e),
-                "confirmation_needed": True
-            }
+            logger.error(f"User message was: '{user_message}'")
+            
+            # Even on errors, provide intelligent fallback based on user message  
+            user_lower = user_message.lower()
+            if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan', 'calendar']):
+                logger.info("Exception fallback: detected query intent")
+                return {
+                    "intent": "query",
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "confirmation_needed": False
+                }
+            elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
+                logger.info("Exception fallback: detected create intent")
+                return {
+                    "intent": "create",
+                    "event_name": "New Event", 
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "confirmation_needed": True
+                }
+            elif any(word in user_lower for word in ['yes', 'confirm', 'ok', 'sure']):
+                logger.info("Exception fallback: detected confirmation intent")
+                return {
+                    "intent": "confirm",
+                    "confirmation_needed": False
+                }
+            else:
+                logger.info("Exception fallback: defaulting to query intent")
+                return {
+                    "intent": "query",
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "confirmation_needed": False
+                }

@@ -81,4 +81,8 @@ Always return a complete JSON object like: {"intent": "query", "date": "2025-08-
 For simple queries about today's schedule, ALWAYS use:
 {"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
 
+EXAMPLE CORRECT RESPONSES FOR COMMON QUERIES:
+User: "what's the plan for today" → {"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
+User: "yes" → {"intent": "confirm", "confirmation_needed": false}
+
 Return ONLY the JSON object(s) - one line per event for multiple events:"""
