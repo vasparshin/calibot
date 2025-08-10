@@ -4,6 +4,24 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.30] - 2025-08-10
+
+### Fixed
+- **CRITICAL: Intent Extraction Failure**: Fixed LLM returning malformed responses like just "intent" instead of proper JSON objects
+- **Enhanced Fallback Logic**: Streamlined fallback logic to properly handle delete, update, and move operations when LLM fails
+- **Target Field Support**: Added support for "target" field in operations (last, first, all) to handle commands like "delete the last lesson"
+- **Intent Processing**: Fixed bot falling back to query intent for all non-query operations due to malformed LLM responses
+
+### Enhanced
+- **Simplified NLP Agent**: Removed excessive fallback logic in favor of letting LLM do proper processing with minimal backup
+- **Route Handling**: Added proper filtering for target-specific operations (last, first, all events)
+- **Response Consistency**: Ensured all bot responses follow structured, coherent templates
+
+### Technical Details
+- **nlp_agent.py**: Simplified fallback logic, improved malformed response detection
+- **routes.py**: Added target field processing for event filtering
+- **intent_extraction_prompt.py**: Enhanced prompt with clear examples of valid vs invalid responses
+
 ## [0.1.29] - 2025-08-10
 
 ### Fixed

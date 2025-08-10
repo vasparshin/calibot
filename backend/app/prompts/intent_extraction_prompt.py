@@ -78,11 +78,24 @@ Always return a complete JSON object like: {"intent": "query", "date": "2025-08-
 🚨 FORBIDDEN RESPONSES: "intent", "query", '"intent"', '"query"' - these will break the system
 🚨 REQUIRED FORMAT: {"intent": "actual_intent", "other_fields": "values"}
 
+🚨 EXAMPLES OF INVALID RESPONSES (NEVER DO THIS):
+- "intent"
+- "query" 
+- '"intent"'
+- '"query"'
+
+🚨 EXAMPLES OF VALID RESPONSES (ALWAYS DO THIS):
+- {"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
+- {"intent": "delete", "event_name": "lesson", "date": "2025-08-10", "confirmation_needed": true}
+- {"intent": "update", "event_name": "lesson", "time_shift": "1 hour", "date": "2025-08-10", "confirmation_needed": true}
+
 For simple queries about today's schedule, ALWAYS use:
 {"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
 
 EXAMPLE CORRECT RESPONSES FOR COMMON QUERIES:
 User: "what's the plan for today" → {"intent": "query", "date": "2025-08-10", "confirmation_needed": false}
 User: "yes" → {"intent": "confirm", "confirmation_needed": false}
+User: "delete the last lesson today" → {"intent": "delete", "event_name": "lesson", "target": "last", "date": "2025-08-10", "confirmation_needed": true}
+User: "move the lesson forward an hour" → {"intent": "update", "event_name": "lesson", "time_shift": "1 hour", "date": "2025-08-10", "confirmation_needed": true}
 
 Return ONLY the JSON object(s) - one line per event for multiple events:"""

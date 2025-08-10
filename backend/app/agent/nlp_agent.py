@@ -72,65 +72,41 @@ class NLPAgent:
             logger.info(f"Cleaned response: '{cleaned_result}'")
             
             # IMMEDIATE check for known bad responses before any processing
-            if cleaned_result.strip() == '"intent"' or cleaned_result.strip() == '"query"':
-                logger.error(f"DETECTED EXACT BAD RESPONSE: '{cleaned_result}' - immediate fallback")
+            if (cleaned_result.strip() == '"intent"' or cleaned_result.strip() == '"query"' or 
+                cleaned_result.strip() == 'intent' or cleaned_result.strip() == 'query'):
+                logger.error(f"DETECTED MALFORMED LLM RESPONSE: '{cleaned_result}' - using minimal fallback")
+                # Simple fallback based on user message keywords
                 user_lower = user_message.lower()
-                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan', 'calendar']):
-                    return {
-                        "intent": "query",
-                        "date": datetime.now().strftime("%Y-%m-%d"),
-                        "confirmation_needed": False
-                    }
-                elif 'yes' in user_lower:
-                    return {
-                        "intent": "confirm",
-                        "confirmation_needed": False
-                    }
+                if any(word in user_lower for word in ['delete', 'remove']):
+                    return {"intent": "delete", "event_name": "lesson" if "lesson" in user_lower else "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                elif any(word in user_lower for word in ['move', 'update', 'change']):
+                    return {"intent": "update", "event_name": "lesson" if "lesson" in user_lower else "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                elif any(word in user_lower for word in ['schedule', 'today', 'what', 'plan']):
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 else:
-                    return {
-                        "intent": "query",
-                        "date": datetime.now().strftime("%Y-%m-%d"),
-                        "confirmation_needed": False
-                    }
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             
             # Enhanced detection for invalid LLM responses
             is_invalid_response = (
                 len(cleaned_result) < 20 or 
                 not cleaned_result.startswith('{') or 
-                cleaned_result.strip() in ['"intent"', 'intent', '"query"', 'query'] or
-                cleaned_result == '"intent"' or 
-                cleaned_result == '"query"' or
-                cleaned_result.strip('"') in ['intent', 'query'] or
-                cleaned_result.strip().strip('"') in ['intent', 'query']
+                cleaned_result.strip() in ['"intent"', 'intent', '"query"', 'query']
             )
             
             if is_invalid_response:
-                logger.error(f"DETECTED INVALID LLM RESPONSE - triggering fallback")
+                logger.error(f"DETECTED INVALID LLM RESPONSE - minimal fallback")
                 logger.error(f"Raw: '{result}', Cleaned: '{cleaned_result}', Length: {len(cleaned_result)}")
-                logger.error(f"Starts with curly: {cleaned_result.startswith('{')}")
-                logger.error(f"Stripped: '{cleaned_result.strip()}'")
                 
-                # Try to infer intent from user message
+                # Minimal fallback based on keywords
                 user_lower = user_message.lower()
-                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan', 'calendar']):
-                    return {
-                        "intent": "query",
-                        "date": datetime.now().strftime("%Y-%m-%d"),
-                        "confirmation_needed": False
-                    }
-                elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
-                    return {
-                        "intent": "create", 
-                        "event_name": "New Event",
-                        "date": datetime.now().strftime("%Y-%m-%d"),
-                        "confirmation_needed": True
-                    }
+                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                elif any(word in user_lower for word in ['delete', 'remove']):
+                    return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                elif any(word in user_lower for word in ['move', 'update', 'change']):
+                    return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
                 else:
-                    return {
-                        "intent": "query",
-                        "date": datetime.now().strftime("%Y-%m-%d"),
-                        "confirmation_needed": False
-                    }
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             
             # Try to parse as single JSON first
             try:
@@ -189,55 +165,41 @@ class NLPAgent:
             
             # Create a smart fallback based on user message
             user_lower = user_message.lower()
+            
+            # Simple fallback logic 
             if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
-                return {
-                    "intent": "query",
-                    "date": datetime.now().strftime("%Y-%m-%d"),
-                    "confirmation_needed": False
-                }
-            elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
-                return {
-                    "intent": "create",
-                    "event_name": "New Event", 
-                    "date": datetime.now().strftime("%Y-%m-%d"),
-                    "confirmation_needed": True
-                }
+                return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+            elif any(word in user_lower for word in ['delete', 'remove']):
+                return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+            elif any(word in user_lower for word in ['move', 'update', 'change']):
+                return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+            elif any(word in user_lower for word in ['add', 'create', 'make']):
+                return {"intent": "create", "event_name": "New Event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
             else:
-                return {
-                    "intent": "query",
-                    "confirmation_needed": False
-                }
+                return {"intent": "query", "confirmation_needed": False}
         except Exception as e:
             logger.error(f"Error extracting intent: {e}")
             logger.error(f"User message was: '{user_message}'")
             
-            # Even on errors, provide intelligent fallback based on user message  
+            # Even on errors, provide minimal fallback based on user message  
             user_lower = user_message.lower()
-            if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan', 'calendar']):
+            
+            # Simple fallback for exception cases
+            if any(word in user_lower for word in ['delete', 'remove']):
+                logger.info("Exception fallback: detected delete intent")
+                return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+            elif any(word in user_lower for word in ['move', 'update', 'change']):
+                logger.info("Exception fallback: detected update intent")
+                return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+            elif any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
                 logger.info("Exception fallback: detected query intent")
-                return {
-                    "intent": "query",
-                    "date": datetime.now().strftime("%Y-%m-%d"),
-                    "confirmation_needed": False
-                }
-            elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
+                return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+            elif any(word in user_lower for word in ['add', 'create', 'make']):
                 logger.info("Exception fallback: detected create intent")
-                return {
-                    "intent": "create",
-                    "event_name": "New Event", 
-                    "date": datetime.now().strftime("%Y-%m-%d"),
-                    "confirmation_needed": True
-                }
+                return {"intent": "create", "event_name": "New Event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
             elif any(word in user_lower for word in ['yes', 'confirm', 'ok', 'sure']):
                 logger.info("Exception fallback: detected confirmation intent")
-                return {
-                    "intent": "confirm",
-                    "confirmation_needed": False
-                }
+                return {"intent": "confirm", "confirmation_needed": False}
             else:
                 logger.info("Exception fallback: defaulting to query intent")
-                return {
-                    "intent": "query",
-                    "date": datetime.now().strftime("%Y-%m-%d"),
-                    "confirmation_needed": False
-                }
+                return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}

@@ -525,6 +525,20 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         filtered_events.append(event)
                 events = filtered_events
             
+            # Apply target filtering (last, first, all)
+            if event_data.get("target") and events:
+                target = event_data["target"].lower()
+                if target == "last":
+                    # Take only the last event (assuming events are chronologically ordered)
+                    events = [events[-1]]
+                elif target == "first":
+                    # Take only the first event
+                    events = [events[0]]
+                elif target == "all":
+                    # Keep all events (no filtering needed)
+                    pass
+                # For other target values, keep all events
+            
             if not events:
                 no_events_msg = format_no_events_message(event_data)
                 await send_telegram_message(chat_id, no_events_msg)
