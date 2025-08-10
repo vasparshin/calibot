@@ -107,9 +107,15 @@ class NLPAgent:
                 # Ensure the parsed result is actually a dict/object, not just a string
                 if not isinstance(parsed_result, dict):
                     logger.error(f"LLM returned non-object JSON: {type(parsed_result)} - {parsed_result}")
-                    raise json.JSONDecodeError("Result is not a JSON object", cleaned_result, 0)
-                return parsed_result
+                    # Fall through to fallback logic
+                    parsed_result = None
+                else:
+                    return parsed_result
             except json.JSONDecodeError:
+                parsed_result = None
+                
+            # If single JSON parsing failed or returned non-dict, try multiple JSON
+            if parsed_result is None:
                 # If single JSON fails, try to parse multiple JSON objects (batch events)
                 logger.info("Single JSON parsing failed, attempting multiple JSON objects parsing")
                 
@@ -134,9 +140,9 @@ class NLPAgent:
                         "confirmation_needed": False
                     }
                 
-                # If nothing worked, log the original error and continue to fallback
-                logger.error(f"Multiple JSON parsing also failed")
-                logger.error(f"Raw response content: '{response['choices'][0]['message']['content'] if 'choices' in response else 'No choices in response'}'")
+                # If nothing worked, use intelligent fallback based on user message
+                logger.error(f"Multiple JSON parsing also failed, using intelligent fallback")
+                logger.error(f"Raw response content: '{result}'")
             
             # Create a smart fallback based on user message
             user_lower = user_message.lower()

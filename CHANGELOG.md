@@ -4,6 +4,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.26] - 2025-08-10
+
+### Fixed
+- **CRITICAL: Syntax Errors in NLP Agent**: Fixed corrupted extract_intent method that had broken indentation and unterminated strings causing compilation failures
+- **JSON Parsing Logic**: Cleaned up duplicated conditional blocks and fixed logical flow in intent extraction
+- **Newline Character Escaping**: Fixed broken string literal with unescaped newline in split operation
+- **Production Deployment**: Restored functionality for core intent extraction allowing bot queries to work
+
+### Technical Details
+- **nlp_agent.py**: Completely rebuilt extract_intent method with proper indentation and syntax
+- **nlp_agent.py**: Fixed string literal `split('\n')` replacing broken `split('\n')` with unterminated quote
+- **nlp_agent.py**: Removed duplicate conditional blocks that were causing logic errors
+- **nlp_agent.py**: Ensured all try/except blocks have proper except clauses
+
 ## [0.1.25] - 2025-08-10
 
 ### Fixed
