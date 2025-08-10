@@ -35,6 +35,9 @@ TARGET FIELD EXAMPLES:
 TIME SHIFT EXAMPLES:
 - "move forward 1 hour" → "time_shift": "1 hour"
 - "shift back 30 minutes" → "time_shift": "-30 minutes"
+- "extend by 30 minutes" → "time_shift": "30 minutes"
+- "move the end time to one hour after the start times" → "time_shift": "1 hour"
+- "make it 2 hours long" → "time_shift": "2 hours"
 
 DATE EXAMPLES:
 - "move to tomorrow" → "new_date": "2025-08-11"
@@ -50,8 +53,8 @@ DATE EXAMPLES:
 🚨 REQUIRED: Your response must be exactly one of these patterns:
 - {{"intent": "query", "date": "YYYY-MM-DD", "confirmation_needed": false}}
 - {{"intent": "delete", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "confirmation_needed": true}}
-- {{"intent": "update", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "confirmation_needed": true}}
-- {{"intent": "create", "event_name": "NAME", "date": "YYYY-MM-DD", "confirmation_needed": false}}
+- {{"intent": "update", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "time_shift": "SHIFT", "confirmation_needed": true}}
+- {{"intent": "create", "event_name": "NAME", "date": "YYYY-MM-DD", "start_time": "HH:MM", "end_time": "HH:MM", "confirmation_needed": false}}
 - {{"intent": "confirm", "confirmation_needed": false}}
 
 Return ONLY the JSON object - no explanations, no markdown formatting, no extra text."""

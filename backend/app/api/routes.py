@@ -254,6 +254,7 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
         # Clear any pending operations if cancelled
         if confirmation == "cancel":
             multi_event_handler.clear_pending_operations(chat_id)
+            return {"status": "ok"}
     else:
         # Fallback - should rarely be used
         await edit_message_text(
@@ -262,7 +263,47 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
             f"Choice: {confirmation}"
         )
     
-    # Process the confirmation as if it was a text message
+    # CRITICAL FIX: Handle pending operations directly instead of triggering new intent extraction
+    if multi_event_handler.has_pending_operation(chat_id):
+        logger.info(f"Processing pending multi-event operation with confirmation: {confirmation}")
+        try:
+            confirmation_result = await multi_event_handler.confirm_operation(chat_id, confirmation)
+            if confirmation_result.get("requires_user_action"):
+                # Send as new message if still requires action (like queue processing)
+                keyboard = confirmation_result.get("keyboard")
+                if keyboard:
+                    await send_telegram_message(chat_id, confirmation_result["message"], reply_markup=keyboard)
+                else:
+                    await send_telegram_message(chat_id, confirmation_result["message"])
+            else:
+                # Send final result as new message
+                await send_telegram_message(chat_id, confirmation_result["message"])
+            
+            conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
+            return {"status": "ok"}
+        except Exception as e:
+            logger.error(f"Error processing pending operation: {e}")
+            await send_telegram_message(chat_id, f"Error processing operation: {str(e)}")
+            return {"status": "ok"}
+    
+    # Check event queue system
+    if event_queue_handler.has_pending_queue(chat_id):
+        logger.info(f"Processing pending event queue with confirmation: {confirmation}")
+        try:
+            queue_result = await event_queue_handler.process_queue_response(chat_id, confirmation)
+            keyboard = queue_result.get("keyboard")
+            if keyboard:
+                await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
+            else:
+                await send_telegram_message(chat_id, queue_result["message"])
+            conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+            return {"status": "ok"}
+        except Exception as e:
+            logger.error(f"Error processing pending queue: {e}")
+            await send_telegram_message(chat_id, f"Error processing queue: {str(e)}")
+            return {"status": "ok"}
+    
+    # If no pending operations, fall back to regular processing
     return await process_user_message(chat_id, confirmation, "callback")
 
 async def handle_event_selection(chat_id: int, message_id: int, selection):
