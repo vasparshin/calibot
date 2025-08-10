@@ -525,7 +525,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         filtered_events.append(event)
                 events = filtered_events
             
-            # Apply target filtering (last, first, all)
+            # Apply target filtering (last, first, all, specific numbers)
             if event_data.get("target") and events:
                 target = event_data["target"].lower()
                 if target == "last":
@@ -537,6 +537,24 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 elif target == "all":
                     # Keep all events (no filtering needed)
                     pass
+                elif target in ["2nd", "second", "2"]:
+                    # Take the 2nd event if it exists
+                    if len(events) >= 2:
+                        events = [events[1]]  # Index 1 for 2nd item
+                    else:
+                        events = []  # No 2nd event exists
+                elif target in ["3rd", "third", "3"]:
+                    # Take the 3rd event if it exists
+                    if len(events) >= 3:
+                        events = [events[2]]  # Index 2 for 3rd item
+                    else:
+                        events = []  # No 3rd event exists
+                elif target in ["4th", "fourth", "4"]:
+                    # Take the 4th event if it exists
+                    if len(events) >= 4:
+                        events = [events[3]]  # Index 3 for 4th item
+                    else:
+                        events = []  # No 4th event exists
                 # For other target values, keep all events
             
             if not events:

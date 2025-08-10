@@ -4,6 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.31] - 2025-08-10
+
+### Fixed
+- **CRITICAL: LLM Response Format**: Completely rewrote intent extraction prompt to enforce proper JSON responses, eliminating "intent" string errors
+- **Smart Target Processing**: Enhanced target field support for specific event selection (2nd, 3rd, 4th events) beyond just first/last
+- **Button-Only Interface**: Removed all text-based confirmation instructions, forcing button-only interactions as requested
+- **Intelligent Fallback Logic**: Improved fallback extraction of target, time_shift, and new_date fields when LLM fails
+
+### Enhanced
+- **Event Targeting**: Added support for "update the 2nd event" to specifically target individual events by position
+- **Prompt Engineering**: Drastically simplified and focused intent extraction prompt with mandatory JSON format enforcement
+- **User Experience**: Streamlined confirmation messages to use buttons exclusively with no typing required
+
+### Technical Details
+- **intent_extraction_prompt.py**: Complete rewrite with enforced JSON format and forbidden response examples
+- **nlp_agent.py**: Enhanced fallback logic to extract target (2nd, 3rd, etc.), time shifts, and date changes
+- **routes.py**: Added support for numerical targeting (2nd, 3rd, 4th events) in event filtering
+- **ui_helpers.py**: Removed text instruction prompts, enforcing button-only interactions
+
 ## [0.1.30] - 2025-08-10
 
 ### Fixed

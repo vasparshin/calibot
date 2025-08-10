@@ -529,8 +529,8 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
     if count > 10:
         message += f"... and {count - 10} more events\n"
     
-    # Remove text-based options per user request - buttons only
-    message += f"\nChoose an option using the buttons below:"
+    # Use buttons only - no text instructions per user request
+    message += f"\nUse the buttons below to proceed:"
     
     keyboard = create_confirmation_keyboard("multi_event")
     return message, keyboard

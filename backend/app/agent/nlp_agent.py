@@ -74,13 +74,51 @@ class NLPAgent:
             # IMMEDIATE check for known bad responses before any processing
             if (cleaned_result.strip() == '"intent"' or cleaned_result.strip() == '"query"' or 
                 cleaned_result.strip() == 'intent' or cleaned_result.strip() == 'query'):
-                logger.error(f"DETECTED MALFORMED LLM RESPONSE: '{cleaned_result}' - using minimal fallback")
-                # Simple fallback based on user message keywords
+                logger.error(f"DETECTED MALFORMED LLM RESPONSE: '{cleaned_result}' - using intelligent fallback")
+                # Enhanced fallback based on user message keywords
                 user_lower = user_message.lower()
+                
                 if any(word in user_lower for word in ['delete', 'remove']):
-                    return {"intent": "delete", "event_name": "lesson" if "lesson" in user_lower else "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                    fallback = {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                    if "lesson" in user_lower:
+                        fallback["event_name"] = "lesson"
+                    elif "event" in user_lower:
+                        fallback["event_name"] = "event"
+                    # Extract target
+                    if "last" in user_lower:
+                        fallback["target"] = "last"
+                    elif "first" in user_lower:
+                        fallback["target"] = "first"
+                    elif "2nd" in user_lower or "second" in user_lower:
+                        fallback["target"] = "2nd"
+                    elif "3rd" in user_lower or "third" in user_lower:
+                        fallback["target"] = "3rd"
+                    return fallback
+                    
                 elif any(word in user_lower for word in ['move', 'update', 'change']):
-                    return {"intent": "update", "event_name": "lesson" if "lesson" in user_lower else "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                    fallback = {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                    if "lesson" in user_lower:
+                        fallback["event_name"] = "lesson"
+                    elif "event" in user_lower:
+                        fallback["event_name"] = "event"
+                    # Extract target
+                    if "last" in user_lower:
+                        fallback["target"] = "last"
+                    elif "first" in user_lower:
+                        fallback["target"] = "first"
+                    elif "2nd" in user_lower or "second" in user_lower:
+                        fallback["target"] = "2nd"
+                    elif "3rd" in user_lower or "third" in user_lower:
+                        fallback["target"] = "3rd"
+                    # Extract time shifts and date changes
+                    if 'forward' in user_lower and ('hour' in user_lower or 'hr' in user_lower):
+                        fallback["time_shift"] = "1 hour"
+                    if 'tomorrow' in user_lower:
+                        from datetime import timedelta
+                        tomorrow = datetime.now() + timedelta(days=1)
+                        fallback["new_date"] = tomorrow.strftime("%Y-%m-%d")
+                    return fallback
+                    
                 elif any(word in user_lower for word in ['schedule', 'today', 'what', 'plan']):
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 else:
@@ -181,16 +219,53 @@ class NLPAgent:
             logger.error(f"Error extracting intent: {e}")
             logger.error(f"User message was: '{user_message}'")
             
-            # Even on errors, provide minimal fallback based on user message  
+            # Even on errors, provide intelligent fallback based on user message  
             user_lower = user_message.lower()
             
-            # Simple fallback for exception cases
+            # Enhanced fallback for exception cases
             if any(word in user_lower for word in ['delete', 'remove']):
                 logger.info("Exception fallback: detected delete intent")
-                return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                fallback = {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                if "lesson" in user_lower:
+                    fallback["event_name"] = "lesson"
+                elif "event" in user_lower:
+                    fallback["event_name"] = "event"
+                # Extract target
+                if "last" in user_lower:
+                    fallback["target"] = "last"
+                elif "first" in user_lower:
+                    fallback["target"] = "first"
+                elif "2nd" in user_lower or "second" in user_lower:
+                    fallback["target"] = "2nd"
+                elif "3rd" in user_lower or "third" in user_lower:
+                    fallback["target"] = "3rd"
+                return fallback
+                
             elif any(word in user_lower for word in ['move', 'update', 'change']):
                 logger.info("Exception fallback: detected update intent")
-                return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                fallback = {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                if "lesson" in user_lower:
+                    fallback["event_name"] = "lesson"
+                elif "event" in user_lower:
+                    fallback["event_name"] = "event"
+                # Extract target
+                if "last" in user_lower:
+                    fallback["target"] = "last"
+                elif "first" in user_lower:
+                    fallback["target"] = "first"
+                elif "2nd" in user_lower or "second" in user_lower:
+                    fallback["target"] = "2nd"
+                elif "3rd" in user_lower or "third" in user_lower:
+                    fallback["target"] = "3rd"
+                # Extract time shifts and date changes
+                if 'forward' in user_lower and ('hour' in user_lower or 'hr' in user_lower):
+                    fallback["time_shift"] = "1 hour"
+                if 'tomorrow' in user_lower:
+                    from datetime import timedelta
+                    tomorrow = datetime.now() + timedelta(days=1)
+                    fallback["new_date"] = tomorrow.strftime("%Y-%m-%d")
+                return fallback
+                
             elif any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
                 logger.info("Exception fallback: detected query intent")
                 return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
