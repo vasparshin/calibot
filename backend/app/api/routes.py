@@ -28,7 +28,7 @@ from app.utils.ui_helpers import (
     format_event_selection_with_keyboard
 )
 from app.agent.nlp_agent import NLPAgent
-from app.utils.message_formatter import format_event_title
+from app.utils.message_formatter import MessageFormatter
 
 # Import new centralized formatters for consistency
 try:
@@ -862,7 +862,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     source_calendar_id = events[0].get('calendar_id', 'primary')
                     calendar_response = calendar_service.delete_event(event_id, source_calendar_id)
                     if calendar_response["success"]:
-                        event_name = format_event_title(events[0].get('summary', 'Event'))
+                        event_name = MessageFormatter.format_event_title(events[0].get('summary', 'Event'))
                         success_msg = f"Successfully deleted: {event_name}"
                         await send_telegram_message(chat_id, success_msg)
                         conversation_state.add_message(chat_id, "assistant", success_msg)
