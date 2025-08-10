@@ -158,18 +158,50 @@ class MultiEventOperationHandler:
                 "original_request": event_data
             }
             
-            event_list = "\n".join([
-                f"• {event['summary']} on {event['date']} at {event['start_time']}"
-                for event in matching_events
-            ])
-            
-            new_name = event_data.get('new_event_name', 'Updated Event')
+            # Use centralized formatter if available
+            if MessageFormatter:
+                # Convert events to proper format
+                formatted_events = []
+                for event in matching_events:
+                    formatted_event = {
+                        'summary': event.get('summary', 'Untitled'),
+                        'start': event.get('date', '') + 'T' + event.get('start_time', ''),
+                        'end': event.get('date', '') + 'T' + event.get('end_time', ''),
+                        'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                        'id': event.get('event_id', ''),
+                        'htmlLink': event.get('calendar_link', '')
+                    }
+                    formatted_events.append(formatted_event)
+                
+                message = MessageFormatter.format_confirmation_message("update", formatted_events, len(matching_events))
+                keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("update") if InlineKeyboardHelper else None
+            else:
+                # Legacy fallback with inline keyboard
+                event_list = "\n".join([
+                    f"• {event['summary']} on {event['date']} at {event['start_time']}"
+                    for event in matching_events
+                ])
+                
+                # Describe what will be updated
+                update_desc = []
+                if 'new_event_name' in event_data:
+                    update_desc.append(f"rename to '{event_data['new_event_name']}'")
+                if 'new_date' in event_data:
+                    update_desc.append(f"move to {event_data['new_date']}")
+                if 'time_shift' in event_data:
+                    update_desc.append(f"shift time by {event_data['time_shift']}")
+                
+                update_description = " and ".join(update_desc) if update_desc else "update"
+                
+                message = f"Found {len(matching_events)} events to update:\n{event_list}\n\nWill {update_description}\n\nChoose an option:"
+                keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("update") if InlineKeyboardHelper else None
             
             return {
                 "success": True,
-                "message": f"Found {len(matching_events)} events to update:\n{event_list}\n\nWill change title to: '{new_name}'\n\nType 'yes' to confirm updates.",
+                "message": message,
                 "requires_user_action": True,
-                "operation_id": operation_id
+                "operation_id": operation_id,
+                "keyboard": keyboard
             }
             
         except Exception as e:
@@ -373,9 +405,43 @@ class MultiEventOperationHandler:
                             update_data['end_time'] = f"{new_date}T{end_time}"
                         
                         if 'time_shift' in original_request:
-                            # Handle time shifting logic
+                            # Handle time shifting logic - calculate new times based on shift
                             time_shift = original_request['time_shift']
-                            update_data['time_shift'] = time_shift
+                            
+                            # Parse current start and end times
+                            original_start = event.get('start', '')
+                            original_end = event.get('end', '')
+                            
+                            if 'T' in original_start and 'T' in original_end:
+                                from datetime import datetime, timedelta
+                                import re
+                                
+                                # Parse original datetime strings
+                                start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
+                                end_dt = datetime.fromisoformat(original_end.replace('Z', '+00:00'))
+                                
+                                # Parse time shift (e.g., "1 hour", "30 minutes", "2 hours")
+                                shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
+                                if shift_match:
+                                    amount = int(shift_match.group(1))
+                                    unit = shift_match.group(2)
+                                    
+                                    if unit in ['hour', 'hr']:
+                                        # Extend end time by X hours
+                                        end_dt = end_dt + timedelta(hours=amount)
+                                    elif unit in ['minute', 'min']:
+                                        # Extend end time by X minutes  
+                                        end_dt = end_dt + timedelta(minutes=amount)
+                                    
+                                    # Update the event data with new times
+                                    update_data['start_time'] = start_dt.isoformat()
+                                    update_data['end_time'] = end_dt.isoformat()
+                                    
+                                    logger.info(f"Time shift applied: {time_shift} -> new end time: {end_dt.isoformat()}")
+                                else:
+                                    logger.warning(f"Could not parse time shift: {time_shift}")
+                            else:
+                                logger.warning(f"Invalid datetime format for time shift: start={original_start}, end={original_end}")
                         
                         if 'description' in original_request:
                             update_data['description'] = original_request['description']
@@ -393,12 +459,42 @@ class MultiEventOperationHandler:
                         )
                         
                         if result.get("success"):
-                            # Create descriptive update message
-                            update_desc = f"{event.get('summary', 'Untitled')}"
+                            # Create descriptive update message with hyperlink
+                            event_name = event.get('summary', 'Untitled')
+                            event_link = result.get('event_link', '')
+                            
+                            if event_link:
+                                formatted_name = f"[{event_name}]({event_link})"
+                            else:
+                                formatted_name = event_name
+                                
+                            # Extract date from the original event for display
+                            event_date = event.get('date', '')
+                            if not event_date and 'start' in event:
+                                # Extract date from start datetime
+                                start_dt = event['start']
+                                if 'T' in start_dt:
+                                    event_date = start_dt.split('T')[0]
+                                    
+                            # Format date for display
+                            if event_date:
+                                try:
+                                    from datetime import datetime
+                                    date_obj = datetime.fromisoformat(event_date)
+                                    formatted_date = date_obj.strftime('%A, %B %d, %Y')
+                                except:
+                                    formatted_date = event_date
+                            else:
+                                formatted_date = "today"
+                            
+                            update_desc = f"Updated {formatted_name}"
                             if 'new_date' in original_request:
                                 update_desc += f" moved to {original_request['new_date']}"
                             if 'new_event_name' in original_request:
                                 update_desc += f" renamed to {original_request['new_event_name']}"
+                            if 'time_shift' in original_request:
+                                update_desc += f" - extended by {original_request['time_shift']}"
+                                
                             successful_updates.append(update_desc)
                         else:
                             failed_updates.append(f"{event.get('summary', 'Untitled')}: {result.get('message', 'Unknown error')}")
@@ -409,12 +505,36 @@ class MultiEventOperationHandler:
                 # Build response message
                 message_parts = []
                 if successful_updates:
-                    message_parts.append(f"Successfully updated {len(successful_updates)} events:")
+                    # Extract date from original request or first event for header
+                    header_date = original_request.get('new_date') or original_request.get('date')
+                    if not header_date and events:
+                        # Get date from first event
+                        first_event = events[0]
+                        if 'start' in first_event and 'T' in first_event['start']:
+                            header_date = first_event['start'].split('T')[0]
+                        elif 'date' in first_event:
+                            header_date = first_event['date']
+                    
+                    # Format the header date
+                    if header_date:
+                        try:
+                            from datetime import datetime
+                            date_obj = datetime.fromisoformat(header_date)
+                            formatted_date = date_obj.strftime('%A, %B %d, %Y')
+                        except:
+                            formatted_date = header_date
+                    else:
+                        formatted_date = "today"
+                    
+                    message_parts.append(f"Successfully updated all {len(successful_updates)} events on {formatted_date}:")
+                    message_parts.append("")  # Empty line
                     for update_desc in successful_updates:
-                        message_parts.append(f"  • {update_desc}")
+                        message_parts.append(f"{update_desc}")
                 
                 if failed_updates:
-                    message_parts.append(f"\nFailed to update {len(failed_updates)} events:")
+                    if successful_updates:
+                        message_parts.append("")  # Empty line before failures
+                    message_parts.append(f"Failed to update {len(failed_updates)} events:")
                     for failure in failed_updates:
                         message_parts.append(f"  • {failure}")
                 

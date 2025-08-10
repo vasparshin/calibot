@@ -4,6 +4,19 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.35] - 2025-08-10
+
+### Fixed
+- **Critical: Inline Keyboard Support for Update Operations**: Added proper inline keyboard buttons (🔄 All, 1️⃣ One by One, ❌ Cancel) instead of text-based confirmations for update operations
+- **Critical: Time Shift Logic Implementation**: Fixed time shift functionality to properly extend event durations (e.g., "change end times to 1hr after start time")
+- **Enhanced: Success Message Formatting**: Fixed "Unknown date" errors in update success messages with proper date extraction and formatting
+- **Enhanced: Update Confirmation Details**: Improved update confirmation messages to show what changes will be made (rename, move, time shift)
+
+### Technical Details
+- **multi_event_operations.py**: Added inline keyboard support for update operations, implemented proper time shift parsing with regex for "X hour/minute" patterns, enhanced success message formatting with hyperlinks and proper date handling
+- **Time Shift Logic**: Parses natural language time shifts (e.g., "1 hour", "30 minutes") and applies them by extending end times while keeping start times unchanged
+- **Date Formatting**: Fixed date extraction from event data and proper ISO format handling to eliminate "Unknown date" errors
+
 ## [0.1.34] - 2025-08-10
 
 ### Fixed
