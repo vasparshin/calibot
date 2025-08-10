@@ -15,7 +15,7 @@ class InlineKeyboardHelper:
     def create_multi_event_confirmation_keyboard(action: str = "process") -> Dict:
         """
         Create inline keyboard for multi-event operations
-        Buttons: "🔄 All", "1️⃣ One by One", "❌ Cancel"
+        Buttons: "🔄 All", "1️⃣ One by One", "❌ Cancel" (single row per BOT_RULES.md)
         """
         action_title = action.title()
         
@@ -23,9 +23,7 @@ class InlineKeyboardHelper:
             "inline_keyboard": [
                 [
                     {"text": "🔄 All", "callback_data": f"confirm_all_{action}"},
-                    {"text": "1️⃣ One by One", "callback_data": f"confirm_one_{action}"}
-                ],
-                [
+                    {"text": "1️⃣ One by One", "callback_data": f"confirm_one_{action}"},
                     {"text": "❌ Cancel", "callback_data": f"cancel_{action}"}
                 ]
             ]

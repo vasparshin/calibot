@@ -176,11 +176,11 @@ async def handle_callback_query(callback_query):
         return await handle_confirmation_callback(chat_id, message_id, "yes")
     elif callback_data == "confirm_no":
         return await handle_confirmation_callback(chat_id, message_id, "no")
-    elif callback_data == "confirm_all":
+    elif callback_data == "confirm_all" or callback_data.startswith("confirm_all_"):
         return await handle_confirmation_callback(chat_id, message_id, "all")
-    elif callback_data == "confirm_one":
+    elif callback_data == "confirm_one" or callback_data.startswith("confirm_one_"):
         return await handle_confirmation_callback(chat_id, message_id, "one")
-    elif callback_data == "confirm_cancel":
+    elif callback_data == "confirm_cancel" or callback_data.startswith("cancel_"):
         return await handle_confirmation_callback(chat_id, message_id, "cancel")
     elif callback_data.startswith("select_event_"):
         event_index = int(callback_data.split("_")[-1])
@@ -857,6 +857,10 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                             success_msg = f"Event updated successfully:\n\n{formatted_event}"
                         await send_telegram_message(chat_id, success_msg)
                         conversation_state.add_message(chat_id, "assistant", success_msg)
+                    else:
+                        error_msg = f"Failed to update event: {calendar_response.get('message', 'Unknown error')}"
+                        await send_telegram_message(chat_id, error_msg)
+                        conversation_state.add_message(chat_id, "assistant", error_msg)
                 elif event_data["intent"] == "delete":
                     # Get the source calendar ID from the matched event
                     source_calendar_id = events[0].get('calendar_id', 'primary')
@@ -867,10 +871,10 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         await send_telegram_message(chat_id, success_msg)
                         conversation_state.add_message(chat_id, "assistant", success_msg)
                         logger.info(f"DELETE{calendar_response}")
-                        if calendar_response["success"]:
-                            await send_telegram_message(chat_id, f"Event deleted successfully! ({len(events)} event{'s' if len(events) != 1 else ''} found)")
-                        else:
-                            await send_telegram_message(chat_id, f"Failed to delete event: {calendar_response.get('message', 'Unknown error')}")
+                    else:
+                        error_msg = f"Failed to delete event: {calendar_response.get('message', 'Unknown error')}"
+                        await send_telegram_message(chat_id, error_msg)
+                        conversation_state.add_message(chat_id, "assistant", error_msg)
                 # Add AI response to conversation history
                 conversation_state.add_message(chat_id, "assistant", ai_response)
                 return {"status": "ok"}

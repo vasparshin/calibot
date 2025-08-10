@@ -481,24 +481,39 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
         end_time = ""
         date_display = ""
         
-        if event.get('start', {}).get('dateTime'):
-            # Google Calendar format
+        # Try to get start time - handle both dict and string formats
+        start_data = event.get('start')
+        if isinstance(start_data, dict) and start_data.get('dateTime'):
+            # Google Calendar format with dict
             try:
-                start_dt = datetime.fromisoformat(event['start']['dateTime'].replace('Z', '+00:00'))
+                start_dt = datetime.fromisoformat(start_data['dateTime'].replace('Z', '+00:00'))
                 start_time = start_dt.strftime('%I:%M %p')
                 date_display = start_dt.strftime('%A, %B %d, %Y')
                 
                 # Get end time if available
-                if event.get('end', {}).get('dateTime'):
-                    end_dt = datetime.fromisoformat(event['end']['dateTime'].replace('Z', '+00:00'))
+                end_data = event.get('end')
+                if isinstance(end_data, dict) and end_data.get('dateTime'):
+                    end_dt = datetime.fromisoformat(end_data['dateTime'].replace('Z', '+00:00'))
                     end_time = end_dt.strftime('%I:%M %p')
             except:
-                start_time = format_time_12hour(event['start']['dateTime'])
-                date_display = event['start']['dateTime'][:10] if event['start']['dateTime'] else ''
-        elif event.get('start'):
+                start_time = "Unknown time"
+                date_display = "Unknown date"
+        elif isinstance(start_data, str):
             # Handle string format
-            start_time = format_time_12hour(str(event['start']))
-            date_display = str(event['start'])[:10] if str(event['start']) else ''
+            try:
+                if 'T' in start_data:
+                    start_dt = datetime.fromisoformat(start_data.replace('Z', '+00:00'))
+                    start_time = start_dt.strftime('%I:%M %p')
+                    date_display = start_dt.strftime('%A, %B %d, %Y')
+                else:
+                    start_time = format_time_12hour(start_data)
+                    date_display = start_data
+            except:
+                start_time = "Unknown time"
+                date_display = "Unknown date"
+        else:
+            start_time = "Unknown time"
+            date_display = "Unknown date"
         
         # Get proper calendar name
         calendar_name = get_calendar_display_name(event.get('calendar_id', 'primary'))
@@ -514,7 +529,8 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
     if count > 10:
         message += f"... and {count - 10} more events\n"
     
-    message += f"\nChoose an option:"
+    # Remove text-based options per user request - buttons only
+    message += f"\nChoose an option using the buttons below:"
     
     keyboard = create_confirmation_keyboard("multi_event")
     return message, keyboard
