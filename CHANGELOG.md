@@ -4,6 +4,22 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.42] - 2025-01-04
+
+### Fixed - Multiple Event Creation
+- **CRITICAL: Batch Event Creation**: Fixed multiple event creation failing for requests like "3 lessons at 9, 10 and 12am" - now properly creates multiple events instead of single event
+- **CRITICAL: Single Event Formatting**: Fixed inconsistent formatting between single and multi-event success messages - now uses consistent hyperlinked format with calendar names
+
+### Enhanced - Intent Extraction
+- **Enhanced NLP Prompt**: Added `batch_create` intent type with comprehensive examples for multiple event scenarios
+- **Improved Event Detection**: Intent extraction now recognizes patterns like "3 lessons at 9, 10, 12" and generates proper JSON structure with events array
+- **Robust Event Handling**: Enhanced routes.py to properly process batch_create intents and create individual events from event arrays
+
+### Technical Improvements
+- **intent_extraction_prompt.py**: Added batch_create intent with JSON format examples and multiple event patterns
+- **routes.py**: Fixed batch creation handling to use consistent success message formatting without calling undefined format_success_message function
+- **routes.py**: Updated single event creation to use format_event_for_display for consistency with multi-event summaries
+
 ## [0.1.41] - 2025-01-04
 
 ### Fixed - Critical UX Issues

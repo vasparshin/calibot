@@ -473,7 +473,10 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     
                     # Send success message for non-duplicates
                     if success_events:
-                        success_message = format_success_message("create", created_count) + "\n".join(success_events)
+                        if created_count == 1:
+                            success_message = f"Event created successfully:\n\n" + "\n".join(success_events)
+                        else:
+                            success_message = f"Successfully created {created_count} events:\n\n" + "\n".join(success_events)
                         await send_telegram_message(chat_id, success_message)
                         conversation_state.add_message(chat_id, "assistant", success_message)
                 
@@ -515,7 +518,10 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             # Build comprehensive response message
             if created_count > 0 and failed_count == 0:
                 # All successful
-                message = format_success_message("create", created_count) + "\n".join(success_events)
+                if created_count == 1:
+                    message = f"Event created successfully:\n\n" + "\n".join(success_events)
+                else:
+                    message = f"Successfully created {created_count} events:\n\n" + "\n".join(success_events)
             elif created_count > 0 and failed_count > 0:
                 # Mixed results
                 message = f"Created {created_count} events, {failed_count} failed:\n\nSuccessful:\n" + "\n".join(success_events)
@@ -920,10 +926,22 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     # Send comprehensive response
                     if successful_events:
                         calendar_name = successful_events[0]['calendar']
-                        success_msg = format_success_message("create", len(successful_events))
-                        for event in successful_events:
-                            # Format each event with hyperlink and full details
-                            formatted_event = format_event_for_display(event, {"success": True}, calendar_service)
+                        if len(successful_events) == 1:
+                            success_msg = f"Event created successfully:\n\n"
+                        else:
+                            success_msg = f"Successfully created {len(successful_events)} events:\n\n"
+                        
+                        for i, event in enumerate(successful_events):
+                            # Create proper event data structure for formatting
+                            event_for_formatting = {
+                                'event_name': event_data.get('event_name', 'Event'),
+                                'start_time': event['time'].split('-')[0] if '-' in event['time'] else event['time'],
+                                'end_time': event['time'].split('-')[1] if '-' in event['time'] else event['time'],
+                                'date': event_data.get('date', 'today'),
+                                'calendar_name': event['calendar']
+                            }
+                            calendar_result = {"success": True, "event_link": event['link']}
+                            formatted_event = format_event_for_display(event_for_formatting, calendar_result, calendar_service)
                             success_msg += f"{formatted_event}\n"
                         
                         if failed_events:
@@ -945,8 +963,9 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         calendar_response = await calendar_service.create_event(event_data)
                         
                         if calendar_response.get("success"):
-                            calendar_info = f" in your '{calendar_response.get('calendar_used', 'primary')}' calendar" if calendar_response.get('calendar_used') else ""
-                            success_message = f"Event created successfully{calendar_info}! Here's the link to your event: {calendar_response['event_link']}"
+                            # CRITICAL FIX: Use consistent formatting with multi-event summaries
+                            formatted_event = format_event_for_display(event_data, calendar_response, calendar_service)
+                            success_message = f"Event created successfully:\n\n{formatted_event}"
                             await send_telegram_message(chat_id, success_message)
                             conversation_state.add_message(chat_id, "assistant", success_message)
                             logger.info(f"Successfully created event: {calendar_response}")

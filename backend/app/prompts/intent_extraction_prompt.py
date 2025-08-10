@@ -17,6 +17,9 @@ For queries about schedule/events:
 For creating events:
 {{"intent": "create", "event_name": "EVENT_NAME", "date": "2025-08-06", "start_time": "HH:MM", "end_time": "HH:MM", "calendar_name": "CALENDAR_NAME", "confirmation_needed": false}}
 
+For creating multiple events (batch creation):
+{{"intent": "batch_create", "event_name": "EVENT_NAME", "date": "2025-08-06", "events": [{{"start_time": "09:00", "end_time": "10:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}], "calendar_name": "CALENDAR_NAME", "confirmation_needed": false}}
+
 For deleting events:
 {{"intent": "delete", "event_name": "EVENT_NAME", "date": "2025-08-06", "target": "TARGET", "confirmation_needed": true}}
 
@@ -56,6 +59,12 @@ DATE EXAMPLES:
 - {{"intent": "delete", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "confirmation_needed": true}}
 - {{"intent": "update", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "time_shift": "SHIFT", "confirmation_needed": true}}
 - {{"intent": "create", "event_name": "NAME", "date": "YYYY-MM-DD", "start_time": "HH:MM", "end_time": "HH:MM", "confirmation_needed": false}}
+- {{"intent": "batch_create", "event_name": "NAME", "date": "YYYY-MM-DD", "events": [{{"start_time": "HH:MM", "end_time": "HH:MM"}}, {{"start_time": "HH:MM", "end_time": "HH:MM"}}], "confirmation_needed": false}}
 - {{"intent": "confirm", "confirmation_needed": false}}
+
+BATCH CREATION EXAMPLES:
+- "3 lessons at 9, 10 and 12" → {{"intent": "batch_create", "event_name": "lesson", "date": "2025-08-11", "events": [{{"start_time": "09:00", "end_time": "10:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}], "confirmation_needed": false}}
+- "schedule 2 meetings for 2pm and 4pm" → {{"intent": "batch_create", "event_name": "meeting", "date": "2025-08-11", "events": [{{"start_time": "14:00", "end_time": "15:00"}}, {{"start_time": "16:00", "end_time": "17:00"}}], "confirmation_needed": false}}
+- "create lessons for 8am, 9am, 10am tomorrow" → {{"intent": "batch_create", "event_name": "lesson", "date": "2025-08-11", "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "09:00", "end_time": "10:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}], "confirmation_needed": false}}
 
 Return ONLY the JSON object - no explanations, no markdown formatting, no extra text."""
