@@ -74,11 +74,14 @@ class NLPAgent:
             logger.info(f"Cleaned response: '{cleaned_result}'")
             
             # If response is just "intent" or similar, create a fallback
-            if len(cleaned_result) < 20 or not cleaned_result.startswith('{'):
+            if (len(cleaned_result) < 20 or 
+                not cleaned_result.startswith('{') or 
+                cleaned_result.strip() in ['"intent"', 'intent', '"query"', 'query']):
+                
                 logger.error(f"Invalid LLM response, creating fallback. Raw: '{result}'")
                 # Try to infer intent from user message
                 user_lower = user_message.lower()
-                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list']):
+                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
                     return {
                         "intent": "query",
                         "date": datetime.now().strftime("%Y-%m-%d"),
@@ -94,6 +97,7 @@ class NLPAgent:
                 else:
                     return {
                         "intent": "query",
+                        "date": datetime.now().strftime("%Y-%m-%d"),
                         "confirmation_needed": False
                     }
             
@@ -132,7 +136,7 @@ class NLPAgent:
             
             # Create a smart fallback based on user message
             user_lower = user_message.lower()
-            if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list']):
+            if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
                 return {
                     "intent": "query",
                     "date": datetime.now().strftime("%Y-%m-%d"),
@@ -150,13 +154,6 @@ class NLPAgent:
                     "intent": "query",
                     "confirmation_needed": False
                 }
-        except Exception as e:
-            logger.error(f"Error extracting intent: {e}")
-            return {
-                "intent": "unknown",
-                "error": str(e),
-                "confirmation_needed": True
-            }
         except Exception as e:
             logger.error(f"Error extracting intent: {e}")
             return {

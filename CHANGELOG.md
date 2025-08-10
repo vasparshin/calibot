@@ -4,11 +4,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.24] - 2025-08-10
 
-## [0.1.23] - 2025-08-10
+### Fixed
+- **Intent Extraction Error**: Fixed `'intent'` JSON parsing error causing LLM responses to fail
+- **NLP Agent Fallback**: Improved fallback logic for malformed LLM responses, added "plan" keyword support
+- **Duplicate Exception Handlers**: Removed duplicate try-catch blocks causing syntax issues
 
-## [Unreleased]
+### Technical Details
+- **nlp_agent.py**: Fixed duplicate exception handlers, enhanced malformed response detection
+- **nlp_agent.py**: Added better detection for incomplete JSON responses like `"intent"` 
+- **nlp_agent.py**: Improved fallback intent detection for queries about plans and schedules
 
+### Production Status
+✅ **HOTFIX READY** - Resolves intent extraction failures preventing query processing
 
 ## [0.1.23] - 2025-08-10
 
