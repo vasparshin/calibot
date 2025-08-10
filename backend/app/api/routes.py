@@ -245,12 +245,26 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
                 reply_markup={}
             )
     elif confirmation in ["all", "one", "cancel"]:
-        # For multi-event operations: Don't edit the original message, just process
-        # This preserves the event list for user reference
+        # CRITICAL FIX: Always remove keyboard from original message for all multi-event operations
+        if original_confirmation_msg:
+            if confirmation == "all":
+                status_text = "✅ **Processing all events** - Please wait..."
+            elif confirmation == "one":
+                status_text = "✅ **Processing one by one** - See next message..."
+            else:
+                status_text = "❌ **Cancelled** - Operation cancelled"
+            
+            await edit_message_text(
+                chat_id, 
+                message_id, 
+                f"{original_confirmation_msg}\n\n{status_text}",
+                reply_markup={}
+            )
         
         # Clear any pending operations if cancelled
         if confirmation == "cancel":
             multi_event_handler.clear_pending_operations(chat_id)
+            event_queue_handler.clear_queue(chat_id)
             await send_telegram_message(chat_id, "❌ Operation cancelled")
             return {"status": "ok"}
     else:
@@ -289,12 +303,31 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
         logger.info(f"Processing pending event queue with confirmation: {confirmation}")
         try:
             queue_result = await event_queue_handler.process_queue_response(chat_id, confirmation)
-            keyboard = queue_result.get("keyboard")
-            if keyboard:
-                await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
-            else:
+            
+            # CRITICAL FIX: Handle one-by-one processing properly
+            if queue_result.get("queue_continues"):
+                # Send the current result first
                 await send_telegram_message(chat_id, queue_result["message"])
-            conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+                
+                # Then send the next confirmation as a separate message
+                next_conf = queue_result.get("next_confirmation", {})
+                if next_conf:
+                    keyboard = next_conf.get("keyboard")
+                    if keyboard:
+                        await send_telegram_message(chat_id, next_conf["message"], reply_markup=keyboard)
+                    else:
+                        await send_telegram_message(chat_id, next_conf["message"])
+                    conversation_state.add_message(chat_id, "assistant", next_conf["message"])
+            else:
+                # Standard processing for complete operations
+                keyboard = queue_result.get("keyboard")
+                if keyboard:
+                    await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
+                else:
+                    await send_telegram_message(chat_id, queue_result["message"])
+                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+            
             return {"status": "ok"}
         except Exception as e:
             logger.error(f"Error processing pending queue: {e}")
@@ -500,8 +533,30 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             logger.info(f"Processing event queue confirmation")
             
             queue_result = await event_queue_handler.process_queue_response(chat_id, user_message)
-            await send_telegram_message(chat_id, queue_result["message"])
-            conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+            
+            # CRITICAL FIX: Handle one-by-one processing properly (same logic as callback handler)
+            if queue_result.get("queue_continues"):
+                # Send the current result first
+                await send_telegram_message(chat_id, queue_result["message"])
+                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+                
+                # Then send the next confirmation as a separate message
+                next_conf = queue_result.get("next_confirmation", {})
+                if next_conf:
+                    keyboard = next_conf.get("keyboard")
+                    if keyboard:
+                        await send_telegram_message(chat_id, next_conf["message"], reply_markup=keyboard)
+                    else:
+                        await send_telegram_message(chat_id, next_conf["message"])
+                    conversation_state.add_message(chat_id, "assistant", next_conf["message"])
+            else:
+                # Standard processing for complete operations
+                keyboard = queue_result.get("keyboard")
+                if keyboard:
+                    await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
+                else:
+                    await send_telegram_message(chat_id, queue_result["message"])
+                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
             
             return {"status": "ok"}
 

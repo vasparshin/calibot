@@ -4,6 +4,26 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.41] - 2025-01-04
+
+### Fixed - Critical UX Issues
+- **CRITICAL: Button Removal**: Buttons now properly disappear after selection with status updates ("Processing...", "Cancelled", etc.)
+- **CRITICAL: Success Messages**: Now show actual updated times/info instead of original event data (e.g., shows new 2:00 PM time, not old 5:00 PM)
+- **CRITICAL: One-by-One Logic**: Fixed queue progression to properly advance through individual event confirmations without skipping to "all" processing
+- **CRITICAL: Queue State Management**: Added `one_by_one_mode` flag to distinguish between initial batch selection and individual event confirmations
+
+### Enhanced - User Experience
+- **Dual Message Flow**: One-by-one processing now sends result and next confirmation as separate messages for better UX
+- **Proper Keyboard Management**: All multi-event confirmation buttons removed with meaningful status text
+- **Enhanced Route Handling**: Updated both callback and text message handling to support proper queue progression
+- **Detailed Success Formatting**: Success messages include full date, updated times, calendar names, and hyperlinks
+
+### Technical Improvements
+- **event_queue_handler.py**: Fixed `process_queue_response` logic to handle one-by-one mode properly
+- **event_queue_handler.py**: Enhanced `_process_single_event` to show actual updated times in success messages
+- **routes.py**: Updated `handle_confirmation_callback` to remove keyboards with status updates for all confirmation types
+- **routes.py**: Added proper handling for `queue_continues` response type with dual message sending
+
 ## [0.1.40] - 2025-01-04
 
 ### Fixed

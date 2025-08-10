@@ -454,10 +454,14 @@ Calendar: {calendar}"""
         queue = self.pending_queues[chat_id]
         current_index = queue['current_index']
         
-        # Handle initial batch options (when current_index is 0)
-        if current_index == 0:
+        # Handle initial batch options (when current_index is 0 AND not yet in one-by-one mode)
+        # Check if we're in one-by-one mode by looking at the queue state
+        is_one_by_one_mode = queue.get('one_by_one_mode', False)
+        
+        if current_index == 0 and not is_one_by_one_mode:
             if user_response in ['one', '1', 'review']:
-                # Start one-by-one confirmation
+                # Start one-by-one confirmation - mark the queue as in one-by-one mode
+                queue['one_by_one_mode'] = True
                 return self.get_next_event_confirmation(chat_id)
             
             elif user_response in ['all', 'yes', 'delete all', 'confirm all']:
@@ -497,17 +501,23 @@ Calendar: {calendar}"""
             next_result = self.get_next_event_confirmation(chat_id)
             
             if next_result.get('queue_complete'):
+                # Queue is complete - send final summary
                 return {
                     "success": True,
-                    "message": f"{result['message']}\n\n{next_result['message']}",
+                    "message": f"{result['message']}\n\n✅ All events processed!",
                     "queue_complete": True
                 }
             else:
+                # More events to process - send current result AND next confirmation as separate messages
                 return {
                     "success": True,
-                    "message": f"{result['message']}\n\n{next_result['message']}",
-                    "keyboard": next_result.get('keyboard'),
-                    "requires_user_action": True
+                    "message": result['message'],  # CRITICAL FIX: Send result first
+                    "next_confirmation": {  # Then indicate next step
+                        "message": next_result['message'],
+                        "keyboard": next_result.get('keyboard'),
+                        "requires_user_action": True
+                    },
+                    "queue_continues": True
                 }
         
         elif is_cancel:
@@ -839,28 +849,79 @@ Calendar: {calendar}"""
                     result = self.calendar_service.update_event(event_id, update_data, calendar_id)
                     
                     if result.get('success'):
-                        # Build detailed success message showing changes made
-                        changes_made = []
-                        if event.get('time_shift'):
-                            changes_made.append(f"shifted by {event.get('time_shift')}")
+                        # CRITICAL FIX: Build success message with ACTUAL updated times, not just operation description
+                        updated_event = result.get('updated_event', {})
+                        
+                        # Get the actual new times from update_data (what was sent to calendar)
+                        new_start = update_data.get('start_time')
+                        new_end = update_data.get('end_time')
+                        original_start = event.get('start_time')
+                        original_end = event.get('end_time')
+                        
+                        # Format actual new times for display
+                        actual_changes = []
+                        date_info = ""
+                        time_info = ""
+                        
+                        if new_start and 'T' in str(new_start):
+                            try:
+                                new_start_dt = datetime.fromisoformat(new_start.replace('Z', '+00:00'))
+                                date_info = new_start_dt.strftime('%A, %B %d, %Y')
+                                start_time_display = new_start_dt.strftime('%I:%M %p')
+                                
+                                if new_end and 'T' in str(new_end):
+                                    new_end_dt = datetime.fromisoformat(new_end.replace('Z', '+00:00'))
+                                    end_time_display = new_end_dt.strftime('%I:%M %p')
+                                    time_info = f"at {start_time_display} - {end_time_display}"
+                                else:
+                                    time_info = f"at {start_time_display}"
+                                
+                                # Compare with original to show what changed
+                                if original_start and original_start != new_start:
+                                    try:
+                                        orig_start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
+                                        orig_time = orig_start_dt.strftime('%I:%M %p')
+                                        actual_changes.append(f"time changed from {orig_time} to {start_time_display}")
+                                    except:
+                                        actual_changes.append(f"time updated to {start_time_display}")
+                                
+                            except Exception as e:
+                                logger.warning(f"Error formatting updated times: {e}")
+                                if event.get('time_shift'):
+                                    actual_changes.append(f"time shifted by {event.get('time_shift')}")
+                        
+                        # Add other change descriptions
                         if event.get('new_event_name'):
-                            changes_made.append(f"renamed to '{event.get('new_event_name')}'")
+                            actual_changes.append(f"renamed to '{event.get('new_event_name')}'")
                         if event.get('new_calendar'):
-                            changes_made.append(f"moved to {event.get('new_calendar')}")
+                            actual_changes.append(f"moved to {event.get('new_calendar')}")
                         
-                        change_description = ", ".join(changes_made) if changes_made else "updated"
+                        # Format the event with hyperlink and show NEW info
+                        event_link = result.get('event_link', '') or updated_event.get('htmlLink', '')
+                        event_title = event.get('event_name', 'Event')
+                        calendar_name = event.get('calendar_name', 'Unknown Calendar')
                         
-                        # Format the updated event with hyperlink if available
-                        event_link = result.get('event_link', '')
                         if event_link:
-                            event_title = f"[{event.get('event_name', 'Event')}]({event_link})"
+                            formatted_title = f"[{event_title}]({event_link})"
                         else:
-                            event_title = event.get('event_name', 'Event')
+                            formatted_title = f"'{event_title}'"
+                        
+                        # Build comprehensive message showing UPDATED info, not original
+                        if date_info and time_info:
+                            success_message = f"• Updated {formatted_title} on {date_info} {time_info} ({calendar_name})"
+                        else:
+                            change_desc = ", ".join(actual_changes) if actual_changes else "updated"
+                            success_message = f"• Updated {formatted_title} - {change_desc} ({calendar_name})"
                         
                         return {
                             "success": True,
-                            "message": f"Updated {event_title} - {change_description}",
-                            "event_link": event_link
+                            "message": success_message,
+                            "event_link": event_link,
+                            "updated_info": {
+                                "start": new_start,
+                                "end": new_end,
+                                "date": date_info
+                            }
                         }
                     else:
                         return {
