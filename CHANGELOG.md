@@ -4,6 +4,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.34] - 2025-08-10
+
+### Fixed
+- **Critical: Async/Await Error in Update Operations**: Fixed "object dict can't be used in 'await' expression" error by removing incorrect await keyword from synchronous calendar service call
+- **Enhanced: Hyperlink Field Support**: Added support for 'calendar_link' field in confirmation messages to ensure event hyperlinks display correctly in update operation confirmations
+
+### Technical Details
+- **multi_event_operations.py**: Removed await keyword from calendar_service.update_event() call since service methods are synchronous
+- **routes.py**: Enhanced event link detection to check 'link', 'htmlLink', 'event_link', and 'calendar_link' fields for maximum compatibility
+
 ## [0.1.33] - 2025-08-10
 
 ### Fixed

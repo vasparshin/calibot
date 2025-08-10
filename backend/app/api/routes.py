@@ -662,8 +662,8 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             # Get calendar name
             calendar_name = event.get('calendar_name', 'Unknown Calendar')
             
-            # Get event link if available
-            event_link = event.get('link', '')
+            # Get event link if available - try multiple possible field names including calendar_link
+            event_link = event.get('link') or event.get('htmlLink') or event.get('event_link') or event.get('calendar_link', '')
             
             # Create comprehensive event description
             if event_link:

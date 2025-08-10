@@ -386,7 +386,7 @@ class MultiEventOperationHandler:
                         # Get the calendar ID for the update
                         calendar_id = event.get('calendar_id', 'primary')
                         
-                        result = await self.calendar_service.update_event(
+                        result = self.calendar_service.update_event(
                             event["id"], 
                             update_data, 
                             source_calendar_id=calendar_id
