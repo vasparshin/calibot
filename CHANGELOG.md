@@ -4,6 +4,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.23] - 2025-08-10
+
+## [Unreleased]
+
+
 ## [0.1.23] - 2025-08-10
 
 ### Fixed
@@ -195,10 +201,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -229,10 +241,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -269,10 +287,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -281,10 +305,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -293,10 +323,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -305,10 +341,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -317,10 +359,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -329,10 +377,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -341,10 +395,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -353,10 +413,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -365,10 +431,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -377,10 +449,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -389,10 +467,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -401,10 +485,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -413,10 +503,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -425,10 +521,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -437,10 +539,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -449,10 +557,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -461,10 +575,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -473,10 +593,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -485,10 +611,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -497,10 +629,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -509,10 +647,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -521,10 +665,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -533,10 +683,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -545,10 +701,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -557,10 +719,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -569,10 +737,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -581,10 +755,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -593,10 +773,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -605,10 +791,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -617,10 +809,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -629,10 +827,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -641,10 +845,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -653,10 +863,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -665,10 +881,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -677,10 +899,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -689,10 +917,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -701,10 +935,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -713,10 +953,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -725,10 +971,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -737,10 +989,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -749,10 +1007,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -761,10 +1025,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -773,10 +1043,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -785,10 +1061,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -797,10 +1079,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -809,10 +1097,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -821,10 +1115,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -833,10 +1133,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -845,10 +1151,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -857,10 +1169,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -869,10 +1187,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -881,10 +1205,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -893,10 +1223,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -905,10 +1241,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -917,10 +1259,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -929,10 +1277,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -941,10 +1295,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -953,10 +1313,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -965,10 +1331,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -977,10 +1349,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -989,10 +1367,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1001,10 +1385,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1013,10 +1403,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1025,82 +1421,133 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
 
 
-## [0.1.17] - 2025-08-09
+## [0.1.23] - 2025-08-10
 
 
+## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
+
+
+## [0.1.17] - 2025-08-09
+
+
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1109,10 +1556,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1121,10 +1574,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1133,10 +1592,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1145,64 +1610,97 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1211,10 +1709,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1223,10 +1727,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1235,10 +1745,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1247,10 +1763,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1259,10 +1781,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1271,10 +1799,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1283,10 +1817,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1295,64 +1835,97 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1361,10 +1934,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1373,10 +1952,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1385,10 +1970,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1397,112 +1988,169 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1511,10 +2159,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1523,10 +2177,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1535,10 +2195,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1547,64 +2213,97 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1613,10 +2312,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1625,10 +2330,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1637,10 +2348,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1649,10 +2366,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1661,10 +2384,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1673,10 +2402,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1685,10 +2420,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1697,64 +2438,97 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1763,10 +2537,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1775,10 +2555,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1787,10 +2573,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -1799,778 +2591,1168 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
+
+
+## [Unreleased]
 
 
-## [Unreleased]
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2579,10 +3761,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2591,10 +3779,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2603,10 +3797,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2615,10 +3815,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2627,10 +3833,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2639,10 +3851,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2651,10 +3869,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2663,10 +3887,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2675,10 +3905,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2687,10 +3923,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2699,10 +3941,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2711,10 +3959,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2723,10 +3977,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2735,10 +3995,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2747,10 +4013,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2759,10 +4031,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2771,10 +4049,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2783,10 +4067,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2795,10 +4085,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2807,10 +4103,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2819,10 +4121,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2831,10 +4139,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2843,10 +4157,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2855,10 +4175,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2867,10 +4193,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2879,10 +4211,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2891,10 +4229,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2903,10 +4247,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2915,10 +4265,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2927,10 +4283,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2939,10 +4301,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2951,10 +4319,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2963,10 +4337,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2975,10 +4355,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2987,10 +4373,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -2999,10 +4391,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3011,10 +4409,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3023,10 +4427,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3035,10 +4445,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3047,10 +4463,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3059,10 +4481,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3071,10 +4499,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3083,10 +4517,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3095,10 +4535,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3107,10 +4553,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3119,10 +4571,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3131,10 +4589,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3143,10 +4607,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3155,10 +4625,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3167,10 +4643,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3179,10 +4661,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3191,10 +4679,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3203,10 +4697,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3215,10 +4715,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3227,10 +4733,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3239,10 +4751,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3251,10 +4769,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3263,10 +4787,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3275,10 +4805,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3287,10 +4823,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3299,10 +4841,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3311,10 +4859,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3323,10 +4877,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.23] - 2025-08-10
+
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
@@ -3335,784 +4895,1168 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
-## [0.1.17] - 2025-08-09
+## [0.1.23] - 2025-08-10
 
 
-## [Unreleased]
+## [0.1.17] - 2025-08-09
 
 
-## [0.1.17] - 2025-08-09
+## [Unreleased]
 
 
-## [Unreleased]
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
 
+## [0.1.23] - 2025-08-10
 
+
 ## [0.1.17] - 2025-08-09
 
 
 ## [Unreleased]
+
+
+## [0.1.23] - 2025-08-10
 
 
 ## [0.1.
