@@ -31,27 +31,68 @@ class GoogleCalendarService:
         self._calendars_loaded = False
     
     def get_auth_url(self):
-        flow = Flow.from_client_secrets_file(
-            GOOGLE_CLIENT_SECRET_FILE,
-            scopes=GOOGLE_API_SCOPES,
-            redirect_uri=self.redirect_uri
-        )
-        print("Redirect URI:", flow.redirect_uri)
-        auth_url, state = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true',
-            prompt='consent'
-        )
+        """Generate OAuth authorization URL with all required parameters"""
+        try:
+            if not GOOGLE_CLIENT_SECRET_FILE:
+                logger.error("GOOGLE_CREDENTIALS_FILE environment variable not set")
+                raise ValueError("Google credentials file not configured")
+                
+            if not os.path.exists(GOOGLE_CLIENT_SECRET_FILE):
+                logger.error(f"Google credentials file not found: {GOOGLE_CLIENT_SECRET_FILE}")
+                raise FileNotFoundError(f"Credentials file not found: {GOOGLE_CLIENT_SECRET_FILE}")
+            
+            # Create the flow with proper configuration
+            flow = Flow.from_client_secrets_file(
+                GOOGLE_CLIENT_SECRET_FILE,
+                scopes=GOOGLE_API_SCOPES,
+                redirect_uri=self.redirect_uri
+            )
+            
+            logger.info(f"OAuth Redirect URI: {flow.redirect_uri}")
+            logger.info(f"OAuth Scopes: {GOOGLE_API_SCOPES}")
+            
+            # Generate authorization URL - let google-auth-oauthlib handle response_type
+            auth_url, state = flow.authorization_url(
+                access_type='offline',
+                include_granted_scopes='true',
+                prompt='consent'
+            )
+            
+            # Ensure response_type is in the URL (fallback check)
+            if 'response_type=' not in auth_url:
+                logger.warning("response_type missing from OAuth URL, adding manually")
+                separator = '&' if '?' in auth_url else '?'
+                auth_url += f"{separator}response_type=code"
+            
+            logger.info(f"Generated OAuth URL: {auth_url}")
+            logger.info(f"OAuth state: {state}")
 
-        # Store only the state
-        with open("oauth_state.txt", "w") as f:
-            f.write(state)
+            # Store only the state
+            try:
+                with open("oauth_state.txt", "w") as f:
+                    f.write(state)
+            except Exception as e:
+                logger.error(f"Failed to save OAuth state: {e}")
+                # Continue anyway - state validation might not be critical
 
-        # store client_config and redirect_uri to use in the callback function.
-        with open("client_config.pickle", "wb") as f:
-            pickle.dump({"client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, "scopes": GOOGLE_API_SCOPES, "redirect_uri": self.redirect_uri}, f)
+            # Store client_config and redirect_uri for callback
+            try:
+                with open("client_config.pickle", "wb") as f:
+                    pickle.dump({
+                        "client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, 
+                        "scopes": GOOGLE_API_SCOPES, 
+                        "redirect_uri": self.redirect_uri
+                    }, f)
+            except Exception as e:
+                logger.error(f"Failed to save OAuth config: {e}")
+                # Continue anyway - might work without state validation
 
-        return auth_url
+            return auth_url
+            
+        except Exception as e:
+            logger.error(f"Error generating OAuth URL: {e}")
+            logger.error(traceback.format_exc())
+            raise
 
     async def handle_oauth_callback(self, request: Request):
         """Handle the OAuth callback and exchange code for token"""

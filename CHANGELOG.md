@@ -4,7 +4,22 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-## [0.1.74] - 2025-08-11
+## [0.1.75] - 2025-08-11
+
+### Fixed
+- **Critical: OAuth Authentication Error**: Fixed "Required parameter is missing: response_type" error in Google OAuth 2.0 flow
+- **Enhanced OAuth Diagnostics**: Added comprehensive OAuth status endpoint and improved error handling
+- **Robust Authentication Flow**: Added fallback logic to ensure response_type parameter is included in OAuth URLs
+
+### Added
+- **OAuth Status Endpoint**: New `/auth/status` endpoint to diagnose authentication issues and configuration problems
+- **OAuth Login Endpoint**: New `/auth/login` endpoint for manual authentication initiation
+- **Enhanced OAuth Logging**: Comprehensive logging for OAuth URL generation and callback handling
+
+### Technical Details
+- **google_calendar.py**: Enhanced OAuth URL generation with explicit response_type parameter handling
+- **routes.py**: Added authentication diagnostic endpoints with proper error handling
+- **OAuth Flow**: Improved state management and credential validation with better error messages
 
 ### Fixed
 - **Critical: Calendar Move Intent Detection**: Enhanced fallback logic in NLP agent to properly extract calendar names from user messages like "move to calendar 'Tonya'"

@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
+import os
+from app.config import GOOGLE_CLIENT_SECRET_FILE, GOOGLE_API_SCOPES
 from app.services.telegram import (
     TelegramBotService, 
     send_telegram_message, 
@@ -1012,6 +1014,45 @@ async def oauth_callback(request: Request):
     """Handle Google OAuth callback."""
     logger.info(f"Received OAuth callback with code: {request.query_params.get('code')}")
     return await calendar_service.handle_oauth_callback(request)
+
+
+@router.get("/auth/status")
+async def auth_status():
+    """Check authentication status and OAuth configuration"""
+    try:
+        status = {
+            "authenticated": calendar_service.is_authenticated(),
+            "credentials_file_configured": bool(GOOGLE_CLIENT_SECRET_FILE),
+            "credentials_file_exists": bool(GOOGLE_CLIENT_SECRET_FILE and os.path.exists(GOOGLE_CLIENT_SECRET_FILE)),
+            "redirect_uri": calendar_service.redirect_uri,
+            "scopes": GOOGLE_API_SCOPES
+        }
+        
+        if not status["authenticated"]:
+            try:
+                auth_url = calendar_service.get_auth_url()
+                status["auth_url"] = auth_url
+            except Exception as e:
+                status["auth_error"] = str(e)
+                
+        return status
+    except Exception as e:
+        logger.error(f"Error checking auth status: {e}")
+        return {"error": str(e)}
+
+
+@router.get("/auth/login")  
+async def login():
+    """Initiate OAuth login flow"""
+    try:
+        if calendar_service.is_authenticated():
+            return {"message": "Already authenticated", "authenticated": True}
+            
+        auth_url = calendar_service.get_auth_url()
+        return {"auth_url": auth_url, "message": "Please visit the auth_url to authenticate"}
+    except Exception as e:
+        logger.error(f"Error initiating login: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to initiate login: {str(e)}")
 
 
 @router.get("/calendars")
