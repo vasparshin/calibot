@@ -4,6 +4,14 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.71] - 2025-08-11
+
+### Fixed
+- **Critical: Batch Creation Function Arguments**: Fixed incorrect argument order in process_batch_creation call causing TypeError with missing duplicate_checker parameter
+### Technical Details
+- **routes.py**: Added missing import for format_event_for_display function
+- **routes.py**: Corrected process_batch_creation call to include all 8 required parameters in correct order: formatter_fn, duplicate_formatter_fn, conversation_state, duplicate_checker
+
 ## [0.1.70] - 2025-08-11
 
 ### Fixed

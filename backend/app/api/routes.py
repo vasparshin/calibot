@@ -34,7 +34,7 @@ except ImportError:
     MessageFormatter = None
     InlineKeyboardHelper = None
 from datetime import datetime
-from app.utils.ui_helpers import format_duplicate_confirmation_with_keyboard
+from app.utils.ui_helpers import format_duplicate_confirmation_with_keyboard, format_event_for_display
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -525,7 +525,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 event_data,
                 calendar_service,
                 send_telegram_message,
-                # format_event_for_display deprecated; using MessageFormatter directly
+                format_event_for_display,
                 format_duplicate_confirmation_with_keyboard,
                 conversation_state,
                 lambda enhanced: find_duplicates(enhanced, calendar_service),
