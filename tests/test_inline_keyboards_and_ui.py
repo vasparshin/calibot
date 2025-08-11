@@ -20,10 +20,10 @@ sys.path.insert(0, '/workspaces/calibot')
 
 try:
     from backend.app.services.telegram import (
-        create_confirmation_keyboard,
         create_event_selection_keyboard,
         send_telegram_message
     )
+    from backend.app.utils.inline_keyboard import InlineKeyboardHelper
     from backend.app.utils.message_formatter import MessageFormatter
     from backend.app.services.google_calendar import GoogleCalendarService
     from backend.app.agent.calendar_agent import CalendarAgent
@@ -38,13 +38,13 @@ def test_inline_keyboards():
     # Test confirmation keyboards
     print("\n1. Testing confirmation keyboards:")
     
-    duplicate_keyboard = create_confirmation_keyboard("duplicate")
+    duplicate_keyboard = InlineKeyboardHelper.create_duplicate_confirmation_keyboard()
     print("✅ Duplicate confirmation keyboard:", duplicate_keyboard)
     
-    multi_event_keyboard = create_confirmation_keyboard("multi_event")
+    multi_event_keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action="delete")
     print("✅ Multi-event confirmation keyboard:", multi_event_keyboard)
     
-    standard_keyboard = create_confirmation_keyboard("standard")
+    standard_keyboard = InlineKeyboardHelper.create_single_event_confirmation_keyboard(action="delete")
     print("✅ Standard confirmation keyboard:", standard_keyboard)
     
     # Test event selection keyboard

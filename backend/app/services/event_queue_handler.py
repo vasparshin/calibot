@@ -362,10 +362,10 @@ class EventQueueHandler:
         else:
             action_text = "create this event"
             action_prefix = "CREATE"
-        
-        # Create inline keyboard for one-by-one confirmation
-        keyboard = InlineKeyboardHelper.create_single_event_confirmation_keyboard(action_text) if InlineKeyboardHelper else None
-        
+
+        # Create navigation keyboard (Yes / Skip / Stop All)
+        keyboard = InlineKeyboardHelper.create_queue_navigation_keyboard(current_index=current_index, total_count=total_events, action=intent) if InlineKeyboardHelper else None
+
         confirmation_message = f"""{action_prefix} Event {current_index + 1} of {total_events}:
 
 {event_summary}
@@ -506,9 +506,26 @@ Calendar: {calendar}"""
         # Handle callback data patterns (e.g., "confirm_update", "cancel_delete")
         is_confirm = (user_response in ['yes', 'y', 'confirm'] or 
                      user_response.startswith('confirm_'))
-        is_cancel = (user_response in ['no', 'n', 'skip'] or 
+    is_cancel = (user_response in ['no', 'n'] or 
                       user_response.startswith('cancel_'))
 
+        if user_response == 'skip':
+            # Skip current event without processing
+            queue['current_index'] += 1
+            next_result = self.get_next_event_confirmation(chat_id)
+            if next_result.get('queue_complete'):
+                return {
+                    "success": True,
+                    "message": "All events processed!",
+                    "queue_complete": True
+                }
+            return {
+                "success": True,
+                "message": f"Skipped.
+\n{next_result['message']}",
+                "queue_continues": True,
+                "next_confirmation": next_result
+            }
         if is_confirm:
             # Process current event
             result = await self._process_single_event(current_event)

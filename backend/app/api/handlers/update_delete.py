@@ -4,7 +4,7 @@ Phase 2 refactor: encapsulates logic previously inline in routes.
 from __future__ import annotations
 from typing import Dict, Any, List
 import logging
-from app.services.telegram import create_confirmation_keyboard
+from app.utils.inline_keyboard import InlineKeyboardHelper
 from app.utils.message_formatter import MessageFormatter
 
 logger = logging.getLogger(__name__)
@@ -109,8 +109,7 @@ async def process_update_delete_with_confirmation(
             else:
                 display_lines.append(f"{idx}. {ev['summary'][2:]}")
         message = header + "\n".join(display_lines)
-
-        keyboard = create_confirmation_keyboard("multi_event")
+        keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action=intent)
         multi_event_handler.store_pending_operation(chat_id, {
             "type": f"{intent}_multiple",
             "events": events,
@@ -161,7 +160,7 @@ async def process_update_delete_with_confirmation(
         confirmation_msg = f"Are you sure you want to {action_desc} {summary}?"
         op_type = "update_multiple"  # consistent with existing store logic
 
-    keyboard = create_confirmation_keyboard("single_event")
+    keyboard = InlineKeyboardHelper.create_single_event_confirmation_keyboard(action=intent)
     multi_event_handler.store_pending_operation(chat_id, {
         "type": op_type,
         "events": [event],

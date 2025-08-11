@@ -50,7 +50,8 @@ except ImportError as e:
             if response == "one":
                 return {
                     "message": "UPDATE Event 1 of 2:\n\nEvent: Lesson 1",
-                    "keyboard": {"inline_keyboard": [[{"text": "Yes", "callback_data": "confirm_yes"}]]},
+                    # Updated keyboard structure now uses navigation (Yes / Skip / Stop All)
+                    "keyboard": {"inline_keyboard": [[{"text": "✅ Yes", "callback_data": "queue_confirm_0"}, {"text": "❌ Skip", "callback_data": "queue_skip_0"}], [{"text": "🛑 Stop All", "callback_data": "queue_stop_all"}]]},
                     "requires_user_action": True
                 }
             elif response == "yes":
@@ -72,7 +73,7 @@ except ImportError as e:
                         "queue_continues": True,
                         "next_confirmation": {
                             "message": f"UPDATE Event {queue['current_index'] + 1} of {len(queue['events'])}: Next event",
-                            "keyboard": {"inline_keyboard": [[{"text": "Yes", "callback_data": "confirm_yes"}]]},
+                            "keyboard": {"inline_keyboard": [[{"text": "✅ Yes", "callback_data": "queue_confirm_1"}, {"text": "❌ Skip", "callback_data": "queue_skip_1"}], [{"text": "🛑 Stop All", "callback_data": "queue_stop_all"}]]},
                             "requires_user_action": True
                         }
                     }

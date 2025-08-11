@@ -66,7 +66,7 @@ def test_multi_event_keyboard_formatting():
     
     try:
         from backend.app.utils.message_formatter import MessageFormatter
-        from backend.app.services.telegram import create_confirmation_keyboard
+        from backend.app.utils.inline_keyboard import InlineKeyboardHelper
 
         simplified_events = [
             {
@@ -78,7 +78,7 @@ def test_multi_event_keyboard_formatting():
             } for e in test_events
         ]
         confirmation_msg = MessageFormatter.format_confirmation_message("delete", simplified_events)
-        keyboard = create_confirmation_keyboard("multi_event")
+        keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action="delete")
 
         print("📱 Generated Confirmation Message:")
         print(confirmation_msg)

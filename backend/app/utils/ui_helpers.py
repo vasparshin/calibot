@@ -9,7 +9,7 @@ for consistent formatting. This file contains legacy functions for backward comp
 """
 from datetime import datetime
 import re
-from app.services.telegram import create_confirmation_keyboard, create_event_selection_keyboard
+from app.services.telegram import create_event_selection_keyboard
 
 # Import new centralized formatters
 try:
@@ -456,7 +456,12 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
     
     message += f"\nDo you want to {action} these events anyway?"
     
-    keyboard = create_confirmation_keyboard("duplicate")
+    # Legacy: now using InlineKeyboardHelper
+    if InlineKeyboardHelper:
+        keyboard = InlineKeyboardHelper.create_duplicate_confirmation_keyboard()
+    else:
+        from app.utils.inline_keyboard import InlineKeyboardHelper as _IKH
+        keyboard = _IKH.create_duplicate_confirmation_keyboard()
     return message, keyboard
 
 def format_multi_event_confirmation_with_keyboard(events, action="delete"):
@@ -532,7 +537,11 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
     # Use buttons only - no text instructions per user request
     message += f"\nUse the buttons below to proceed:"
     
-    keyboard = create_confirmation_keyboard("multi_event")
+    if InlineKeyboardHelper:
+        keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action=action)
+    else:
+        from app.utils.inline_keyboard import InlineKeyboardHelper as _IKH
+        keyboard = _IKH.create_multi_event_confirmation_keyboard(action=action)
     return message, keyboard
 
 def format_event_selection_with_keyboard(events, action="select"):

@@ -46,36 +46,6 @@ async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None,
             )
             return response.json()
 
-def create_confirmation_keyboard(operation_type: str = "delete") -> dict:
-    """Create inline keyboard for confirmations"""
-    if operation_type == "duplicate":
-        return {
-            "inline_keyboard": [
-                [
-                    {"text": "✅ Create Anyway", "callback_data": "confirm_yes"},
-                    {"text": "❌ Cancel", "callback_data": "confirm_no"}
-                ]
-            ]
-        }
-    elif operation_type == "multi_event":
-        return {
-            "inline_keyboard": [
-                [
-                    {"text": "🔄 All", "callback_data": "confirm_all"},
-                    {"text": "1️⃣ One by One", "callback_data": "confirm_one"},
-                    {"text": "❌ Cancel", "callback_data": "confirm_cancel"}
-                ]
-            ]
-        }
-    else:  # Standard yes/no
-        return {
-            "inline_keyboard": [
-                [
-                    {"text": "✅ Yes", "callback_data": "confirm_yes"},
-                    {"text": "❌ No", "callback_data": "confirm_no"}
-                ]
-            ]
-        }
 
 def create_event_selection_keyboard(events: list) -> dict:
     """Create inline keyboard for selecting individual events"""

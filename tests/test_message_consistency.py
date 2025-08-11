@@ -13,7 +13,7 @@ def test_keyboard_consistency():
     
     # Import the keyboard creation function
     try:
-        from backend.app.services.telegram import create_confirmation_keyboard
+        from backend.app.utils.inline_keyboard import InlineKeyboardHelper
         
         # Test different keyboard types
         test_cases = [
@@ -27,7 +27,12 @@ def test_keyboard_consistency():
             operation_type = case[0]
             expected_buttons = case[1:]
             
-            keyboard = create_confirmation_keyboard(operation_type)
+            if operation_type == "multi_event":
+                keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action="delete")
+            elif operation_type == "duplicate":
+                keyboard = InlineKeyboardHelper.create_duplicate_confirmation_keyboard()
+            else:
+                keyboard = InlineKeyboardHelper.create_single_event_confirmation_keyboard(action="delete")
             print(f"   {operation_type}: {keyboard}")
             
             # Check that keyboard has inline_keyboard structure

@@ -12,7 +12,7 @@ from app.services.event_queue_handler import EventQueueHandler
 from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
 from app.agent.calendar_agent import CalendarAgent
-from app.services.telegram import create_confirmation_keyboard
+from app.utils.inline_keyboard import InlineKeyboardHelper
 from app.utils.message_formatter import MessageFormatter
 from app.agent.nlp_agent import NLPAgent
 from app.utils.message_formatter import MessageFormatter
@@ -152,41 +152,75 @@ async def telegram_webhook(update: TelegramUpdate):
     return await process_user_message(chat_id, user_message, message_type)
 
 async def handle_callback_query(callback_query):
-    """Handle inline keyboard button presses"""
+    """Handle inline keyboard button presses using centralized parsing."""
     chat_id = callback_query["message"]["chat"]["id"]
     message_id = callback_query["message"]["message_id"]
-    callback_data = callback_query["data"]
+    callback_data = callback_query.get("data", "")
     callback_query_id = callback_query["id"]
-    
+
     logger.info(f"🔘 Callback query from chat {chat_id}: {callback_data}")
-    
-    # Answer the callback query to remove loading indicator
+
+    # Always answer to stop Telegram spinner
     await answer_callback_query(callback_query_id, "Processing...")
-    
-    # Handle different callback types
-    if callback_data == "confirm_yes":
-        return await handle_confirmation_callback(chat_id, message_id, "yes")
-    elif callback_data == "confirm_no":
-        return await handle_confirmation_callback(chat_id, message_id, "no")
-    elif callback_data == "confirm_all" or callback_data.startswith("confirm_all_"):
-        return await handle_confirmation_callback(chat_id, message_id, "all")
-    elif callback_data == "confirm_one" or callback_data.startswith("confirm_one_"):
-        return await handle_confirmation_callback(chat_id, message_id, "one")
-    elif callback_data.startswith("confirm_") and not callback_data.startswith("confirm_all"):
-        # Handle single event confirmation (e.g., "confirm_update this event")
-        return await handle_confirmation_callback(chat_id, message_id, "yes")
-    elif callback_data == "confirm_cancel" or callback_data.startswith("cancel_"):
-        return await handle_confirmation_callback(chat_id, message_id, "cancel")
-    elif callback_data.startswith("select_event_"):
-        event_index = int(callback_data.split("_")[-1])
-        return await handle_event_selection(chat_id, message_id, event_index)
-    elif callback_data == "select_all":
+
+    # Parse via helper
+    parsed = InlineKeyboardHelper.parse_callback_data(callback_data) if InlineKeyboardHelper else {"action": "unknown"}
+    action = parsed.get("action")
+    detail = parsed.get("detail")
+    parsed_type = parsed.get("type")
+
+    # Legacy fallbacks for old callback formats still potentially in flight
+    if callback_data in ["confirm_yes", "confirm_no", "confirm_all", "confirm_one", "confirm_cancel"]:
+        legacy_map = {
+            "confirm_yes": "yes",
+            "confirm_no": "no",
+            "confirm_all": "all",
+            "confirm_one": "one",
+            "confirm_cancel": "cancel",
+        }
+        return await handle_confirmation_callback(chat_id, message_id, legacy_map[callback_data])
+
+    # Selection keyboards (legacy event selection)
+    if callback_data.startswith("select_event_"):
+        try:
+            idx = int(callback_data.split("_")[-1])
+            return await handle_event_selection(chat_id, message_id, idx)
+        except ValueError:
+            logger.warning(f"Invalid select_event index in callback: {callback_data}")
+            return {"status": "ok"}
+    if callback_data == "select_all":
         return await handle_event_selection(chat_id, message_id, "all")
-    elif callback_data == "select_cancel":
+    if callback_data == "select_cancel":
         return await handle_event_selection(chat_id, message_id, "cancel")
-    else:
-        logger.warning(f"Unknown callback data: {callback_data}")
+
+    # Queue navigation callbacks
+    if action == "queue":
+        # Map queue actions to internal confirmation keywords
+        if detail == "confirm":
+            return await handle_confirmation_callback(chat_id, message_id, "yes")
+        elif detail == "skip":
+            return await handle_confirmation_callback(chat_id, message_id, "skip")
+        elif detail == "stop":
+            return await handle_confirmation_callback(chat_id, message_id, "cancel")
         return {"status": "ok"}
+
+    # Unified confirmation/cancel flows
+    if parsed_type in ["multi_all", "multi_one", "single", "duplicates"]:
+        if parsed_type == "multi_all":
+            return await handle_confirmation_callback(chat_id, message_id, "all")
+        if parsed_type == "multi_one":
+            return await handle_confirmation_callback(chat_id, message_id, "one")
+        if parsed_type == "duplicates":
+            # Treat duplicates confirmation as yes
+            return await handle_confirmation_callback(chat_id, message_id, "yes")
+        if parsed_type == "single":
+            return await handle_confirmation_callback(chat_id, message_id, "yes")
+
+    if parsed_type == "cancel":
+        return await handle_confirmation_callback(chat_id, message_id, "cancel")
+
+    logger.warning(f"Unknown callback data after parsing: {callback_data} -> {parsed}")
+    return {"status": "ok"}
 
 async def handle_confirmation_callback(chat_id: int, message_id: int, confirmation: str):
     """Handle confirmation responses from inline keyboards"""
@@ -234,14 +268,16 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
                 "❌ **Cancelled** - Request has been cancelled",
                 reply_markup={}
             )
-    elif confirmation in ["all", "one", "cancel"]:
+    elif confirmation in ["all", "one", "cancel", "skip"]:
         # CRITICAL FIX: Always remove keyboard from original message for all multi-event operations
         if original_confirmation_msg:
             if confirmation == "all":
                 status_text = "✅ **Processing all events** - Please wait..."
             elif confirmation == "one":
                 status_text = "✅ **Processing one by one** - See next message..."
-            else:
+            elif confirmation == "skip":
+                status_text = "⏭️ **Skipping current event** - Moving to next..."
+            else:  # cancel
                 status_text = "❌ **Cancelled** - Operation cancelled"
             
             await edit_message_text(
@@ -252,7 +288,7 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
             )
         
         # Clear any pending operations if cancelled
-        if confirmation == "cancel":
+    if confirmation == "cancel":
             multi_event_handler.clear_pending_operations(chat_id)
             event_queue_handler.clear_queue(chat_id)
             await send_telegram_message(chat_id, "❌ Operation cancelled")
@@ -791,7 +827,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                             'htmlLink': e.get('htmlLink') or e.get('calendar_link')
                         } for e in events
                     ])
-                    keyboard = create_confirmation_keyboard("multi_event")
+                    keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action="delete")
                     
                     await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
                     conversation_state.add_message(chat_id, "assistant", confirmation_msg)
@@ -932,7 +968,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             target = event_data.get("event_name", "the event")
             
             confirmation_msg = f"Are you sure you want to {action_text} '{target}'?"
-            keyboard = create_confirmation_keyboard("single_event")
+            keyboard = InlineKeyboardHelper.create_single_event_confirmation_keyboard(action=intent)
             
             await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
             conversation_state.add_message(chat_id, "assistant", confirmation_msg)

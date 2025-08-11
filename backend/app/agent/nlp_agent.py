@@ -16,6 +16,109 @@ class NLPAgent:
         self.system_prompt = INTENT_EXTRACTION_PROMPT
         self.model = LITELLM_MODEL
 
+    # --------- Internal lightweight fallback parsers ---------
+    def _parse_simple_batch_create(self, user_message: str) -> dict | None:
+        """Parse simple multi-time creation requests when LLM output is malformed.
+        Examples handled:
+          "add two lessons today at 5 and 7 pm"
+          "create 3 meetings for tomorrow at 9, 10 and 11"
+          "schedule two calls in tonya's calendar at 14:00 and 16:00"
+          "create two events today one at 5 and one at 7pm"
+        Assumptions:
+          - Default duration 1 hour per event
+          - If meridiem (am/pm) supplied on last time, apply to earlier times lacking one
+          - If no meridiem provided and hour < 8 -> assume AM else PM
+        Returns batch_create intent dict or None.
+        """
+        import re
+        text = user_message.lower()
+        # Quick gate: must mention create/add/schedule (including 'lessons' verbs) and at least two time tokens
+        if not any(k in text for k in ["add", "create", "schedule", "lesson", "meet", "call"]):
+            return None
+        if len(re.findall(r"\b(\d{1,2})(?::\d{2})?\s*(?:am|pm)?\b", text)) < 2:
+            return None
+        # (Optional) Count detection retained for potential future validation but not strictly required now
+        # We intentionally avoid using count directly to stay permissive even if user says "a couple" etc.
+        num_map = {"two":2, "three":3, "four":4, "five":5, "six":6, "seven":7, "eight":8, "nine":9, "ten":10}
+        for word, val in num_map.items():
+            if re.search(rf"\b{word}\b", text):
+                break  # Not used presently
+        # Event name: word after number or explicit quoted name
+        event_name = None
+        m_quote = re.search(r'"([a-zA-Z ]{2,40})"', user_message)
+        if m_quote:
+            event_name = m_quote.group(1).strip().lower()
+        if not event_name:
+            m_en = re.search(r"(?:add|create|schedule)\s+(?:two|three|four|five|six|seven|eight|nine|ten|\d+)\s+([a-zA-Z]+)", text)
+            if m_en:
+                event_name = m_en.group(1).lower()
+        if event_name and event_name.endswith('s'):
+            # naive singularization
+            event_name = event_name[:-1]
+        if not event_name:
+            event_name = "event"
+        # Date detection
+        from datetime import datetime, timedelta
+        if "tomorrow" in text:
+            date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        else:
+            date = datetime.now().strftime("%Y-%m-%d")
+        # Calendar detection (tonya's calendar etc.)
+        calendar_name = None
+        cal_match = re.search(r"(tonya'?s calendar)", text)
+        if cal_match:
+            calendar_name = cal_match.group(1)
+        # Times extraction
+        time_tokens = re.findall(r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b", text)
+        if not time_tokens:
+            return None
+        # Determine global meridiem if only last has it
+        last_meridiem = None
+        for h, m, ap in time_tokens:
+            if ap:
+                last_meridiem = ap
+        events = []
+        for h, m, ap in time_tokens:
+            hour = int(h)
+            minute = int(m) if m else 0
+            meridiem = ap or last_meridiem
+            if not meridiem:
+                # Improved assumption: times 1-11 default to AM (common user expectation for bare morning hours)
+                # Only treat 12 or values >= 13 as PM when unspecified.
+                if 1 <= hour <= 11:
+                    meridiem = 'am'
+                else:
+                    meridiem = 'pm'
+            # Convert to 24h
+            hour24 = hour % 12
+            if meridiem == 'pm':
+                hour24 += 12
+            start_hour = f"{hour24:02d}:{minute:02d}"
+            # Default 1 hour duration
+            from datetime import datetime as _dt, timedelta as _td
+            try:
+                st = _dt.strptime(start_hour, "%H:%M")
+                et = st + _td(hours=1)
+                end_hour = et.strftime("%H:%M")
+            except Exception:
+                end_hour = start_hour
+            events.append({"start_time": start_hour, "end_time": end_hour})
+        # Deduplicate times
+        seen = set(); dedup=[]
+        for ev in events:
+            if ev['start_time'] in seen: continue
+            seen.add(ev['start_time']); dedup.append(ev)
+        if len(dedup) < 2:
+            return None
+        return {
+            "intent": "batch_create",
+            "event_name": event_name,
+            "date": date,
+            "events": dedup,
+            "calendar_name": calendar_name,
+            "confirmation_needed": False
+        }
+
         
     async def check_relevancy(self, user_message: str, history: list) -> dict:
         """Check if the user message is relevant to calendar tasks."""
@@ -80,6 +183,11 @@ class NLPAgent:
                 logger.error(f"DETECTED MALFORMED LLM RESPONSE: '{cleaned_result}' - using intelligent fallback")
                 # Enhanced fallback based on user message keywords
                 user_lower = user_message.lower()
+                # Attempt structured batch create parse first
+                batch_parsed = self._parse_simple_batch_create(user_message)
+                if batch_parsed:
+                    logger.info(f"Rule-based batch_create fallback parsed: {batch_parsed}")
+                    return batch_parsed
                 
                 if any(word in user_lower for word in ['delete', 'remove']):
                     fallback = {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
@@ -152,7 +260,11 @@ class NLPAgent:
                             return regen_json
                     except Exception as _e:
                         logger.error(f"Regenerated parse failed: {_e}")
-                # If regeneration also failed, proceed to keyword fallback below after parsing attempts
+                # If regeneration also failed, attempt rule-based batch parsing before generic fallback
+                batch_parsed = self._parse_simple_batch_create(user_message)
+                if batch_parsed:
+                    logger.info(f"Rule-based batch_create after regen failure: {batch_parsed}")
+                    return batch_parsed
                 cleaned_result = cleaned_regen  # continue downstream with latest attempt
             
             # Try to parse as single JSON first
@@ -215,9 +327,13 @@ class NLPAgent:
                         "confirmation_needed": False
                     }
                 
-                # If nothing worked, use intelligent fallback based on user message
+                # If nothing worked, attempt rule-based batch parsing before intelligent fallback
                 logger.error(f"Multiple JSON parsing also failed, using intelligent fallback")
                 logger.error(f"Raw response content: '{result}'")
+                batch_parsed = self._parse_simple_batch_create(user_message)
+                if batch_parsed:
+                    logger.info(f"Rule-based batch_create after multiple JSON failures: {batch_parsed}")
+                    return batch_parsed
             
             # Create a smart fallback based on user message
             user_lower = user_message.lower()
@@ -237,6 +353,15 @@ class NLPAgent:
             logger.error(f"Error extracting intent: {e}")
             logger.error(f"User message was: '{user_message}'")
             
+            # Attempt rule-based batch parse even in exception path
+            try:
+                batch_parsed = self._parse_simple_batch_create(user_message)
+                if batch_parsed:
+                    logger.info(f"Exception path batch_create parsed: {batch_parsed}")
+                    return batch_parsed
+            except Exception as _bp_err:
+                logger.warning(f"Batch parser failed in exception path: {_bp_err}")
+
             # Even on errors, provide intelligent fallback based on user message  
             user_lower = user_message.lower()
             

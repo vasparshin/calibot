@@ -4,6 +4,88 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.68] - 2025-08-11
+
+### Fixed
+- Batch multi-time creation fallback not triggering when LLM returned pathological `"intent"` token; parser was never invoked in exception path due to early exception handling. Added invocation of `_parse_simple_batch_create` inside exception fallback block and corrected gating indentation.
+
+### Added
+- Unit test `tests/test_simple_batch_parser.py` verifying phrases like "add two lessons today at 5 and 7 pm" produce `batch_create` with correct event count (2–3+).
+
+### Changed
+- Improved meridiem inference (unspecified hours 1–11 default to AM, 12/13+ to PM) and broadened initial keyword gate to include 'lesson', 'meet', 'call'. Removed unused count enforcement to stay permissive.
+
+### Technical Details
+- `nlp_agent.py`: Fixed indentation of gating logic inside `_parse_simple_batch_create`; added batch parser call in exception handler; adjusted meridiem logic; broadened quick gate keywords.
+- `test_simple_batch_parser.py`: New focused test ensuring deterministic batch parsing independent of LLM quality.
+- Version bump to 0.1.68 (`pyproject.toml`, `backend/app/__init__.py`).
+
+### Impact
+- Restores reliable multi-event creation for common user phrasings even when LLM degrades; prevents silent downgrade to single `query` intent, reducing user friction and re-prompt loops.
+
+## [0.1.65] - 2025-08-11
+## [0.1.66] - 2025-08-11
+## [0.1.67] - 2025-08-11
+
+### Changed
+- Updated legacy UX test (`test_ux_fixes_v041.py`) to reflect new queue navigation keyboard layout (Yes / Skip / Stop All) replacing single-button confirmation.
+
+### Technical Details
+- Tests: Adjusted expected inline keyboard JSON to new callback data patterns (`queue_confirm_X`, `queue_skip_X`, `queue_stop_all`).
+- Version bump to 0.1.67.
+
+### Impact
+- Ensures test suite aligns with refactored callback and navigation system prior to external validation.
+
+### Added
+- Rule-based batch create fallback parser in `NLPAgent` to recover from malformed minimal LLM outputs ("intent") for phrases like "add two lessons today at 5 and 7 pm". Automatically produces `batch_create` intent with inferred 1‑hour slots and shared meridiem propagation.
+
+### Fixed
+- Multi-event creation prompts incorrectly downgraded to `query` or bare `create` missing times when LLM returned pathological minimal token; now robustly parsed locally before generic keyword fallback.
+
+### Technical Details
+- `nlp_agent.py`: Added `_parse_simple_batch_create` with plural normalization, time extraction (infers meridiem, default 1h duration), calendar name capture (Tonya's calendar), invoked at three fallback decision points (initial malformed detection, post-regeneration invalid, multi-JSON failure path).
+- Version bump to 0.1.66.
+
+### Impact
+- Restores correct batch creation UX without asking for missing start/end times for common multi-time user phrasings; reduces unnecessary clarification loops and improves reliability under degraded LLM responses.
+
+### Changed
+- Refactored callback query handling to use `InlineKeyboardHelper.parse_callback_data` enabling unified action mapping (multi_all, multi_one, single, duplicates, queue navigation) while keeping backward compatibility for legacy `confirm_yes/no` patterns.
+- Introduced queue navigation keyboard (Yes / Skip / Stop All) replacing legacy single-button confirmation during one-by-one processing.
+
+### Added
+- Support for skip action in one-by-one queue mode with proper status messaging and transition to next event.
+
+### Fixed
+- Removed brittle if/elif callback chain; reduces risk of inconsistent future button additions. Ensured keyboard removal and status line updates cover new skip path.
+
+### Technical Details
+- `routes.py`: Replaced manual callback branching with parsed result; added legacy fallback; extended confirmation handler to handle `skip`.
+- `event_queue_handler.py`: Implemented navigation keyboard usage, skip logic, and consistent message returns.
+- Version bump to 0.1.65.
+
+### Impact
+- More maintainable and extensible callback processing; prepares for further UX refinements (Issue 6 ephemerality audit) with standardized callback schema.
+
+## [0.1.64] - 2025-08-11
+
+### Changed
+- Consolidated all confirmation inline keyboards to centralized `InlineKeyboardHelper`; removed legacy `create_confirmation_keyboard` to prevent drift and enforce single-row button layouts per BOT_RULES.
+
+### Fixed
+- Residual imports and usages of deprecated keyboard helper in `routes.py`, `update_delete.py`, `ui_helpers.py`, and related tests now migrated to standardized helper methods (multi-event, single-event, duplicate). Resolved indentation issues introduced during refactor.
+
+### Technical Details
+- `routes.py`, `handlers/update_delete.py`: Replaced helper calls with `InlineKeyboardHelper` methods (`create_multi_event_confirmation_keyboard`, `create_single_event_confirmation_keyboard`).
+- `services/telegram.py`: Removed obsolete `create_confirmation_keyboard` function definition.
+- `utils/ui_helpers.py`: Swapped legacy calls for helper-based keyboards while preserving backward compatibility for other legacy helpers.
+- Tests (`test_inline_keyboards_and_ui.py`, `test_message_consistency.py`, `test_final_delete_validation.py`): Updated to import and use `InlineKeyboardHelper`; cleaned indentation errors.
+- Version bump to 0.1.64 across version files.
+
+### Impact
+- Ensures consistent button text, callback data schema, and single-row layouts; reduces maintenance overhead and future inconsistency regressions (Issue 5 completion milestone).
+
 ## [0.1.63] - 2025-08-11
 
 ### Fixed
