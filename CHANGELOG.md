@@ -4,6 +4,23 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.82] - 2025-08-11
+
+### Fixed
+- **CRITICAL: Root Cause Found and Fixed**: Discovered duplicate fallback sections causing calendar extraction to never execute
+- **Calendar Move Functionality**: Added calendar extraction logic to the ACTIVE fallback section (first one)
+- **Execution Path Issue**: Fixed code structure where first fallback section was returning early, preventing calendar extraction
+
+### Technical Details
+- **nlp_agent.py**: Moved calendar extraction logic from second (unreachable) fallback section to first (active) section
+- **Bug Analysis**: Two identical `elif any(word in user_lower for word in ['move', 'update', 'change'])` sections existed
+- **Fix**: Added complete calendar extraction logic to the fallback section that actually executes
+
+### Root Cause
+- First fallback section (line ~211) was executing and returning immediately
+- Second fallback section (line ~469) with calendar extraction was never reached
+- Calendar moves failed because `calendar_name` was never extracted into the intent
+
 ## [0.1.81] - 2025-08-11
 
 ### Debug

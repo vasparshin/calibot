@@ -224,6 +224,51 @@ class NLPAgent:
                         fallback["target"] = "2nd"
                     elif "3rd" in user_lower or "third" in user_lower:
                         fallback["target"] = "3rd"
+                    
+                    # 🔥 ADD CALENDAR EXTRACTION TO THE FIRST (ACTIVE) FALLBACK SECTION
+                    # Extract calendar move information with improved logging
+                    import re
+                    logger.error(f"🔥 CRITICAL DEBUG: Starting calendar extraction for message: '{user_message}'")
+                    logger.error(f"🔥 CRITICAL DEBUG: Lowercase message: '{user_lower}'")
+                    
+                    # Try multiple patterns for calendar extraction
+                    calendar_patterns = [
+                        r'to calendar ["\']([^"\']+)["\']',  # 'to calendar "Name"'
+                        r'to calendar ([^\s]+)',             # 'to calendar Name'
+                        r'calendar ["\']([^"\']+)["\']',     # 'calendar "Name"'
+                        r'move.*to ([A-Z][a-zA-Z]+)',        # 'move to Name'
+                    ]
+                    
+                    target_calendar = None
+                    for i, pattern in enumerate(calendar_patterns):
+                        logger.error(f"🔥 CRITICAL DEBUG: Testing pattern {i+1}: '{pattern}'")
+                        calendar_match = re.search(pattern, user_lower)
+                        if calendar_match:
+                            target_calendar = calendar_match.group(1).strip()
+                            logger.error(f"🔥 ✅ CRITICAL DEBUG: Calendar pattern '{pattern}' matched: '{target_calendar}'")
+                            break
+                        else:
+                            logger.error(f"🔥 ❌ CRITICAL DEBUG: Pattern '{pattern}' did not match")
+                    
+                    if target_calendar:
+                        fallback["calendar_name"] = target_calendar.title()  # Capitalize properly
+                        logger.error(f"🔥 ✅ CRITICAL DEBUG: EXTRACTED target calendar for move: '{target_calendar.title()}' from message: '{user_message}'")
+                    else:
+                        logger.error(f"🔥 ❌ CRITICAL DEBUG: No calendar extraction from primary patterns for message: '{user_message}' (lowercase: '{user_lower}')")
+                        # Try case-insensitive search for known calendar names
+                        known_calendars = ['tonya', 'personal', 'work', 'family']
+                        for cal_name in known_calendars:
+                            if cal_name in user_lower:
+                                fallback["calendar_name"] = cal_name.title()
+                                logger.error(f"🔥 ✅ CRITICAL DEBUG: Found known calendar name '{cal_name}' -> '{cal_name.title()}' in message")
+                                target_calendar = cal_name.title()
+                                break
+                        
+                        if not target_calendar:
+                            logger.error(f"🔥 ❌ CRITICAL DEBUG: FAILED to extract calendar name from: '{user_message}'")
+                    
+                    logger.error(f"🔥 📋 CRITICAL DEBUG: Fallback result for update BEFORE return: {fallback}")
+                    return fallback
                     # Extract time shifts and date changes
                     if 'forward' in user_lower and ('hour' in user_lower or 'hr' in user_lower):
                         fallback["time_shift"] = "1 hour"
