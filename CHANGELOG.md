@@ -5,9 +5,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
-## [0.1.47] - 2025-08-11
+## [0.1.48] - 2025-08-11
 
-## [Unreleased]
+### Changed
+- **Unified Update/Delete Handler**: Merged confirmation and immediate paths into `process_update_delete` to eliminate duplication and ensure consistent filtering, target selection, and formatting for update/delete operations.
+
+### Removed
+- **Deprecated Handler**: `immediate_update_delete.py` logic deprecated; file retained as stub to avoid stale imports until tests updated.
+
+### Technical Details
+- `routes.py` updated to call unified handler for both confirmation-needed and immediate flows.
+- Consolidated multi vs single event logic and added bulk immediate (target==all) processing.
 
 
 ## [0.1.47] - 2025-08-11

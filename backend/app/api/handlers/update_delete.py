@@ -1,5 +1,5 @@
-"""Extraction of update/delete multi or single event handling with confirmation.
-Phase 2 refactor: encapsulates logic previously inline in routes.
+"""Unified update/delete handling (confirmation + immediate paths).
+Replaces separate confirmation and immediate handlers.
 """
 from __future__ import annotations
 from typing import Dict, Any, List
@@ -9,11 +9,12 @@ from app.utils.ui_helpers import (
     format_no_events_message,
     format_event_title,
     format_multi_event_confirmation_with_keyboard,
+    format_event_for_display,
 )
 
 logger = logging.getLogger(__name__)
 
-async def process_update_delete_with_confirmation(
+async def process_update_delete(
     chat_id: int,
     event_data: Dict[str, Any],
     calendar_service,
@@ -25,39 +26,38 @@ async def process_update_delete_with_confirmation(
     intent = event_data.get("intent")
     if intent not in ["delete", "update"]:
         return {"handled": False}
-    if not event_data.get("confirmation_needed", True):
-        return {"handled": False}
 
-    # Build query params
-    query_params = {
+    confirmation_needed = event_data.get("confirmation_needed", True)
+
+    # Query events first (shared for both paths)
+    matched = await calendar_service.query_events({
         "event_name": event_data.get("event_name", ""),
         "date": event_data.get("date", ""),
-    }
-    if event_data.get("start_time_after"):
-        query_params["start_time_after"] = event_data["start_time_after"]
-    if event_data.get("start_time_before"):
-        query_params["start_time_before"] = event_data["start_time_before"]
-
-    matched = await calendar_service.query_events(query_params)
+    })
     if not (isinstance(matched, dict) and matched.get("success") and matched.get("events")):
-        msg = f"No matching events found for {intent} operation." if intent else "No matching events found."
+        msg = format_no_events_message(event_data)
         await send_fn(chat_id, msg)
         conversation_state.add_message(chat_id, "assistant", msg)
         return {"handled": True, "status": "ok"}
 
     events = matched["events"]
-    if not isinstance(events, list):
-        msg = "Sorry, there was an issue retrieving events. Please try again."
+    if not isinstance(events, list) or not events:
+        msg = format_no_events_message(event_data)
         await send_fn(chat_id, msg)
         conversation_state.add_message(chat_id, "assistant", msg)
         return {"handled": True, "status": "ok"}
 
-    # Name filtering
+    # Name filtering (confirmation + immediate)
     if event_data.get("event_name"):
         name_lower = event_data["event_name"].lower()
         events = [e for e in events if isinstance(e, dict) and name_lower in e.get("summary", "").lower()]
+        if not events:
+            msg = format_no_events_message(event_data)
+            await send_fn(chat_id, msg)
+            conversation_state.add_message(chat_id, "assistant", msg)
+            return {"handled": True, "status": "ok"}
 
-    # Target filtering
+    # Target filtering (shared)
     target = (event_data.get("target") or "").lower()
     if target and events:
         if target == "last":
@@ -70,14 +70,74 @@ async def process_update_delete_with_confirmation(
             events = [events[2]]
         elif target in ["4th", "fourth", "4"] and len(events) >= 4:
             events = [events[3]]
+        elif target == "all":
+            pass  # keep all
+        if not events:
+            msg = format_no_events_message(event_data)
+            await send_fn(chat_id, msg)
+            conversation_state.add_message(chat_id, "assistant", msg)
+            return {"handled": True, "status": "ok"}
 
-    if not events:
-        no_events_msg = format_no_events_message(event_data)
-        await send_fn(chat_id, no_events_msg)
-        conversation_state.add_message(chat_id, "assistant", no_events_msg)
+    # Immediate path
+    if confirmation_needed is False:
+        # If target == all and multiple events, process all directly
+        if len(events) > 1 and (target == "all"):
+            results = []
+            failures = []
+            for ev in events:
+                if intent == "update":
+                    source_calendar_id = ev.get('calendar_id', 'primary')
+                    resp = calendar_service.update_event(ev.get('id'), event_data, source_calendar_id)
+                    if resp.get("success"):
+                        formatted = format_event_for_display(ev, resp, calendar_service)
+                        results.append(formatted)
+                    else:
+                        failures.append(f"• {ev.get('summary','Event')}: {resp.get('message','Unknown error')}")
+                else:
+                    source_calendar_id = ev.get('calendar_id', 'primary')
+                    resp = calendar_service.delete_event(ev.get('id'), source_calendar_id)
+                    if resp.get("success"):
+                        from app.utils.message_formatter import MessageFormatter
+                        name = MessageFormatter.format_event_title(ev.get('summary','Event'))
+                        results.append(f"Deleted: {name}")
+                    else:
+                        failures.append(f"• {ev.get('summary','Event')}: {resp.get('message','Unknown error')}")
+            if intent == "update":
+                base_msg = f"Updated {len(results)} events" if results else "No events updated"
+            else:
+                base_msg = f"Deleted {len(results)} events" if results else "No events deleted"
+            msg = base_msg
+            if results:
+                msg += "\n\n" + "\n".join(results)
+            if failures:
+                msg += f"\n\nFailed ({len(failures)}):\n" + "\n".join(failures)
+            await send_fn(chat_id, msg)
+            conversation_state.add_message(chat_id, "assistant", msg)
+            return {"handled": True, "status": "ok"}
+        # Single (or first) event immediate
+        ev = events[0]
+        if intent == "update":
+            source_calendar_id = ev.get('calendar_id', 'primary')
+            resp = calendar_service.update_event(ev.get('id'), event_data, source_calendar_id)
+            if resp.get("success"):
+                formatted = format_event_for_display(ev, resp, calendar_service)
+                msg = f"Event updated successfully:\n\n{formatted}" if not resp.get("moved") else f"Event moved successfully:\n\n{formatted}"
+            else:
+                msg = f"Failed to update event: {resp.get('message','Unknown error')}"
+        else:
+            source_calendar_id = ev.get('calendar_id', 'primary')
+            resp = calendar_service.delete_event(ev.get('id'), source_calendar_id)
+            if resp.get("success"):
+                from app.utils.message_formatter import MessageFormatter
+                name = MessageFormatter.format_event_title(ev.get('summary','Event'))
+                msg = f"Successfully deleted: {name}"
+            else:
+                msg = f"Failed to delete event: {resp.get('message','Unknown error')}"
+        await send_fn(chat_id, msg)
+        conversation_state.add_message(chat_id, "assistant", msg)
         return {"handled": True, "status": "ok"}
 
-    # Multi-event path → queue system
+    # Confirmation path (existing logic migrated from previous handler)
     if len(events) > 1:
         queue_events = []
         for ev in events:
@@ -94,14 +154,7 @@ async def process_update_delete_with_confirmation(
             }
             if intent == "update":
                 for key in [
-                    "new_start_time",
-                    "new_end_time",
-                    "new_date",
-                    "new_event_name",
-                    "time_shift",
-                    "date_shift",
-                    "description",
-                    "location",
+                    "new_start_time","new_end_time","new_date","new_event_name","time_shift","date_shift","description","location"
                 ]:
                     if key in event_data:
                         q_ev[key] = event_data[key]
@@ -120,16 +173,16 @@ async def process_update_delete_with_confirmation(
         conversation_state.add_message(chat_id, "assistant", queue_result["message"])
         return {"handled": True, "status": "ok"}
 
-    # Single event path
-    event = events[0]
-    if not isinstance(event, dict) or "id" not in event:
+    # Single event confirmation
+    ev = events[0]
+    if not isinstance(ev, dict) or "id" not in ev:
         msg = "Sorry, the event data is incomplete. Please try again."
         await send_fn(chat_id, msg)
         conversation_state.add_message(chat_id, "assistant", msg)
         return {"handled": True, "status": "ok"}
 
-    title = format_event_title(event.get("summary", "Untitled"))
-    start_time = event.get("start", "")
+    title = format_event_title(ev.get("summary", "Untitled"))
+    start_time = ev.get("start", "")
     if "T" in start_time:
         from datetime import datetime
         try:
@@ -139,8 +192,8 @@ async def process_update_delete_with_confirmation(
             formatted_date = start_time
     else:
         formatted_date = start_time
-    calendar_name = event.get("calendar_name", "Unknown Calendar")
-    event_link = event.get("link") or event.get("htmlLink") or event.get("event_link") or event.get("calendar_link", "")
+    calendar_name = ev.get("calendar_name", "Unknown Calendar")
+    event_link = ev.get("link") or ev.get("htmlLink") or ev.get("event_link") or ev.get("calendar_link", "")
     if event_link:
         summary = f"[{title}]({event_link}) on {formatted_date} ({calendar_name})"
     else:
@@ -159,12 +212,12 @@ async def process_update_delete_with_confirmation(
         else:
             action_desc = "update"
         confirmation_msg = f"Are you sure you want to {action_desc} {summary}?"
-        op_type = "update_multiple"  # consistent with existing store logic
+        op_type = "update_multiple"
 
     keyboard = create_confirmation_keyboard("single_event")
     multi_event_handler.store_pending_operation(chat_id, {
         "type": op_type,
-        "events": [event],
+        "events": [ev],
         "original_request": event_data,
     })
     await send_fn(chat_id, confirmation_msg, reply_markup=keyboard)

@@ -5,5 +5,4 @@ from .duplicate_detection import find_duplicates
 from .batch_creation import process_batch_creation
 from .single_creation import create_single_event
 from .intent_dispatcher import IntentDispatcher
-from .update_delete import process_update_delete_with_confirmation  # new
-from .immediate_update_delete import process_immediate_update_delete  # new
+from .update_delete import process_update_delete  # unified handler
