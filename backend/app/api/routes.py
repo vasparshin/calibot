@@ -391,11 +391,27 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
 
         
         if auth_check is not True:
-            url_auth = calendar_service.get_auth_url()
-            await send_telegram_message(
-                chat_id,
-                f"To use this bot, please authenticate your Google account: [Click here]({url_auth})"
-            )
+            try:
+                url_auth = calendar_service.get_auth_url()
+                await send_telegram_message(
+                    chat_id,
+                    f"To use this bot, please authenticate your Google account: [Click here]({url_auth})\n\n"
+                    f"If you encounter any authentication errors, please check the OAuth configuration or contact support."
+                )
+            except ValueError as ve:
+                logger.error(f"OAuth configuration error: {ve}")
+                await send_telegram_message(
+                    chat_id,
+                    "❌ Authentication system is not properly configured. Please contact the administrator.\n\n"
+                    f"Error details: {str(ve)}"
+                )
+            except Exception as e:
+                logger.error(f"Unexpected authentication error: {e}")
+                await send_telegram_message(
+                    chat_id,
+                    "❌ Authentication system is temporarily unavailable. Please try again later or contact support.\n\n"
+                    f"For immediate assistance, visit: https://calibot-utq6.onrender.com/auth/status"
+                )
             return {"status": "ok"}
         
         # Determine if this appears to be a fresh command while a queue is active
@@ -990,11 +1006,18 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
     except HTTPException as he:
         # Handle authentication errors specifically
         if he.status_code == 401:
-            url_auth = calendar_service.get_auth_url()
-            await send_telegram_message(
-                chat_id,
-                f"Your Google authentication has expired. Please re-authenticate: [Click here]({url_auth})"
-            )
+            try:
+                url_auth = calendar_service.get_auth_url()
+                await send_telegram_message(
+                    chat_id,
+                    f"Your Google authentication has expired. Please re-authenticate: [Click here]({url_auth})"
+                )
+            except Exception as auth_error:
+                logger.error(f"Failed to generate auth URL for expired authentication: {auth_error}")
+                await send_telegram_message(
+                    chat_id,
+                    "❌ Authentication system error. Please visit https://calibot-utq6.onrender.com/auth/login to authenticate manually."
+                )
             return {"status": "ok"}
         else:
             # Re-raise other HTTP exceptions
@@ -1028,6 +1051,26 @@ async def auth_status():
             "scopes": GOOGLE_API_SCOPES
         }
         
+        # Add OAuth client configuration details
+        if GOOGLE_CLIENT_SECRET_FILE and os.path.exists(GOOGLE_CLIENT_SECRET_FILE):
+            try:
+                import json
+                with open(GOOGLE_CLIENT_SECRET_FILE, 'r') as f:
+                    client_config = json.load(f)
+                    
+                if 'web' in client_config:
+                    web_config = client_config['web']
+                    status["oauth_client_type"] = "web"
+                    status["client_id"] = web_config.get('client_id', 'Not found')
+                    status["configured_redirect_uris"] = web_config.get('redirect_uris', [])
+                    status["redirect_uri_match"] = calendar_service.redirect_uri in web_config.get('redirect_uris', [])
+                else:
+                    status["oauth_client_type"] = "unknown"
+                    status["error"] = "OAuth client not configured as 'Web application'"
+                    
+            except Exception as e:
+                status["credentials_file_error"] = str(e)
+        
         if not status["authenticated"]:
             try:
                 auth_url = calendar_service.get_auth_url()
@@ -1050,6 +1093,12 @@ async def login():
             
         auth_url = calendar_service.get_auth_url()
         return {"auth_url": auth_url, "message": "Please visit the auth_url to authenticate"}
+    except ValueError as ve:
+        logger.error(f"OAuth configuration error in login endpoint: {ve}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"OAuth configuration error: {str(ve)}. Please ensure the OAuth client is configured as 'Web application' in Google Cloud Console."
+        )
     except Exception as e:
         logger.error(f"Error initiating login: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to initiate login: {str(e)}")

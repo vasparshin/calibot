@@ -41,6 +41,34 @@ class GoogleCalendarService:
                 logger.error(f"Google credentials file not found: {GOOGLE_CLIENT_SECRET_FILE}")
                 raise FileNotFoundError(f"Credentials file not found: {GOOGLE_CLIENT_SECRET_FILE}")
             
+            # Read and validate the client secrets file
+            import json
+            try:
+                with open(GOOGLE_CLIENT_SECRET_FILE, 'r') as f:
+                    client_config = json.load(f)
+                    
+                # Validate client configuration
+                if 'web' not in client_config:
+                    logger.error("OAuth client must be configured as 'Web application' type")
+                    raise ValueError("Invalid OAuth client type. Please ensure the OAuth client is configured as 'Web application' in Google Cloud Console")
+                    
+                web_config = client_config['web']
+                client_id = web_config.get('client_id')
+                redirect_uris = web_config.get('redirect_uris', [])
+                
+                logger.info(f"OAuth Client ID: {client_id}")
+                logger.info(f"Configured redirect URIs: {redirect_uris}")
+                logger.info(f"Using redirect URI: {self.redirect_uri}")
+                
+                # Check if our redirect URI is in the allowed list
+                if self.redirect_uri not in redirect_uris:
+                    logger.warning(f"Redirect URI {self.redirect_uri} not in configured list: {redirect_uris}")
+                    logger.warning("This may cause OAuth authentication to fail")
+                    
+            except json.JSONDecodeError as e:
+                logger.error(f"Invalid JSON in credentials file: {e}")
+                raise ValueError("Credentials file contains invalid JSON")
+            
             # Create the flow with proper configuration
             flow = Flow.from_client_secrets_file(
                 GOOGLE_CLIENT_SECRET_FILE,
@@ -51,14 +79,14 @@ class GoogleCalendarService:
             logger.info(f"OAuth Redirect URI: {flow.redirect_uri}")
             logger.info(f"OAuth Scopes: {GOOGLE_API_SCOPES}")
             
-            # Generate authorization URL - let google-auth-oauthlib handle response_type
+            # Generate authorization URL with Google's recommended parameters
             auth_url, state = flow.authorization_url(
                 access_type='offline',
                 include_granted_scopes='true',
                 prompt='consent'
             )
             
-            # Ensure response_type is in the URL (fallback check)
+            # Ensure response_type is in the URL (Google should add this automatically)
             if 'response_type=' not in auth_url:
                 logger.warning("response_type missing from OAuth URL, adding manually")
                 separator = '&' if '?' in auth_url else '?'

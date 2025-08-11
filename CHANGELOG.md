@@ -4,7 +4,22 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-## [0.1.75] - 2025-08-11
+## [0.1.76] - 2025-08-11
+
+### Fixed
+- **Enhanced OAuth Diagnostics**: Improved OAuth error handling for "flowName=GeneralOAuthFlow" authentication issues
+- **OAuth Client Validation**: Added validation to ensure OAuth client is configured as "Web application" type
+- **Robust Error Messages**: Better user-facing error messages when OAuth configuration issues occur
+
+### Added
+- **OAuth Configuration Validation**: Check if redirect URI matches Google Cloud Console configuration
+- **Enhanced Auth Status Endpoint**: Added OAuth client type and redirect URI validation details
+- **Fallback Authentication URLs**: Provide alternative authentication paths when OAuth generation fails
+
+### Technical Details
+- **google_calendar.py**: Added OAuth client configuration validation and enhanced logging
+- **routes.py**: Improved error handling for OAuth URL generation failures
+- **OAuth Flow**: Better diagnostics for Google Cloud Console configuration mismatches
 
 ### Fixed
 - **Critical: OAuth Authentication Error**: Fixed "Required parameter is missing: response_type" error in Google OAuth 2.0 flow
