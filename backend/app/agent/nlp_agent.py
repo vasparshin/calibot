@@ -47,14 +47,17 @@ class NLPAgent:
 
             system_message = self.system_prompt.format(conversation_history=formatted_history, current_date=current_datetime)
 
-            response = await acompletion(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": user_message}
-                ],
-                max_tokens=500
-            )
+            async def _call_llm():
+                return await acompletion(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_message},
+                        {"role": "user", "content": user_message}
+                    ],
+                    max_tokens=500
+                )
+
+            response = await _call_llm()
 
             result = response['choices'][0]['message']['content']
             logger.info(f"Raw LLM response: '{result}'")
@@ -132,19 +135,25 @@ class NLPAgent:
             )
             
             if is_invalid_response:
-                logger.error(f"DETECTED INVALID LLM RESPONSE - minimal fallback")
-                logger.error(f"Raw: '{result}', Cleaned: '{cleaned_result}', Length: {len(cleaned_result)}")
-                
-                # Minimal fallback based on keywords
-                user_lower = user_message.lower()
-                if any(word in user_lower for word in ['schedule', 'today', 'what', 'show', 'list', 'plan']):
-                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
-                elif any(word in user_lower for word in ['delete', 'remove']):
-                    return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
-                elif any(word in user_lower for word in ['move', 'update', 'change']):
-                    return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
-                else:
-                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                logger.error("Primary LLM response invalid – attempting one regeneration before fallback")
+                regen = await _call_llm()
+                regen_result = regen['choices'][0]['message']['content']
+                logger.info(f"Regenerated raw LLM response: '{regen_result}'")
+                cleaned_regen = regen_result.strip()
+                if cleaned_regen.startswith('```') and cleaned_regen.endswith('```'):
+                    lines_r = cleaned_regen.split('\n')
+                    if len(lines_r) > 2:
+                        cleaned_regen = '\n'.join(lines_r[1:-1])
+                if (len(cleaned_regen) >= 20 and cleaned_regen.startswith('{') and cleaned_regen not in ['"intent"','intent','"query"','query']):
+                    try:
+                        regen_json = json.loads(cleaned_regen)
+                        if isinstance(regen_json, dict) and 'intent' in regen_json:
+                            logger.info("Regeneration successful – using regenerated JSON")
+                            return regen_json
+                    except Exception as _e:
+                        logger.error(f"Regenerated parse failed: {_e}")
+                # If regeneration also failed, proceed to keyword fallback below after parsing attempts
+                cleaned_result = cleaned_regen  # continue downstream with latest attempt
             
             # Try to parse as single JSON first
             try:
@@ -152,14 +161,23 @@ class NLPAgent:
                 logger.info(f"JSON parsing successful, result type: {type(parsed_result)}")
                 
                 # Ensure the parsed result is actually a dict/object, not just a string
+                # Basic required schema: must have 'intent'; if intent is create/update/delete expect confirmation_needed key (we'll add if missing)
                 if not isinstance(parsed_result, dict):
                     logger.error(f"LLM returned non-object JSON: {type(parsed_result)} - {parsed_result}")
                     # This is likely the "intent" or "query" string response - trigger fallback
                     logger.error(f"Detected string response instead of JSON object - triggering intelligent fallback")
                     parsed_result = None
                 else:
-                    logger.info(f"Valid JSON dict received: {parsed_result}")
-                    return parsed_result
+                    if 'intent' not in parsed_result:
+                        logger.error("Parsed JSON missing 'intent' key – invalid, will fallback")
+                    else:
+                        # Normalize minimal schema
+                        if parsed_result['intent'] in ['create','update','delete'] and 'confirmation_needed' not in parsed_result:
+                            parsed_result['confirmation_needed'] = True
+                        if parsed_result['intent'] == 'query' and 'confirmation_needed' not in parsed_result:
+                            parsed_result['confirmation_needed'] = False
+                        logger.info(f"Valid JSON dict received after schema normalization: {parsed_result}")
+                        return parsed_result
             except json.JSONDecodeError as json_error:
                 logger.error(f"JSON parsing failed: {json_error}")
                 logger.error(f"Raw content that failed: '{cleaned_result}'")

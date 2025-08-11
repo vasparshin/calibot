@@ -4,6 +4,41 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.60] - 2025-08-11
+
+### Changed
+- Renamed internal helper `_heuristic_schedule_query` to `_simple_schedule_query` and log line to use plain language ("Simple schedule query shortcut"). No behavioral change.
+
+### Added
+- Second-attempt LLM regeneration in `NLPAgent.extract_intent` when primary response is too short / malformed (single token, missing braces, <20 chars) before falling back to keyword inference.
+- Schema normalization: ensures `confirmation_needed` added automatically when missing for create/update/delete intents; defaults false for query.
+
+### Fixed
+- Reduced false fallbacks by accepting a successful regenerated JSON response if it passes minimal length + JSON parse + has `intent` key.
+
+### Technical Details
+- `routes.py`: Helper rename + updated info log message.
+- `nlp_agent.py`: Refactored intent extraction to wrap LLM call in `_call_llm`, add regeneration, stricter invalid detection path, schema normalization, and structured logging.
+- `pyproject.toml` / `backend/app/__init__.py`: Version bump to 0.1.60.
+
+### Impact
+- Improves robustness against intermittent minimal model outputs without over-reliance on broad keyword fallbacks; maintains clean user-facing formatting and clarifies internal terminology per user preference.
+
+## [0.1.59] - 2025-08-11
+
+### Added
+- Heuristic fast-path for simple schedule queries ("today", "tomorrow", "what's on", "what do I have tomorrow", direct weekday references) that bypasses LLM intent extraction, directly producing `{intent: query}` with resolved date. Reduces latency and eliminates exposure to intermittent malformed LLM output returning just a dangling '"intent"' token.
+
+### Fixed
+- Suppressed recurring error-path caused by pathological LLM response for trivial schedule lookups by short‑circuiting with deterministic parser before AI call.
+
+### Technical Details
+- `routes.py`: Inserted `_heuristic_schedule_query` (renamed to `_simple_schedule_query` in 0.1.60) inner helper inside `process_user_message`; when matched sets `event_data` without invoking `check_relevancy` or `extract_intent`. Retains existing defensive guards for non‑heuristic paths. No changes to downstream formatting logic (still uses unified MessageFormatter query branch).
+- `pyproject.toml` / `backend/app/__init__.py`: Version bump to 0.1.59.
+
+### Impact
+- Improves reliability and responsiveness for high-frequency user requests (daily schedule checks). Lowers LLM usage, cuts error log noise, and provides stable foundation for further dispatcher refactor tasks (Immediate Issue backlog) without altering user-visible formatting.
+
 ## [0.1.58] - 2025-08-11
 
 ### Fixed
