@@ -1,6 +1,46 @@
 ## Immediate Changes for Calibot
 
-### 1. **NLP Intent Extraction for "Last N" Events**
+STATUS LEGEND:
+- ✅ Completed and merged
+- 🟡 In Progress / Partial
+- 🔴 Not Started
+
+### Summary Progress
+- 1. NLP Intent Extraction (limit/order): ✅
+- 2. One-by-One Skip Flow Fix: ✅
+- 3. Redundant Confirmation Loop Prevention: ✅
+- 4. Event Display Format Consistency (MessageFormatter everywhere): ✅
+- 5. UI/UX Consistent Inline Keyboards: 🟡 (standard helper exists; full single-row enforcement & BOT_RULES update pending)
+- 6. Button Persistence Regression: 🟡 (duplicate status prevented; full ephemeral audit pending)
+- 7. Calendar Name Display Accuracy: 🔴 (needs centralized cache-driven resolver use everywhere)
+- 8. Calendar Migration Feedback: 🔴
+- 9. One-by-One Message Retention (decision appendix edits): 🔴 (formatter helper exists)
+- 10. Detailed Proposed Change Arrows: 🟡 (token builder + time shift window computation added; integration into all multi-event confirmations pending)
+- 11. Success Messages Reflect Updated State (multi-event): 🟡 (single-event path good; batch/multi needs updated objects post-execution)
+
+---
+
+### COMPLETED
+
+#### 1. NLP Intent Extraction for "Last N" Events (✅ Done)
+Implemented limit/order extraction in intent prompt and applied post-fetch ordering/limiting in `google_calendar.query_events`.
+
+#### 2. Broken One-by-One Confirmation Flow (✅ Done)
+Added `skip_event_and_get_next` and proper queue progression + keyboard removal.
+
+#### 3. Redundant Confirmation Loop (✅ Done)
+Clears queue on new unrelated command detected.
+
+#### 4. CRITICAL: Event Display Format Consistency (✅ Done)
+All event outputs now use `MessageFormatter` unified methods; legacy AI formatting removed.
+
+---
+
+### PENDING / IN PROGRESS ITEMS
+
+Below sections retain original problem/solution text where still applicable, with status annotations.
+
+### 5. **UI/UX Consistency and Interactive Buttons** (🟡 Partial)
 
 **Problem:** The bot incorrectly interprets relative quantifiers like "last two," leading to the wrong events being selected for an operation.
 
@@ -20,7 +60,7 @@
 
 ---
 
-### 2. **Broken One-by-One Confirmation Flow**
+### 6. **Button Persistence Regression (Must Disappear After Press)** (🟡 Partial)
 
 **Problem:** In the one-by-one confirmation process, if the user replies "no" to an event, the bot either gets stuck, exits the flow, or re-displays the same confirmation message instead of moving to the next event.
 
@@ -42,7 +82,7 @@
 
 ---
 
-### 3. **Redundant Confirmation Loop**
+### 7. **Calendar Name Display Accuracy** (🔴 Not Started)
 
 **Problem:** The bot gets stuck in a confirmation loop, repeatedly asking for confirmation for the same set of events, even when the user provides new, unrelated instructions.
 
@@ -60,7 +100,7 @@
 
 ---
 
-### 4. **CRITICAL: Event Display Format Consistency**
+### 8. **Calendar Migration Feedback (Move Between Calendars)** (🔴 Not Started)
 
 **Problem:** User asking the same question ("what's scheduled today", "what events are on my calendar today", "what's on the schedule for today") get different response formats. The query intent handler uses AI service for formatting instead of MessageFormatter, resulting in inconsistent event displays that don't follow BOT_RULES.md specifications.
 
@@ -86,7 +126,7 @@
 
 ---
 
-### 5. **UI/UX Consistency and Interactive Buttons**
+### 9. **One-by-One Flow Message Retention** (🔴 Not Started)
 
 **Problem:** The bot's responses are inconsistent. Some use plain text for confirmations, while others use keyboards. This leads to a confusing user experience. Buttons are not used consistently, and when they are, they are not in a single row.
 
@@ -113,7 +153,7 @@
 
 ---
 
-### 5. **Code Optimization and Refactoring Opportunities**
+### 10. **Pre-Execution Proposed Changes Detail** (🟡 Partial – formatter tokens present; integration pending)
 
 After a comprehensive review of the backend code, several opportunities for optimization and refactoring have been identified. These changes will reduce code duplication, improve maintainability, and align the codebase with best practices.
 
@@ -243,7 +283,7 @@ After a comprehensive review of the backend code, several opportunities for opti
 
 ---
 
-### 6. **Button Persistence Regression (Must Disappear After Press)**
+### 11. **Success Messages Must Reflect Updated State** (🟡 Partial – multi-event paths pending)
 
 **Problem:** In recent chat logs, confirmation/status buttons appear to persist across multiple responses (multiple "✅ **Confirmed** - Processing your request..." messages) rather than being removed immediately after the first click. BOT_RULES mandate that inline keyboards be removed (edit_message_text with empty `reply_markup`) after a button is pressed to prevent duplicate actions and clutter.
 
@@ -265,7 +305,7 @@ After a comprehensive review of the backend code, several opportunities for opti
 
 ---
 
-### 7. **Calendar Name Display Accuracy**
+### REFACTOR & ARCHITECTURE TRACK (Separate from Immediate UX fixes)
 
 **Problem:** Displayed calendar name (e.g., `Zoutna`) may not exactly match the Google Calendar API `summary` or expected end‑user friendly name (e.g., should possibly show `Zoutna` vs lowercase email or vice versa). Need deterministic rule: always show the Calendar `summary` as retrieved from API cache, never internal IDs or emails unless rule requires.
 
@@ -284,7 +324,7 @@ After a comprehensive review of the backend code, several opportunities for opti
 
 ---
 
-### 8. **Calendar Migration Feedback (Move Between Calendars)**
+### (a) Consolidate NLP and AI Services
 
 **Problem:** When user requests moving events to another calendar ("move the lessons to Tonya calendar"), feedback shows multiple interim confirmations and may not clearly state target calendar before execution. Success messages sometimes list original calendar name rather than new destination.
 
@@ -305,7 +345,7 @@ After a comprehensive review of the backend code, several opportunities for opti
 
 ---
 
-### 9. **One-by-One Flow Message Retention**
+### (b) Centralize and Simplify UI Formatting (Legacy helpers)
 
 **Problem:** Current one-by-one confirmation flow replaces or removes the message containing the event instead of editing it to show decision and then sending a fresh message for the next event. Requirement: keep history clearer by editing the original confirmation message to append the decision (e.g., "Decision: Skipped" / "Decision: Updated") and send a new message for the next pending event.
 
@@ -327,7 +367,7 @@ After a comprehensive review of the backend code, several opportunities for opti
 
 ---
 
-### 10. **Pre-Execution Proposed Changes Detail**
+### (c) Streamline `routes.py` Logic / Dispatcher Introduction
 
 **Problem:** Summary messages ("Found X events to update (shift by 1 hour)") don't enumerate full proposed transformation per event (new times, new calendar, renames). Requirement: Each event in the pre-execution list must show both CURRENT state and PROPOSED changes.
 
@@ -345,7 +385,7 @@ After a comprehensive review of the backend code, several opportunities for opti
 
 ---
 
-### 11. **Success Messages Must Reflect Updated State**
+### (d) Unify Multi-Event Handling (Deprecate multi_event_operations.py)
 
 **Problem:** Post-update success lines show original times or calendar rather than updated ones (e.g., after +1 hour shift, success still listed original times). User had to query schedule again to see actual changes.
 
@@ -365,7 +405,7 @@ After a comprehensive review of the backend code, several opportunities for opti
 
 ---
 
-### Implementation Notes for New Issues (6–11)
+### Implementation Notes (Remaining Issues 5–11)
 - Tackle formatting (10 & 11) before migration (8) to reuse enriched formatter.
 - Introduce unified `EventChange` dataclass/Pydantic model to pass proposed vs final state for consistent rendering (supports issues 8–11).
 - Consolidate keyboard removal & message edit patterns into a single utility to solve issue 6 & support issue 9.

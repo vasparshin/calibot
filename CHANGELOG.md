@@ -5,6 +5,23 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.56] - 2025-08-11
+
+### Added
+- Enhanced proposed change token system: `MessageFormatter` now computes shifted time windows when a `time_shift` phrase is provided (e.g., displays resulting time range instead of only textual shift) supporting forthcoming detailed arrow formatting (Immediate Issue 10).
+- Progress tracking section inserted into `immediate_changes.md` (Completed vs Pending with status icons) to replace ad-hoc list and prevent accidental deletion of still-open items.
+
+### Changed
+- `immediate_changes.md`: Archived completed items 1–4 under a Completed section; reindexed remaining open issues (5–11) and split architectural refactor tasks into a separate track.
+
+### Technical Details
+- `message_formatter.py`: Added `_compute_shifted_time_window` and `_parse_time_shift_minutes` helpers; updated `build_proposed_change_tokens` to include computed new time window when possible.
+- `pyproject.toml` / `backend/app/__init__.py`: Version bump to 0.1.56 per mandatory versioning policy.
+
+### Impact
+- Establishes clearer roadmap visibility; reduces risk of prematurely removing pending tasks. Lays foundation for integrating full per-event arrow style proposed changes and accurate multi-event success state rendering (Issues 10 & 11).
+
+
 ## [0.1.55] - 2025-08-11
 
 ### Fixed

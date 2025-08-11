@@ -6,6 +6,7 @@ Implements BOT_RULES.md specifications exactly.
 import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -230,8 +231,81 @@ class MessageFormatter:
                 tokens.append(f"time → {ns or '?'} - {ne or '?'}")
         # Time shift textual (retain original phrase)
         if change_spec.get('time_shift') and not (change_spec.get('new_start_time') or change_spec.get('new_end_time')):
-            tokens.append(f"shift {change_spec['time_shift']}")
+            # Try to compute resulting time window if base_event has start/end datetimes
+            shift_phrase = change_spec['time_shift']
+            computed = MessageFormatter._compute_shifted_time_window(base_event, shift_phrase)
+            if computed:
+                tokens.append(f"time → {computed}")
+            else:
+                tokens.append(f"shift {shift_phrase}")
         return tokens
+
+    @staticmethod
+    def _compute_shifted_time_window(base_event: Dict, shift_phrase: str) -> Optional[str]:
+        """Attempt to parse time_shift phrase and compute new start-end window.
+        Returns formatted "HH:MM AM/PM - HH:MM AM/PM" or None if can't parse.
+        Accepted patterns examples: '1h', '+1h', '-30m', '2 hours', 'move 1 hour earlier', 'shift by 90 minutes', '1 hour later'.
+        """
+        try:
+            start_raw = base_event.get('start') or base_event.get('start_time')
+            end_raw = base_event.get('end') or base_event.get('end_time')
+            if not (start_raw and end_raw):
+                return None
+            # Parse ISO or date-only strings
+            def to_dt(val):
+                if 'T' in str(val):
+                    return datetime.fromisoformat(str(val).replace('Z', '+00:00'))
+                # Fallback: date only (cannot shift reliably without time)
+                return None
+            start_dt = to_dt(start_raw)
+            end_dt = to_dt(end_raw)
+            if not (start_dt and end_dt):
+                return None
+            minutes = MessageFormatter._parse_time_shift_minutes(shift_phrase)
+            if minutes is None:
+                return None
+            from datetime import timedelta
+            new_start = start_dt + timedelta(minutes=minutes)
+            new_end = end_dt + timedelta(minutes=minutes)
+            return f"{new_start.strftime('%I:%M %p')} - {new_end.strftime('%I:%M %p')}"
+        except Exception:
+            return None
+
+    @staticmethod
+    def _parse_time_shift_minutes(phrase: str) -> Optional[int]:
+        """Parse a human shift phrase into minutes (can be negative)."""
+        if not phrase:
+            return None
+        s = phrase.lower().strip()
+        sign = 1
+        if 'earlier' in s:
+            sign = -1
+        if 'later' in s or 'after' in s:
+            sign = 1
+        # Direct sign indicators
+        if s.startswith('-'):
+            sign = -1
+        if s.startswith('+'):
+            sign = 1
+        # Extract number + unit
+        m = re.search(r'([+-]?\d+)\s*(hour|hours|hr|h|minute|minutes|min|m)', s)
+        if not m:
+            # Alternate pattern "shift by 2 hours" etc.
+            m = re.search(r'shift\s+(?:by\s+)?([+-]?\d+)\s*(hour|hours|hr|h|minute|minutes|min|m)', s)
+        if not m:
+            return None
+        raw_num = int(m.group(1))
+        unit = m.group(2)
+        if unit.startswith('h') or unit.startswith('hour') or unit == 'hr':
+            minutes = raw_num * 60
+        else:
+            minutes = raw_num
+        # Apply earlier/later sign context unless explicit sign already on number
+        if m.group(1).startswith('-'):
+            return minutes  # already negative
+        if m.group(1).startswith('+'):
+            return minutes
+        return minutes * sign
 
     @staticmethod
     def format_event_with_proposed_changes(event: Dict, change_spec: Dict) -> str:
