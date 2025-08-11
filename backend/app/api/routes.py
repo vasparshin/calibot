@@ -758,7 +758,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     
                     # If still no event name found, get today's events as fallback
                     if not event_data.get("event_name"):
-                        from datetime import datetime
+                        # datetime already imported at module top
                         today = datetime.now().strftime("%Y-%m-%d")
                         event_data["date"] = today
                 

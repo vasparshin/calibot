@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.62] - 2025-08-11
+
+### Fixed
+- Production 500 errors for simple schedule queries ("what's on today") caused by nested `_simple_schedule_query` using `datetime.now()` without module-scope `datetime` import bound in closure, triggering `cannot access free variable 'datetime'` NameError in deployed environment. Added top-level `from datetime import datetime` and removed redundant inner import instance.
+
+### Technical Details
+- `routes.py`: Ensured `datetime` available to `_simple_schedule_query`; cleaned redundant local import.
+- Version bump to 0.1.62 (`pyproject.toml`, `backend/app/__init__.py`).
+
+### Impact
+- Restores fast-path schedule query functionality preventing repeated 500 responses; reduces error log noise and user-facing failures for common queries.
+
 ## [0.1.61] - 2025-08-11
 
 ### Changed
