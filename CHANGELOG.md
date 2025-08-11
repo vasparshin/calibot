@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.81] - 2025-08-11
+
+### Debug
+- **CRITICAL DEBUG: Intent Extraction Path Investigation**: Added ERROR-level logging to trace calendar extraction execution
+- **Root Cause Investigation**: Determine why enhanced calendar extraction logging isn't appearing in production logs
+- **Execution Path Tracing**: Identify which fallback path is actually being executed for calendar moves
+
+### Technical Details
+- **nlp_agent.py**: Upgraded calendar extraction logging to ERROR level with 🔥 prefixes for visibility
+- **Purpose**: Determine if calendar extraction code is being executed at all or if logs are being filtered
+
 ## [0.1.80] - 2025-08-11
 
 ### Fixed
