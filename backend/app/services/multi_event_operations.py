@@ -158,9 +158,48 @@ class MultiEventOperationHandler:
                 "original_request": event_data
             }
             
-            # Use centralized formatter if available and no specific changes to describe
-            if MessageFormatter and not any(key in event_data for key in ['calendar_name', 'new_event_name', 'new_date', 'time_shift']):
-                # Convert events to proper format
+            # Check if we have specific changes to describe
+            has_specific_changes = any(key in event_data for key in ['calendar_name', 'new_event_name', 'new_date', 'time_shift'])
+            
+            if has_specific_changes:
+                # Show detailed change description when we have specific changes
+                event_list = ""
+                for i, event in enumerate(matching_events, 1):
+                    event_name = event.get('summary', 'Untitled')
+                    date = event.get('date', 'Unknown date')
+                    start_time = event.get('start_time', 'Unknown time')
+                    calendar_name = event.get('calendar_name', 'Unknown')
+                    
+                    # Add hyperlink if available
+                    event_id = event.get('event_id', '')
+                    calendar_link = event.get('calendar_link', '')
+                    
+                    if calendar_link:
+                        formatted_name = f"[{event_name}]({calendar_link})"
+                    elif event_id:
+                        formatted_name = f"[{event_name}](https://calendar.google.com/calendar/event?eid={event_id})"
+                    else:
+                        formatted_name = event_name
+                    
+                    event_list += f"{i}. {formatted_name} on {date} at {start_time} ({calendar_name})\n"
+                
+                # Describe what will be updated
+                update_desc = []
+                if 'new_event_name' in event_data:
+                    update_desc.append(f"rename to '{event_data['new_event_name']}'")
+                if 'new_date' in event_data:
+                    update_desc.append(f"move to {event_data['new_date']}")
+                if 'time_shift' in event_data:
+                    update_desc.append(f"shift time by {event_data['time_shift']}")
+                if 'calendar_name' in event_data:
+                    update_desc.append(f"move to '{event_data['calendar_name']}' calendar")
+                
+                update_description = " and ".join(update_desc) if update_desc else "update"
+                
+                message = f"Found {len(matching_events)} events to update (review proposed changes):\n\n{event_list}\nWill {update_description}"
+                keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("update") if InlineKeyboardHelper else None
+            elif MessageFormatter:
+                # Use centralized formatter when no specific changes to describe  
                 formatted_events = []
                 for event in matching_events:
                     formatted_event = {
@@ -176,26 +215,13 @@ class MultiEventOperationHandler:
                 message = MessageFormatter.format_confirmation_message("update", formatted_events, len(matching_events))
                 keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("update") if InlineKeyboardHelper else None
             else:
-                # Legacy fallback with inline keyboard
+                # Fallback when no MessageFormatter available
                 event_list = "\n".join([
                     f"• {event['summary']} on {event['date']} at {event['start_time']}"
                     for event in matching_events
                 ])
                 
-                # Describe what will be updated
-                update_desc = []
-                if 'new_event_name' in event_data:
-                    update_desc.append(f"rename to '{event_data['new_event_name']}'")
-                if 'new_date' in event_data:
-                    update_desc.append(f"move to {event_data['new_date']}")
-                if 'time_shift' in event_data:
-                    update_desc.append(f"shift time by {event_data['time_shift']}")
-                if 'calendar_name' in event_data:
-                    update_desc.append(f"move to '{event_data['calendar_name']}' calendar")
-                
-                update_description = " and ".join(update_desc) if update_desc else "update"
-                
-                message = f"Found {len(matching_events)} events to update:\n{event_list}\n\nWill {update_description}\n\nChoose an option:"
+                message = f"Found {len(matching_events)} events to update:\n{event_list}"
                 keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("update") if InlineKeyboardHelper else None
             
             return {

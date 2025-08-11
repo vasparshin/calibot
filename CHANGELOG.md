@@ -4,7 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-## [0.1.73] - 2025-08-11
+## [0.1.74] - 2025-08-11
+
+### Fixed
+- **Critical: Calendar Move Intent Detection**: Enhanced fallback logic in NLP agent to properly extract calendar names from user messages like "move to calendar 'Tonya'"
+- **Critical: Confirmation Message Logic**: Fixed multi-event operations confirmation to show proposed changes when calendar moves are detected
+- **Enhanced Logging**: Added comprehensive logging to track intent extraction failures and calendar extraction process
+
+### Technical Details
+- **nlp_agent.py**: Improved fallback detection with detailed logging for calendar extraction regex patterns
+- **multi_event_operations.py**: Fixed confirmation message logic to prioritize showing proposed changes over generic formatting
+- **Intent Processing**: Calendar move detection now properly extracts target calendar names and includes them in confirmation messages
 
 ### Fixed
 - **Critical: Calendar Move Extraction**: Fixed regex pattern to properly extract target calendar from "move to calendar X" commands

@@ -190,6 +190,7 @@ class NLPAgent:
                     return batch_parsed
                 
                 if any(word in user_lower for word in ['delete', 'remove']):
+                    logger.info("Exception fallback: detected delete intent")
                     fallback = {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
                     if "lesson" in user_lower:
                         fallback["event_name"] = "lesson"
@@ -207,6 +208,7 @@ class NLPAgent:
                     return fallback
                     
                 elif any(word in user_lower for word in ['move', 'update', 'change']):
+                    logger.info("Exception fallback: detected update intent")
                     fallback = {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
                     if "lesson" in user_lower:
                         fallback["event_name"] = "lesson"
@@ -229,14 +231,17 @@ class NLPAgent:
                         tomorrow = datetime.now() + timedelta(days=1)
                         fallback["new_date"] = tomorrow.strftime("%Y-%m-%d")
                     
-                    # Extract calendar move information
+                    # Extract calendar move information with improved logging
                     import re
                     calendar_match = re.search(r'to calendar ["\']([^"\']+)["\']', user_lower)
                     if calendar_match:
                         target_calendar = calendar_match.group(1).strip()
                         fallback["calendar_name"] = target_calendar
-                        logger.info(f"Extracted target calendar for move: {target_calendar}")
+                        logger.info(f"Extracted target calendar for move: '{target_calendar}' from message: '{user_message}'")
+                    else:
+                        logger.warning(f"No calendar extraction from message: '{user_message}' (lowercase: '{user_lower}')")
                     
+                    logger.info(f"Fallback result for update: {fallback}")
                     return fallback
                     
                 elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
@@ -273,8 +278,10 @@ class NLPAgent:
                     return fallback
                     
                 elif any(word in user_lower for word in ['today', 'what', 'plan']):
+                    logger.info("Exception fallback: detected query intent")
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 else:
+                    logger.info("Exception fallback: defaulting to query intent")
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             
             # Enhanced detection for invalid LLM responses
