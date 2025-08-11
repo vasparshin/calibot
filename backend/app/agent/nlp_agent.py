@@ -362,7 +362,76 @@ class NLPAgent:
         except Exception as e:
             logger.error(f"Error extracting intent: {e}")
             logger.error(f"User message was: '{user_message}'")
-            return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+            
+            # Intelligent fallback based on user message keywords
+            user_lower = user_message.lower()
+            
+            if any(word in user_lower for word in ['move', 'update', 'change']):
+                logger.info("Exception fallback: detected update intent")
+                fallback = {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                if "lesson" in user_lower:
+                    fallback["event_name"] = "lesson"
+                elif "event" in user_lower:
+                    fallback["event_name"] = "event"
+                # Extract target
+                if "last" in user_lower:
+                    fallback["target"] = "last"
+                elif "first" in user_lower:
+                    fallback["target"] = "first"
+                elif "all" in user_lower or "lessons" in user_lower:
+                    fallback["target"] = "all"
+                elif "2nd" in user_lower or "second" in user_lower:
+                    fallback["target"] = "2nd"
+                elif "3rd" in user_lower or "third" in user_lower:
+                    fallback["target"] = "3rd"
+                
+                # Extract calendar move information
+                import re
+                logger.error(f"🔥 CRITICAL DEBUG: Starting calendar extraction for message: '{user_message}'")
+                
+                calendar_patterns = [
+                    r'to calendar ["\']([^"\']+)["\']',  # 'to calendar "Name"'
+                    r'to calendar ([^\s]+)',             # 'to calendar Name'  
+                    r'calendar ["\']([^"\']+)["\']',     # 'calendar "Name"'
+                    r'move.*to ([A-Z][a-zA-Z]+)',        # 'move to Name'
+                    r'to\s+["\']([^"\']+)["\']',         # 'to "Name"' (simplified)
+                    r'move.*["\']([^"\']+)["\']',        # any quoted name after move
+                ]
+                
+                target_calendar = None
+                for i, pattern in enumerate(calendar_patterns):
+                    calendar_match = re.search(pattern, user_lower)
+                    if calendar_match:
+                        target_calendar = calendar_match.group(1).strip()
+                        logger.error(f"🔥 ✅ CRITICAL DEBUG: Calendar pattern '{pattern}' matched: '{target_calendar}'")
+                        break
+                
+                if target_calendar:
+                    fallback["calendar_name"] = target_calendar.title()
+                    logger.error(f"🔥 ✅ CRITICAL DEBUG: EXTRACTED target calendar: '{target_calendar.title()}'")
+                else:
+                    # Try known calendar names
+                    known_calendars = ['tonya', 'personal', 'work', 'family']
+                    for cal_name in known_calendars:
+                        if cal_name in user_lower:
+                            fallback["calendar_name"] = cal_name.title()
+                            logger.error(f"🔥 ✅ CRITICAL DEBUG: Found known calendar: '{cal_name.title()}'")
+                            break
+                
+                logger.error(f"🔥 📋 CRITICAL DEBUG: Final fallback result: {fallback}")
+                return fallback
+                
+            elif any(word in user_lower for word in ['delete', 'remove']):
+                logger.info("Exception fallback: detected delete intent")
+                fallback = {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                if "lesson" in user_lower:
+                    fallback["event_name"] = "lesson"
+                elif "event" in user_lower:
+                    fallback["event_name"] = "event"
+                return fallback
+            else:
+                logger.info("Exception fallback: defaulting to query intent")
+                return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
         
         except Exception as e:
             logger.error(f"Error in fallback processing: {str(e)}")

@@ -4,6 +4,24 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.85] - 2025-08-11
+
+### Fixed
+- **CRITICAL: Exception Handler Order Bug**: Fixed duplicate exception handlers where first handler was preventing intelligent fallback
+- **Calendar Move Detection**: Moved enhanced fallback logic to the primary exception handler to ensure it executes
+- **Update Intent Recognition**: Fixed "move lessons to calendar" requests being misclassified as query intent
+- **Target Detection**: Added "all" target detection for batch operations (e.g., "move the lessons")
+
+### Enhanced
+- **Calendar Extraction in Fallback**: Complete calendar name extraction with regex patterns in exception handler
+- **Comprehensive Fallback**: Enhanced fallback with move, delete, and query intent detection
+- **Error Flow**: Streamlined exception handling to ensure intelligent fallbacks always execute
+
+### Technical Details
+- **nlp_agent.py**: Moved intelligent fallback logic from unreachable second exception handler to primary handler
+- **Bug Root Cause**: Two exception handlers existed, first one caught errors and returned generic query fallback
+- **Fix**: Consolidated exception handling with intelligent keyword-based fallback in primary handler
+
 ## [0.1.84] - 2025-08-11
 
 ### Fixed
