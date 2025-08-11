@@ -71,10 +71,13 @@ class MessageFormatter:
     
     @staticmethod
     def create_event_hyperlink(event_name: str, event_id: str = None, calendar_link: str = None) -> str:
-        """Create hyperlinked event name"""
+        """Create hyperlinked event name with consistent calendar.google.com URL format"""
         formatted_name = MessageFormatter.format_event_title(event_name)
         
         if calendar_link:
+            # Convert www.google.com URLs to calendar.google.com for consistency
+            if 'www.google.com' in calendar_link:
+                calendar_link = calendar_link.replace('www.google.com', 'calendar.google.com')
             return f"[{formatted_name}]({calendar_link})"
         elif event_id:
             # Generate calendar link from event ID

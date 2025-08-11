@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.80] - 2025-08-11
+
+### Fixed
+- **Critical: Success Message URL Consistency**: Fixed MessageFormatter to convert www.google.com URLs to calendar.google.com format
+- **Enhanced Intent Extraction Debugging**: Added comprehensive logging to track calendar name extraction in fallback logic
+- **Calendar Name Capitalization**: Properly capitalize extracted calendar names (tonya -> Tonya)
+
+### Technical Details
+- **message_formatter.py**: Added URL format conversion in create_event_hyperlink method
+- **nlp_agent.py**: Enhanced calendar extraction logging with step-by-step pattern testing
+- **Root Cause Investigation**: Added detailed logging to identify why calendar_name isn't reaching update_event method
+
 ## [0.1.79] - 2025-08-11
 
 ### Fixed
