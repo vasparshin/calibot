@@ -228,9 +228,51 @@ class NLPAgent:
                         from datetime import timedelta
                         tomorrow = datetime.now() + timedelta(days=1)
                         fallback["new_date"] = tomorrow.strftime("%Y-%m-%d")
+                    
+                    # Extract calendar move information
+                    import re
+                    calendar_match = re.search(r'(?:to|into)\s+(?:calendar\s+)?["\']?([^"\']+)["\']?(?:\s+calendar)?', user_lower)
+                    if calendar_match:
+                        target_calendar = calendar_match.group(1).strip()
+                        fallback["calendar_name"] = target_calendar
+                        logger.info(f"Extracted target calendar for move: {target_calendar}")
+                    
                     return fallback
                     
-                elif any(word in user_lower for word in ['schedule', 'today', 'what', 'plan']):
+                elif any(word in user_lower for word in ['add', 'create', 'make', 'schedule']):
+                    fallback = {"intent": "create", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                    if "lesson" in user_lower:
+                        fallback["event_name"] = "lesson"
+                    elif "meeting" in user_lower:
+                        fallback["event_name"] = "meeting"
+                    elif "event" in user_lower:
+                        fallback["event_name"] = "event"
+                    else:
+                        fallback["event_name"] = "New Event"
+                    
+                    # Extract time information
+                    import re
+                    time_match = re.search(r'(\d{1,2})\s*(pm|am|:\d{2})', user_lower)
+                    if time_match:
+                        time_str = time_match.group(0)
+                        if ':' not in time_str:
+                            hour = int(time_match.group(1))
+                            meridiem = time_match.group(2) if time_match.group(2) in ['am', 'pm'] else 'am'
+                            if meridiem == 'pm' and hour != 12:
+                                hour += 12
+                            elif meridiem == 'am' and hour == 12:
+                                hour = 0
+                            fallback["start_time"] = f"{hour:02d}:00"
+                            fallback["end_time"] = f"{hour+1:02d}:00"
+                        
+                    # Extract calendar name
+                    calendar_match = re.search(r'(?:in|to)\s+(?:calendar\s+)?["\']?([^"\']+)["\']?(?:\s+calendar)?', user_lower)
+                    if calendar_match:
+                        fallback["calendar_name"] = calendar_match.group(1).strip()
+                    
+                    return fallback
+                    
+                elif any(word in user_lower for word in ['today', 'what', 'plan']):
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 else:
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}

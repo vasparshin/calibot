@@ -4,6 +4,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.72] - 2025-08-11
+
+### Fixed
+- **Critical: Intent Detection and Calendar Moves**: Fixed multiple issues causing create/update intents to be misclassified as query and calendar moves to fail
+### Added
+- **Create Intent Fallback**: Added missing fallback logic for create intents (add, make, create, schedule) with time and calendar extraction
+- **Calendar Move Support**: Enhanced update intent fallback to extract target calendar from "move to calendar X" requests  
+- **Calendar Move Execution**: Added calendar move functionality to multi-event operations with proper success messages
+### Technical Details
+- **nlp_agent.py**: Added create intent fallback with regex-based time and calendar extraction
+- **nlp_agent.py**: Enhanced update intent fallback to extract calendar_name from "to calendar X" patterns
+- **multi_event_operations.py**: Added calendar_name handling in update operations for cross-calendar moves
+- **multi_event_operations.py**: Updated success messages to indicate calendar moves ("moved to X calendar")
+
 ## [0.1.71] - 2025-08-11
 
 ### Fixed

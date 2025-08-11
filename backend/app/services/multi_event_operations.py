@@ -190,6 +190,8 @@ class MultiEventOperationHandler:
                     update_desc.append(f"move to {event_data['new_date']}")
                 if 'time_shift' in event_data:
                     update_desc.append(f"shift time by {event_data['time_shift']}")
+                if 'calendar_name' in event_data:
+                    update_desc.append(f"move to '{event_data['calendar_name']}' calendar")
                 
                 update_description = " and ".join(update_desc) if update_desc else "update"
                 
@@ -510,6 +512,15 @@ class MultiEventOperationHandler:
                         if 'location' in original_request:
                             update_data['location'] = original_request['location']
                         
+                        # Handle calendar moves (NEW FUNCTIONALITY)
+                        target_calendar_id = None
+                        if 'calendar_name' in original_request or 'new_calendar' in original_request:
+                            target_calendar_name = original_request.get('calendar_name') or original_request.get('new_calendar')
+                            
+                            # Pass calendar name to calendar service (it will handle the resolution)
+                            update_data['calendar_name'] = target_calendar_name
+                            logger.info(f"Setting target calendar for move: {target_calendar_name}")
+                        
                         # Get the calendar ID for the update
                         calendar_id = event.get('calendar_id', 'primary')
                         
@@ -548,13 +559,15 @@ class MultiEventOperationHandler:
                             else:
                                 formatted_date = "today"
                             
-                            update_desc = f"Updated {formatted_name}"
+                            update_desc = f"• Updated [{formatted_name}]({event.get('htmlLink', '#')})"
                             if 'new_date' in original_request:
-                                update_desc += f" moved to {original_request['new_date']}"
+                                update_desc += f" - moved to {original_request['new_date']}"
                             if 'new_event_name' in original_request:
-                                update_desc += f" renamed to {original_request['new_event_name']}"
+                                update_desc += f" - renamed to {original_request['new_event_name']}"
                             if 'time_shift' in original_request:
                                 update_desc += f" - extended by {original_request['time_shift']}"
+                            if 'calendar_name' in original_request:
+                                update_desc += f" - moved to {original_request['calendar_name']} calendar"
                                 
                             successful_updates.append(update_desc)
                         else:
@@ -590,7 +603,7 @@ class MultiEventOperationHandler:
                     message_parts.append(f"Successfully updated all {len(successful_updates)} events on {formatted_date}:")
                     message_parts.append("")  # Empty line
                     for update_desc in successful_updates:
-                        message_parts.append(f"{update_desc}")
+                        message_parts.append(update_desc)
                 
                 if failed_updates:
                     if successful_updates:
