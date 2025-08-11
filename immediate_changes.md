@@ -242,3 +242,132 @@ After a comprehensive review of the backend code, several opportunities for opti
 - Message samples still match BOT_RULES (snapshot diff).
 
 ---
+
+### 6. **Button Persistence Regression (Must Disappear After Press)**
+
+**Problem:** In recent chat logs, confirmation/status buttons appear to persist across multiple responses (multiple "✅ **Confirmed** - Processing your request..." messages) rather than being removed immediately after the first click. BOT_RULES mandate that inline keyboards be removed (edit_message_text with empty `reply_markup`) after a button is pressed to prevent duplicate actions and clutter.
+
+**Evidence (Excerpt):** Repeated confirmation messages for each updated event instead of a single status then result messages.
+
+**Required Fix:**
+1. Audit all callback handlers (`handle_confirmation_callback`, queue progression flows) to ensure every button press performs a single `edit_message_text(..., reply_markup={})` or equivalent keyboard removal.
+2. Prevent sending multiple identical "Confirmed" status messages; consolidate into one status + results.
+
+**Files to Modify:**
+- `backend/app/api/routes.py`
+- `backend/app/services/event_queue_handler.py`
+- `backend/app/utils/inline_keyboard.py` (ensure helper enforces ephemeral behavior)
+
+**Acceptance Criteria:**
+- No duplicated confirmation status lines per operation.
+- Keyboard always removed within the same message upon first click.
+- Tests: Add `test_keyboard_ephemeral_regression.py` asserting callback leaves no inline keyboard.
+
+---
+
+### 7. **Calendar Name Display Accuracy**
+
+**Problem:** Displayed calendar name (e.g., `Zoutna`) may not exactly match the Google Calendar API `summary` or expected end‑user friendly name (e.g., should possibly show `Zoutna` vs lowercase email or vice versa). Need deterministic rule: always show the Calendar `summary` as retrieved from API cache, never internal IDs or emails unless rule requires.
+
+**Required Fix:**
+1. Centralize calendar name resolution in `MessageFormatter.get_calendar_display_name(calendar_id)` pulling from cached metadata.
+2. Replace any direct use of raw `calendar_id` or partial aliases in success & summary messages.
+
+**Files to Modify:**
+- `backend/app/utils/message_formatter.py`
+- `backend/app/services/google_calendar.py` (ensure cache exposes summary)
+- `backend/app/api/routes.py`
+
+**Acceptance Criteria:**
+- All event lines use exact calendar `summary` string.
+- Add test `test_calendar_name_consistency.py` comparing displayed names vs API metadata.
+
+---
+
+### 8. **Calendar Migration Feedback (Move Between Calendars)**
+
+**Problem:** When user requests moving events to another calendar ("move the lessons to Tonya calendar"), feedback shows multiple interim confirmations and may not clearly state target calendar before execution. Success messages sometimes list original calendar name rather than new destination.
+
+**Required Fix:**
+1. In pre-execution summary ("Found X events to update"), explicitly include proposed calendar change: `→ New Calendar: <Target>`.
+2. After migration, success message must reflect the new calendar name (not the old) and confirm move action.
+3. Ensure underlying update logic actually moves event (modify calendarId via insert+delete or move endpoint if using Google API `events.move`).
+
+**Files to Audit/Modify:**
+- `backend/app/api/handlers/update_delete.py`
+- `backend/app/services/google_calendar.py` (implement/make sure `move_event` uses `events.move`)
+- `backend/app/utils/message_formatter.py`
+
+**Acceptance Criteria:**
+- Success messages display destination calendar name.
+- Proposed change summary lists calendar transition.
+- Add test `test_calendar_migration_display.py` verifying both proposed + final messages.
+
+---
+
+### 9. **One-by-One Flow Message Retention**
+
+**Problem:** Current one-by-one confirmation flow replaces or removes the message containing the event instead of editing it to show decision and then sending a fresh message for the next event. Requirement: keep history clearer by editing the original confirmation message to append the decision (e.g., "Decision: Skipped" / "Decision: Updated") and send a new message for the next pending event.
+
+**Required Fix:**
+1. Adjust `event_queue_handler.process_queue_response` (and related callback path) to:
+    - Edit current confirmation message: remove buttons, append decision line.
+    - Send new confirmation message for next event with fresh keyboard.
+2. Provide helper `format_decision_appendix(decision_type, changes)` in `message_formatter.py`.
+
+**Files to Modify:**
+- `backend/app/services/event_queue_handler.py`
+- `backend/app/utils/message_formatter.py`
+- `backend/app/api/routes.py`
+
+**Acceptance Criteria:**
+- Each processed event leaves an edited historical message (no buttons) with decision annotation.
+- Next event always appears in a brand new message.
+- Test `test_one_by_one_message_retention.py` ensures message edit + new message behavior.
+
+---
+
+### 10. **Pre-Execution Proposed Changes Detail**
+
+**Problem:** Summary messages ("Found X events to update (shift by 1 hour)") don't enumerate full proposed transformation per event (new times, new calendar, renames). Requirement: Each event in the pre-execution list must show both CURRENT state and PROPOSED changes.
+
+**Required Fix:**
+1. Extend formatter to produce lines like: `• Lesson (link) on Monday ... 09:00 AM - 10:00 AM (Zoutna) → 10:00 AM - 11:00 AM (Tonya)`.
+2. If only time shift: show arrow with new times. If calendar change only: arrow with new calendar. If multiple changes: show composite arrow (time + calendar).
+
+**Files to Modify:**
+- `backend/app/utils/message_formatter.py`
+- `backend/app/api/handlers/update_delete.py`
+
+**Acceptance Criteria:**
+- Arrow format consistently used for every proposed change.
+- Tests: `test_proposed_change_formatting.py` verifying arrow notation for time shift & calendar move.
+
+---
+
+### 11. **Success Messages Must Reflect Updated State**
+
+**Problem:** Post-update success lines show original times or calendar rather than updated ones (e.g., after +1 hour shift, success still listed original times). User had to query schedule again to see actual changes.
+
+**Required Fix:**
+1. Ensure update execution receives updated event payload from Google API response and uses it for success formatting.
+2. Formatter must always read start/end/calendar from updated object, not original request object.
+3. For time shifts, optionally append a concise change summary (e.g., `(+1h)`).
+
+**Files to Modify:**
+- `backend/app/services/google_calendar.py`
+- `backend/app/api/handlers/update_delete.py`
+- `backend/app/utils/message_formatter.py`
+
+**Acceptance Criteria:**
+- Success messages display new times/calendar.
+- Added regression test `test_success_message_updated_state.py`.
+
+---
+
+### Implementation Notes for New Issues (6–11)
+- Tackle formatting (10 & 11) before migration (8) to reuse enriched formatter.
+- Introduce unified `EventChange` dataclass/Pydantic model to pass proposed vs final state for consistent rendering (supports issues 8–11).
+- Consolidate keyboard removal & message edit patterns into a single utility to solve issue 6 & support issue 9.
+
+---

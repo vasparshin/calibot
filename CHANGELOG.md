@@ -4,38 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-
 ## [0.1.48] - 2025-08-11
 
-
-## [Unreleased]
-
-
-## [0.1.48] - 2025-08-11
-
-### Changed
-- **Unified Update/Delete Handler**: Merged confirmation and immediate paths into `process_update_delete` to eliminate duplication and ensure consistent filtering, target selection, and formatting for update/delete operations.
-
-### Removed
-- **Deprecated Handler**: `immediate_update_delete.py` logic deprecated; file retained as stub to avoid stale imports until tests updated.
+### Added
+- **Immediate Issues Logged (6–11)**: Documented critical UX and formatting regressions for remediation (button persistence, calendar name accuracy, calendar migration clarity, one-by-one message retention, detailed proposed change arrows, success message updated-state enforcement).
 
 ### Technical Details
-- `routes.py` updated to call unified handler for both confirmation-needed and immediate flows.
-- Consolidated multi vs single event logic and added bulk immediate (target==all) processing.
+- **immediate_changes.md**: Appended sections 6–11 outlining problems, required fixes, target files, acceptance criteria, and related new test placeholders. Provides structured plan for upcoming refactor tasks aligned with BOT_RULES consistency mandate.
+
+### Impact
+- Establishes clear remediation backlog to restore compliance with existing BOT rules (ephemeral buttons, accurate calendar names, detailed summaries) and improve auditability of one-by-one flows before further handler/dispatcher refactors.
 
 
 ## [0.1.47] - 2025-08-11
 
-### Added
-- **Immediate Update/Delete Handler**: New `immediate_update_delete.py` to execute single update/delete operations instantly when `confirmation_needed` is False.
-
-### Changed
-- **routes.py**: Integrated immediate handler before existing create/batch logic in no-confirmation path to unify execution flow.
-- **handlers/__init__.py**: Exported new handler for centralized imports.
+### Fixed
+- **Critical: Undefined Variable Crash**: Removed erroneous reference to `ai_response` after update/delete execution path without confirmation causing 500 errors in query operations.
 
 ### Technical Details
-- Prevents duplicate inline logic growth by routing all no-confirmation update/delete operations through dedicated handler.
-- Maintains user-facing message consistency via existing formatting utilities.
+- **routes.py**: Eliminated dangling `ai_response` add_message call in non-AI branch; logic now returns early after completing update/delete action.
 
 ## [0.1.46] - 2025-08-11
 
