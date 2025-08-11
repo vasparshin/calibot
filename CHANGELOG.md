@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.63] - 2025-08-11
+
+### Fixed
+- Query intents matched by fast-path produced no user message: early non-confirmation branch consumed flow before dedicated query handler, causing silent responses despite logs. Added exclusion of `intent == 'query'` from early non-confirmation block.
+
+### Technical Details
+- `routes.py`: Conditional updated to `if confirmation_needed is False and intent != 'query'`; refined confirmation logging.
+- Version bump to 0.1.63.
+
+### Impact
+- Restores immediate visible responses for common schedule queries ("what's on today", "today's schedule") eliminating silent success logs with no Telegram reply.
+
 ## [0.1.62] - 2025-08-11
 
 ### Fixed

@@ -582,9 +582,9 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 conversation_state.add_message(chat_id, "assistant", "Sorry, I didn't understand your confirmation. Please reply with 'yes' to confirm.")
                 return {"status": "ok"}
 
-        # If no confirmation is needed, proceed with the action
-        if event_data.get("confirmation_needed") is False:
-            logger.info(f"Processing intent '{event_data.get('intent')}' without confirmation")
+        # If no confirmation is needed (excluding query which is handled separately), proceed
+        if event_data.get("confirmation_needed") is False and event_data.get("intent") != "query":
+            logger.info(f"Processing non-query intent '{event_data.get('intent')}' without confirmation")
             
             if event_data["intent"] in ["create", "batch_create"]:
                 # Detect batch creation scenarios (multiple events)
@@ -900,8 +900,9 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 conversation_state.add_message(chat_id, "assistant", response)
                 return {"status": "ok"}
 
-        # In case confirmation is needed (handling as needed)
-        logger.info(f"Confirmation needed for intent: {event_data}")
+        # Only reach here if confirmation still needed or intent is query
+        if event_data.get("confirmation_needed"):
+            logger.info(f"Confirmation needed for intent: {event_data}")
         
         # For specific intents that need confirmation, use buttons instead of AI response
         intent = event_data.get("intent", "")
