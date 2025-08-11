@@ -4,6 +4,41 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.84] - 2025-08-11
+
+### Fixed
+- **CRITICAL: LLM Prompt Formatting Issue**: Enhanced intent extraction prompt with specific calendar move examples
+- **Response Format Compatibility**: Added graceful fallback for LLM models that don't support response_format parameter
+- **Calendar Move Examples**: Added detailed examples for calendar moves in prompt (move lessons to calendar "Tonya")
+- **JSON Format Enforcement**: Strengthened prompt with mandatory JSON format requirements
+
+### Enhanced
+- **Prompt Robustness**: Added multiple warnings against partial responses like '"intent"' or '"query"'
+- **LLM Call Resilience**: Implemented try-catch for response_format parameter with automatic fallback
+- **Calendar Move Detection**: Added calendar_name field to required JSON patterns
+
+### Technical Details
+- **intent_extraction_prompt.py**: Added specific calendar move examples and stronger JSON format enforcement
+- **nlp_agent.py**: Enhanced LLM call with graceful response_format fallback for model compatibility
+
+## [0.1.83] - 2025-08-11
+
+### Fixed
+- **CRITICAL: Complete LLM Architecture Refactor**: Fixed malformed LLM responses returning '"intent"' instead of proper JSON
+- **LLM Response Quality**: Added temperature=0.1 and response_format parameters to improve JSON consistency
+- **JSON Parsing Resilience**: Implemented try_parse_json function with multiple parsing strategies and error recovery
+- **Code Cleanup**: Removed all duplicate fallback sections that caused maintenance issues and execution path confusion
+
+### Enhanced
+- **LLM Error Detection**: Enhanced detection for invalid responses with specific checks for '"intent"' and 'query' strings
+- **Fallback Architecture**: Simplified and consolidated fallback logic to single execution path
+- **Error Logging**: Improved error messages with specific detection of malformed LLM responses
+
+### Technical Details
+- **nlp_agent.py**: Complete refactor of extract_intent method with new try_parse_json function
+- **LLM Call Enhancement**: Added temperature=0.1 and response_format="json_object" for better consistency
+- **Architecture Cleanup**: Removed duplicate code sections and streamlined exception handling
+
 ## [0.1.82] - 2025-08-11
 
 ### Fixed

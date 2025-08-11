@@ -28,7 +28,7 @@ For deleting events:
 {{"intent": "delete", "event_name": "EVENT_NAME", "date": "2025-08-06", "target": "TARGET", "confirmation_needed": true}}
 
 For updating/moving events:
-{{"intent": "update", "event_name": "EVENT_NAME", "date": "2025-08-06", "target": "TARGET", "time_shift": "SHIFT", "new_date": "NEW_DATE", "confirmation_needed": true}}
+{{"intent": "update", "event_name": "EVENT_NAME", "date": "2025-08-06", "target": "TARGET", "time_shift": "SHIFT", "new_date": "NEW_DATE", "calendar_name": "CALENDAR_NAME", "confirmation_needed": true}}
 
 For confirmations:
 {{"intent": "confirm", "confirmation_needed": false}}
@@ -51,6 +51,11 @@ DATE EXAMPLES:
 - "move to tomorrow" → "new_date": "2025-08-11"
 - "reschedule for Monday" → "new_date": "2025-08-12"
 
+CALENDAR MOVE EXAMPLES:
+- "move the lessons today to calendar Tonya" → {{"intent": "update", "event_name": "lesson", "date": "2025-08-11", "target": "all", "calendar_name": "Tonya", "confirmation_needed": true}}
+- "move last event to Personal calendar" → {{"intent": "update", "event_name": "event", "date": "2025-08-11", "target": "last", "calendar_name": "Personal", "confirmation_needed": true}}
+- "move the meeting to Work calendar" → {{"intent": "update", "event_name": "meeting", "date": "2025-08-11", "target": "all", "calendar_name": "Work", "confirmation_needed": true}}
+
 🚨 FORBIDDEN RESPONSES (NEVER DO THIS):
 - "intent"
 - "query"
@@ -62,7 +67,7 @@ DATE EXAMPLES:
 - {{"intent": "query", "date": "YYYY-MM-DD", "confirmation_needed": false}}
 - {{"intent": "query", "limit": N, "order": "asc|desc", "confirmation_needed": false}}
 - {{"intent": "delete", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "confirmation_needed": true}}
-- {{"intent": "update", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "time_shift": "SHIFT", "confirmation_needed": true}}
+- {{"intent": "update", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "time_shift": "SHIFT", "calendar_name": "CALENDAR", "confirmation_needed": true}}
 - {{"intent": "create", "event_name": "NAME", "date": "YYYY-MM-DD", "start_time": "HH:MM", "end_time": "HH:MM", "confirmation_needed": false}}
 - {{"intent": "batch_create", "event_name": "NAME", "date": "YYYY-MM-DD", "events": [{{"start_time": "HH:MM", "end_time": "HH:MM"}}, {{"start_time": "HH:MM", "end_time": "HH:MM"}}], "confirmation_needed": false}}
 - {{"intent": "confirm", "confirmation_needed": false}}
@@ -72,4 +77,6 @@ BATCH CREATION EXAMPLES:
 - "schedule 2 meetings for 2pm and 4pm" → {{"intent": "batch_create", "event_name": "meeting", "date": "2025-08-11", "events": [{{"start_time": "14:00", "end_time": "15:00"}}, {{"start_time": "16:00", "end_time": "17:00"}}], "confirmation_needed": false}}
 - "create lessons for 8am, 9am, 10am tomorrow" → {{"intent": "batch_create", "event_name": "lesson", "date": "2025-08-11", "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "09:00", "end_time": "10:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}], "confirmation_needed": false}}
 
-Return ONLY the JSON object - no explanations, no markdown formatting, no extra text."""
+🚨 MANDATORY: Return ONLY the JSON object - no explanations, no markdown formatting, no extra text.
+🚨 NEVER return partial responses like "intent", "query", '"intent"', '"query"' - always return complete JSON.
+🚨 Your response must start with {{ and end with }}."""
