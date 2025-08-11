@@ -31,96 +31,27 @@ class GoogleCalendarService:
         self._calendars_loaded = False
     
     def get_auth_url(self):
-        """Generate OAuth authorization URL with all required parameters"""
-        try:
-            if not GOOGLE_CLIENT_SECRET_FILE:
-                logger.error("GOOGLE_CREDENTIALS_FILE environment variable not set")
-                raise ValueError("Google credentials file not configured")
-                
-            if not os.path.exists(GOOGLE_CLIENT_SECRET_FILE):
-                logger.error(f"Google credentials file not found: {GOOGLE_CLIENT_SECRET_FILE}")
-                raise FileNotFoundError(f"Credentials file not found: {GOOGLE_CLIENT_SECRET_FILE}")
-            
-            # Read and validate the client secrets file
-            import json
-            try:
-                with open(GOOGLE_CLIENT_SECRET_FILE, 'r') as f:
-                    client_config = json.load(f)
-                    
-                # Validate client configuration
-                if 'web' not in client_config:
-                    logger.error("OAuth client must be configured as 'Web application' type")
-                    raise ValueError("Invalid OAuth client type. Please ensure the OAuth client is configured as 'Web application' in Google Cloud Console")
-                    
-                web_config = client_config['web']
-                client_id = web_config.get('client_id')
-                redirect_uris = web_config.get('redirect_uris', [])
-                
-                logger.info(f"OAuth Client ID: {client_id}")
-                logger.info(f"Configured redirect URIs: {redirect_uris}")
-                logger.info(f"Using redirect URI: {self.redirect_uri}")
-                
-                # Check if our redirect URI is in the allowed list
-                if self.redirect_uri not in redirect_uris:
-                    logger.warning(f"Redirect URI {self.redirect_uri} not in configured list: {redirect_uris}")
-                    logger.warning("This may cause OAuth authentication to fail")
-                    
-            except json.JSONDecodeError as e:
-                logger.error(f"Invalid JSON in credentials file: {e}")
-                raise ValueError("Credentials file contains invalid JSON")
-            
-            # Create the flow with proper configuration
-            flow = Flow.from_client_secrets_file(
-                GOOGLE_CLIENT_SECRET_FILE,
-                scopes=GOOGLE_API_SCOPES,
-                redirect_uri=self.redirect_uri
-            )
-            
-            logger.info(f"OAuth Redirect URI: {flow.redirect_uri}")
-            logger.info(f"OAuth Scopes: {GOOGLE_API_SCOPES}")
-            
-            # Generate authorization URL with Google's recommended parameters
-            auth_url, state = flow.authorization_url(
-                access_type='offline',
-                include_granted_scopes='true',
-                prompt='consent'
-            )
-            
-            # Ensure response_type is in the URL (Google should add this automatically)
-            if 'response_type=' not in auth_url:
-                logger.warning("response_type missing from OAuth URL, adding manually")
-                separator = '&' if '?' in auth_url else '?'
-                auth_url += f"{separator}response_type=code"
-            
-            logger.info(f"Generated OAuth URL: {auth_url}")
-            logger.info(f"OAuth state: {state}")
+        flow = Flow.from_client_secrets_file(
+            GOOGLE_CLIENT_SECRET_FILE,
+            scopes=GOOGLE_API_SCOPES,
+            redirect_uri=self.redirect_uri
+        )
+        logger.info(f"Redirect URI: {flow.redirect_uri}")
+        auth_url, state = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true',
+            prompt='consent'
+        )
 
-            # Store only the state
-            try:
-                with open("oauth_state.txt", "w") as f:
-                    f.write(state)
-            except Exception as e:
-                logger.error(f"Failed to save OAuth state: {e}")
-                # Continue anyway - state validation might not be critical
+        # Store only the state
+        with open("oauth_state.txt", "w") as f:
+            f.write(state)
 
-            # Store client_config and redirect_uri for callback
-            try:
-                with open("client_config.pickle", "wb") as f:
-                    pickle.dump({
-                        "client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, 
-                        "scopes": GOOGLE_API_SCOPES, 
-                        "redirect_uri": self.redirect_uri
-                    }, f)
-            except Exception as e:
-                logger.error(f"Failed to save OAuth config: {e}")
-                # Continue anyway - might work without state validation
+        # store client_config and redirect_uri to use in the callback function.
+        with open("client_config.pickle", "wb") as f:
+            pickle.dump({"client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, "scopes": GOOGLE_API_SCOPES, "redirect_uri": self.redirect_uri}, f)
 
-            return auth_url
-            
-        except Exception as e:
-            logger.error(f"Error generating OAuth URL: {e}")
-            logger.error(traceback.format_exc())
-            raise
+        return auth_url
 
     async def handle_oauth_callback(self, request: Request):
         """Handle the OAuth callback and exchange code for token"""
@@ -131,121 +62,83 @@ class GoogleCalendarService:
             logger.error("Missing authorization code in OAuth callback")
             raise HTTPException(status_code=400, detail="Missing authorization code")
 
-        if not state:
-            logger.warning("Missing state parameter in OAuth callback - proceeding without validation")
-            # Don't fail completely if state is missing - this is common with server restarts
-        
-        # Try to validate state if possible, but don't fail if files are missing due to restarts
-        state_valid = True
+        # Be more forgiving about state validation for production deployments
         try:
             with open('oauth_state.txt', 'r') as f:
                 saved_state = f.read()
-                if state and state != saved_state:
-                    logger.warning(f"State mismatch: received {state}, saved {saved_state}")
-                    # For production stability, we'll log the warning but continue
-                    # The authorization code itself provides security
-                else:
-                    logger.info("OAuth state validation successful")
-        except FileNotFoundError:
-            logger.warning("OAuth state file not found - likely due to server restart, continuing anyway")
-        except Exception as e:
-            logger.warning(f"Could not validate OAuth state: {e}")
-
-        # Load client configuration - create minimal config if missing
-        try:
             with open('client_config.pickle', 'rb') as f:
                 client_config = pickle.load(f)
         except FileNotFoundError as e:
-            logger.warning("Client config not found, using current configuration")
+            logger.warning(f"OAuth state files not found (likely server restart): {e}")
+            # Use current configuration as fallback
             client_config = {
-                "client_secrets_file": GOOGLE_CLIENT_SECRET_FILE,
-                "scopes": GOOGLE_API_SCOPES,
+                "client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, 
+                "scopes": GOOGLE_API_SCOPES, 
                 "redirect_uri": self.redirect_uri
             }
-        except Exception as e:
-            logger.error(f"Error loading client config: {e}")
-            raise HTTPException(status_code=500, detail="OAuth configuration error")
+            saved_state = None
+
+        # Validate state if both are available
+        if state and saved_state and state != saved_state:
+            logger.warning(f"State parameter mismatch: received {state}, saved {saved_state}")
+            # For production stability, continue anyway - the auth code provides security
 
         try:
-            # Create flow for token exchange
             flow = Flow.from_client_secrets_file(
                 client_config["client_secrets_file"],
                 scopes=client_config["scopes"],
                 redirect_uri=client_config["redirect_uri"]
             )
-            
-            logger.info(f"Exchanging authorization code for tokens...")
             flow.fetch_token(code=code)
             self.credentials = flow.credentials
 
-            # Save credentials
             with open(self.token_path, 'wb') as token:
                 pickle.dump(self.credentials, token)
 
-            # Build service
             self.service = build('calendar', 'v3', credentials=self.credentials)
             
-            logger.info("OAuth authentication successful!")
-            
-            # Clean up temporary files
-            try:
-                if os.path.exists("oauth_state.txt"):
-                    os.remove("oauth_state.txt")
-                if os.path.exists("client_config.pickle"):
-                    os.remove("client_config.pickle")
-            except Exception as cleanup_error:
-                logger.warning(f"Could not clean up OAuth files: {cleanup_error}")
-                
-        except Exception as token_error:
-            logger.error(f"Error during token exchange: {token_error}")
-            logger.error(traceback.format_exc())
-            raise HTTPException(status_code=500, detail=f"Failed to authenticate: {str(token_error)}")
-
-        # Return success page
-        html_content = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Authentication Successful</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        text-align: center;
-                        margin-top: 50px;
-                        background-color: #f5f5f5;
-                    }
-                    .container {
-                        background-color: white;
-                        padding: 30px;
-                        border-radius: 10px;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                        max-width: 500px;
-                        margin: 0 auto;
-                    }
-                    .success {
-                        color: #28a745;
-                        font-size: 24px;
-                        margin-bottom: 20px;
-                    }
-                    .instructions {
-                        color: #666;
-                        line-height: 1.6;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="success">✅ Authentication Successful!</div>
-                    <div class="instructions">
-                        Your Google Calendar has been connected to CaliBOT.<br>
-                        You can now close this tab and return to Telegram to start using the bot.
+            html_content = """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Authentication Successful</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            text-align: center;
+                            margin-top: 50px;
+                        }
+                        .container {
+                            max-width: 500px;
+                            margin: auto;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 10px;
+                            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+                        }
+                        h2 {
+                            color: #4CAF50;
+                        }
+                        p {
+                            font-size: 16px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h2>Authentication Successful</h2>
+                        <p>You can now close this tab and return to Telegram.</p>
                     </div>
-                </div>
-            </body>
-            </html>
-            """
+                </body>
+                </html>
+                """
 
-        return HTMLResponse(content=html_content, status_code=200)
+            return HTMLResponse(content=html_content, status_code=200)
+
+        except Exception as e:
+            logger.error(f"Error during token exchange: {e}")
+            logger.error(traceback.format_exc())
+            raise HTTPException(status_code=500, detail="Failed to authenticate")
 
     def get_calendar_service(self):
         """Get an authenticated Google Calendar service."""
