@@ -18,7 +18,7 @@ def test_keyboard_consistency():
         # Test different keyboard types
         test_cases = [
             ("single_event", "✅ Yes", "❌ No"),
-            ("duplicate", "✅ Yes - Create duplicates", "❌ No - Cancel"),
+            ("duplicate", "✅ Create Anyway", "❌ Cancel"),
             ("multi_event", "🔄 All", "1️⃣ One by One", "❌ Cancel")
         ]
         

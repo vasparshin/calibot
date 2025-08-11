@@ -4,6 +4,22 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.61] - 2025-08-11
+
+### Changed
+- Standardized duplicate confirmation inline keyboard labels to BOT_RULES wording: replaced "✅ Yes - Create duplicates" / "❌ No - Cancel" with "✅ Create Anyway" / "❌ Cancel" for consistency and brevity.
+
+### Fixed
+- Removed obsolete label expectations in `test_message_consistency.py` preventing mismatch after prior inline keyboard helper introduction.
+
+### Technical Details
+- `telegram.py`: Updated `create_confirmation_keyboard` duplicate branch button texts.
+- `tests/test_message_consistency.py`: Adjusted expected duplicate keyboard buttons.
+- Version bump to 0.1.61 (`pyproject.toml`, `backend/app/__init__.py`).
+
+### Impact
+- Aligns all duplicate confirmation flows with documented BOT_RULES.md button names and unifies cancellation wording across confirmation types; prepares for remaining Issue 5 single-row enforcement audit (now partially complete).
+
 ## [0.1.60] - 2025-08-11
 
 ### Changed

@@ -52,8 +52,8 @@ def create_confirmation_keyboard(operation_type: str = "delete") -> dict:
         return {
             "inline_keyboard": [
                 [
-                    {"text": "✅ Yes - Create duplicates", "callback_data": "confirm_yes"},
-                    {"text": "❌ No - Cancel", "callback_data": "confirm_no"}
+                    {"text": "✅ Create Anyway", "callback_data": "confirm_yes"},
+                    {"text": "❌ Cancel", "callback_data": "confirm_no"}
                 ]
             ]
         }
