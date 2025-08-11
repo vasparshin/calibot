@@ -7,6 +7,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [0.1.48] - 2025-08-11
 
+
+## [Unreleased]
+
+
+## [0.1.48] - 2025-08-11
+
 ### Changed
 - **Unified Update/Delete Handler**: Merged confirmation and immediate paths into `process_update_delete` to eliminate duplication and ensure consistent filtering, target selection, and formatting for update/delete operations.
 
