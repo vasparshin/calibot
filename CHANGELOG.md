@@ -4,6 +4,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+
+## [0.1.48] - 2025-08-11
+
+## [Unreleased]
+
+
 ## [0.1.48] - 2025-08-11
 
 ### Added
