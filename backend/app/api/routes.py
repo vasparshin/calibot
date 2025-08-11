@@ -897,12 +897,14 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             conversation_state.add_message(chat_id, "assistant", confirmation_msg)
             return {"status": "ok"}
         
-        # Fallback to AI response for other cases
-        ai_response = await get_ai_response(event_data, history)
-        logger.info(f"Bot response: '{ai_response}'")
-        # Add AI response to conversation history
-        conversation_state.add_message(chat_id, "assistant", ai_response)
-        await send_telegram_message(chat_id, ai_response)
+        # Fallback to AI response for non-query, non-confirmation intents needing conversational guidance
+        if intent not in ["query"]:
+            ai_response = await get_ai_response(event_data, history)
+            logger.info(f"Bot response: '{ai_response}'")
+            conversation_state.add_message(chat_id, "assistant", ai_response)
+            await send_telegram_message(chat_id, ai_response)
+            return {"status": "ok"}
+        # Query already fully handled above; no extra AI filler message
         return {"status": "ok"}
             
     except HTTPException as he:

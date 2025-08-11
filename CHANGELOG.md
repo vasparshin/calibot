@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.58] - 2025-08-11
+
+### Fixed
+- Removed redundant second AI completion for query intents that produced placeholder filler messages ("[Fetching your events...]") after formatted event list already sent, restoring clean single-response behavior per BOT_RULES.
+
+### Technical Details
+- `routes.py`: Guard added so fallback AI response path skips when intent == 'query'.
+- Version bump to 0.1.58.
+
+### Impact
+- Eliminates confusing intermediate chat noise and double responses for simple schedule queries; improves clarity and latency.
+
 ## [0.1.57] - 2025-08-11
 
 ### Fixed
