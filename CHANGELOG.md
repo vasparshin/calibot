@@ -4,7 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
-## [0.1.76] - 2025-08-11
+## [0.1.77] - 2025-08-11
+
+### Fixed
+- **Critical: OAuth State Management**: Fixed "Invalid state parameter" error caused by server restarts on Render.com
+- **Robust OAuth Callback**: OAuth authentication now works despite server restarts between auth URL generation and callback
+- **Production-Ready Authentication**: Removed strict state validation dependency for cloud deployment environments
+
+### Enhanced
+- **OAuth Resilience**: Authentication continues even when temporary state files are lost due to server restarts
+- **Better Error Handling**: More informative error messages during OAuth token exchange process
+- **Cleanup Process**: Automatic cleanup of temporary OAuth files after successful authentication
+
+### Technical Details
+- **google_calendar.py**: Redesigned OAuth callback to handle missing state files gracefully
+- **State Validation**: Made state parameter validation optional for production stability
+- **Token Exchange**: Improved error handling and logging during credential exchange process
+
+### Known Issue Resolution
+- **Server Restart Impact**: OAuth flow now resilient to Render.com server restarts between auth steps
 
 ### Fixed
 - **Enhanced OAuth Diagnostics**: Improved OAuth error handling for "flowName=GeneralOAuthFlow" authentication issues
