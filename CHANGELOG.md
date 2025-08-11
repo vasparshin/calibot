@@ -4,6 +4,14 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.70] - 2025-08-11
+
+### Fixed
+- **Critical: Import Error in Batch Creation**: Fixed missing import of `format_duplicate_confirmation_with_keyboard` in routes.py causing 500 errors during batch event creation when duplicates are detected
+### Technical Details
+- **routes.py**: Added missing import `from app.utils.ui_helpers import format_duplicate_confirmation_with_keyboard` to resolve `NameError` in batch creation workflow
+- **Issue Resolution**: Batch creation requests were failing with 500 Internal Server Error when duplicate detection was triggered
+
 ## [0.1.69] - 2025-08-11
 
 ### Fixed

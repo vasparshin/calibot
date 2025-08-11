@@ -34,6 +34,7 @@ except ImportError:
     MessageFormatter = None
     InlineKeyboardHelper = None
 from datetime import datetime
+from app.utils.ui_helpers import format_duplicate_confirmation_with_keyboard
 
 import logging
 logging.basicConfig(level=logging.INFO)
