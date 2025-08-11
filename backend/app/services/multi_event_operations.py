@@ -557,14 +557,23 @@ class MultiEventOperationHandler:
                         )
                         
                         if result.get("success"):
-                            # Create descriptive update message with hyperlink
+                            # Create descriptive update message with hyperlink using centralized formatter
                             event_name = event.get('summary', 'Untitled')
-                            event_link = result.get('event_link', '') or event.get('htmlLink', '') or event.get('calendar_link', '')
                             
-                            if event_link:
-                                formatted_name = f"[{event_name}]({event_link})"
+                            # Use MessageFormatter for consistent URL formatting
+                            if MessageFormatter:
+                                # Get the event link from result or event
+                                existing_link = result.get('event_link', '') or event.get('htmlLink', '') or event.get('calendar_link', '')
+                                # Use centralized hyperlink creation
+                                formatted_name = MessageFormatter.create_event_hyperlink(
+                                    event_name, 
+                                    event["id"], 
+                                    existing_link if existing_link else None
+                                )
                             else:
-                                formatted_name = event_name
+                                # Fallback for testing/development
+                                event_id = event["id"]
+                                formatted_name = f"[{event_name}](https://calendar.google.com/calendar/event?eid={event_id})"
                                 
                             # Extract date from the original event for display
                             event_date = event.get('date', '')
@@ -585,7 +594,7 @@ class MultiEventOperationHandler:
                             else:
                                 formatted_date = "today"
                             
-                            update_desc = f"• Updated [{event_name}]({event_link})"
+                            update_desc = f"• Updated {formatted_name}"
                             if 'new_date' in original_request:
                                 update_desc += f" - moved to {original_request['new_date']}"
                             if 'new_event_name' in original_request:

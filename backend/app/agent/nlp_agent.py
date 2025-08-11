@@ -179,7 +179,8 @@ class NLPAgent:
             
             # IMMEDIATE check for known bad responses before any processing
             if (cleaned_result.strip() == '"intent"' or cleaned_result.strip() == '"query"' or 
-                cleaned_result.strip() == 'intent' or cleaned_result.strip() == 'query'):
+                cleaned_result.strip() == 'intent' or cleaned_result.strip() == 'query' or
+                len(cleaned_result.strip()) < 10):  # Catch other malformed short responses
                 logger.error(f"DETECTED MALFORMED LLM RESPONSE: '{cleaned_result}' - using intelligent fallback")
                 # Enhanced fallback based on user message keywords
                 user_lower = user_message.lower()
@@ -233,13 +234,34 @@ class NLPAgent:
                     
                     # Extract calendar move information with improved logging
                     import re
-                    calendar_match = re.search(r'to calendar ["\']([^"\']+)["\']', user_lower)
-                    if calendar_match:
-                        target_calendar = calendar_match.group(1).strip()
+                    # Try multiple patterns for calendar extraction
+                    calendar_patterns = [
+                        r'to calendar ["\']([^"\']+)["\']',  # 'to calendar "Name"'
+                        r'to calendar ([^\s]+)',             # 'to calendar Name'
+                        r'calendar ["\']([^"\']+)["\']',     # 'calendar "Name"'
+                        r'move.*to ([A-Z][a-zA-Z]+)',        # 'move to Name'
+                    ]
+                    
+                    target_calendar = None
+                    for pattern in calendar_patterns:
+                        calendar_match = re.search(pattern, user_lower)
+                        if calendar_match:
+                            target_calendar = calendar_match.group(1).strip()
+                            logger.info(f"Calendar pattern '{pattern}' matched: '{target_calendar}'")
+                            break
+                    
+                    if target_calendar:
                         fallback["calendar_name"] = target_calendar
                         logger.info(f"Extracted target calendar for move: '{target_calendar}' from message: '{user_message}'")
                     else:
                         logger.warning(f"No calendar extraction from message: '{user_message}' (lowercase: '{user_lower}')")
+                        # Try case-insensitive search for known calendar names
+                        known_calendars = ['tonya', 'personal', 'work', 'family']
+                        for cal_name in known_calendars:
+                            if cal_name in user_lower:
+                                fallback["calendar_name"] = cal_name.title()
+                                logger.info(f"Found known calendar name '{cal_name}' in message")
+                                break
                     
                     logger.info(f"Fallback result for update: {fallback}")
                     return fallback

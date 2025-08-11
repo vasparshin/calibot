@@ -407,12 +407,36 @@ class GoogleCalendarService:
             target_calendar_id = calendar_id  # Default to same calendar
             if 'calendar' in event_data or 'calendar_name' in event_data:
                 specified_calendar = event_data.get('calendar') or event_data.get('calendar_name')
+                logger.info(f"Calendar move requested to: '{specified_calendar}'")
+                
                 # Use calendar agent if available and loaded
                 if hasattr(self, 'calendar_agent') and self.calendar_agent.calendar_cache:
+                    logger.info(f"Calendar agent available with {len(self.calendar_agent.calendar_cache)} calendars")
                     new_calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
+                    logger.info(f"Calendar lookup result for '{specified_calendar}': {new_calendar_id}")
+                    
                     if new_calendar_id and new_calendar_id != calendar_id:
                         target_calendar_id = new_calendar_id
                         logger.info(f"Moving event from '{calendar_id}' to '{new_calendar_id}'")
+                    elif new_calendar_id == calendar_id:
+                        logger.info(f"Event already in target calendar '{calendar_id}'")
+                    else:
+                        logger.warning(f"Could not find calendar '{specified_calendar}' - staying in '{calendar_id}'")
+                else:
+                    logger.error(f"Calendar agent not available or cache empty - cannot move to '{specified_calendar}'")
+                    # Try to update calendar cache
+                    if hasattr(self, 'calendar_agent'):
+                        try:
+                            calendars = self.get_calendars()
+                            if calendars:
+                                self.calendar_agent.update_calendar_cache(calendars)
+                                logger.info(f"Updated calendar cache with {len(calendars)} calendars")
+                                new_calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
+                                if new_calendar_id and new_calendar_id != calendar_id:
+                                    target_calendar_id = new_calendar_id
+                                    logger.info(f"After cache update - moving event from '{calendar_id}' to '{new_calendar_id}'")
+                        except Exception as e:
+                            logger.error(f"Failed to update calendar cache: {e}")
             
             # Update fields
             if 'event_name' in event_data:

@@ -4,6 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.79] - 2025-08-11
+
+### Fixed
+- **Critical: Calendar Move Functionality**: Fixed calendar moves failing by adding proper calendar agent initialization and debugging
+- **Critical: Intent Extraction Errors**: Enhanced fallback logic to handle malformed LLM responses that return just '"intent"'
+- **Critical: Success Message URL Consistency**: Fixed success messages to use same calendar.google.com URL format as "found" messages
+- **Enhanced Calendar Lookup**: Added multiple regex patterns for calendar name extraction from user messages
+- **Better Error Logging**: Added detailed logging for calendar move operations and intent extraction failures
+
+### Enhanced
+- **Calendar Agent Integration**: Improved calendar cache loading and calendar ID resolution for moves
+- **Message Formatting**: Centralized URL formatting using MessageFormatter utility for consistency
+- **Fallback Logic**: Enhanced regex patterns to catch calendar names like "Tonya" in various formats
+
+### Technical Details
+- **nlp_agent.py**: Added better malformed response detection and multiple calendar extraction patterns
+- **google_calendar.py**: Enhanced calendar move debugging with detailed logging and cache updating
+- **multi_event_operations.py**: Switched to centralized MessageFormatter for consistent URL formatting
+
 ## [0.1.78] - 2025-08-11
 
 ### Fixed
