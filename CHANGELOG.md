@@ -4,6 +4,14 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.69] - 2025-08-11
+
+### Fixed
+- **Critical: Syntax Error in Event Queue Handler**: Fixed IndentationError and unterminated f-string literal in event_queue_handler.py that was preventing application startup
+### Technical Details
+- **event_queue_handler.py**: Corrected indentation on lines 509-510 for is_cancel variable assignment
+- **event_queue_handler.py**: Fixed unterminated f-string literal on line 524 by properly escaping newline character
+
 ## [0.1.68] - 2025-08-11
 
 ### Fixed

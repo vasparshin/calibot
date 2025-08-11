@@ -506,8 +506,8 @@ Calendar: {calendar}"""
         # Handle callback data patterns (e.g., "confirm_update", "cancel_delete")
         is_confirm = (user_response in ['yes', 'y', 'confirm'] or 
                      user_response.startswith('confirm_'))
-    is_cancel = (user_response in ['no', 'n'] or 
-                      user_response.startswith('cancel_'))
+        is_cancel = (user_response in ['no', 'n'] or 
+                     user_response.startswith('cancel_'))
 
         if user_response == 'skip':
             # Skip current event without processing
@@ -521,8 +521,7 @@ Calendar: {calendar}"""
                 }
             return {
                 "success": True,
-                "message": f"Skipped.
-\n{next_result['message']}",
+                "message": f"Skipped.\n{next_result['message']}",
                 "queue_continues": True,
                 "next_confirmation": next_result
             }
