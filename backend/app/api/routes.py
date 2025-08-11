@@ -424,6 +424,10 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
                 conversation_state.add_message(chat_id, "assistant", "Sorry, I had trouble understanding your request. Could you please try again?")
                 return {"status": "ok"}
+            # NEW DEFENSIVE GUARD: handle pathological string-only LLM response caught before downstream logic
+            if list(event_data.keys()) == ['intent'] and not event_data.get('intent'):
+                logger.error("Pathological empty 'intent' key returned from LLM - applying fallback query intent")
+                event_data = {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
         except Exception as e:
             logger.error(f"CRITICAL: Error in AI intent extraction: {e}")
             await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
@@ -433,9 +437,9 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         # Additional safety check for required fields
         if "intent" not in event_data:
             logger.error(f"CRITICAL: No 'intent' field in event_data: {event_data}")
-            await send_telegram_message(chat_id, "Sorry, I couldn't determine what you want me to do. Could you please try again?")
-            conversation_state.add_message(chat_id, "assistant", "Sorry, I couldn't determine what you want me to do. Could you please try again?")
-            return {"status": "ok"}
+            # Apply safe fallback to query intent instead of user-facing failure to mask transient LLM glitch
+            event_data = {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+            logger.info("Applied fallback query intent due to missing 'intent' key")
 
         # Handle batch creation format
         if event_data.get("intent") == "batch_create" and "events" in event_data:

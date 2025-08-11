@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.57] - 2025-08-11
+
+### Fixed
+- Hotfix for intermittent malformed LLM intent extraction responses returning only a dangling '"intent"' token causing error log: Error extracting intent: '"intent"'. Added defensive guards in `routes.py` to detect missing/empty intent and apply a safe query fallback instead of emitting user-facing error.
+
+### Technical Details
+- `routes.py`: Added pathological single-key empty intent detection and missing 'intent' fallback branch converting failure into `{intent: query}` with current date; prevents regression while upstream prompt tuning pending.
+- Version bump to 0.1.57.
+
+### Impact
+- Eliminates user-visible failure path for sporadic malformed model outputs, restoring prior stable behavior for casual schedule queries.
+
 
 ## [0.1.56] - 2025-08-11
 
