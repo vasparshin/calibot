@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.73] - 2025-08-11
+
+### Fixed
+- **Critical: Calendar Move Extraction**: Fixed regex pattern to properly extract target calendar from "move to calendar X" commands
+- **Critical: Confirmation Messages**: Fixed confirmation messages to show what changes will be made (e.g., "Will move to Tonya calendar")
+- **Critical: Success Message Links**: Fixed malformed markdown links in success messages showing proper clickable event names
+### Technical Details
+- **nlp_agent.py**: Simplified calendar extraction regex to `r'to calendar ["\']([^"\']+)["\']'` for better matching
+- **multi_event_operations.py**: Force legacy confirmation path when calendar moves detected to show proposed changes
+- **multi_event_operations.py**: Fixed success message link format to use event name and proper URL
+
 ## [0.1.72] - 2025-08-11
 
 ### Fixed

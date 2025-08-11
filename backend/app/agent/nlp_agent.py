@@ -231,7 +231,7 @@ class NLPAgent:
                     
                     # Extract calendar move information
                     import re
-                    calendar_match = re.search(r'(?:to|into)\s+(?:calendar\s+)?["\']?([^"\']+)["\']?(?:\s+calendar)?', user_lower)
+                    calendar_match = re.search(r'to calendar ["\']([^"\']+)["\']', user_lower)
                     if calendar_match:
                         target_calendar = calendar_match.group(1).strip()
                         fallback["calendar_name"] = target_calendar

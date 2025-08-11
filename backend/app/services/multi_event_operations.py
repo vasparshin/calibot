@@ -158,8 +158,8 @@ class MultiEventOperationHandler:
                 "original_request": event_data
             }
             
-            # Use centralized formatter if available
-            if MessageFormatter:
+            # Use centralized formatter if available and no specific changes to describe
+            if MessageFormatter and not any(key in event_data for key in ['calendar_name', 'new_event_name', 'new_date', 'time_shift']):
                 # Convert events to proper format
                 formatted_events = []
                 for event in matching_events:
@@ -533,7 +533,7 @@ class MultiEventOperationHandler:
                         if result.get("success"):
                             # Create descriptive update message with hyperlink
                             event_name = event.get('summary', 'Untitled')
-                            event_link = result.get('event_link', '')
+                            event_link = result.get('event_link', '') or event.get('htmlLink', '') or event.get('calendar_link', '')
                             
                             if event_link:
                                 formatted_name = f"[{event_name}]({event_link})"
@@ -559,7 +559,7 @@ class MultiEventOperationHandler:
                             else:
                                 formatted_date = "today"
                             
-                            update_desc = f"• Updated [{formatted_name}]({event.get('htmlLink', '#')})"
+                            update_desc = f"• Updated [{event_name}]({event_link})"
                             if 'new_date' in original_request:
                                 update_desc += f" - moved to {original_request['new_date']}"
                             if 'new_event_name' in original_request:
