@@ -30,6 +30,15 @@ from app.utils.ui_helpers import (
 )
 from app.agent.nlp_agent import NLPAgent
 from app.utils.message_formatter import MessageFormatter
+from app.api.handlers import (
+    query_and_filter_events,
+    find_duplicates,
+    process_batch_creation,
+    create_single_event,
+    IntentDispatcher,
+    process_update_delete_with_confirmation,
+    process_immediate_update_delete,
+)
 
 # Import new centralized formatters for consistency
 try:
@@ -443,109 +452,19 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
 
         # Handle batch creation format
         if event_data.get("intent") == "batch_create" and "events" in event_data:
-            logger.info(f"Processing batch creation with {len(event_data['events'])} events")
-            events_to_create = event_data["events"]
-            
-            # Enhance events with missing fields from parent event_data
-            enhanced_events = []
-            for single_event in events_to_create:
-                enhanced_event = single_event.copy()
-                # Add missing fields from parent event_data
-                for key in ["event_name", "date", "calendar_name", "description"]:
-                    if key in event_data and key not in enhanced_event:
-                        enhanced_event[key] = event_data[key]
-                enhanced_events.append(enhanced_event)
-            
-            # Check for duplicate events with enhanced data
-            duplicates = await check_for_duplicate_events(chat_id, enhanced_events, calendar_service)
-            if duplicates:
-                # For each duplicate, ask user what to do but continue with non-duplicates
-                duplicate_indices = [dup["index"] for dup in duplicates]
-                non_duplicate_events = [event for i, event in enumerate(enhanced_events) if i not in duplicate_indices]
-                
-                # If there are non-duplicate events, create them first
-                if non_duplicate_events:
-                    created_count = 0
-                    success_events = []
-                    
-                    for single_event in non_duplicate_events:
-                        try:
-                            # Add intent field for calendar service
-                            single_event["intent"] = "create"
-                            logger.info(f"Creating non-duplicate event: {single_event}")
-                            calendar_result = await calendar_service.create_event(single_event)
-                            if calendar_result and calendar_result.get("success"):
-                                created_count += 1
-                                formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
-                                success_events.append(formatted_event)
-                        except Exception as e:
-                            logger.error(f"Error creating non-duplicate event: {e}")
-                            continue
-                    
-                    # Send success message for non-duplicates
-                    if success_events:
-                        if created_count == 1:
-                            success_message = f"Event created successfully:\n\n" + "\n".join(success_events)
-                        else:
-                            success_message = f"Successfully created {created_count} events:\n\n" + "\n".join(success_events)
-                        await send_telegram_message(chat_id, success_message)
-                        conversation_state.add_message(chat_id, "assistant", success_message)
-                
-                # Now ask about duplicates
-                duplicate_msg, keyboard = format_duplicate_confirmation_with_keyboard(duplicates, "create")
-                
-                await send_telegram_message(chat_id, duplicate_msg, reply_markup=keyboard)
-                conversation_state.add_message(chat_id, "assistant", duplicate_msg)
-                
-                # Store the pending duplicate creation for user confirmation
-                conversation_state.add_message(chat_id, "system", f"PENDING_DUPLICATE_CREATION:{len(duplicates)} events")
-                return {"status": "ok"}
-            
-            # Process each event in the batch (no duplicates found)
-            created_count = 0
-            failed_count = 0
-            success_events = []
-            failed_events = []
-            
-            for i, single_event in enumerate(enhanced_events):
-                # Add intent field for calendar service
-                single_event["intent"] = "create"
-                try:
-                    logger.info(f"Creating event {i+1}/{len(enhanced_events)}: {single_event}")
-                    calendar_result = await calendar_service.create_event(single_event)
-                    if calendar_result and calendar_result.get("success"):
-                        created_count += 1
-                        formatted_event = format_event_for_display(single_event, calendar_result, calendar_service)
-                        success_events.append(formatted_event)
-                    else:
-                        failed_count += 1
-                        error_msg = calendar_result.get('message', 'Unknown error') if calendar_result else 'Unknown error'
-                        failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - {error_msg}")
-                except Exception as e:
-                    logger.error(f"Error creating batch event: {e}")
-                    failed_count += 1
-                    failed_events.append(f"• {single_event.get('event_name', 'Untitled')} - Error: {str(e)}")
-                    continue
-            
-            # Build comprehensive response message
-            if created_count > 0 and failed_count == 0:
-                # All successful
-                if created_count == 1:
-                    message = f"Event created successfully:\n\n" + "\n".join(success_events)
-                else:
-                    message = f"Successfully created {created_count} events:\n\n" + "\n".join(success_events)
-            elif created_count > 0 and failed_count > 0:
-                # Mixed results
-                message = f"Created {created_count} events, {failed_count} failed:\n\nSuccessful:\n" + "\n".join(success_events)
-                message += f"\n\nFailed:\n" + "\n".join(failed_events)
-            else:
-                # All failed
-                message = f"Failed to create all {len(enhanced_events)} events:\n\n" + "\n".join(failed_events)
-            
-            await send_telegram_message(chat_id, message)
-            conversation_state.add_message(chat_id, "assistant", message)
-            return {"status": "ok"}
-
+            result = await process_batch_creation(
+                chat_id,
+                event_data,
+                calendar_service,
+                send_telegram_message,
+                format_event_for_display,
+                format_duplicate_confirmation_with_keyboard,
+                conversation_state,
+                lambda enhanced: find_duplicates(enhanced, calendar_service),
+            )
+            if result.get("handled"):
+                return result
+        
         # Check if user has pending event queue (NEW: Priority check)
         if event_queue_handler.has_pending_queue(chat_id):
             logger.info(f"Processing event queue confirmation")
@@ -593,222 +512,17 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             return {"status": "ok"}
 
         # Handle multi-event operations (delete, update) with queue-based approach
-        if event_data.get("intent") in ["delete", "update"] and event_data.get("confirmation_needed", True):
-            logger.info(f"Processing multi-event operation: {event_data.get('intent')} (WITH confirmation)")
-            
-            # First, find matching events
-            query_params = {
-                "event_name": event_data.get("event_name", ""),
-                "date": event_data.get("date", "")
-            }
-            
-            # Add time filtering if specified
-            if event_data.get("start_time_after"):
-                query_params["start_time_after"] = event_data["start_time_after"]
-            if event_data.get("start_time_before"):
-                query_params["start_time_before"] = event_data["start_time_before"]
-            
-            matched_events = await calendar_service.query_events(query_params)
-            
-            logger.info(f"Calendar service response: {type(matched_events)} - {matched_events}")
-            
-            if not isinstance(matched_events, dict) or not matched_events.get("success") or not matched_events.get("events"):
-                await send_telegram_message(chat_id, f"No matching events found for {event_data.get('intent')} operation.")
-                conversation_state.add_message(chat_id, "assistant", f"No matching events found for {event_data['intent']} operation.")
-                return {"status": "ok"}
-            
-            events = matched_events["events"]
-            
-            # Validate events is a list
-            if not isinstance(events, list):
-                logger.error(f"CRITICAL: Events is not a list! Type: {type(events)}, Content: {events}")
-                await send_telegram_message(chat_id, "Sorry, there was an issue retrieving events. Please try again.")
-                conversation_state.add_message(chat_id, "assistant", "Sorry, there was an issue retrieving events. Please try again.")
-                return {"status": "ok"}
-            
-            # Validate events is a list
-            if not isinstance(events, list):
-                logger.error(f"Expected events to be a list, got {type(events)}: {events}")
-                await send_telegram_message(chat_id, "Sorry, there was an error retrieving event data. Please try again.")
-                conversation_state.add_message(chat_id, "assistant", "Sorry, there was an error retrieving event data. Please try again.")
-                return {"status": "ok"}
-            
-            # Filter events to only include those matching the event name (if specified)
-            if event_data.get("event_name"):
-                filtered_events = []
-                search_name = event_data["event_name"].lower()
-                for event in events:
-                    # Skip non-dictionary events during filtering
-                    if not isinstance(event, dict):
-                        logger.warning(f"Skipping non-dictionary event during filtering: {type(event)} - {event}")
-                        continue
-                    
-                    if search_name in event.get("summary", "").lower():
-                        filtered_events.append(event)
-                events = filtered_events
-            
-            # Apply target filtering (last, first, all, specific numbers)
-            if event_data.get("target") and events:
-                target = event_data["target"].lower()
-                if target == "last":
-                    # Take only the last event (assuming events are chronologically ordered)
-                    events = [events[-1]]
-                elif target == "first":
-                    # Take only the first event
-                    events = [events[0]]
-                elif target == "all":
-                    # Keep all events (no filtering needed)
-                    pass
-                elif target in ["2nd", "second", "2"]:
-                    # Take the 2nd event if it exists
-                    if len(events) >= 2:
-                        events = [events[1]]  # Index 1 for 2nd item
-                    else:
-                        events = []  # No 2nd event exists
-                elif target in ["3rd", "third", "3"]:
-                    # Take the 3rd event if it exists
-                    if len(events) >= 3:
-                        events = [events[2]]  # Index 2 for 3rd item
-                    else:
-                        events = []  # No 3rd event exists
-                elif target in ["4th", "fourth", "4"]:
-                    # Take the 4th event if it exists
-                    if len(events) >= 4:
-                        events = [events[3]]  # Index 3 for 4th item
-                    else:
-                        events = []  # No 4th event exists
-                # For other target values, keep all events
-            
-            if not events:
-                no_events_msg = format_no_events_message(event_data)
-                await send_telegram_message(chat_id, no_events_msg)
-                conversation_state.add_message(chat_id, "assistant", no_events_msg)
-                return {"status": "ok"}
-            
-            logger.info(f"Found {len(events)} matching events for {event_data['intent']} operation")
-            
-            # If multiple events, use queue system for individual confirmation
-            if len(events) > 1:
-                # Convert events to queue format
-                queue_events = []
-                for event in events:
-                    # Ensure event is a dictionary before accessing its attributes
-                    if not isinstance(event, dict):
-                        logger.warning(f"Skipping non-dictionary event: {type(event)} - {event}")
-                        continue
-                    
-                    # Validate required fields
-                    if "id" not in event:
-                        logger.warning(f"Skipping event without ID: {event}")
-                        continue
-                    
-                    queue_event = {
-                        "intent": event_data["intent"],
-                        "event_id": event["id"],
-                        "event_name": event.get("summary", "Untitled"),
-                        "start_time": event.get("start", "Unknown time"),
-                        "end_time": event.get("end", "Unknown time"),
-                        "calendar_id": event.get("calendar_id", "primary"),
-                        "calendar_name": event.get("calendar_name", "Default")
-                    }
-                    
-                    # For update operations, include the update parameters
-                    if event_data["intent"] == "update":
-                        # Add any update-specific data from the original event_data
-                        for key in ["new_start_time", "new_end_time", "new_date", "new_event_name", 
-                                   "time_shift", "date_shift", "description", "location"]:
-                            if key in event_data:
-                                queue_event[key] = event_data[key]
-                    
-                    queue_events.append(queue_event)
-                
-                # Check if we have any valid events after filtering
-                if not queue_events:
-                    await send_telegram_message(chat_id, "Sorry, no valid events found that match your criteria.")
-                    conversation_state.add_message(chat_id, "assistant", "Sorry, no valid events found that match your criteria.")
-                    return {"status": "ok"}
-                
-                # Create queue
-                queue_result = event_queue_handler.create_event_queue_from_list(chat_id, queue_events)
-                keyboard = queue_result.get("keyboard")
-                if keyboard:
-                    await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
-                else:
-                    await send_telegram_message(chat_id, queue_result["message"])
-                conversation_state.add_message(chat_id, "assistant", queue_result["message"])
-                return {"status": "ok"}
-            
-            # Single event - proceed directly (but still ask for confirmation)
-            event = events[0]
-            
-            # Validate single event is a dictionary
-            if not isinstance(event, dict):
-                logger.error(f"Single event is not a dictionary: {type(event)} - {event}")
-                await send_telegram_message(chat_id, "Sorry, there was an error processing the event data. Please try again.")
-                conversation_state.add_message(chat_id, "assistant", "Sorry, there was an error processing the event data. Please try again.")
-                return {"status": "ok"}
-            
-            # Validate required fields
-            if "id" not in event:
-                logger.error(f"Single event missing ID: {event}")
-                await send_telegram_message(chat_id, "Sorry, the event data is incomplete. Please try again.")
-                conversation_state.add_message(chat_id, "assistant", "Sorry, the event data is incomplete. Please try again.")
-                return {"status": "ok"}
-            
-            # Format event details properly with calendar name and clickable link
-            event_title = format_event_title(event.get('summary', 'Untitled'))
-            
-            # Format the date properly
-            start_time = event.get('start', '')
-            if 'T' in start_time:
-                # Parse ISO datetime format
-                try:
-                    from datetime import datetime
-                    dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                    formatted_date = dt.strftime("%A, %B %d, %Y at %I:%M %p")
-                except:
-                    formatted_date = start_time
-            else:
-                formatted_date = start_time
-            
-            # Get calendar name
-            calendar_name = event.get('calendar_name', 'Unknown Calendar')
-            
-            # Get event link if available - try multiple possible field names including calendar_link
-            event_link = event.get('link') or event.get('htmlLink') or event.get('event_link') or event.get('calendar_link', '')
-            
-            # Create comprehensive event description
-            if event_link:
-                event_summary = f"[{event_title}]({event_link}) on {formatted_date} ({calendar_name})"
-            else:
-                event_summary = f"'{event_title}' on {formatted_date} ({calendar_name})"
-            
-            if event_data["intent"] == "delete":
-                confirmation_msg = f"Are you sure you want to delete {event_summary}?"
-            else:  # update
-                if event_data.get('new_date'):
-                    action_desc = f"move to {event_data['new_date']}"
-                elif event_data.get('new_event_name'):
-                    action_desc = f"rename to '{event_data['new_event_name']}'"
-                elif event_data.get('time_shift'):
-                    action_desc = f"shift time by {event_data['time_shift']}"
-                else:
-                    action_desc = "update"
-                confirmation_msg = f"Are you sure you want to {action_desc} {event_summary}?"
-            
-            # Create inline keyboard for single event confirmation
-            keyboard = create_confirmation_keyboard("single_event")
-            
-            # Store pending operation
-            multi_event_handler.store_pending_operation(chat_id, {
-                "type": f"{event_data['intent']}_single" if event_data["intent"] == "delete" else "update_multiple",
-                "events": [event],
-                "original_request": event_data
-            })
-            
-            await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
-            conversation_state.add_message(chat_id, "assistant", confirmation_msg)
-            return {"status": "ok"}
+        handled_update_delete = await process_update_delete_with_confirmation(
+            chat_id,
+            event_data,
+            calendar_service,
+            event_queue_handler,
+            multi_event_handler,
+            send_telegram_message,
+            conversation_state,
+        )
+        if handled_update_delete.get("handled"):
+            return handled_update_delete
 
         # Handle confirmation intent (user saying yes/confirm to something)
         if event_data["intent"] == "confirm":
@@ -840,6 +554,16 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         # If no confirmation is needed, proceed with the action
         if event_data.get("confirmation_needed") is False:
             logger.info(f"Processing intent '{event_data.get('intent')}' without confirmation")
+            # Try immediate update/delete first
+            immediate_result = await process_immediate_update_delete(
+                chat_id,
+                event_data,
+                calendar_service,
+                send_telegram_message,
+                conversation_state,
+            )
+            if immediate_result.get("handled"):
+                return immediate_result
             
             if event_data["intent"] in ["create", "batch_create"]:
                 # Detect batch creation scenarios (multiple events)
@@ -969,30 +693,16 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         await send_telegram_message(chat_id, failure_msg)
                 
                 else:
-                    # Single event creation (existing logic)
-                    try:
-                        logger.info(f"Creating single event: {event_data}")
-                        calendar_response = await calendar_service.create_event(event_data)
-                        
-                        if calendar_response.get("success"):
-                            # CRITICAL FIX: Use consistent formatting with multi-event summaries
-                            formatted_event = format_event_for_display(event_data, calendar_response, calendar_service)
-                            success_message = f"Event created successfully:\n\n{formatted_event}"
-                            await send_telegram_message(chat_id, success_message)
-                            conversation_state.add_message(chat_id, "assistant", success_message)
-                            logger.info(f"Successfully created event: {calendar_response}")
-                        else:
-                            error_message = f"Failed to create event: {calendar_response.get('message', 'Unknown error')}"
-                            await send_telegram_message(chat_id, error_message)
-                            conversation_state.add_message(chat_id, "assistant", error_message)
-                            logger.error(f"Failed to create event: {calendar_response}")
-                    except Exception as e:
-                        error_message = f"Error creating event: {str(e)}"
-                        await send_telegram_message(chat_id, error_message)
-                        conversation_state.add_message(chat_id, "assistant", error_message)
-                        logger.error(f"Exception during event creation: {e}")
-                
-                return {"status": "ok"}
+                    # Single event creation (refactored call)
+                    await create_single_event(
+                        chat_id,
+                        event_data,
+                        calendar_service,
+                        send_telegram_message,
+                        format_event_for_display,
+                        conversation_state,
+                    )
+                    return {"status": "ok"}
 
             elif event_data["intent"] in ["update", "delete"]:
                 # Check if user is referring to recent events with pronouns
@@ -1090,82 +800,82 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         error_msg = f"Failed to delete event: {calendar_response.get('message', 'Unknown error')}"
                         await send_telegram_message(chat_id, error_msg)
                         conversation_state.add_message(chat_id, "assistant", error_msg)
-                # Add AI response to conversation history
-                conversation_state.add_message(chat_id, "assistant", ai_response)
+            # Add AI response to conversation history
+            conversation_state.add_message(chat_id, "assistant", ai_response)
+            return {"status": "ok"}
+
+        elif event_data["intent"] == "query":
+            # Query events in Google Calendar based on the event details
+            matched_events = await calendar_service.query_events({
+                "event_name": event_data.get("event_name", ""),
+                "date": event_data.get("date", "")
+            })
+
+            if not matched_events["success"] or not matched_events["events"]:
+                await send_telegram_message(chat_id, "No matching events found.")
                 return {"status": "ok"}
 
-            elif event_data["intent"] == "query":
-                # Query events in Google Calendar based on the event details
-                matched_events = await calendar_service.query_events({
-                    "event_name": event_data.get("event_name", ""),
-                    "date": event_data.get("date", "")
-                })
+            events = matched_events["events"]
+            logger.info(f"Found {len(events)} events with calendar info")
+            for event in events:
+                logger.info(f"  • {event.get('summary', 'No Title')} in calendar '{event.get('calendar_name', 'Unknown')}'")
 
-                if not matched_events["success"] or not matched_events["events"]:
-                    await send_telegram_message(chat_id, "No matching events found.")
-                    return {"status": "ok"}
-
-                events = matched_events["events"]
-                logger.info(f"Found {len(events)} events with calendar info")
-                for event in events:
-                    logger.info(f"  • {event.get('summary', 'No Title')} in calendar '{event.get('calendar_name', 'Unknown')}'")
-
-                # Format events consistently using MessageFormatter
-                from app.utils.message_formatter import MessageFormatter
-                
-                if len(events) == 1:
-                    # Single event display
-                    formatted_event = MessageFormatter.format_single_event_display(events[0], include_hyperlink=True)
-                    response = f"Here's your event:\n\n{formatted_event}"
+            # Format events consistently using MessageFormatter
+            from app.utils.message_formatter import MessageFormatter
+            
+            if len(events) == 1:
+                # Single event display
+                formatted_event = MessageFormatter.format_single_event_display(events[0], include_hyperlink=True)
+                response = f"Here's your event:\n\n{formatted_event}"
+            else:
+                # Multiple events display - use consistent title and formatting
+                date_context = event_data.get("date", "")
+                if date_context and "today" in str(date_context).lower():
+                    title = "Today's schedule includes:"
                 else:
-                    # Multiple events display - use consistent title and formatting
-                    date_context = event_data.get("date", "")
-                    if date_context and "today" in str(date_context).lower():
-                        title = "Today's schedule includes:"
-                    else:
-                        title = f"Found {len(events)} events:"
-                    
-                    formatted_events = MessageFormatter.format_event_list_display(events, numbered=False, include_hyperlink=True)
-                    response = f"{title}\n\n{formatted_events}"
+                    title = f"Found {len(events)} events:"
                 
+                formatted_events = MessageFormatter.format_event_list_display(events, numbered=False, include_hyperlink=True)
+                response = f"{title}\n\n{formatted_events}"
+            
+            await send_telegram_message(chat_id, response)
+            # Add formatted response to conversation history
+            conversation_state.add_message(chat_id, "assistant", response)
+            return {"status": "ok"}
+
+        elif event_data["intent"] == "calendar_management":
+            logger.info(f"Calendar management request: {event_data}")
+            calendar_action = event_data.get("calendar_action", "")
+            
+            if calendar_action == "create_calendar":
+                calendar_name = event_data.get("calendar_name", "")
+                response = f"I understand you want to create a new calendar called '{calendar_name}'. Unfortunately, I cannot create new calendars programmatically through the Google Calendar API. You'll need to:\n\n1. Go to calendar.google.com\n2. Click the '+' next to 'Other calendars'\n3. Choose 'Create new calendar'\n4. Enter '{calendar_name}' as the calendar name\n\nOnce created, I'll be able to help you add events to it!"
                 await send_telegram_message(chat_id, response)
-                # Add formatted response to conversation history
                 conversation_state.add_message(chat_id, "assistant", response)
                 return {"status": "ok"}
-
-            elif event_data["intent"] == "calendar_management":
-                logger.info(f"Calendar management request: {event_data}")
-                calendar_action = event_data.get("calendar_action", "")
+            
+            elif calendar_action == "list_calendars":
+                # Ensure calendars are loaded first
+                await calendar_service.ensure_calendars_loaded()
                 
-                if calendar_action == "create_calendar":
-                    calendar_name = event_data.get("calendar_name", "")
-                    response = f"I understand you want to create a new calendar called '{calendar_name}'. Unfortunately, I cannot create new calendars programmatically through the Google Calendar API. You'll need to:\n\n1. Go to calendar.google.com\n2. Click the '+' next to 'Other calendars'\n3. Choose 'Create new calendar'\n4. Enter '{calendar_name}' as the calendar name\n\nOnce created, I'll be able to help you add events to it!"
-                    await send_telegram_message(chat_id, response)
-                    conversation_state.add_message(chat_id, "assistant", response)
-                    return {"status": "ok"}
-                
-                elif calendar_action == "list_calendars":
-                    # Ensure calendars are loaded first
-                    await calendar_service.ensure_calendars_loaded()
-                    
-                    # Get list of available calendars
-                    calendars = calendar_service.calendar_agent.calendar_cache
-                    if calendars:
-                        calendar_list = "\n".join([f"• {info['name']}" for info in calendars.values()])
-                        response = f"Here are your available calendars:\n\n{calendar_list}"
-                    else:
-                        response = "No calendars found. Please ensure you're authenticated with Google Calendar."
-                    
-                    logger.info(f"Sending calendar list: {response}")
-                    await send_telegram_message(chat_id, response)
-                    conversation_state.add_message(chat_id, "assistant", response)
-                    return {"status": "ok"}
-                
+                # Get list of available calendars
+                calendars = calendar_service.calendar_agent.calendar_cache
+                if calendars:
+                    calendar_list = "\n".join([f"• {info['name']}" for info in calendars.values()])
+                    response = f"Here are your available calendars:\n\n{calendar_list}"
                 else:
-                    response = "I can help you list your calendars or provide guidance on creating new ones. What would you like to do?"
-                    await send_telegram_message(chat_id, response)
-                    conversation_state.add_message(chat_id, "assistant", response)
-                    return {"status": "ok"}
+                    response = "No calendars found. Please ensure you're authenticated with Google Calendar."
+                
+                logger.info(f"Sending calendar list: {response}")
+                await send_telegram_message(chat_id, response)
+                conversation_state.add_message(chat_id, "assistant", response)
+                return {"status": "ok"}
+            
+            else:
+                response = "I can help you list your calendars or provide guidance on creating new ones. What would you like to do?"
+                await send_telegram_message(chat_id, response)
+                conversation_state.add_message(chat_id, "assistant", response)
+                return {"status": "ok"}
 
         # In case confirmation is needed (handling as needed)
         logger.info(f"Confirmation needed for intent: {event_data}")
