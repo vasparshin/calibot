@@ -14,6 +14,10 @@ MANDATORY JSON RESPONSE FORMATS:
 For queries about schedule/events:
 {{"intent": "query", "date": "2025-08-06", "confirmation_needed": false}}
 
+For queries requesting a count (last/next N events) include limit & order:
+"show last 3 events" -> {"intent": "query", "limit": 3, "order": "desc", "confirmation_needed": false}
+"list next 5 events" -> {"intent": "query", "limit": 5, "order": "asc", "confirmation_needed": false}
+
 For creating events:
 {{"intent": "create", "event_name": "EVENT_NAME", "date": "2025-08-06", "start_time": "HH:MM", "end_time": "HH:MM", "calendar_name": "CALENDAR_NAME", "confirmation_needed": false}}
 
@@ -56,6 +60,7 @@ DATE EXAMPLES:
 
 🚨 REQUIRED: Your response must be exactly one of these patterns:
 - {{"intent": "query", "date": "YYYY-MM-DD", "confirmation_needed": false}}
+- {{"intent": "query", "limit": N, "order": "asc|desc", "confirmation_needed": false}}
 - {{"intent": "delete", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "confirmation_needed": true}}
 - {{"intent": "update", "event_name": "NAME", "target": "TARGET", "date": "YYYY-MM-DD", "time_shift": "SHIFT", "confirmation_needed": true}}
 - {{"intent": "create", "event_name": "NAME", "date": "YYYY-MM-DD", "start_time": "HH:MM", "end_time": "HH:MM", "confirmation_needed": false}}

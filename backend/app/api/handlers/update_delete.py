@@ -5,11 +5,7 @@ from __future__ import annotations
 from typing import Dict, Any, List
 import logging
 from app.services.telegram import create_confirmation_keyboard
-from app.utils.ui_helpers import (
-    format_no_events_message,
-    format_event_title,
-    format_multi_event_confirmation_with_keyboard,
-)
+from app.utils.message_formatter import MessageFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -72,52 +68,56 @@ async def process_update_delete_with_confirmation(
             events = [events[3]]
 
     if not events:
-        no_events_msg = format_no_events_message(event_data)
+        no_events_msg = "No events found matching your criteria."
         await send_fn(chat_id, no_events_msg)
         conversation_state.add_message(chat_id, "assistant", no_events_msg)
         return {"handled": True, "status": "ok"}
 
     # Multi-event path → queue system
     if len(events) > 1:
-        queue_events = []
+        # Build enriched proposed change confirmation using MessageFormatter
+        formatted_events = []
         for ev in events:
             if not isinstance(ev, dict) or "id" not in ev:
                 continue
-            q_ev = {
-                "intent": intent,
-                "event_id": ev["id"],
-                "event_name": ev.get("summary", "Untitled"),
-                "start_time": ev.get("start", "Unknown time"),
-                "end_time": ev.get("end", "Unknown time"),
-                "calendar_id": ev.get("calendar_id", "primary"),
-                "calendar_name": ev.get("calendar_name", "Default"),
+            base_event = {
+                'summary': ev.get('summary', 'Untitled'),
+                'start': ev.get('start', ''),
+                'end': ev.get('end', ''),
+                'calendar_name': ev.get('calendar_name', 'Unknown Calendar'),
+                'id': ev.get('id'),
+                'htmlLink': ev.get('htmlLink') or ev.get('calendar_link')
             }
-            if intent == "update":
-                for key in [
-                    "new_start_time",
-                    "new_end_time",
-                    "new_date",
-                    "new_event_name",
-                    "time_shift",
-                    "date_shift",
-                    "description",
-                    "location",
-                ]:
-                    if key in event_data:
-                        q_ev[key] = event_data[key]
-            queue_events.append(q_ev)
-        if not queue_events:
-            msg = "Sorry, no valid events found that match your criteria."
-            await send_fn(chat_id, msg)
-            conversation_state.add_message(chat_id, "assistant", msg)
-            return {"handled": True, "status": "ok"}
-        queue_result = event_queue_handler.create_event_queue_from_list(chat_id, queue_events)
-        keyboard = queue_result.get("keyboard")
-        if keyboard:
-            await send_fn(chat_id, queue_result["message"], reply_markup=keyboard)
-        else:
-            await send_fn(chat_id, queue_result["message"])
-        conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+            proposed = event_data  # same change applied to all events for now
+            enriched_line = MessageFormatter.format_event_with_proposed_changes(base_event, proposed)
+            formatted_events.append({
+                'summary': enriched_line,  # treat full line as summary for display
+                'start': base_event['start'],
+                'end': base_event['end'],
+                'calendar_name': base_event['calendar_name'],
+                'id': base_event['id'],
+                'htmlLink': base_event.get('htmlLink')
+            })
+
+        header = f"Found {len(formatted_events)} events to {intent} (review proposed changes):\n\n"
+        # Use list display without re-numbering inside each bullet since lines may already contain arrows
+        display_lines = []
+        for idx, ev in enumerate(formatted_events, 1):
+            # ev['summary'] already contains bullet from formatter; ensure consistency
+            if not ev['summary'].startswith('•'):
+                display_lines.append(f"{idx}. {ev['summary']}")
+            else:
+                display_lines.append(f"{idx}. {ev['summary'][2:]}")
+        message = header + "\n".join(display_lines)
+
+        keyboard = create_confirmation_keyboard("multi_event")
+        multi_event_handler.store_pending_operation(chat_id, {
+            "type": f"{intent}_multiple",
+            "events": events,
+            "original_request": event_data,
+        })
+        await send_fn(chat_id, message, reply_markup=keyboard)
+        conversation_state.add_message(chat_id, "assistant", message)
         return {"handled": True, "status": "ok"}
 
     # Single event path
@@ -128,7 +128,7 @@ async def process_update_delete_with_confirmation(
         conversation_state.add_message(chat_id, "assistant", msg)
         return {"handled": True, "status": "ok"}
 
-    title = format_event_title(event.get("summary", "Untitled"))
+    title = MessageFormatter.format_event_title(event.get("summary", "Untitled"))
     start_time = event.get("start", "")
     if "T" in start_time:
         from datetime import datetime

@@ -37,7 +37,15 @@ else:
 print("\nTesting LiteLLM specifically...")
 try:
     import litellm
-    print(f"✅ LiteLLM version: {litellm.__version__}")
+    # Some environments may not expose __version__; fallback to package metadata
+    lite_version = getattr(litellm, '__version__', None)
+    if not lite_version:
+        try:
+            import importlib.metadata as importlib_metadata
+            lite_version = importlib_metadata.version('litellm')
+        except Exception:
+            lite_version = 'unknown'
+    print(f"✅ LiteLLM version: {lite_version}")
     
     # Test the specific import that was failing
     try:

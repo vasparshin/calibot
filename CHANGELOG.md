@@ -5,6 +5,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [Unreleased]
 
 
+## [0.1.55] - 2025-08-11
+
+### Fixed
+- Prevent duplicate confirmation or cancellation status lines when users press confirmation buttons multiple times rapidly; `routes.py` now detects existing status tokens ("✅ **Confirmed**", "❌ **Cancelled**") before appending.
+
+### Technical Details
+- `routes.py`: Added idempotent edit logic in `handle_confirmation_callback` to avoid message text growth due to repeated callbacks; maintains keyboard removal behavior.
+
+### Impact
+- Improves UX by eliminating confusing repeated status blocks and preserves clean confirmation history. Foundation for broader button persistence audit (Immediate Issue 6).
+
+
 ## [0.1.48] - 2025-08-11
 
 ## [Unreleased]
@@ -20,6 +32,97 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ### Impact
 - Establishes clear remediation backlog to restore compliance with existing BOT rules (ephemeral buttons, accurate calendar names, detailed summaries) and improve auditability of one-by-one flows before further handler/dispatcher refactors.
+
+## [0.1.49] - 2025-08-11
+
+### Changed
+- **Calendar Name Preservation**: Updated `MessageFormatter.format_calendar_name` to preserve exact API-provided calendar summary (removed title-casing and domain stripping) per accuracy requirement.
+- **Proposed Change Display (Multi-Event Update/Delete)**: Enhanced `update_delete.py` multi-event confirmation to show per-event current state plus arrow (→) tokens describing proposed modifications (rename, calendar move, date/time shift) using new formatter helpers.
+
+### Added
+- **Formatter Enhancements**: Introduced `build_proposed_change_tokens` and `format_event_with_proposed_changes` utilities to standardize pre-execution change summaries for future reuse (issues #8–#11 in immediate_changes backlog).
+
+### Technical Details
+- **message_formatter.py**: Added proposed change token builder; calendar name function now returns raw name; added arrow composition logic.
+- **update_delete.py**: Replaced queue creation path for multi-event updates with enriched confirmation message and stored operation for subsequent confirmation; still uses existing pending operation storage pattern (transitional step before dispatcher refactor).
+
+### Impact
+- Improves user clarity by explicitly surfacing intended modifications before execution; prepares codebase for upcoming success message updated-state enforcement and unified queue formatting.
+
+## [0.1.50] - 2025-08-11
+
+### Added
+- **Event Queue Skip Support (Issue 2)**: Implemented `skip_event_and_get_next` plus `clear_queue` in `event_queue_handler.py` to properly skip current event and continue one-by-one confirmation without looping or stalling.
+
+### Changed
+- **New Command Queue Cancellation (Issue 3)**: `process_user_message` now detects non-confirmation new commands while a queue is active and auto-clears the queue with a cancellation notice.
+- **Confirmation Callback Skip Logic (Issue 2)**: 'no' button in one-by-one flow now edits prior message to show skip status and immediately presents next event.
+
+### Fixed
+- **Broken One-by-One Flow (Issues 2 & partial 6)**: Prevents duplicate persistent keyboards by always removing reply_markup on confirmation/skip actions; resolves regression where 'no' would cancel entire operation or repeat same event.
+
+### Technical Details
+- **routes.py**: Added fresh-command detection; integrated skip handling branch; ensured reply_markup cleared on 'no'.
+- **event_queue_handler.py**: Added queue management helpers (`clear_queue`, `skip_event_and_get_next`).
+
+### Impact
+- Stabilizes core interactive multi-event UX ahead of deeper dispatcher refactor; reduces user friction and accidental cancellation; groundwork for full Issue 6 button persistence audit.
+
+## [0.1.51] - 2025-08-11
+
+### Changed
+- **Query Intent Formatting Unification (Issue 4)**: Replaced legacy conditional titles and any AI-dependent formatting with strict MessageFormatter usage for single and multi-event query responses in `routes.py`.
+
+### Technical Details
+- **routes.py**: Query branch now always uses `format_single_event_display` / `format_event_list_display`; consistent header `Found X events:` (singular and plural variants) ensuring BOT_RULES compliance (hyperlinks, full dates, calendar names).
+
+### Impact
+- Eliminates formatting inconsistency between query responses and other intents; sets foundation for removing deprecated formatting in `ui_helpers.py` later in refactor plan.
+
+## [0.1.52] - 2025-08-11
+
+### Added
+- **Limit/Order Query Support (Issue 1)**: Added `limit` & `order` extraction examples to `intent_extraction_prompt.py` and applied post-fetch ordering/limiting in `google_calendar.query_events` (supports phrases like "last 3", "next 5").
+
+### Changed
+- **Query Event Processing**: `google_calendar.query_events` now applies optional descending ordering and truncation after aggregation across calendars to preserve correctness.
+
+### Consolidated Progress (Issues 1–4)**
+- Issue 1: Limit/order implemented.
+- Issue 2 & 3: (Previously in 0.1.50) Skip & queue clear already active.
+- Issue 4: (Previously in 0.1.51) Unified formatter usage for query intent.
+
+### Technical Details
+- **google_calendar.py**: Added limit/order post-sort logic.
+- **intent_extraction_prompt.py**: Extended prompt patterns & examples for LLM to emit `limit` & `order` fields.
+
+### Impact
+- Users can now request relative subsets ("last 2", "next 5") with deterministic ordering; groundwork for adding tests (`test_intent_limit_order.py`).
+
+## [0.1.53] - 2025-08-11
+
+### Changed
+- Deprecated and removed `ui_helpers.py`; all formatting centralized in `MessageFormatter`.
+- Updated success message construction for updates to use `updated_event` returned from calendar service ensuring displayed times, names, and calendar reflect final state.
+
+### Updated Tests
+- Refactored legacy tests importing `ui_helpers` to use `MessageFormatter` (message consistency, inline keyboards, delete scenarios, batch formatting, critical UX fixes).
+- Simplified/removed calendar name cleaning expectations; names now preserved exactly as provided by API.
+
+### Impact
+- Eliminates drift between different formatting utilities and reduces risk of stale success messages.
+- Establishes single source of truth for event/list/confirmation/success formatting ahead of future dispatcher refactor.
+
+## [0.1.54] - 2025-08-11
+
+### Fixed
+- Corrected indentation logic regression in `event_queue_handler.process_queue_response` introduced during one-by-one flow enhancement.
+
+### Added
+- Introduced `format_decision_appendix` and time change summarization helpers in `MessageFormatter` to support upcoming Issues 9, 10, 11 (decision history, before→after diffs, concise change tokens).
+
+### Impact
+- Restores functional queue progression and prepares standardized diff/decision annotations for remaining immediate changes.
 
 
 ## [0.1.47] - 2025-08-11

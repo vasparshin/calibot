@@ -11,7 +11,8 @@ import os
 backend_dir = os.path.join(os.path.dirname(__file__), '..', 'backend')
 sys.path.insert(0, backend_dir)
 
-from app.api.routes import format_event_for_user
+import pytest
+from app.utils.message_formatter import MessageFormatter
 from app.services.event_queue_handler import EventQueueHandler
 from app.services.conversation import ConversationState
 from datetime import datetime
@@ -65,14 +66,22 @@ def test_enhanced_event_formatting():
     }
     
     # Test formatting
-    formatted = format_event_for_user(event_data, calendar_result, "created")
+    # Build event object compatible with formatter
+    event_obj = {
+        'summary': event_data['event_name'],
+        'start': f"{event_data['date']}T{event_data['start_time']}:00Z",
+        'end': f"{event_data['date']}T{event_data['end_time']}:00Z",
+        'calendar_name': 'Shared Calendar',
+        'htmlLink': calendar_result['event_link']
+    }
+    formatted = MessageFormatter.format_single_event_display(event_obj)
     print(f"Formatted event: {formatted}")
     
     # Validate format
     expected_elements = [
         "Team Meeting",
         "Saturday, August 09, 2025",
-        "14:30 - 15:30",
+        "02:30 PM - 03:30 PM",
         "Shared Calendar",
         "https://calendar.google.com/event/test123"
     ]
@@ -83,6 +92,7 @@ def test_enhanced_event_formatting():
     print("✅ Enhanced event formatting working correctly!")
     return True
 
+@pytest.mark.asyncio
 async def test_professional_batch_messaging():
     """Test professional batch creation messaging"""
     print("\n=== Testing Professional Batch Messaging ===")
@@ -120,7 +130,14 @@ async def test_professional_batch_messaging():
             calendar_result = await calendar_service.create_event(single_event)
             if calendar_result and calendar_result.get("success"):
                 created_count += 1
-                formatted_event = format_event_for_user(single_event, calendar_result, "created")
+                event_obj = {
+                    'summary': single_event['event_name'],
+                    'start': f"{single_event['date']}T{single_event['start_time']}:00Z",
+                    'end': f"{single_event['date']}T{single_event['end_time']}:00Z",
+                    'calendar_name': single_event.get('calendar_name','Shared Calendar'),
+                    'htmlLink': calendar_result['event_link']
+                }
+                formatted_event = MessageFormatter.format_single_event_display(event_obj)
                 success_events.append(formatted_event)
             else:
                 failed_count += 1
@@ -152,6 +169,7 @@ async def test_professional_batch_messaging():
     print("✅ Professional batch messaging working correctly!")
     return True
 
+@pytest.mark.asyncio
 async def test_enhanced_queue_messaging():
     """Test enhanced queue operation messaging"""
     print("\n=== Testing Enhanced Queue Messaging ===")

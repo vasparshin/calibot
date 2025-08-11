@@ -28,19 +28,25 @@ def test_date_extraction_fix():
     # Previous bug: Would show "Unknown date"
     
     try:
-        from app.api.routes import format_event_for_user
-        
-        formatted = format_event_for_user(event_data, None)
+        from app.utils.message_formatter import MessageFormatter
+        event_obj = {
+            'summary': event_data['event_name'],
+            'start': event_data['start_time'],
+            'end': event_data['end_time'],
+            'calendar_name': event_data['calendar_name']
+        }
+        formatted = MessageFormatter.format_single_event_display(event_obj)
         print(f"Formatted event: {formatted}")
-        
+
         # Validate fixes
         assert "Unknown date" not in formatted, "Should not contain 'Unknown date'"
         assert "Saturday, August 09, 2025" in formatted, "Should extract date from start_time"
-        assert "08:00 - 09:00" in formatted, "Should format times correctly"
-        
+        # New canonical format includes AM/PM and full range
+        assert "08:00 AM - 09:00 AM" in formatted, "Should format times correctly"
+
         print("✅ Date extraction fix working!")
         return True
-        
+
     except Exception as e:
         print(f"❌ Test failed: {e}")
         return False

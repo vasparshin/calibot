@@ -61,18 +61,12 @@ class MessageFormatter:
     
     @staticmethod
     def format_calendar_name(calendar_name: str) -> str:
-        """Format calendar name, removing technical details"""
+        """Return calendar name EXACTLY as provided by API summary.
+        BOT_RULES: Must not transform or strip parts (no title-casing, domain stripping).
+        Fallback to 'Unknown Calendar' if empty."""
         if not calendar_name:
             return "Unknown Calendar"
-        
-        # Remove common technical suffixes
-        clean_name = calendar_name
-        if '@' in clean_name:
-            clean_name = clean_name.split('@')[0]
-        if '.calendar.google.com' in clean_name:
-            clean_name = clean_name.replace('.calendar.google.com', '')
-        
-        return clean_name.title()
+        return calendar_name
     
     @staticmethod
     def create_event_hyperlink(event_name: str, event_id: str = None, calendar_link: str = None) -> str:
@@ -192,23 +186,61 @@ class MessageFormatter:
     
     @staticmethod
     def format_confirmation_message(action: str, events: List[Dict], count: int = None) -> str:
+                """
+                Return confirmation message listing ALL events with numbering and legacy option hint.
+                Format:
+                    Found N events to <action>:
+
+                    1. <event1>
+                    2. <event2>
+                    ...
+
+                    Choose an option:
+                """
+                count = count or len(events)
+                action_verb = action.lower()
+                message = f"Found {count} events to {action_verb}:\n\n"
+                event_list = MessageFormatter.format_event_list_display(events, numbered=True, include_hyperlink=True)
+                message += event_list
+                return message
+
+    @staticmethod
+    def build_proposed_change_tokens(base_event: Dict, change_spec: Dict) -> List[str]:
+        """Build token list describing proposed changes for an event.
+        change_spec: dict possibly containing time_shift, new_start_time, new_end_time, new_date,
+                     new_event_name, calendar / calendar_name.
+        Returns list of human-readable tokens.
         """
-        Format confirmation message for multi-event operations.
-        NEVER truncates event list - shows ALL events.
-        NOTE: Does NOT include text options since we use inline keyboards.
-        """
-        count = count or len(events)
-        action_verb = action.lower()
-        
-        # Header
-        message = f"Found {count} events to {action_verb}:\n\n"
-        
-        # Event list - ALWAYS show ALL events (never truncate)
-        event_list = MessageFormatter.format_event_list_display(events, numbered=True, include_hyperlink=True)
-        message += event_list
-        
-        # No text options - inline keyboard handles this
-        return message
+        tokens: List[str] = []
+        # Name change
+        if change_spec.get('new_event_name') and change_spec.get('new_event_name') != base_event.get('summary'):
+            tokens.append(f"rename → '{MessageFormatter.format_event_title(change_spec['new_event_name'])}'")
+        # Calendar move
+        target_cal = change_spec.get('calendar') or change_spec.get('calendar_name')
+        if target_cal and target_cal != base_event.get('calendar_name'):
+            tokens.append(f"calendar → {target_cal}")
+        # Date change
+        if change_spec.get('new_date'):
+            tokens.append(f"date → {change_spec['new_date']}")
+        # Explicit new times
+        if change_spec.get('new_start_time') or change_spec.get('new_end_time'):
+            ns = change_spec.get('new_start_time') or ''
+            ne = change_spec.get('new_end_time') or ''
+            if ns or ne:
+                tokens.append(f"time → {ns or '?'} - {ne or '?'}")
+        # Time shift textual (retain original phrase)
+        if change_spec.get('time_shift') and not (change_spec.get('new_start_time') or change_spec.get('new_end_time')):
+            tokens.append(f"shift {change_spec['time_shift']}")
+        return tokens
+
+    @staticmethod
+    def format_event_with_proposed_changes(event: Dict, change_spec: Dict) -> str:
+        """Return a line showing current event plus arrow and proposed tokens if any."""
+        base_display = MessageFormatter.format_single_event_display(event, include_hyperlink=True)
+        tokens = MessageFormatter.build_proposed_change_tokens(event, change_spec)
+        if tokens:
+            return f"{base_display} → " + ", ".join(tokens)
+        return base_display
     
     @staticmethod
     def format_duplicate_message(duplicates: List[Dict]) -> str:
@@ -250,3 +282,42 @@ class MessageFormatter:
             return f"No events found matching your criteria: {criteria}"
         else:
             return "No events found matching your criteria."
+
+    @staticmethod
+    def format_decision_appendix(decision: str, change_summary: str = "") -> str:
+        """Append a standardized decision line for one-by-one flow history retention.
+        decision: 'updated', 'deleted', 'skipped'.
+        change_summary: optional concise diff e.g. (+1h), (moved to Tonya Calendar).
+        """
+        base = decision.lower()
+        verb_map = {
+            'updated': 'Updated',
+            'deleted': 'Deleted',
+            'skipped': 'Skipped'
+        }
+        label = verb_map.get(base, base.title())
+        if change_summary:
+            return f"Decision: {label} {change_summary}"
+        return f"Decision: {label}"
+
+    @staticmethod
+    def summarize_time_change(original_start: str, original_end: str, new_start: str, new_end: str) -> str:
+        """Return a concise time diff token like (+1h), (-30m), (09:00→10:00)."""
+        try:
+            if all('T' in t for t in [original_start, new_start]):
+                from datetime import datetime
+                o = datetime.fromisoformat(original_start.replace('Z','+00:00'))
+                n = datetime.fromisoformat(new_start.replace('Z','+00:00'))
+                delta = n - o
+                minutes = int(delta.total_seconds()/60)
+                if minutes == 0:
+                    return ''
+                sign = '+' if minutes > 0 else ''
+                if minutes % 60 == 0:
+                    return f"({sign}{minutes//60}h)"
+                return f"({sign}{minutes}m)"
+        except Exception:
+            pass
+        if original_start and new_start and original_start != new_start:
+            return f"({original_start}→{new_start})"
+        return ''

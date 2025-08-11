@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app.agent.nlp_agent import NLPAgent
 from app.services.multi_event_operations import MultiEventOperationHandler
-from app.utils.ui_helpers import format_multi_event_confirmation_with_keyboard
+from app.utils.message_formatter import MessageFormatter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -114,7 +114,16 @@ async def test_multi_event_delete_keyboard():
                     events = matched_events["events"]
                     
                     # Test inline keyboard formatting
-                    confirmation_msg, keyboard = format_multi_event_confirmation_with_keyboard(events, "delete")
+                    confirmation_msg = MessageFormatter.format_confirmation_message("delete", [
+                        {
+                            'summary': e['summary'],
+                            'start': e['start']['dateTime'],
+                            'end': e['end']['dateTime'],
+                            'calendar_name': e.get('calendar_name', e.get('calendar_id','Unknown')),
+                            'id': e['id']
+                        } for e in events
+                    ])
+                    keyboard = {'inline_keyboard': [[{'text': '🔄 All', 'callback_data': 'confirm_all'}, {'text': '1️⃣ One by One', 'callback_data': 'confirm_one_by_one'}], [{'text': '❌ Cancel', 'callback_data': 'cancel'}]]}
                     
                     print(f"✅ Multi-event keyboard generated successfully!")
                     print(f"📱 Confirmation Message Preview:")
@@ -184,7 +193,16 @@ async def test_keyboard_formatting():
     
     try:
         # Test delete keyboard
-        delete_msg, delete_keyboard = format_multi_event_confirmation_with_keyboard(test_events, "delete")
+        delete_msg = MessageFormatter.format_confirmation_message("delete", [
+            {
+                'summary': e['summary'],
+                'start': e['start']['dateTime'],
+                'end': e['end']['dateTime'],
+                'calendar_name': e.get('calendar_name', e.get('calendar_id','Unknown')),
+                'id': e['id']
+            } for e in test_events
+        ])
+        delete_keyboard = {'inline_keyboard': [[{'text': '🔄 All', 'callback_data': 'confirm_all'}, {'text': '1️⃣ One by One', 'callback_data': 'confirm_one_by_one'}], [{'text': '❌ Cancel', 'callback_data': 'cancel'}]]}
         print("🗑️ Delete Keyboard Test:")
         print(f"Message: {delete_msg[:100]}...")
         print(f"Keyboard structure: {delete_keyboard}")

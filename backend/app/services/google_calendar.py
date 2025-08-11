@@ -461,7 +461,15 @@ class GoogleCalendarService:
                     'event_link': new_event['htmlLink'],
                     'moved': True,
                     'from_calendar': calendar_id,
-                    'to_calendar': target_calendar_id
+                    'to_calendar': target_calendar_id,
+                    'updated_event': {
+                        'summary': new_event.get('summary'),
+                        'start': new_event.get('start', {}).get('dateTime', ''),
+                        'end': new_event.get('end', {}).get('dateTime', ''),
+                        'calendar_name': self.get_calendar_display_name(target_calendar_id),
+                        'id': new_event.get('id'),
+                        'htmlLink': new_event.get('htmlLink')
+                    }
                 }
             else:
                 # Update in same calendar
@@ -472,7 +480,15 @@ class GoogleCalendarService:
                 return {
                     'success': True,
                     'event_id': updated_event['id'],
-                    'event_link': updated_event['htmlLink']
+                    'event_link': updated_event['htmlLink'],
+                    'updated_event': {
+                        'summary': updated_event.get('summary'),
+                        'start': updated_event.get('start', {}).get('dateTime', ''),
+                        'end': updated_event.get('end', {}).get('dateTime', ''),
+                        'calendar_name': self.get_calendar_display_name(target_calendar_id),
+                        'id': updated_event.get('id'),
+                        'htmlLink': updated_event.get('htmlLink')
+                    }
                 }
         except HTTPException:
             # Re-raise authentication errors
@@ -633,8 +649,16 @@ class GoogleCalendarService:
                 
                 all_events = filtered_events
 
-            # Sort all events by start time
+            # Sort all events by start time (baseline)
             all_events.sort(key=lambda x: x['start'])
+
+            # Apply limit/order directives (Issue 1)
+            limit = query_params.get('limit')
+            order = (query_params.get('order') or '').lower()
+            if order in ['desc', 'descending', 'reverse']:
+                all_events = list(reversed(all_events))
+            if isinstance(limit, int) and limit > 0:
+                all_events = all_events[:limit]
 
             return {
                 'success': True,

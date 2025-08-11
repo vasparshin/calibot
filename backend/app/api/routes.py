@@ -13,21 +13,7 @@ from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
 from app.agent.calendar_agent import CalendarAgent
 from app.services.telegram import create_confirmation_keyboard
-from app.utils.ui_helpers import (
-    format_event_for_display, 
-    format_success_message, 
-    format_confirmation_message,
-    format_duplicate_message,
-    format_no_events_message,
-    is_confirmation_yes,
-    is_confirmation_no,
-    is_confirmation_one,
-    get_calendar_display_name,
-    format_duplicate_confirmation_with_keyboard,
-    format_multi_event_confirmation_with_keyboard,
-    format_event_selection_with_keyboard,
-    format_event_title
-)
+from app.utils.message_formatter import MessageFormatter
 from app.agent.nlp_agent import NLPAgent
 from app.utils.message_formatter import MessageFormatter
 from app.api.handlers import (
@@ -53,11 +39,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Deprecated - use format_event_for_display from ui_helpers instead
-def format_event_for_user(event_data, calendar_result=None, operation="created"):
-    """Format event information consistently for user messages - DEPRECATED, use ui_helpers"""
-    # Use the new centralized formatting function
-    return format_event_for_display(event_data, calendar_result, calendar_service)
+## ui_helpers deprecated: all event formatting now uses MessageFormatter exclusively
 
 
 async def check_for_duplicate_events(chat_id, events_to_create, calendar_service):
@@ -132,6 +114,7 @@ event_queue_handler = EventQueueHandler(telegram_service, conversation_state, ca
 ai_agent = NLPAgent()
 
 access_token = None
+
 
 
 @router.post("/webhook")
@@ -223,12 +206,12 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
     if confirmation == "yes":
         # Keep original message but add confirmation status and remove keyboard
         if original_confirmation_msg:
-            await edit_message_text(
-                chat_id, 
-                message_id, 
-                f"{original_confirmation_msg}\n\n✅ **Confirmed** - Processing your request...",
-                reply_markup={}
-            )
+            # Avoid duplicating status line if already appended
+            if "✅ **Confirmed**" in original_confirmation_msg:
+                new_text = original_confirmation_msg
+            else:
+                new_text = f"{original_confirmation_msg}\n\n✅ **Confirmed** - Processing your request..."
+            await edit_message_text(chat_id, message_id, new_text, reply_markup={})
         else:
             await edit_message_text(
                 chat_id, 
@@ -239,12 +222,11 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
     elif confirmation == "no":
         # Keep original message but add cancellation status and remove keyboard
         if original_confirmation_msg:
-            await edit_message_text(
-                chat_id, 
-                message_id, 
-                f"{original_confirmation_msg}\n\n❌ **Cancelled** - Request has been cancelled",
-                reply_markup={}
-            )
+            if "❌ **Cancelled**" in original_confirmation_msg:
+                new_text = original_confirmation_msg
+            else:
+                new_text = f"{original_confirmation_msg}\n\n❌ **Cancelled** - Request has been cancelled"
+            await edit_message_text(chat_id, message_id, new_text, reply_markup={})
         else:
             await edit_message_text(
                 chat_id, 
@@ -377,6 +359,12 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             )
             return {"status": "ok"}
         
+        # Determine if this appears to be a fresh command while a queue is active
+        is_confirmation_word = user_message.lower().strip() in ["yes", "no", "all", "one", "cancel", "y", "n"]
+        if not is_confirmation_word and event_queue_handler.has_pending_queue(chat_id):
+            logger.info(f"New unrelated command detected while queue active; clearing queue for chat {chat_id}")
+            event_queue_handler.clear_queue(chat_id)
+            await send_telegram_message(chat_id, "Previous pending operation cancelled. Starting new request.")
         # Add user message to conversation history
         conversation_state.add_message(chat_id, "user", user_message, message_type)
         history = conversation_state.get_conversation_history(chat_id)
@@ -456,7 +444,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 event_data,
                 calendar_service,
                 send_telegram_message,
-                format_event_for_display,
+                # format_event_for_display deprecated; using MessageFormatter directly
                 format_duplicate_confirmation_with_keyboard,
                 conversation_state,
                 lambda enhanced: find_duplicates(enhanced, calendar_service),
@@ -666,7 +654,14 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                                 'calendar_name': event['calendar']
                             }
                             calendar_result = {"success": True, "event_link": event['link']}
-                            formatted_event = format_event_for_display(event_for_formatting, calendar_result, calendar_service)
+                            formatted_event = MessageFormatter.format_single_event_display({
+                                'summary': event_for_formatting.get('event_name') or event_for_formatting.get('summary'),
+                                'start': event_for_formatting.get('start_time') or event_for_formatting.get('start'),
+                                'end': event_for_formatting.get('end_time') or event_for_formatting.get('end'),
+                                'calendar_name': calendar_result.get('calendar_used') or event_for_formatting.get('calendar_name'),
+                                'id': calendar_result.get('event_id'),
+                                'htmlLink': calendar_result.get('event_link')
+                            })
                             success_msg += f"{formatted_event}\n"
                         
                         if failed_events:
@@ -688,7 +683,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         event_data,
                         calendar_service,
                         send_telegram_message,
-                        format_event_for_display,
+                        # deprecated format_event_for_display removed
                         conversation_state,
                     )
                     return {"status": "ok"}
@@ -730,7 +725,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 })
 
                 if not matched_events["success"] or not matched_events["events"]:
-                    response = format_no_events_message(event_data)
+                    response = "No events found matching your criteria."
                     await send_telegram_message(chat_id, response)
                     conversation_state.add_message(chat_id, "assistant", response)
                     return {"status": "ok"}
@@ -741,7 +736,18 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 # If multiple events, use inline keyboard for confirmation
                 if len(events) > 1:
                     action = event_data["intent"]
-                    confirmation_msg, keyboard = format_multi_event_confirmation_with_keyboard(events, action)
+                    # Build confirmation using MessageFormatter for multi-event create/update/delete
+                    confirmation_msg = MessageFormatter.format_confirmation_message(action, [
+                        {
+                            'summary': e.get('summary') or e.get('event_name'),
+                            'start': e.get('start') or e.get('start_time'),
+                            'end': e.get('end') or e.get('end_time'),
+                            'calendar_name': e.get('calendar_name'),
+                            'id': e.get('id') or e.get('event_id'),
+                            'htmlLink': e.get('htmlLink') or e.get('calendar_link')
+                        } for e in events
+                    ])
+                    keyboard = create_confirmation_keyboard("multi_event")
                     
                     await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
                     conversation_state.add_message(chat_id, "assistant", confirmation_msg)
@@ -764,11 +770,10 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     source_calendar_id = events[0].get('calendar_id', 'primary')
                     calendar_response = calendar_service.update_event(event_id, event_data, source_calendar_id)
                     if calendar_response["success"]:
-                        formatted_event = format_event_for_display(events[0], calendar_response, calendar_service)
-                        if calendar_response.get("moved"):
-                            success_msg = f"Event moved successfully:\n\n{formatted_event}"
-                        else:
-                            success_msg = f"Event updated successfully:\n\n{formatted_event}"
+                        updated_event = calendar_response.get('updated_event') or {}
+                        formatted_event = MessageFormatter.format_single_event_display(updated_event, include_hyperlink=True)
+                        change_note = "(moved)" if calendar_response.get("moved") else ""
+                        success_msg = f"Successfully updated event {change_note}:\n\n{formatted_event}".strip()
                         await send_telegram_message(chat_id, success_msg)
                         conversation_state.add_message(chat_id, "assistant", success_msg)
                     else:
@@ -793,41 +798,27 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 return {"status": "ok"}
 
         elif event_data["intent"] == "query":
-            # Query events in Google Calendar based on the event details
+            # Unified query handling using MessageFormatter only (Issue 4 formatting compliance)
             matched_events = await calendar_service.query_events({
                 "event_name": event_data.get("event_name", ""),
                 "date": event_data.get("date", "")
             })
-
-            if not matched_events["success"] or not matched_events["events"]:
+            if not matched_events.get("success") or not matched_events.get("events"):
                 await send_telegram_message(chat_id, "No matching events found.")
                 return {"status": "ok"}
-
             events = matched_events["events"]
             logger.info(f"Found {len(events)} events with calendar info")
-            for event in events:
-                logger.info(f"  • {event.get('summary', 'No Title')} in calendar '{event.get('calendar_name', 'Unknown')}'")
-
-            # Format events consistently using MessageFormatter
+            for ev in events:
+                logger.info(f"  • {ev.get('summary','No Title')} ({ev.get('calendar_name','Unknown')})")
             from app.utils.message_formatter import MessageFormatter
-            
             if len(events) == 1:
-                # Single event display
                 formatted_event = MessageFormatter.format_single_event_display(events[0], include_hyperlink=True)
-                response = f"Here's your event:\n\n{formatted_event}"
+                response = f"Found 1 event:\n\n{formatted_event}"
             else:
-                # Multiple events display - use consistent title and formatting
-                date_context = event_data.get("date", "")
-                if date_context and "today" in str(date_context).lower():
-                    title = "Today's schedule includes:"
-                else:
-                    title = f"Found {len(events)} events:"
-                
+                title = f"Found {len(events)} events:"  # Consistent title format
                 formatted_events = MessageFormatter.format_event_list_display(events, numbered=False, include_hyperlink=True)
                 response = f"{title}\n\n{formatted_events}"
-            
             await send_telegram_message(chat_id, response)
-            # Add formatted response to conversation history
             conversation_state.add_message(chat_id, "assistant", response)
             return {"status": "ok"}
 

@@ -9,52 +9,38 @@ import os
 backend_path = os.path.join(os.path.dirname(__file__), '..', 'backend')
 sys.path.insert(0, backend_path)
 
-try:
-    from app.utils.ui_helpers import (
-        format_event_title,
-        format_event_for_display,
-        format_duplicate_message,
-        format_no_events_message,
-        is_confirmation_yes,
-        is_confirmation_no,
-        get_calendar_display_name
-    )
-except ImportError as e:
-    print(f"Import error: {e}")
-    print(f"Backend path: {backend_path}")
-    print(f"Exists: {os.path.exists(backend_path)}")
-    
-    # Try direct file import
-    ui_helpers_path = os.path.join(backend_path, 'app', 'utils', 'ui_helpers.py')
-    print(f"UI helpers path: {ui_helpers_path}")
-    print(f"Exists: {os.path.exists(ui_helpers_path)}")
-    
-    # For now, define basic test functions
-    def format_event_title(title):
-        return title.title() if title else "Untitled Event"
-    
-    def get_calendar_display_name(calendar_id, calendar_service=None):
-        if calendar_id == 'primary':
-            return "Personal"
-        if '@' in calendar_id:
-            return calendar_id.split('@')[0].replace('.', ' ').title()
-        return calendar_id
-    
-    def is_confirmation_yes(text):
-        return text.strip().lower() in ["yes", "y", "confirm", "ok", "proceed", "all"] if text else False
-    
-    def is_confirmation_no(text):
-        return text.strip().lower() in ["no", "n", "cancel", "stop", "abort", "c"] if text else False
-    
-    def format_event_for_display(event_data, calendar_result=None, calendar_service=None):
-        title = format_event_title(event_data.get('event_name', 'Untitled Event'))
-        return f"• [{title}](link) on Date at Time (Calendar)"
-    
-    def format_duplicate_message(duplicates):
-        return f"Found {len(duplicates)} potential duplicate event(s)..."
-    
-    def format_no_events_message(event_data):
-        return "No events found matching your criteria."
+from app.utils.message_formatter import MessageFormatter
+
+def format_event_title(title):
+    return MessageFormatter.format_event_title(title)
+
+def get_calendar_display_name(calendar_id, calendar_service=None):
+    # Preservation policy: return as-is
+    return calendar_id if calendar_id else "Unknown Calendar"
+
+def is_confirmation_yes(text):
+    return text.strip().lower() in ["yes", "y", "confirm", "ok", "proceed", "all"] if text else False
+
+def is_confirmation_no(text):
+    return text.strip().lower() in ["no", "n", "cancel", "stop", "abort", "c"] if text else False
+
+def format_event_for_display(event_data, calendar_result=None, calendar_service=None):
+    # Map legacy event_data into MessageFormatter structure
+    event_obj = {
+        'summary': event_data.get('event_name'),
+        'start': event_data.get('start_time'),
+        'end': event_data.get('end_time', event_data.get('start_time')),
+        'calendar_name': event_data.get('calendar_name'),
+        'id': 'evt_test',
+        'htmlLink': (calendar_result or {}).get('event_link')
+    }
+    return MessageFormatter.format_single_event_display(event_obj)
+
+def format_duplicate_message(duplicates):
+    return MessageFormatter.format_duplicate_message([{'new_event': d} for d in duplicates])
+
+def format_no_events_message(event_data):
+    return MessageFormatter.format_no_events_message("criteria")
 
 def test_event_title_capitalization():
     """Test that event titles are properly capitalized"""

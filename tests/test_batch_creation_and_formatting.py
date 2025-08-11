@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app.agent.nlp_agent import NLPAgent
-from app.utils.ui_helpers import format_event_for_display
+from app.utils.message_formatter import MessageFormatter
 from unittest.mock import MagicMock, AsyncMock
 import logging
 
@@ -93,7 +93,15 @@ async def test_formatting_consistency():
         "event_link": "https://calendar.google.com/calendar/event?eid=test123"
     }
     
-    formatted_single = format_event_for_display(single_event_data, calendar_result, calendar_service)
+    single_event_obj = {
+        'summary': single_event_data['event_name'],
+        'start': f"{single_event_data['date']}T{single_event_data['start_time']}:00",
+        'end': f"{single_event_data['date']}T{single_event_data['end_time']}:00",
+        'calendar_name': single_event_data['calendar_name'],
+        'id': 'evt_single',
+        'htmlLink': calendar_result['event_link']
+    }
+    formatted_single = MessageFormatter.format_single_event_display(single_event_obj)
     print(f"📋 Single event format: {formatted_single}")
     
     # Test multi-event format (should be same structure)
@@ -110,7 +118,15 @@ async def test_formatting_consistency():
         "event_link": "https://calendar.google.com/calendar/event?eid=test456"
     }
     
-    formatted_multi = format_event_for_display(multi_event_data, calendar_result_2, calendar_service)
+    multi_event_obj = {
+        'summary': multi_event_data['event_name'],
+        'start': f"{multi_event_data['date']}T{multi_event_data['start_time']}:00",
+        'end': f"{multi_event_data['date']}T{multi_event_data['end_time']}:00",
+        'calendar_name': multi_event_data['calendar_name'],
+        'id': 'evt_multi',
+        'htmlLink': calendar_result_2['event_link']
+    }
+    formatted_multi = MessageFormatter.format_single_event_display(multi_event_obj)
     print(f"📋 Multi event format: {formatted_multi}")
     
     # Verify both formats have the same structure

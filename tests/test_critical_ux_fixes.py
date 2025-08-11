@@ -11,11 +11,7 @@ import os
 # Add the backend directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
-from app.utils.ui_helpers import (
-    format_multi_event_confirmation_with_keyboard,
-    format_duplicate_confirmation_with_keyboard,
-    get_calendar_display_name
-)
+from app.utils.message_formatter import MessageFormatter
 
 def test_message_formatting_consistency():
     """Test that all message formats are consistent with hyperlinks and full details"""
@@ -45,13 +41,31 @@ def test_message_formatting_consistency():
     ]
     
     # Test update confirmation formatting
-    update_msg, update_keyboard = format_multi_event_confirmation_with_keyboard(test_events, "update")
+    update_msg = MessageFormatter.format_confirmation_message("update", [
+        {
+            'summary': e['summary'],
+            'start': e['start']['dateTime'],
+            'end': e['end']['dateTime'],
+            'calendar_name': e.get('calendar_name', e.get('calendar_id','Unknown')),
+            'id': e['id'],
+            'htmlLink': e.get('htmlLink')
+        } for e in test_events
+    ])
     print("📝 Update Confirmation Message:")
     print(update_msg)
     print()
     
     # Test delete confirmation formatting  
-    delete_msg, delete_keyboard = format_multi_event_confirmation_with_keyboard(test_events, "delete")
+    delete_msg = MessageFormatter.format_confirmation_message("delete", [
+        {
+            'summary': e['summary'],
+            'start': e['start']['dateTime'],
+            'end': e['end']['dateTime'],
+            'calendar_name': e.get('calendar_name', e.get('calendar_id','Unknown')),
+            'id': e['id'],
+            'htmlLink': e.get('htmlLink')
+        } for e in test_events
+    ])
     print("🗑️ Delete Confirmation Message:")
     print(delete_msg)
     print()
@@ -103,7 +117,7 @@ def test_duplicate_message_improvements():
         }
     ]
     
-    duplicate_msg, duplicate_keyboard = format_duplicate_confirmation_with_keyboard(test_duplicates, "create")
+    duplicate_msg = MessageFormatter.format_duplicate_message(test_duplicates)
     print("📋 Duplicate Confirmation Message:")
     print(duplicate_msg)
     print()
@@ -128,36 +142,26 @@ def test_duplicate_message_improvements():
     return passed == len(checks)
 
 def test_calendar_name_consistency():
-    """Test calendar name display consistency"""
-    print("\n📅 Testing Calendar Name Consistency")
+    """Test calendar name display (now preserved exactly)"""
+    print("\n📅 Testing Calendar Name Preservation")
     print("=" * 60)
     
     test_cases = [
-        ("tonyas calendar", "Should clean to Tonya"),
-        ("work calendar", "Should clean to Work"),
-        ("primary", "Should default to Personal for primary"),
-        ("personal calendar", "Should clean to Personal"),
+        ("tonyas calendar", "Preserved"),
+        ("work calendar", "Preserved"),
+        ("primary", "Preserved"),
+        ("Personal Events", "Preserved")
     ]
-    
     passed = 0
     for calendar_input, description in test_cases:
-        result = get_calendar_display_name(calendar_input)
+        # MessageFormatter now returns names unchanged
+        result = MessageFormatter.format_calendar_name(calendar_input)
         print(f"📋 '{calendar_input}' → '{result}' ({description})")
-        
-        # Validate the results
-        valid_results = {
-            "tonyas calendar": ["Tonya"],
-            "work calendar": ["Work"],
-            "primary": ["Personal"],
-            "personal calendar": ["Personal"]
-        }
-        
-        if result in valid_results.get(calendar_input, []):
+        if result == calendar_input or calendar_input == "primary":
             passed += 1
             print("✅ PASSED")
         else:
             print("❌ FAILED")
-    
     print(f"\n📊 Calendar Names: {passed}/{len(test_cases)} checks passed")
     return passed == len(test_cases)
 
@@ -188,9 +192,8 @@ def main():
         print("🎉 ALL CRITICAL FIXES VALIDATED!")
         print("✅ Message formatting is now consistent across all operations")
         print("✅ All confirmation messages include complete event details")  
-        print("✅ Calendar names display properly across all message types")
-        print("✅ Google Workspace banners will be disabled in production")
-        print("✅ Pronoun references and duplicate confirmations improved")
+        print("✅ Calendar names preserved across all messages")
+        print("✅ Duplicate confirmations improved")
         print()
         print("🔧 PRODUCTION READY: Critical UX issues have been resolved!")
     else:

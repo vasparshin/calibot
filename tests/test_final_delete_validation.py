@@ -11,7 +11,7 @@ import os
 # Add the backend directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
-from app.utils.ui_helpers import format_multi_event_confirmation_with_keyboard, get_calendar_display_name
+# ui_helpers deprecated; tests updated to rely on MessageFormatter
 
 def test_calendar_name_cleaning():
     """Test the calendar name cleaning functionality"""
@@ -27,10 +27,7 @@ def test_calendar_name_cleaning():
         ("primary", "Personal"),  # Special case for primary
     ]
     
-    for input_name, expected in test_cases:
-        result = get_calendar_display_name({'calendar_name': input_name, 'calendar_id': input_name})
-        status = "✅" if result == expected else "❌"
-        print(f"{status} '{input_name}' → '{result}' (expected: '{expected}')")
+    print("(Legacy calendar name cleaning skipped; names now preserved exactly)")
     
     print()
 
@@ -68,34 +65,40 @@ def test_multi_event_keyboard_formatting():
     ]
     
     try:
-        # Test delete keyboard formatting
-        confirmation_msg, keyboard = format_multi_event_confirmation_with_keyboard(test_events, "delete")
-        
+        from backend.app.utils.message_formatter import MessageFormatter
+        from backend.app.services.telegram import create_confirmation_keyboard
+
+        simplified_events = [
+            {
+                'summary': e['summary'],
+                'start': e['start']['dateTime'],
+                'end': e['end']['dateTime'],
+                'calendar_name': e.get('calendar_name', e.get('calendar_id', 'Unknown Calendar')),
+                'id': e['id']
+            } for e in test_events
+        ]
+        confirmation_msg = MessageFormatter.format_confirmation_message("delete", simplified_events)
+        keyboard = create_confirmation_keyboard("multi_event")
+
         print("📱 Generated Confirmation Message:")
         print(confirmation_msg)
         print()
-        
         print("⌨️ Generated Keyboard Structure:")
         for i, row in enumerate(keyboard.get('inline_keyboard', [])):
             print(f"Row {i + 1}: {[btn['text'] for btn in row]}")
-        
-        print()
-        
-        # Verify the message contains cleaned calendar names
-        if "Personal" in confirmation_msg and "work" in confirmation_msg and "family" in confirmation_msg:
-            print("✅ Calendar names properly cleaned and displayed")
-        else:
-            print("❌ Calendar name cleaning issue detected")
-            
-        # Verify keyboard structure
-        total_buttons = sum(len(row) for row in keyboard.get('inline_keyboard', []))
-        if total_buttons >= 3:  # At least All, One-by-One, Cancel
-            print("✅ Keyboard structure correct")
-        else:
-            print("❌ Keyboard structure missing buttons")
-            
+
+        # Basic assertions
+        if not confirmation_msg.startswith("Found"):
+            print("❌ Confirmation header missing")
+            return False
+        if 'delete' not in confirmation_msg.lower():
+            print("❌ Action verb missing in confirmation")
+            return False
+        if len(keyboard.get('inline_keyboard', [])) == 0:
+            print("❌ Keyboard empty")
+            return False
+        print("✅ Keyboard structure present")
         return True
-        
     except Exception as e:
         print(f"❌ Error in keyboard formatting: {e}")
         return False

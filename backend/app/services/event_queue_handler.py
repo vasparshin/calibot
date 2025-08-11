@@ -64,6 +64,25 @@ class EventQueueHandler:
     def has_pending_queue(self, chat_id: str) -> bool:
         """Check if user has pending events in queue"""
         return chat_id in self.pending_queues and len(self.pending_queues[chat_id]['events']) > 0
+
+    def clear_queue(self, chat_id: str):
+        """Clear any existing queue for the chat_id"""
+        if chat_id in self.pending_queues:
+            del self.pending_queues[chat_id]
+            logger.info(f"Cleared pending event queue for chat {chat_id}")
+
+    def skip_event_and_get_next(self, chat_id: str) -> Dict[str, Any]:
+        """Skip current event and return next confirmation structure.
+        Returns dict with either next confirmation or completion message."""
+        if not self.has_pending_queue(chat_id):
+            return {"success": False, "message": "No pending events."}
+        queue = self.pending_queues[chat_id]
+        queue['current_index'] += 1  # Skip current
+        if queue['current_index'] >= len(queue['events']):
+            # All done
+            del self.pending_queues[chat_id]
+            return {"success": True, "queue_complete": True, "message": "All events processed!"}
+        return self.get_next_event_confirmation(chat_id)
     
     def detect_multi_event_request(self, intent_data: Dict) -> bool:
         """Detect if the intent data represents multiple events"""
@@ -488,57 +507,46 @@ Calendar: {calendar}"""
         is_confirm = (user_response in ['yes', 'y', 'confirm'] or 
                      user_response.startswith('confirm_'))
         is_cancel = (user_response in ['no', 'n', 'skip'] or 
-                    user_response.startswith('cancel_'))
-        
+                      user_response.startswith('cancel_'))
+
         if is_confirm:
-            # Process the current event
+            # Process current event
             result = await self._process_single_event(current_event)
-            
-            # Move to next event
             queue['current_index'] += 1
-            
-            # Get next confirmation or completion message
             next_result = self.get_next_event_confirmation(chat_id)
-            
+
             if next_result.get('queue_complete'):
-                # Queue is complete - send final summary
                 return {
                     "success": True,
                     "message": f"{result['message']}\n\n✅ All events processed!",
                     "queue_complete": True
                 }
-            else:
-                # More events to process - send current result AND next confirmation as separate messages
-                return {
-                    "success": True,
-                    "message": result['message'],  # CRITICAL FIX: Send result first
-                    "next_confirmation": {  # Then indicate next step
-                        "message": next_result['message'],
-                        "keyboard": next_result.get('keyboard'),
-                        "requires_user_action": True
-                    },
-                    "queue_continues": True
-                }
-        
+            return {
+                "success": True,
+                "message": result['message'],
+                "next_confirmation": {
+                    "message": next_result['message'],
+                    "keyboard": next_result.get('keyboard'),
+                    "requires_user_action": True
+                },
+                "queue_continues": True
+            }
+
         elif is_cancel:
-            # Skip current event, move to next
             queue['current_index'] += 1
-            
             next_result = self.get_next_event_confirmation(chat_id)
-            
             if next_result.get('queue_complete'):
                 return {
                     "success": True,
                     "message": f"Skipped: Event skipped.\n\n{next_result['message']}",
                     "queue_complete": True
                 }
-            else:
-                return {
-                    "success": True,
-                    "message": f"Skipped: Event skipped.\n\n{next_result['message']}",
-                    "keyboard": next_result.get('keyboard'),
-                    "requires_user_action": True
-                }
+            return {
+                "success": True,
+                "message": f"Skipped: Event skipped.\n\n{next_result['message']}",
+                "keyboard": next_result.get('keyboard'),
+                "requires_user_action": True
+            }
         
         elif user_response in ['cancel', 'c', 'stop', 'quit']:
             # Cancel remaining events

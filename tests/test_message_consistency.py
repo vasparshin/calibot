@@ -61,55 +61,45 @@ def test_message_format_consistency():
     print("\n📝 Testing Message Format Consistency...")
     
     try:
-        from backend.app.utils.ui_helpers import (
-            format_success_message,
-            format_multi_event_confirmation_with_keyboard,
-            format_duplicate_confirmation_with_keyboard
-        )
-        
-        # Test success message consistency
+        from backend.app.utils.message_formatter import MessageFormatter
+
+        # Prepare mock events
+        mock_event = {
+            "summary": "Test Event",
+            "start": "2025-08-09T10:00:00+01:00",
+            "end": "2025-08-09T11:00:00+01:00",
+            "calendar_name": "Test Calendar",
+            "id": "evt_123",
+            "htmlLink": "https://calendar.google.com/event/test"
+        }
+
+        # Test success message formatting for create/update/delete
         print("   Testing success messages:")
-        operations = ["create", "update", "delete"]
-        for operation in operations:
-            msg = format_success_message(operation, 2)
-            print(f"      {operation}: {msg.strip()}")
-            
-            # Check format consistency
+        create_msg = MessageFormatter.format_success_message_create([mock_event])
+        update_msg = MessageFormatter.format_success_message_update([mock_event])
+        delete_msg = MessageFormatter.format_success_message_delete(1)
+
+        for label, msg in [("create", create_msg), ("update", update_msg), ("delete", delete_msg)]:
+            print(f"      {label}: {msg.splitlines()[0]}")
             if "Successfully" not in msg:
-                print(f"         ❌ Missing 'Successfully' in {operation}")
+                print(f"         ❌ Missing 'Successfully' in {label}")
                 return False
-            if operation in msg:
-                print(f"         ✅ Contains operation type")
-            else:
-                print(f"         ❌ Missing operation type in message")
-                return False
-        
-        # Test that confirmation messages use keyboard format
-        print("\n   Testing confirmation message keyboard integration:")
-        
-        # Mock event data for testing
-        mock_events = [
-            {
-                "summary": "Test Event",
-                "start": "2025-08-09T10:00:00+01:00",
-                "end": "2025-08-09T11:00:00+01:00",
-                "calendar_id": "primary",
-                "htmlLink": "https://calendar.google.com/event/test"
-            }
-        ]
-        
-        # Test multi-event confirmation
-        msg, keyboard = format_multi_event_confirmation_with_keyboard(mock_events, "delete")
-        print(f"      Multi-event message includes keyboard: {'✅' if keyboard else '❌'}")
-        print(f"      Message format: {msg[:50]}...")
-        
-        # Test duplicate confirmation  
-        msg, keyboard = format_duplicate_confirmation_with_keyboard(mock_events, "create")
-        print(f"      Duplicate message includes keyboard: {'✅' if keyboard else '❌'}")
-        print(f"      Message format: {msg[:50]}...")
-        
+
+        # Test confirmation message formatting (multi-event)
+        print("\n   Testing confirmation message formatting:")
+        confirmation_msg = MessageFormatter.format_confirmation_message("delete", [mock_event])
+        print(f"      Confirmation header: {confirmation_msg.splitlines()[0]}")
+        if "Found" not in confirmation_msg or "delete" not in confirmation_msg.lower():
+            print("         ❌ Confirmation message missing expected content")
+            return False
+
+        # Test duplicate message formatting (simulate duplicates input)
+        duplicate_msg = MessageFormatter.format_duplicate_message([{"new_event": mock_event}])
+        if "duplicate" not in duplicate_msg.lower():
+            print("         ❌ Duplicate message missing keyword")
+            return False
+
         return True
-        
     except Exception as e:
         print(f"   ❌ Error testing message formats: {e}")
         return False

@@ -13,10 +13,7 @@ try:
     from backend.app.agent.nlp_agent import NLPAgent
     from backend.app.services.conversation import ConversationState
     from backend.app.services.google_calendar import GoogleCalendarService
-    from backend.app.utils.ui_helpers import (
-        format_multi_event_confirmation_with_keyboard,
-        format_no_events_message
-    )
+    from backend.app.utils.message_formatter import MessageFormatter
     imports_available = True
 except ImportError as e:
     print(f"Import error: {e}")
@@ -78,9 +75,17 @@ def test_delete_scenario():
     ]
     
     try:
-        message, keyboard = format_multi_event_confirmation_with_keyboard(
-            mock_events, "delete"
-        )
+        simplified_events = [
+            {
+                'summary': e['summary'],
+                'start': e['start']['dateTime'],
+                'end': e['end']['dateTime'],
+                'calendar_name': e.get('calendar_id'),
+                'id': e['id']
+            } for e in mock_events
+        ]
+        message = MessageFormatter.format_confirmation_message("delete", simplified_events)
+        keyboard = {'inline_keyboard': [[{'text': '🔄 All', 'callback_data': 'confirm_all'}, {'text': '1️⃣ One by One', 'callback_data': 'confirm_one_by_one'}], [{'text': '❌ Cancel', 'callback_data': 'cancel'}]]}
         print("✅ Multi-event confirmation generated successfully:")
         print(f"   Message preview: {message[:150]}...")
         print(f"   Keyboard options: {len(keyboard['inline_keyboard'])} rows")
@@ -113,17 +118,12 @@ def test_delete_scenario():
         "event_name": ""
     }
     
-    try:
-        no_events_msg = format_no_events_message(empty_event_data)
-        print(f"✅ No events message: '{no_events_msg}'")
-        
-        if "No events found" in no_events_msg:
-            print("✅ Proper 'no events' message format")
-        else:
-            print("❌ Wrong 'no events' message format")
-            
-    except Exception as e:
-        print(f"❌ Error in no events formatting: {e}")
+    no_events_msg = MessageFormatter.format_no_events_message("date: 2025-10-08")
+    print(f"✅ No events message: '{no_events_msg}'")
+    if "No events found" in no_events_msg:
+        print("✅ Proper 'no events' message format")
+    else:
+        print("❌ Wrong 'no events' message format")
     
     # Test edge cases
     print("\n4. Testing Edge Cases...")
