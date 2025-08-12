@@ -4,6 +4,27 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.89] - 2025-08-12
+
+### Added
+- **📅 Today's Schedule Button**: New inline keyboard with "Today's Schedule" and "Tomorrow's Schedule" buttons
+- **Direct Schedule Service**: New ScheduleService that bypasses LLM for fast, reliable schedule queries
+- **Enhanced /today Command**: Shows schedule with interactive menu keyboard for quick access
+- **Optimized Date Formatting**: Clean dd/mm/yy format and time-only display for same-day events
+- **Relative Date Support**: Handle "day after tomorrow", "next week", and other relative date expressions
+
+### Enhanced 
+- **Performance Optimization**: Schedule queries now skip LLM processing for instant responses
+- **User Experience**: Chronologically sorted events with proper time formatting (no date needed for same-day)
+- **Response Consistency**: Standardized "Today (12/08/25) you have X events:" format across all date-specific queries
+- **Smart Detection**: Automatic recognition of schedule queries in natural language
+
+### Technical Details
+- **schedule_service.py**: New service for direct calendar queries with optimized formatting
+- **inline_keyboard.py**: Added schedule menu keyboard and callback parsing
+- **routes.py**: Integrated schedule detection early in message processing pipeline
+- **UI Consistency**: All schedule responses follow BOT_RULES.md formatting with hyperlinks and calendar names
+
 ## [0.1.88] - 2025-08-12
 
 ### Enhanced

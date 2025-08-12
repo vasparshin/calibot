@@ -11,6 +11,7 @@ from app.services.ai_service import get_ai_response, get_small_talk_response
 from app.services.google_calendar import GoogleCalendarService
 from app.services.multi_event_operations import MultiEventOperationHandler
 from app.services.event_queue_handler import EventQueueHandler
+from app.services.schedule_service import ScheduleService
 from app.api.models import TelegramUpdate
 from app.services.conversation import conversation_state
 from app.agent.calendar_agent import CalendarAgent
@@ -36,7 +37,7 @@ except ImportError:
     MessageFormatter = None
     InlineKeyboardHelper = None
 from datetime import datetime
-from app.utils.ui_helpers import format_duplicate_confirmation_with_keyboard, format_event_for_display
+from app.utils.ui_helpers import format_duplicate_confirmation_with_keyboard, format_event_for_display, is_confirmation_yes, is_confirmation_no
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -207,6 +208,10 @@ async def handle_callback_query(callback_query):
             return await handle_confirmation_callback(chat_id, message_id, "cancel")
         return {"status": "ok"}
 
+    # Schedule button callbacks
+    if action == "schedule":
+        return await handle_schedule_callback(chat_id, message_id, parsed.get("date_type"))
+
     # Unified confirmation/cancel flows
     if parsed_type in ["multi_all", "multi_one", "single", "duplicates"]:
         if parsed_type == "multi_all":
@@ -224,6 +229,50 @@ async def handle_callback_query(callback_query):
 
     logger.warning(f"Unknown callback data after parsing: {callback_data} -> {parsed}")
     return {"status": "ok"}
+
+async def handle_schedule_callback(chat_id: int, message_id: int, date_type: str):
+    """Handle schedule button callbacks"""
+    try:
+        # Remove the keyboard from the original message
+        await edit_message_text(
+            chat_id, 
+            message_id, 
+            "📅 Loading schedule...",
+            reply_markup={}
+        )
+        
+        # Initialize services
+        calendar_service = GoogleCalendarService()
+        schedule_service = ScheduleService(calendar_service)
+        
+        # Get the schedule based on date type
+        if date_type == "today":
+            result = await schedule_service.get_today_schedule(chat_id)
+        elif date_type == "tomorrow":
+            result = await schedule_service.get_tomorrow_schedule(chat_id)
+        else:
+            result = {
+                "success": False,
+                "message": f"Unknown date type: {date_type}"
+            }
+        
+        # Send the schedule as a new message
+        if result.get("success"):
+            await send_telegram_message(chat_id, result["message"])
+            conversation_state.add_message(chat_id, "assistant", result["message"])
+        else:
+            error_msg = result.get("message", "Failed to get schedule")
+            if result.get("auth_required"):
+                error_msg = "Please authenticate with Google Calendar first: /start"
+            await send_telegram_message(chat_id, error_msg)
+            conversation_state.add_message(chat_id, "assistant", error_msg)
+        
+        return {"status": "ok"}
+        
+    except Exception as e:
+        logger.error(f"Error in schedule callback: {e}")
+        await send_telegram_message(chat_id, "Sorry, there was an error loading your schedule.")
+        return {"status": "ok"}
 
 async def handle_confirmation_callback(chat_id: int, message_id: int, confirmation: str):
     """Handle confirmation responses from inline keyboards"""
@@ -461,73 +510,84 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 conversation_state.add_message(chat_id, "assistant", "Please respond with:\n• 'yes' to create duplicate events\n• 'no' or 'cancel' to cancel creation")
                 return {"status": "ok"}
         
-        # Simple fast-path for common schedule queries to reduce LLM dependency & mitigate malformed '"intent"' failures
-        def _simple_schedule_query(msg: str):
-            m = msg.lower().strip()
-            if len(m) < 3:
-                return None
-            import re
-            today = datetime.now().date()
-            weekday_map = {"monday":0, "tuesday":1, "wednesday":2, "thursday":3, "friday":4, "saturday":5, "sunday":6}
-            date_iso = None
-            iso_match = re.search(r"(20\d{2}-\d{2}-\d{2})", m)
-            if iso_match:
-                date_iso = iso_match.group(1)
-            elif any(w in m for w in ["today", "todays", "this day"]):
-                date_iso = today.strftime("%Y-%m-%d")
-            elif "tomorrow" in m:
-                from datetime import timedelta
-                date_iso = (today + timedelta(days=1)).strftime("%Y-%m-%d")
-            else:
-                for wd, idx in weekday_map.items():
-                    if wd in m:
-                        from datetime import timedelta
-                        delta = (idx - today.weekday()) % 7
-                        if "next" in m and delta == 0:
-                            delta = 7
-                        date_iso = (today + timedelta(days=delta)).strftime("%Y-%m-%d")
-                        break
-            schedule_keywords = [
-                "what's on", "whats on", "what do i have", "show me", "show my", "my schedule", "any events", "what is on my calendar",
-                "schedule", "events today", "events tomorrow", "do i have anything", "what do i have tomorrow", "what do i have today"
-            ]
-            if any(k in m for k in schedule_keywords) or re.fullmatch(r"(today|tomorrow)", m):
-                return {"intent": "query", "date": date_iso or today.strftime("%Y-%m-%d"), "confirmation_needed": False}
-            if m in ["today", "tomorrow"]:
-                return {"intent": "query", "date": date_iso or today.strftime("%Y-%m-%d"), "confirmation_needed": False}
+        # Enhanced schedule detection with direct service handling
+        async def _handle_schedule_request(msg: str):
+            """Handle schedule requests with direct service processing"""
+            calendar_service = GoogleCalendarService()
+            schedule_service = ScheduleService(calendar_service)
+            
+            # Detect schedule query type
+            schedule_type = schedule_service.detect_schedule_query(msg)
+            
+            if schedule_type:
+                try:
+                    # Handle direct schedule queries
+                    if schedule_type == "today":
+                        result = await schedule_service.get_today_schedule(chat_id)
+                    elif schedule_type == "tomorrow":
+                        result = await schedule_service.get_tomorrow_schedule(chat_id)
+                    elif schedule_type in ["day after tomorrow", "next week"]:
+                        result = await schedule_service.get_schedule_for_relative_date(schedule_type, chat_id)
+                    else:
+                        return None
+                    
+                    # Send response
+                    if result.get("success"):
+                        # For /today command, also show the schedule menu
+                        if msg.strip() == "/today":
+                            keyboard = InlineKeyboardHelper.create_schedule_menu_keyboard()
+                            await send_telegram_message(chat_id, result["message"], reply_markup=keyboard)
+                        else:
+                            await send_telegram_message(chat_id, result["message"])
+                        conversation_state.add_message(chat_id, "assistant", result["message"])
+                        return {"status": "ok", "handled": True}
+                    else:
+                        error_msg = result.get("message", "Failed to get schedule")
+                        if result.get("auth_required"):
+                            error_msg = "Please authenticate with Google Calendar first: /start"
+                        await send_telegram_message(chat_id, error_msg)
+                        conversation_state.add_message(chat_id, "assistant", error_msg)
+                        return {"status": "ok", "handled": True}
+                        
+                except Exception as e:
+                    logger.error(f"Error in schedule request handling: {e}")
+                    await send_telegram_message(chat_id, "Sorry, there was an error loading your schedule.")
+                    conversation_state.add_message(chat_id, "assistant", "Sorry, there was an error loading your schedule.")
+                    return {"status": "ok", "handled": True}
+            
             return None
+        
+        # Check for schedule requests first
+        schedule_result = await _handle_schedule_request(user_message)
+        if schedule_result and schedule_result.get("handled"):
+            return schedule_result
 
         event_data = None
-        simple_query_event = _simple_schedule_query(user_message)
-        if simple_query_event:
-            event_data = simple_query_event
-            logger.info(f"Simple schedule query shortcut applied: {event_data}")
-        else:
-            # logger.info(f"---------------------Conversation history: {history}")
-            # Check relevancy before extracting intent
-            relevancy_result = await ai_agent.check_relevancy(user_message, history)
-            if not relevancy_result.get("relevant"):
-                ai_response = await get_small_talk_response(user_message, history)
-                await send_telegram_message(chat_id, ai_response)
-                conversation_state.add_message(chat_id, "assistant", ai_response)
-                return {"status": "ok"}  
-            try:
-                event_data = await ai_agent.extract_intent(user_message, history)
-                logger.info(f"Extracted intent: {event_data}")
-                if not isinstance(event_data, dict):
-                    logger.error(f"CRITICAL: Invalid event_data type: {type(event_data)} - {event_data}")
-                    await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
-                    conversation_state.add_message(chat_id, "assistant", "Sorry, I had trouble understanding your request. Could you please try again?")
-                    return {"status": "ok"}
-                # NEW DEFENSIVE GUARD: handle pathological string-only LLM response caught before downstream logic
-                if list(event_data.keys()) == ['intent'] and not event_data.get('intent'):
-                    logger.error("Pathological empty 'intent' key returned from LLM - applying fallback query intent")
-                    event_data = {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
-            except Exception as e:
-                logger.error(f"CRITICAL: Error in AI intent extraction: {e}")
-                await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
-                conversation_state.add_message(chat_id, "assistant", "I'm experiencing technical difficulties. Please try again in a moment.")
+        
+        # Check relevancy before extracting intent
+        relevancy_result = await ai_agent.check_relevancy(user_message, history)
+        if not relevancy_result.get("relevant"):
+            ai_response = await get_small_talk_response(user_message, history)
+            await send_telegram_message(chat_id, ai_response)
+            conversation_state.add_message(chat_id, "assistant", ai_response)
+            return {"status": "ok"}  
+        try:
+            event_data = await ai_agent.extract_intent(user_message, history)
+            logger.info(f"Extracted intent: {event_data}")
+            if not isinstance(event_data, dict):
+                logger.error(f"CRITICAL: Invalid event_data type: {type(event_data)} - {event_data}")
+                await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
+                conversation_state.add_message(chat_id, "assistant", "Sorry, I had trouble understanding your request. Could you please try again?")
                 return {"status": "ok"}
+            # NEW DEFENSIVE GUARD: handle pathological string-only LLM response caught before downstream logic
+            if list(event_data.keys()) == ['intent'] and not event_data.get('intent'):
+                logger.error("Pathological empty 'intent' key returned from LLM - applying fallback query intent")
+                event_data = {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+        except Exception as e:
+            logger.error(f"CRITICAL: Error in AI intent extraction: {e}")
+            await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
+            conversation_state.add_message(chat_id, "assistant", "I'm experiencing technical difficulties. Please try again in a moment.")
+            return {"status": "ok"}
         
         # Additional safety check for required fields
         if "intent" not in event_data:

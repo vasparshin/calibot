@@ -82,6 +82,22 @@ class InlineKeyboardHelper:
         return keyboard
     
     @staticmethod
+    def create_schedule_menu_keyboard() -> Dict:
+        """
+        Create main menu keyboard with Today's Schedule button
+        Buttons: "📅 Today's Schedule", "🗓️ Tomorrow's Schedule"
+        """
+        keyboard = {
+            "inline_keyboard": [
+                [
+                    {"text": "📅 Today's Schedule", "callback_data": "schedule_today"},
+                    {"text": "🗓️ Tomorrow's Schedule", "callback_data": "schedule_tomorrow"}
+                ]
+            ]
+        }
+        return keyboard
+    
+    @staticmethod
     def parse_callback_data(callback_data: str) -> Dict[str, str]:
         """
         Parse callback data to extract action and parameters
@@ -131,6 +147,14 @@ class InlineKeyboardHelper:
             elif action_detail == "stop":
                 result["type"] = "queue_stop"
         
+        elif action_type == "schedule":
+            if action_detail == "today":
+                result["type"] = "schedule_today"
+                result["date_type"] = "today"
+            elif action_detail == "tomorrow":
+                result["type"] = "schedule_tomorrow"
+                result["date_type"] = "tomorrow"
+        
         return result
     
     @staticmethod
@@ -140,7 +164,7 @@ class InlineKeyboardHelper:
         callback_patterns = [
             "confirm_", "cancel_", "queue_", 
             "all_", "one_", "duplicates",
-            "stop_all"
+            "stop_all", "schedule_"
         ]
         
         return any(pattern in text.lower() for pattern in callback_patterns)
