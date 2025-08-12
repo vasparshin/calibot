@@ -4,6 +4,19 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.99] - 2025-01-11
+
+### Enhanced
+- **CRITICAL: Multi-Event Success Message Formatting**: Fixed poor formatting in batch operation success messages to follow BOT_RULES.md standards
+- **Button Removal Fix**: Ensured all inline keyboard buttons disappear properly after user selection
+- **Event Display Consistency**: Multi-event results now use same format as daily summaries with hyperlinks and full event details
+
+### Technical Details  
+- **multi_event_operations.py**: Replaced "Updated [Event]" format with proper BOT_RULES.md compliance: "• [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)"
+- **routes.py**: Added missing reply_markup={} to all edit_message_text calls to ensure buttons are removed after selection
+- **UX Consistency**: Success messages now include clickable hyperlinks, full calendar names, and proper date/time formatting
+- **Validation**: Created comprehensive test suite confirming format compliance and button removal functionality
+
 ## [0.1.98] - 2025-08-12
 
 ### Optimized

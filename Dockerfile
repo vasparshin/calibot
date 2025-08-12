@@ -6,8 +6,8 @@ WORKDIR /app
 # Install uv (fast Python package installer)
 RUN pip install uv
 
-# Copy project files
-COPY pyproject.toml uv.lock requirements.txt ./
+# Copy only essential project files
+COPY pyproject.toml ./
 COPY backend/app ./app
 
 # Install dependencies explicitly

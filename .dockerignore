@@ -1,56 +1,40 @@
-# Ignore Python cache and virtualenvs
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-env/
-venv/
-.venv/
+# AGGRESSIVE EXCLUSION for minimal Docker builds
+# ONLY include: pyproject.toml, backend/app/, and essential files
 
-# Ignore local environment files and secrets
-.env
-*.env
-*.secret
-*.key
-backend/app/credentials.json
+# Ignore EVERYTHING first
+*
 
-# Ignore git and editor files
-.git
-.gitignore
-.vscode/
-.DS_Store
+# Then ONLY include what we need
+!pyproject.toml
+!backend/
+backend/*
+!backend/app/
+!backend/app/**
 
-# Ignore ALL development and testing files (CRITICAL for deployment speed)
+# Exclude ALL other directories completely  
 tests/
 info/
 scripts/
+.github/
+.vscode/
+.git/
 
-# Ignore ALL documentation files except essential ones
+# Exclude ALL documentation 
 *.md
-!README.md
-!CHANGELOG.md
+*.txt
+*.rst
 
-# Specific development docs to exclude
-WORKFLOW_ARCHITECTURE.md
-PLANNED_FEATURES.md
-BOT_RULES.md
+# Exclude ALL development files
+*.env
+*.secret
+*.key
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.pytest_cache/
 
-# Development files
-*_SUMMARY.md
-FIXES_*.md
-immediate_changes.md
-test_plan.md
-ISSUE_LOG.md
-
-# Test files in root (should not exist per project rules)
-test_*.py
-*_test.py
-*_debug.py
-demo*.py
-queue_demo.py
-simple_queue_demo.py
-
-# Development binaries and media
+# Exclude ALL media and binaries
 *.mp4
 *.png
 *.jpg
@@ -61,6 +45,5 @@ simple_queue_demo.py
 *.zip
 *.sh
 
-# Lock files and redundant dependency files
+# Exclude lock files
 uv.lock
-requirements.txt  # Redundant with pyproject.toml

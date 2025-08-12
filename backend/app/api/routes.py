@@ -350,7 +350,8 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
         await edit_message_text(
             chat_id, 
             message_id, 
-            f"Choice: {confirmation}"
+            f"Choice: {confirmation}",
+            reply_markup={}
         )
     
     # CRITICAL FIX: Handle pending operations directly instead of triggering new intent extraction
@@ -418,15 +419,15 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
 async def handle_event_selection(chat_id: int, message_id: int, selection):
     """Handle event selection from inline keyboards"""
     if selection == "cancel":
-        await edit_message_text(chat_id, message_id, "❌ Selection cancelled")
+        await edit_message_text(chat_id, message_id, "❌ Selection cancelled", reply_markup={})
         return {"status": "ok"}
     elif selection == "all":
-        await edit_message_text(chat_id, message_id, "✅ All events selected")
+        await edit_message_text(chat_id, message_id, "✅ All events selected", reply_markup={})
         # Process as "all" confirmation
         return await process_user_message(chat_id, "all", "callback")
     else:
         # Handle individual event selection
-        await edit_message_text(chat_id, message_id, f"✅ Selected event #{selection + 1}")
+        await edit_message_text(chat_id, message_id, f"✅ Selected event #{selection + 1}", reply_markup={})
         # Store the selection and continue with individual processing
         conversation_state.set_data(chat_id, "selected_event_index", selection)
         return await process_user_message(chat_id, "one", "callback")

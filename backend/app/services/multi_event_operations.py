@@ -713,41 +713,42 @@ class MultiEventOperationHandler:
                             else:
                                 formatted_date = "today"
                             
-                            update_desc = f"• Updated {formatted_name}"
-                            changes = []
+                            # Format event following BOT_RULES.md: • [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+                            event_link = event.get('htmlLink', '')
+                            calendar_name = event.get('calendar_name', 'Unknown Calendar')
                             
-                            if 'new_date' in original_request:
-                                changes.append(f"moved to {original_request['new_date']}")
-                            if 'new_event_name' in original_request:
-                                changes.append(f"renamed to {original_request['new_event_name']}")
-                            if 'new_start_time' in original_request:
-                                # Show the time change in a user-friendly format
-                                new_start = original_request['new_start_time']
-                                new_end = original_request.get('new_end_time', new_start)
-                                
-                                # Convert to 12-hour format for display
-                                def format_time_12hr(time_24hr):
-                                    hour, minute = map(int, time_24hr.split(':')[:2])
-                                    if hour == 0:
-                                        return f"12:{minute:02d} AM"
-                                    elif hour < 12:
-                                        return f"{hour}:{minute:02d} AM"
-                                    elif hour == 12:
-                                        return f"12:{minute:02d} PM"
-                                    else:
-                                        return f"{hour-12}:{minute:02d} PM"
-                                
-                                start_12hr = format_time_12hr(new_start)
-                                end_12hr = format_time_12hr(new_end)
-                                changes.append(f"time changed to {start_12hr} - {end_12hr}")
-                            if 'time_shift' in original_request:
-                                changes.append(f"shifted by {original_request['time_shift']}")
-                            if 'calendar_name' in original_request:
-                                changes.append(f"moved to {original_request['calendar_name']} calendar")
+                            # Create hyperlinked event name
+                            if event_link:
+                                hyperlinked_name = f"[{event.get('summary', 'Untitled')}]({event_link})"
+                            else:
+                                hyperlinked_name = event.get('summary', 'Untitled')
                             
-                            # Add changes on a new line to avoid breaking hyperlinks
-                            if changes:
-                                update_desc += f"\n  ➤ {', '.join(changes)}"
+                            # Format date and time for display
+                            event_start = event.get('start', '')
+                            event_end = event.get('end', '')
+                            
+                            # Parse datetime and format as "Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM"
+                            try:
+                                if 'T' in event_start:
+                                    from datetime import datetime
+                                    start_dt = datetime.fromisoformat(event_start.replace('Z', '+00:00'))
+                                    end_dt = datetime.fromisoformat(event_end.replace('Z', '+00:00')) if event_end and 'T' in event_end else start_dt
+                                    
+                                    # Format date as "Day, Month DD, YYYY"
+                                    date_formatted = start_dt.strftime('%A, %B %d, %Y')
+                                    
+                                    # Format time as "HH:MM AM/PM"
+                                    start_time_formatted = start_dt.strftime('%I:%M %p').lstrip('0')
+                                    end_time_formatted = end_dt.strftime('%I:%M %p').lstrip('0')
+                                    
+                                    datetime_display = f"on {date_formatted} at {start_time_formatted} - {end_time_formatted}"
+                                else:
+                                    datetime_display = "on today (all day)"
+                            except:
+                                datetime_display = "on today"
+                            
+                            # Build the properly formatted event description
+                            update_desc = f"• {hyperlinked_name} {datetime_display} ({calendar_name})"
                                 
                             successful_updates.append(update_desc)
                         else:
@@ -780,7 +781,7 @@ class MultiEventOperationHandler:
                     else:
                         formatted_date = "today"
                     
-                    message_parts.append(f"Successfully updated all {len(successful_updates)} events on {formatted_date}:")
+                    message_parts.append(f"Successfully updated {len(successful_updates)} event{'s' if len(successful_updates) != 1 else ''} on {formatted_date}:")
                     message_parts.append("")  # Empty line
                     for update_desc in successful_updates:
                         message_parts.append(update_desc)
