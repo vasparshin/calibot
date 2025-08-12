@@ -4,6 +4,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.100] - 2025-01-11
+
+### Fixed
+- **CRITICAL: Target Count Parsing Bug**: Fixed "last 3" being interpreted as 4 events by adding numeric extraction from target strings
+- **CRITICAL: Missing Hyperlinks in Success Messages**: Fixed success messages not showing clickable links by checking multiple link field names
+- **Target Selection Logic**: Added regex parsing to extract count from target expressions like "last 3", "first 2", "next 4"
+- **Event Link Resolution**: Enhanced link field checking to support htmlLink, link, and calendar_link field variations
+
+### Technical Details
+- **multi_event_operations.py**: Added regex-based target parsing to extract numeric counts from target strings
+- **multi_event_operations.py**: Enhanced event link resolution to check multiple field names for hyperlinks
+- **Validation**: Added comprehensive test suite for target parsing logic covering edge cases
+- **Intent Processing**: Now correctly processes "move the last 3 lessons" to select exactly 3 events, not 4
+
 ## [0.1.99] - 2025-01-11
 
 ### Enhanced

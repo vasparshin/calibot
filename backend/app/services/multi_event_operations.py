@@ -419,6 +419,18 @@ class MultiEventOperationHandler:
             target = criteria.get('target', '')
             count = criteria.get('count', 1)
             
+            # Parse numeric count from target string (e.g., "last 3", "first 2")
+            import re
+            if target and not isinstance(count, int) or count == 1:
+                # Extract number from target like "last 3", "first 2", "next 4"
+                number_match = re.search(r'(\w+)\s+(\d+)', target)
+                if number_match:
+                    target_word = number_match.group(1)  # "last", "first", etc.
+                    extracted_count = int(number_match.group(2))  # the number
+                    target = target_word  # Update target to just the word
+                    count = extracted_count  # Update count to the extracted number
+                    logger.info(f"Parsed target '{criteria.get('target', '')}' -> target: '{target}', count: {count}")
+            
             logger.info(f"Processing target selection - target: '{target}', count: {count}, total events found: {len(formatted_events)}")
             
             # Sort events by start time
@@ -714,7 +726,7 @@ class MultiEventOperationHandler:
                                 formatted_date = "today"
                             
                             # Format event following BOT_RULES.md: • [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
-                            event_link = event.get('htmlLink', '')
+                            event_link = event.get('htmlLink', '') or event.get('link', '') or event.get('calendar_link', '')
                             calendar_name = event.get('calendar_name', 'Unknown Calendar')
                             
                             # Create hyperlinked event name
