@@ -42,26 +42,25 @@ All user-reported issues during testing are documented here in reverse chronolog
 4. Show proper confirmation with all 3 events
 5. Display success summary with clean formatting
 
-#### Status: **RESOLVED** - Core functionality fixed
+#### Status: **IN PROGRESS** - Critical positioning fix deployed, enhanced debugging added
 
-**Resolution Applied**:
-1. **Enhanced NLP Agent Fallback** ✅
-   - Added comprehensive count extraction patterns (last 3, first 2, written numbers)
-   - Added time shift extraction patterns (1 hr later, 30 minutes earlier)
-   - Added proper logging for extracted values
+**Additional Fix Applied (v0.1.93)**:
+4. **Count Extraction Logic Position Fix** ✅
+   - **Issue**: Count extraction being overridden by later target extraction logic
+   - **Fix**: Moved count and time shift extraction to final processing stage
+   - **Enhancement**: Added comprehensive debug logging with fire markers
+   - **Result**: Count extraction now happens after all other extractions to prevent override
 
-2. **Enhanced Multi-Event Operations** ✅
-   - Updated `_find_matching_events` to process count and target fields
-   - Added chronological sorting and target-based selection
-   - Implemented last/first/next selection logic
-   - Added edge case handling
+**Enhanced Debugging Added**:
+- 🔥 🔢 Final count extraction debug logs with step-by-step pattern testing
+- Pattern testing against user input with match/no-match results
+- Enhanced time shift patterns including "late" for "1 hr late" variations
+- Final enhanced fallback result logging
 
-3. **Fixed Success Message Hyperlinks** ✅
-   - Restructured message format to preserve hyperlinks
-   - Separated update details onto new lines with arrow indicators
-   - Prevents markdown formatting conflicts
-
-**Validation**: Multi-event operations now properly extract count and time_shift, select multiple events based on target criteria, and display success messages with preserved hyperlinks.
+**Next Test Expected**:
+- Debug logs should now show: "🔥 🔢 FINAL COUNT EXTRACTION: Starting for 'move the last 3 lessons today 1 hr late'"
+- Should extract count=3 and time_shift="1 hour"
+- Should process exactly 3 events chronologically
 
 ---
 

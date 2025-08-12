@@ -5,11 +5,22 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-async def create_single_event(chat_id: int, event_data: Dict[str, Any], calendar_service, send_fn, formatter_fn, conversation_state):
+async def create_single_event(chat_id: int, event_data: Dict[str, Any], calendar_service, send_fn, conversation_state):
     try:
         res = await calendar_service.create_event(event_data)
         if res.get("success"):
-            formatted = formatter_fn(event_data, res, calendar_service)
+            # Use simple formatting instead of the removed formatter function
+            event_details = []
+            if event_data.get("event_name"):
+                event_details.append(f"📅 {event_data['event_name']}")
+            if event_data.get("start_time") and event_data.get("end_time"):
+                event_details.append(f"🕐 {event_data['start_time']} - {event_data['end_time']}")
+            if event_data.get("date"):
+                event_details.append(f"📆 {event_data['date']}")
+            if event_data.get("calendar_name"):
+                event_details.append(f"📚 Calendar: {event_data['calendar_name']}")
+            
+            formatted = "\n".join(event_details)
             msg = f"Event created successfully:\n\n{formatted}"
             await send_fn(chat_id, msg)
             conversation_state.add_message(chat_id, "assistant", msg)

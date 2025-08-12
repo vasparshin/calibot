@@ -4,6 +4,24 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.94] - 2025-08-12
+
+### Fixed
+- **CRITICAL: Intent Detection for Queries**: Fixed "today schedule" being incorrectly detected as 'create' instead of 'query'
+- **Missing Function Parameter**: Fixed `create_single_event() missing 1 required positional argument: 'conversation_state'`
+- **LLM Malformed Response Handling**: Added immediate handling for partial LLM responses like '"intent"' before JSON parsing
+- **Fallback Intent Detection**: Enhanced fallback logic to properly detect query intents with keywords like 'schedule', 'agenda', 'list', 'show'
+
+### Enhanced  
+- **Robust Error Handling**: Added early detection of malformed LLM responses to prevent JSON parsing failures
+- **Intent Classification**: Improved keyword-based fallback for both main and exception handlers
+- **Event Display**: Simplified event formatting in single_creation.py to remove dependency on removed formatter function
+
+### Technical Details
+- **nlp_agent.py**: Added malformed response detection before JSON parsing, enhanced query keyword detection
+- **single_creation.py**: Removed formatter_fn parameter and implemented inline event formatting
+- **routes.py**: Function call now matches updated signature
+
 ## [0.1.93] - 2025-08-12
 
 ### Fixed

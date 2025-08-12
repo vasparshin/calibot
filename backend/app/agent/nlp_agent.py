@@ -177,6 +177,22 @@ class NLPAgent:
                 if len(lines) > 2:
                     cleaned_result = '\n'.join(lines[1:-1])
             
+            # Handle malformed partial responses immediately
+            if cleaned_result.strip(' "') in ['intent', 'query', 'create', 'delete', 'update']:
+                logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}' - using fallback")
+                # Determine intent based on user message
+                user_lower = user_message.lower()
+                if any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                elif any(word in user_lower for word in ['add', 'create', 'schedule', 'make']):
+                    return {"intent": "create", "event_name": "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                elif any(word in user_lower for word in ['delete', 'remove']):
+                    return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                elif any(word in user_lower for word in ['move', 'update', 'change']):
+                    return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                else:
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+            
             logger.info(f"Cleaned response: '{cleaned_result}'")
             
             # Primary JSON parsing - expect the LLM to return proper JSON
@@ -200,10 +216,6 @@ class NLPAgent:
                 logger.error(f"LLM JSON parsing failed: {e}")
                 logger.error(f"Raw response that failed: '{result}'")
                 logger.error(f"Cleaned response that failed: '{cleaned_result}'")
-                
-                # Check for specific malformed responses
-                if cleaned_result.strip(' "') in ['intent', 'query']:
-                    logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}'")
                 
                 # Secondary attempt: try to find JSON in the response
                 import re
@@ -359,12 +371,12 @@ class NLPAgent:
                     logger.error(f"🔥 📋 CRITICAL DEBUG: Fallback result for update BEFORE return: {fallback}")
                     return fallback
                     
-                elif any(word in user_lower for word in ['today', 'what', 'plan']):
+                elif any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
                     logger.info("Exception fallback: detected query intent")
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 else:
-                    logger.info("Exception fallback: defaulting to query intent")
-                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                    logger.info("Exception fallback: detected create intent")
+                    return {"intent": "create", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False, "event_name": "event"}
             
             # SUCCESS: LLM returned valid JSON
             logger.info(f"✅ Successfully parsed LLM JSON response: {parsed_result}")
@@ -672,6 +684,9 @@ class NLPAgent:
                 elif "event" in user_lower:
                     fallback["event_name"] = "event"
                 return fallback
+            elif any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
+                logger.info("Exception fallback: detected query intent")
+                return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             else:
                 logger.info("Exception fallback: defaulting to query intent")
                 return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
