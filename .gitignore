@@ -25,6 +25,7 @@ test_*.py
 demo*.py
 queue_demo.py
 simple_queue_demo.py
+*_debug.py
 
 # Allow test files only in the tests folder
 !tests/test_*.py
@@ -32,3 +33,20 @@ simple_queue_demo.py
 !tests/demo*.py
 !tests/queue_demo.py
 !tests/simple_queue_demo.py
+
+# Development and documentation files (not needed in production)
+immediate_changes.md
+test_plan.md
+ISSUE_LOG.md
+*_SUMMARY.md
+*SUMMARY*.md
+FIXES_*.md
+
+# Development binaries and media
+*.mp4
+*.tgz
+*.tar.gz
+*.zip
+
+# Development directories with large assets
+info/

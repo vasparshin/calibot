@@ -20,9 +20,47 @@ backend/app/credentials.json
 .vscode/
 .DS_Store
 
-# Ignore development and testing files
+# Ignore ALL development and testing files (CRITICAL for deployment speed)
 tests/
 info/
+scripts/
+
+# Ignore ALL documentation files except essential ones
 *.md
-*_SUMMARY.md
+!README.md
+!CHANGELOG.md
+
+# Specific development docs to exclude
 WORKFLOW_ARCHITECTURE.md
+PLANNED_FEATURES.md
+BOT_RULES.md
+
+# Development files
+*_SUMMARY.md
+FIXES_*.md
+immediate_changes.md
+test_plan.md
+ISSUE_LOG.md
+
+# Test files in root (should not exist per project rules)
+test_*.py
+*_test.py
+*_debug.py
+demo*.py
+queue_demo.py
+simple_queue_demo.py
+
+# Development binaries and media
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tgz
+*.tar.gz
+*.zip
+*.sh
+
+# Lock files and redundant dependency files
+uv.lock
+requirements.txt  # Redundant with pyproject.toml

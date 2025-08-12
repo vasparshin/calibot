@@ -4,6 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.98] - 2025-08-12
+
+### Optimized
+- **CRITICAL: Deployment Size Reduction**: Eliminated ~16MB of unnecessary files from Docker builds
+- **Enhanced .dockerignore**: Added comprehensive exclusions for tests/, info/, scripts/, documentation
+- **Cleaned Project Root**: Removed misplaced test files that violated project organization rules
+- **Binary File Exclusion**: Blocked .mp4 (6MB), .tgz (9MB), .png files from deployments
+
+### Technical Details
+- **info/ directory**: 16MB of development assets now excluded from deployments
+- **tests/ directory**: 65+ test files no longer deployed to production
+- **Documentation**: Only README.md and CHANGELOG.md included in production builds
+- **File Organization**: Enforced project rules - no test files in root, all development assets ignored
+
+### Performance Impact
+- **Deployment Speed**: Significantly reduced build and transfer times on Render
+- **Image Size**: Substantially smaller Docker images
+- **Build Efficiency**: Fewer files to process during CI/CD
+
 ## [0.1.97] - 2025-08-12
 
 ### Fixed
