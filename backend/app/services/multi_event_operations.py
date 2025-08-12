@@ -189,6 +189,26 @@ class MultiEventOperationHandler:
                     update_desc.append(f"rename to '{event_data['new_event_name']}'")
                 if 'new_date' in event_data:
                     update_desc.append(f"move to {event_data['new_date']}")
+                if 'new_start_time' in event_data:
+                    # Show the proposed time change in confirmation
+                    new_start = event_data['new_start_time']
+                    new_end = event_data.get('new_end_time', new_start)
+                    
+                    # Convert to 12-hour format for confirmation display
+                    def format_time_12hr_confirm(time_24hr):
+                        hour, minute = map(int, time_24hr.split(':')[:2])
+                        if hour == 0:
+                            return f"12:{minute:02d} AM"
+                        elif hour < 12:
+                            return f"{hour}:{minute:02d} AM"
+                        elif hour == 12:
+                            return f"12:{minute:02d} PM"
+                        else:
+                            return f"{hour-12}:{minute:02d} PM"
+                    
+                    start_12hr = format_time_12hr_confirm(new_start)
+                    end_12hr = format_time_12hr_confirm(new_end)
+                    update_desc.append(f"change time to {start_12hr} - {end_12hr}")
                 if 'time_shift' in event_data:
                     update_desc.append(f"shift time by {event_data['time_shift']}")
                 if 'calendar_name' in event_data:
@@ -502,6 +522,24 @@ class MultiEventOperationHandler:
                         if 'new_event_name' in original_request:
                             update_data['event_name'] = original_request['new_event_name']
                         
+                        # CRITICAL FIX: Handle new start/end time updates (e.g., "change to 7pm")
+                        if 'new_start_time' in original_request:
+                            # Extract the date from the original event
+                            original_start = event.get('start', '')
+                            if 'T' in original_start:
+                                event_date = original_start.split('T')[0]  # Get date part (YYYY-MM-DD)
+                            else:
+                                event_date = event.get('date', datetime.now().strftime("%Y-%m-%d"))
+                            
+                            new_start_time = original_request['new_start_time']  # e.g., "19:00"
+                            new_end_time = original_request.get('new_end_time', new_start_time)  # Default to same time if not specified
+                            
+                            # Create full datetime strings
+                            update_data['start_time'] = f"{event_date}T{new_start_time}:00"
+                            update_data['end_time'] = f"{event_date}T{new_end_time}:00"
+                            
+                            logger.info(f"NEW TIME UPDATE: Event '{event.get('summary', 'Unknown')}' changing to {new_start_time}-{new_end_time} on {event_date}")
+                        
                         if 'new_date' in original_request:
                             # Parse the original event start and end times
                             original_start = event.get('start', '')
@@ -644,6 +682,26 @@ class MultiEventOperationHandler:
                                 update_desc += f" - moved to {original_request['new_date']}"
                             if 'new_event_name' in original_request:
                                 update_desc += f" - renamed to {original_request['new_event_name']}"
+                            if 'new_start_time' in original_request:
+                                # Show the time change in a user-friendly format
+                                new_start = original_request['new_start_time']
+                                new_end = original_request.get('new_end_time', new_start)
+                                
+                                # Convert to 12-hour format for display
+                                def format_time_12hr(time_24hr):
+                                    hour, minute = map(int, time_24hr.split(':')[:2])
+                                    if hour == 0:
+                                        return f"12:{minute:02d} AM"
+                                    elif hour < 12:
+                                        return f"{hour}:{minute:02d} AM"
+                                    elif hour == 12:
+                                        return f"12:{minute:02d} PM"
+                                    else:
+                                        return f"{hour-12}:{minute:02d} PM"
+                                
+                                start_12hr = format_time_12hr(new_start)
+                                end_12hr = format_time_12hr(new_end)
+                                update_desc += f" - changed time to {start_12hr} - {end_12hr}"
                             if 'time_shift' in original_request:
                                 update_desc += f" - extended by {original_request['time_shift']}"
                             if 'calendar_name' in original_request:

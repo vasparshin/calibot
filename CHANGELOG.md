@@ -4,6 +4,38 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.91] - 2025-08-12
+
+### Fixed
+- **🔧 CRITICAL: Time Extraction in Updates**: Fixed "change the last lesson to 7pm" not extracting the new time properly
+- **LLM Fallback Time Parsing**: Added comprehensive time extraction patterns to NLP agent fallback system
+- **Update Operation Time Changes**: Multi-event operations now properly process new_start_time and new_end_time fields
+- **Confirmation Message Details**: Update confirmations now show proposed time changes (e.g., "change time to 7:00 PM - 8:00 PM")
+- **Summary Message Accuracy**: Update summaries now display actual time changes made (e.g., "changed time to 7:00 PM - 8:00 PM")
+
+### Enhanced
+- **Time Format Support**: Robust parsing of "7pm", "19:00", "7:30pm", etc. in update requests
+- **12-Hour Display Format**: User-friendly time display in confirmations and summaries
+- **Fallback Intelligence**: Enhanced NLP agent fallback with regex patterns for time extraction
+- **Update Descriptions**: Detailed change descriptions in both confirmation and summary messages
+
+### Technical Details
+- **backend/app/agent/nlp_agent.py**: Added time extraction patterns to update intent fallback
+- **backend/app/services/multi_event_operations.py**: Added support for new_start_time/new_end_time fields in update processing and message generation
+
+## [0.1.90] - 2025-08-12
+
+### Fixed
+- **🔧 CRITICAL FIXES**: Resolved LLM parsing, calendar API, and confirmation message issues
+- **LLM Parsing Error**: Fixed 'Error extracting intent: AND END WITH' by removing problematic instruction
+- **Calendar API 404 Errors**: Fixed HttpError 404 when requesting calendars by using proper query_events() method
+- **Summary Messages Disappearing**: Fixed confirmation callback indentation issue in routes.py
+
+### Technical Details
+- **backend/app/prompts/intent_extraction_prompt.py**: Removed 'START YOUR RESPONSE WITH { AND END WITH }' instruction
+- **backend/app/services/multi_event_operations.py**: Fixed _find_matching_events() to use query_events() method and added helper methods
+- **backend/app/api/routes.py**: Fixed confirmation callback indentation for proper cancellation handling
+
 ## [0.1.89] - 2025-08-12
 
 ### Added

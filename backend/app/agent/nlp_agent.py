@@ -260,9 +260,60 @@ class NLPAgent:
                     elif "3rd" in user_lower or "third" in user_lower:
                         fallback["target"] = "3rd"
                     
+                    # CRITICAL FIX: Extract time information for updates
+                    import re
+                    
+                    # Extract new time if specified (e.g., "change to 7pm", "move to 3:30")
+                    time_patterns = [
+                        r'to (\d{1,2}):(\d{2})\s*(am|pm)?',       # "to 7:30pm"
+                        r'to (\d{1,2})\s*(am|pm)',                # "to 7pm"
+                        r'at (\d{1,2}):(\d{2})\s*(am|pm)?',       # "at 7:30pm"
+                        r'at (\d{1,2})\s*(am|pm)',                # "at 7pm"
+                        r'(\d{1,2}):(\d{2})\s*(am|pm)',           # "7:30pm"
+                        r'(\d{1,2})\s*(am|pm)',                   # "7pm"
+                    ]
+                    
+                    new_start_time = None
+                    for pattern in time_patterns:
+                        match = re.search(pattern, user_lower)
+                        if match:
+                            if len(match.groups()) == 3:  # Hour, minute, am/pm
+                                hour, minute, meridiem = match.groups()
+                                minute = minute or "00"
+                            elif len(match.groups()) == 2:  # Hour, am/pm
+                                hour, meridiem = match.groups()
+                                minute = "00"
+                            else:
+                                continue
+                            
+                            # Convert to 24-hour format
+                            hour = int(hour)
+                            if meridiem and meridiem.lower() == 'pm' and hour != 12:
+                                hour += 12
+                            elif meridiem and meridiem.lower() == 'am' and hour == 12:
+                                hour = 0
+                            elif not meridiem:
+                                # No meridiem specified - use context
+                                if hour < 8:  # Assume PM for hours 1-7
+                                    hour += 12
+                            
+                            new_start_time = f"{hour:02d}:{minute}"
+                            logger.error(f"🔥 ✅ EXTRACTED TIME: '{new_start_time}' from '{user_message}'")
+                            break
+                    
+                    if new_start_time:
+                        fallback["new_start_time"] = new_start_time
+                        # Calculate end time (assume 1 hour duration)
+                        start_hour, start_minute = map(int, new_start_time.split(':'))
+                        end_hour = start_hour + 1
+                        if end_hour >= 24:
+                            end_hour = 23
+                            start_minute = 59
+                        fallback["new_end_time"] = f"{end_hour:02d}:{start_minute:02d}"
+                        logger.error(f"🔥 ✅ CALCULATED END TIME: '{fallback['new_end_time']}' (1 hour duration)")
+                    
                     # 🔥 ADD CALENDAR EXTRACTION TO THE FALLBACK
                     # Extract calendar move information with improved logging
-                    import re
                     logger.error(f"🔥 CRITICAL DEBUG: Starting calendar extraction for message: '{user_message}'")
                     logger.error(f"🔥 CRITICAL DEBUG: Lowercase message: '{user_lower}'")
                     
