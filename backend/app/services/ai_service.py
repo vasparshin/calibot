@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.config import OPENAI_API_KEY, OPENAI_MODEL
+from app.config import OPENAI_API_KEY, LITELLM_MODEL
 from app.prompts.agent_system_prompt import AGENT_SYSTEM_PROMPT
 from app.prompts.small_talk_system_prompt import SMALL_TALK_SYSTEM_PROMPT
 from app.utils.helpers import format_conversation_history
@@ -25,7 +25,7 @@ async def get_ai_response(event_data: Dict, conversation_history: list) -> str:
     messages.append({"role": "user", "content": user_message})
     
     response = await acompletion(
-        api_key=OPENAI_API_KEY, model=OPENAI_MODEL, messages=messages, max_tokens=200
+        api_key=OPENAI_API_KEY, model=LITELLM_MODEL, messages=messages, max_tokens=200
     )
     logger.info(f'------------------------------------>Response: {response["choices"][0]["message"]["content"]}')
     return response["choices"][0]["message"]["content"]
@@ -39,6 +39,6 @@ async def get_small_talk_response(user_message: str, conversation_history: list)
     messages.append({"role": "user", "content": user_message})
     
     response = await acompletion(
-        api_key=OPENAI_API_KEY, model=OPENAI_MODEL, messages=messages, max_tokens=200
+        api_key=OPENAI_API_KEY, model=LITELLM_MODEL, messages=messages, max_tokens=200
     )
     return response["choices"][0]["message"]["content"]

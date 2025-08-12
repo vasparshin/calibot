@@ -5,7 +5,6 @@ load_dotenv()
 
 TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = "gpt-4.1-mini"  # Changed to gpt-4.1-mini for cost efficiency
 GOOGLE_CLIENT_SECRET_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE")
 GOOGLE_API_SCOPES = ['https://www.googleapis.com/auth/calendar']
 OAUTH_REDIRECT_PATH = "/oauth2callback"
@@ -13,5 +12,7 @@ OAUTH_REDIRECT_PATH = "/oauth2callback"
 API_HOST = os.getenv("API_HOST", "0.0.0.0")  # Use 0.0.0.0 by default
 API_PORT = int(os.getenv("API_PORT", 8060))  # Use 8060 by default
 
-# Use gpt-4o-mini as default for cost efficiency (user's preference)
-LITELLM_MODEL = os.getenv("LITELLM_MODEL", "gpt-4o-mini")
+# LLM Model - configured externally via environment variables
+LITELLM_MODEL = os.getenv("LITELLM_MODEL")
+if not LITELLM_MODEL:
+    raise ValueError("LITELLM_MODEL environment variable must be set")

@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.88] - 2025-08-12
+
+### Enhanced
+- **Configuration Externalization**: Completed removal of all hardcoded model references from codebase
+- **Environment-Driven Architecture**: System now purely environment-configured with no model names in code
+
+### Technical Details
+- **ai_service.py**: Updated to use LITELLM_MODEL instead of deprecated OPENAI_MODEL configuration
+- **Import Cleanup**: Replaced legacy OPENAI_MODEL imports with environment-driven LITELLM_MODEL
+- **Function Updates**: Updated both get_ai_response and get_small_talk_response to use external model configuration
+- **Consistency Achievement**: All LLM services now use unified environment-based model configuration approach
+
 ## [0.1.87] - 2025-08-12
 
 ### Fixed
