@@ -4,6 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.86] - 2025-08-12
+
+### Fixed
+- **CRITICAL: Create/Batch-Create Intent Detection**: Added comprehensive fallback logic for event creation requests
+- **Time Parsing for Batch Events**: Enhanced regex patterns to detect multiple times in natural language (e.g., "at 2, 4, 5 and 6pm")
+- **Tomorrow Date Handling**: Fixed date extraction for "tomorrow" requests in create intents
+- **Calendar Name Extraction**: Added calendar name detection for create requests (Tonya, Personal, etc.)
+
+### Enhanced
+- **Batch Creation Fallback**: Intelligent detection of multiple time slots with proper parsing to 24-hour format
+- **Natural Language Time**: Support for "at 2, 4, 5 and 6pm" format with proper PM/AM conversion
+- **Single Event Creation**: Fallback support for single event creation with time and calendar extraction
+- **Debug Logging**: Added comprehensive time parsing debug logs for troubleshooting
+
+### Technical Details
+- **nlp_agent.py**: Added create/batch_create detection in exception handler fallback
+- **Time Parsing**: Advanced regex patterns for bare numbers + PM/AM suffix detection
+- **Event Structure**: Proper start_time/end_time generation for batch events
+
 ## [0.1.85] - 2025-08-11
 
 ### Fixed

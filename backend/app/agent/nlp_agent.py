@@ -421,6 +421,130 @@ class NLPAgent:
                 logger.error(f"🔥 📋 CRITICAL DEBUG: Final fallback result: {fallback}")
                 return fallback
                 
+            elif any(word in user_lower for word in ['add', 'create', 'schedule', 'make', 'will have']):
+                logger.info("Exception fallback: detected create intent")
+                
+                # Check for batch creation (multiple times mentioned)
+                import re
+                time_patterns = [r'\d{1,2}\s*pm', r'\d{1,2}\s*am', r'\d{1,2}:\d{2}']
+                times_found = []
+                for pattern in time_patterns:
+                    times_found.extend(re.findall(pattern, user_lower))
+                
+                # Also look for bare numbers in context like "at 2, 4, 5 and 6pm"
+                bare_numbers = re.findall(r'at\s+(\d+)(?:,\s*(\d+))*(?:\s+and\s+(\d+))?(?:pm|am)', user_lower)
+                if bare_numbers:
+                    # Extract all numbers from the pattern
+                    numbers_in_sequence = re.findall(r'\b(\d+)\b(?=.*(?:pm|am))', user_lower)
+                    if len(numbers_in_sequence) > 1:
+                        # Add pm/am suffix based on the ending
+                        suffix = 'pm' if 'pm' in user_lower else 'am'
+                        for num in numbers_in_sequence:
+                            times_found.append(f"{num}{suffix}")
+                
+                logger.error(f"🔥 TIME DEBUG: Found times: {times_found}")
+                
+                if len(times_found) > 1:
+                    # Batch create
+                    logger.info(f"Exception fallback: detected batch create with {len(times_found)} times")
+                    fallback = {"intent": "batch_create", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                    
+                    # Extract date - check for tomorrow
+                    if "tomorrow" in user_lower:
+                        from datetime import timedelta
+                        tomorrow = datetime.now() + timedelta(days=1)
+                        fallback["date"] = tomorrow.strftime("%Y-%m-%d")
+                    
+                    # Extract event name
+                    if "lesson" in user_lower:
+                        fallback["event_name"] = "lesson"
+                    elif "meeting" in user_lower:
+                        fallback["event_name"] = "meeting"
+                    else:
+                        fallback["event_name"] = "event"
+                    
+                    # Try to extract calendar name
+                    if "tonya" in user_lower:
+                        fallback["calendar_name"] = "Tonya"
+                    elif "personal" in user_lower:
+                        fallback["calendar_name"] = "Personal"
+                    
+                    # Parse times from message
+                    events = []
+                    for time_str in times_found:
+                        # Convert time to 24h format
+                        time_clean = time_str.replace(' ', '')
+                        if 'pm' in time_clean and not time_clean.startswith('12'):
+                            hour = int(time_clean.split('pm')[0]) + 12
+                            start_time = f"{hour:02d}:00"
+                            end_time = f"{hour+1:02d}:00"
+                        elif 'am' in time_clean:
+                            hour = int(time_clean.split('am')[0])
+                            if hour == 12:
+                                hour = 0
+                            start_time = f"{hour:02d}:00"
+                            end_time = f"{hour+1:02d}:00"
+                        else:
+                            # Handle other formats like "2" -> assume PM for afternoon times
+                            try:
+                                hour = int(time_clean)
+                                if hour >= 2 and hour <= 11:  # 2-11 likely PM
+                                    hour += 12
+                                start_time = f"{hour:02d}:00"
+                                end_time = f"{hour+1:02d}:00"
+                            except:
+                                continue
+                        
+                        events.append({
+                            "start_time": start_time,
+                            "end_time": end_time
+                        })
+                    
+                    if events:
+                        fallback["events"] = events
+                    
+                    logger.error(f"🔥 📋 CRITICAL DEBUG: Batch create fallback result: {fallback}")
+                    return fallback
+                else:
+                    # Single create
+                    fallback = {"intent": "create", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                    
+                    # Extract date
+                    if "tomorrow" in user_lower:
+                        from datetime import timedelta
+                        tomorrow = datetime.now() + timedelta(days=1)
+                        fallback["date"] = tomorrow.strftime("%Y-%m-%d")
+                    
+                    # Extract event name
+                    if "lesson" in user_lower:
+                        fallback["event_name"] = "lesson"
+                    elif "meeting" in user_lower:
+                        fallback["event_name"] = "meeting"
+                    else:
+                        fallback["event_name"] = "event"
+                    
+                    # Extract time if present
+                    if times_found:
+                        time_str = times_found[0].replace(' ', '')
+                        if 'pm' in time_str and not time_str.startswith('12'):
+                            hour = int(time_str.split('pm')[0]) + 12
+                            fallback["start_time"] = f"{hour:02d}:00"
+                            fallback["end_time"] = f"{hour+1:02d}:00"
+                        elif 'am' in time_str:
+                            hour = int(time_str.split('am')[0])
+                            if hour == 12:
+                                hour = 0
+                            fallback["start_time"] = f"{hour:02d}:00"
+                            fallback["end_time"] = f"{hour+1:02d}:00"
+                    
+                    # Try to extract calendar name
+                    if "tonya" in user_lower:
+                        fallback["calendar_name"] = "Tonya"
+                    elif "personal" in user_lower:
+                        fallback["calendar_name"] = "Personal"
+                    
+                    return fallback
+                    
             elif any(word in user_lower for word in ['delete', 'remove']):
                 logger.info("Exception fallback: detected delete intent")
                 fallback = {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
