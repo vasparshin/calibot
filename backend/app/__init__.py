@@ -5,4 +5,4 @@ An intelligent Telegram bot that manages Google Calendar through natural languag
 Built with FastAPI, uses LLM for intent extraction and conversation management.
 """
 
-__version__ = "0.1.92"
+__version__ = "0.1.93"

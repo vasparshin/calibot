@@ -251,55 +251,6 @@ class NLPAgent:
                     elif "event" in user_lower:
                         fallback["event_name"] = "event"
                     
-                    # CRITICAL FIX: Extract count and time shift for multi-event operations
-                    import re
-                    
-                    logger.error(f"🔥 DEBUG: Starting count extraction for update intent: '{user_message}'")
-                    
-                    # Extract count patterns (e.g., "last 3", "first 2", "next 5")
-                    count_patterns = [
-                        r'last (\d+)',           # "last 3 lessons"
-                        r'first (\d+)',          # "first 2 events"
-                        r'next (\d+)',           # "next 5 meetings"
-                        r'(\d+) last',           # "3 last lessons"
-                        r'(\d+) first',          # "2 first events"
-                    ]
-                    
-                    # Also check for written numbers
-                    written_numbers = {
-                        'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6,
-                        'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
-                    }
-                    
-                    count = 1  # Default to 1 event
-                    logger.error(f"🔥 DEBUG: Testing count patterns against: '{user_lower}'")
-                    
-                    for pattern in count_patterns:
-                        match = re.search(pattern, user_lower)
-                        if match:
-                            count = int(match.group(1))
-                            logger.error(f"🔥 ✅ EXTRACTED COUNT: {count} from pattern '{pattern}' in '{user_message}'")
-                            break
-                        else:
-                            logger.error(f"🔥 DEBUG: Pattern '{pattern}' did not match")
-                    
-                    # Check for written numbers if no digit found
-                    if count == 1:
-                        logger.error(f"🔥 DEBUG: No numeric count found, checking written numbers")
-                        for word, num in written_numbers.items():
-                            if f'last {word}' in user_lower or f'{word} last' in user_lower:
-                                count = num
-                                logger.error(f"🔥 ✅ EXTRACTED COUNT: {count} from written number '{word}' in '{user_message}'")
-                                break
-                    
-                    logger.error(f"🔥 DEBUG: Final count value: {count}")
-                    
-                    if count > 1:
-                        fallback["count"] = count
-                        logger.error(f"🔥 ✅ ADDED COUNT TO FALLBACK: {count}")
-                    else:
-                        logger.error(f"🔥 DEBUG: Count is 1, not adding to fallback")
-                    
                     # Extract target
                     if "last" in user_lower:
                         fallback["target"] = "last"
@@ -309,40 +260,6 @@ class NLPAgent:
                         fallback["target"] = "2nd"
                     elif "3rd" in user_lower or "third" in user_lower:
                         fallback["target"] = "3rd"
-                    
-                    # CRITICAL FIX: Extract time shift information (e.g., "1 hr later", "30 minutes earlier")
-                    time_shift_patterns = [
-                        r'(\d+)\s*hr?\s*(later|forward|ahead)',          # "1 hr later"
-                        r'(\d+)\s*hour?s?\s*(later|forward|ahead)',      # "1 hour later"
-                        r'(\d+)\s*min(?:ute)?s?\s*(later|forward|ahead)', # "30 minutes later"
-                        r'(\d+)\s*hr?\s*(earlier|back|before)',          # "1 hr earlier"
-                        r'(\d+)\s*hour?s?\s*(earlier|back|before)',      # "1 hour earlier"
-                        r'(\d+)\s*min(?:ute)?s?\s*(earlier|back|before)', # "30 minutes earlier"
-                        r'later\s*by\s*(\d+)\s*hr?',                     # "later by 1 hr"
-                        r'later\s*by\s*(\d+)\s*hour?s?',                 # "later by 1 hour"
-                    ]
-                    
-                    time_shift = None
-                    for pattern in time_shift_patterns:
-                        match = re.search(pattern, user_lower)
-                        if match:
-                            amount = int(match.group(1))
-                            if len(match.groups()) > 1:
-                                direction = match.group(2)
-                                if direction in ['earlier', 'back', 'before']:
-                                    amount = -amount
-                            
-                            # Determine unit
-                            if 'hr' in pattern or 'hour' in pattern:
-                                time_shift = f"{amount} hour{'s' if abs(amount) != 1 else ''}"
-                            else:
-                                time_shift = f"{amount} minute{'s' if abs(amount) != 1 else ''}"
-                            
-                            logger.error(f"🔥 ✅ EXTRACTED TIME SHIFT: '{time_shift}' from pattern '{pattern}' in '{user_message}'")
-                            break
-                    
-                    if time_shift:
-                        fallback["time_shift"] = time_shift
                     
                     # CRITICAL FIX: Extract time information for direct time updates
                     import re
@@ -396,7 +313,7 @@ class NLPAgent:
                         fallback["new_end_time"] = f"{end_hour:02d}:{start_minute:02d}"
                         logger.error(f"🔥 ✅ CALCULATED END TIME: '{fallback['new_end_time']}' (1 hour duration)")
                     
-                    # 🔥 ADD CALENDAR EXTRACTION TO THE FALLBACK
+                    # Extract calendar move information
                     # Extract calendar move information with improved logging
                     logger.error(f"🔥 CRITICAL DEBUG: Starting calendar extraction for message: '{user_message}'")
                     logger.error(f"🔥 CRITICAL DEBUG: Lowercase message: '{user_lower}'")
@@ -539,6 +456,88 @@ class NLPAgent:
                             break
                 
                 logger.error(f"🔥 📋 CRITICAL DEBUG: Final fallback result: {fallback}")
+                
+                # CRITICAL FIX: Add count extraction right before returning (to avoid being overridden)
+                import re
+                logger.error(f"🔥 🔢 FINAL COUNT EXTRACTION: Starting for '{user_message}'")
+                
+                # Extract count patterns (e.g., "last 3", "first 2", "next 5")
+                count_patterns = [
+                    r'last (\d+)',           # "last 3 lessons"
+                    r'first (\d+)',          # "first 2 events"
+                    r'next (\d+)',           # "next 5 meetings"
+                    r'(\d+) last',           # "3 last lessons"
+                    r'(\d+) first',          # "2 first events"
+                ]
+                
+                # Also check for written numbers
+                written_numbers = {
+                    'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6,
+                    'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+                }
+                
+                count = 1  # Default to 1 event
+                logger.error(f"🔥 🔢 Testing count patterns against: '{user_lower}'")
+                
+                for pattern in count_patterns:
+                    match = re.search(pattern, user_lower)
+                    if match:
+                        count = int(match.group(1))
+                        logger.error(f"🔥 ✅ EXTRACTED COUNT: {count} from pattern '{pattern}' in '{user_message}'")
+                        break
+                    else:
+                        logger.error(f"🔥 🔢 Pattern '{pattern}' did not match")
+                
+                # Check for written numbers if no digit found
+                if count == 1:
+                    logger.error(f"🔥 🔢 No numeric count found, checking written numbers")
+                    for word, num in written_numbers.items():
+                        if f'last {word}' in user_lower or f'{word} last' in user_lower:
+                            count = num
+                            logger.error(f"🔥 ✅ EXTRACTED COUNT: {count} from written number '{word}' in '{user_message}'")
+                            break
+                
+                logger.error(f"🔥 🔢 Final count value: {count}")
+                
+                if count > 1:
+                    fallback["count"] = count
+                    logger.error(f"🔥 ✅ ADDED COUNT TO FALLBACK: {count}")
+                    
+                    # Also extract time_shift if count > 1
+                    time_shift_patterns = [
+                        r'(\d+)\s*hr?\s*(later|late|forward|ahead)',          # "1 hr later", "1 hr late"
+                        r'(\d+)\s*hour?s?\s*(later|late|forward|ahead)',      # "1 hour later"
+                        r'(\d+)\s*min(?:ute)?s?\s*(later|late|forward|ahead)', # "30 minutes later"
+                        r'(\d+)\s*hr?\s*(earlier|back|before)',               # "1 hr earlier"
+                        r'(\d+)\s*hour?s?\s*(earlier|back|before)',           # "1 hour earlier"
+                        r'(\d+)\s*min(?:ute)?s?\s*(earlier|back|before)',     # "30 minutes earlier"
+                    ]
+                    
+                    time_shift = None
+                    for pattern in time_shift_patterns:
+                        match = re.search(pattern, user_lower)
+                        if match:
+                            amount = int(match.group(1))
+                            direction = match.group(2) if len(match.groups()) > 1 else 'later'
+                            if direction in ['earlier', 'back', 'before']:
+                                amount = -amount
+                            
+                            # Determine unit
+                            if 'hr' in pattern or 'hour' in pattern:
+                                time_shift = f"{amount} hour{'s' if abs(amount) != 1 else ''}"
+                            else:
+                                time_shift = f"{amount} minute{'s' if abs(amount) != 1 else ''}"
+                            
+                            logger.error(f"🔥 ✅ EXTRACTED TIME SHIFT: '{time_shift}' from pattern '{pattern}' in '{user_message}'")
+                            break
+                    
+                    if time_shift:
+                        fallback["time_shift"] = time_shift
+                        logger.error(f"🔥 ✅ ADDED TIME SHIFT TO FALLBACK: {time_shift}")
+                else:
+                    logger.error(f"🔥 🔢 Count is 1, not adding to fallback")
+                
+                logger.error(f"🔥 📋 FINAL ENHANCED FALLBACK RESULT: {fallback}")
                 return fallback
                 
             elif any(word in user_lower for word in ['add', 'create', 'schedule', 'make', 'will have']):

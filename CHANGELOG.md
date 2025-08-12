@@ -4,6 +4,25 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.93] - 2025-08-12
+
+### Fixed
+- **CRITICAL: Count Extraction Logic Position**: Moved count and time shift extraction to final processing stage to prevent override
+- **Multi-Event NLP Fallback Flow**: Fixed count extraction being overridden by later target extraction logic
+- **Time Shift Pattern Enhancement**: Added "late" pattern support for "1 hr late" variations
+- **Debug Logging Enhancement**: Added comprehensive debug logging with fire markers for count extraction troubleshooting
+
+### Enhanced
+- **Final Stage Processing**: Count extraction now happens at the very end of fallback processing
+- **Pattern Recognition**: Enhanced time shift patterns to include "late", "later", "forward", "ahead"
+- **Comprehensive Debugging**: Added step-by-step logging for count and time shift extraction
+- **Override Prevention**: Restructured fallback logic to prevent count field from being lost
+
+### Technical Details
+- **backend/app/agent/nlp_agent.py**: Moved count extraction to final processing stage after all other extractions
+- Removed duplicate count extraction code that was being overridden
+- Enhanced debug logging with fire emoji markers for troubleshooting
+
 ## [0.1.92] - 2025-08-12
 
 ### Fixed
