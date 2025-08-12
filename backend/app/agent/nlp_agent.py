@@ -158,8 +158,8 @@ class NLPAgent:
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": user_message}
                     ],
-                    max_tokens=800,  # Increased for more complete responses
-                    temperature=0.0,  # Zero temperature for maximum consistency
+                    max_tokens=200,  # Reduced for focused JSON responses
+                    temperature=0.1,  # Tiny bit of randomness to avoid getting stuck
                 )
 
             response = await _call_llm()
@@ -169,13 +169,24 @@ class NLPAgent:
             logger.info(f"Response length: {len(result)}")
             logger.info(f"Response type: {type(result)}")
             
-            # Try to clean the response if it has extra formatting
+            # Clean the response more aggressively
             cleaned_result = result.strip()
+            
+            # Remove any markdown formatting
             if cleaned_result.startswith('```') and cleaned_result.endswith('```'):
-                # Remove code block formatting
                 lines = cleaned_result.split('\n')
                 if len(lines) > 2:
                     cleaned_result = '\n'.join(lines[1:-1])
+            
+            # Remove json tags if present
+            if cleaned_result.startswith('```json') and cleaned_result.endswith('```'):
+                cleaned_result = cleaned_result[7:-3].strip()
+            
+            # Remove extra quotes if the entire response is quoted
+            if cleaned_result.startswith('"') and cleaned_result.endswith('"') and cleaned_result.count('"') == 2:
+                cleaned_result = cleaned_result[1:-1]
+            
+            logger.info(f"Cleaned response: '{cleaned_result}'")
             
             # Handle malformed partial responses immediately
             if cleaned_result.strip(' "') in ['intent', 'query', 'create', 'delete', 'update']:
@@ -192,8 +203,6 @@ class NLPAgent:
                     return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
                 else:
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
-            
-            logger.info(f"Cleaned response: '{cleaned_result}'")
             
             # Primary JSON parsing - expect the LLM to return proper JSON
             try:

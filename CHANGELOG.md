@@ -4,6 +4,19 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.96] - 2025-08-12
+
+### Fixed
+- **CRITICAL: Simplified Intent Extraction Prompt**: Reduced overly complex prompt that was causing LLM to return partial responses
+- **Enhanced Response Cleaning**: Added aggressive cleaning for markdown, JSON tags, and extra quotes
+- **Token Optimization**: Reduced max_tokens from 800 to 200 for focused JSON responses
+- **Temperature Adjustment**: Changed from 0.0 to 0.1 to prevent model getting stuck on malformed outputs
+
+### Technical Details
+- **intent_extraction_prompt.py**: Simplified from 88 lines to 20 lines, removed excessive examples and warnings
+- **nlp_agent.py**: Enhanced response cleaning, better malformed response detection, optimized LLM parameters
+- **Root Cause**: Overly complex prompt was causing model to return truncated responses like '"intent"'
+
 ## [0.1.95] - 2025-08-12
 
 ### Fixed
