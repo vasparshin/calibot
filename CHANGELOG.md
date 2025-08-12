@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.97] - 2025-08-12
+
+### Fixed
+- **CRITICAL: Multi-Event Time Shift Logic**: Fixed "move X events Y hours later" to properly shift both start and end times instead of just extending duration
+- **Enhanced Intent Extraction for Time Shifts**: Added explicit rules to distinguish between time shifts vs specific time changes
+- **Malformed Time Response Prevention**: Added critical rules to prevent LLM from returning invalid time formats like "6:00 PM, 7:00 PM, 8:00 PM"
+
+### Technical Details
+- **intent_extraction_prompt.py**: Added specific examples and rules for time shifts vs specific time changes
+- **multi_event_operations.py**: Fixed time shift logic to move both start/end times by delta instead of extending duration
+- **Root Cause**: LLM was confused between shifting multiple events vs setting multiple specific times
+
 ## [0.1.96] - 2025-08-12
 
 ### Fixed
@@ -11,6 +23,9 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 - **Enhanced Response Cleaning**: Added aggressive cleaning for markdown, JSON tags, and extra quotes
 - **Token Optimization**: Reduced max_tokens from 800 to 200 for focused JSON responses
 - **Temperature Adjustment**: Changed from 0.0 to 0.1 to prevent model getting stuck on malformed outputs
+
+### Confirmed Working
+- ✅ **"today schedule" Query Intent**: Now correctly detected as query instead of create intent - DO NOT MODIFY query keywords in fallback logic
 
 ### Technical Details
 - **intent_extraction_prompt.py**: Simplified from 88 lines to 20 lines, removed excessive examples and warnings

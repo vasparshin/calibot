@@ -622,21 +622,27 @@ class MultiEventOperationHandler:
                                         amount = int(shift_match.group(1))
                                         unit = shift_match.group(2)
                                         
-                                        if unit in ['hour', 'hr']:
-                                            # Set end time to be exactly X hours after start
-                                            new_end_dt = start_dt + timedelta(hours=amount)
-                                        elif unit in ['minute', 'min']:
-                                            # Set end time to be exactly X minutes after start  
-                                            new_end_dt = start_dt + timedelta(minutes=amount)
+                                        # Determine direction (default is forward/later)
+                                        is_negative = 'earlier' in time_shift.lower() or 'back' in time_shift.lower() or time_shift.startswith('-')
+                                        if is_negative:
+                                            amount = -amount
                                         
-                                        # CRITICAL: Keep start time unchanged, only modify end time
-                                        update_data['start_time'] = start_dt.isoformat()
+                                        # Calculate time shift
+                                        if unit in ['hour', 'hr']:
+                                            delta = timedelta(hours=amount)
+                                        elif unit in ['minute', 'min']:
+                                            delta = timedelta(minutes=amount)
+                                        
+                                        # SHIFT BOTH start and end times by the same amount
+                                        new_start_dt = start_dt + delta
+                                        new_end_dt = end_dt + delta
+                                        
+                                        update_data['start_time'] = new_start_dt.isoformat()
                                         update_data['end_time'] = new_end_dt.isoformat()
                                         
                                         logger.info(f"BEFORE UPDATE: Event start={original_start}, end={original_end}")
-                                        logger.info(f"TIME SHIFT: {time_shift} parsed as {amount} {unit}")
+                                        logger.info(f"TIME SHIFT: {time_shift} parsed as {amount} {unit} ({'earlier' if amount < 0 else 'later'})")
                                         logger.info(f"AFTER CALCULATION: start={update_data['start_time']}, end={update_data['end_time']}")
-                                        logger.info(f"EXPECTED RESULT: Start time unchanged, end time = start + {amount} {unit}")
                                         logger.info(f"Sending to calendar service: start={update_data['start_time']}, end={update_data['end_time']}")
                                     else:
                                         logger.warning(f"Could not parse time shift: {time_shift}")
