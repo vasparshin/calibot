@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.95] - 2025-08-12
+
+### Fixed
+- **CRITICAL: Schedule Keyword Conflict**: Removed 'schedule' from create intent keywords to prevent "today schedule" being misclassified as create
+- **Fallback Logic Priority**: Reordered keyword checks to prioritize query detection over create detection
+- **Malformed Response Handling**: Fixed both early detection and exception handler fallback logic
+
+### Technical Details
+- **nlp_agent.py**: Removed 'schedule' from create intent patterns in both malformed response handler and exception fallback
+- **Keyword Priority**: Query keywords ('today', 'schedule', 'agenda', 'list', 'show') now checked before create keywords
+- **Consistent Logic**: All three fallback locations now use same prioritized keyword matching
+
 ## [0.1.94] - 2025-08-12
 
 ### Fixed

@@ -184,7 +184,7 @@ class NLPAgent:
                 user_lower = user_message.lower()
                 if any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
-                elif any(word in user_lower for word in ['add', 'create', 'schedule', 'make']):
+                elif any(word in user_lower for word in ['add', 'create', 'make']):
                     return {"intent": "create", "event_name": "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 elif any(word in user_lower for word in ['delete', 'remove']):
                     return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
@@ -552,7 +552,10 @@ class NLPAgent:
                 logger.error(f"🔥 📋 FINAL ENHANCED FALLBACK RESULT: {fallback}")
                 return fallback
                 
-            elif any(word in user_lower for word in ['add', 'create', 'schedule', 'make', 'will have']):
+            elif any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
+                logger.info("Exception fallback: detected query intent")
+                return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+            elif any(word in user_lower for word in ['add', 'create', 'make', 'will have']):
                 logger.info("Exception fallback: detected create intent")
                 
                 # Check for batch creation (multiple times mentioned)
