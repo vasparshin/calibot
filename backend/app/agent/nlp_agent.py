@@ -151,30 +151,16 @@ class NLPAgent:
             system_message = self.system_prompt.format(conversation_history=formatted_history, current_date=current_datetime)
 
             async def _call_llm():
-                try:
-                    # First try with response_format for models that support it
-                    return await acompletion(
-                        model=self.model,
-                        messages=[
-                            {"role": "system", "content": system_message},
-                            {"role": "user", "content": user_message}
-                        ],
-                        max_tokens=500,
-                        temperature=0.1,  # Low temperature for more consistent JSON output
-                        response_format={"type": "json_object"}  # Force JSON output for supported models
-                    )
-                except Exception as e:
-                    logger.warning(f"LLM call with response_format failed: {e}, retrying without it")
-                    # Fallback without response_format for models that don't support it
-                    return await acompletion(
-                        model=self.model,
-                        messages=[
-                            {"role": "system", "content": system_message},
-                            {"role": "user", "content": user_message}
-                        ],
-                        max_tokens=500,
-                        temperature=0.1
-                    )
+                # Use clean LLM call for better compatibility
+                return await acompletion(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_message},
+                        {"role": "user", "content": user_message}
+                    ],
+                    max_tokens=800,  # Increased for more complete responses
+                    temperature=0.0,  # Zero temperature for maximum consistency
+                )
 
             response = await _call_llm()
 
@@ -193,45 +179,44 @@ class NLPAgent:
             
             logger.info(f"Cleaned response: '{cleaned_result}'")
             
-            # Enhanced JSON parsing with multiple attempts
-            def try_parse_json(text: str) -> dict:
-                """Try to parse JSON with multiple strategies"""
-                # Strategy 1: Direct parsing
-                try:
-                    return json.loads(text)
-                except json.JSONDecodeError:
-                    pass
+            # Primary JSON parsing - expect the LLM to return proper JSON
+            try:
+                parsed_result = json.loads(cleaned_result)
+                logger.info(f"✅ Successfully parsed LLM JSON response: {parsed_result}")
                 
-                # Strategy 2: Find JSON object in text
+                # Validate basic structure
+                if not isinstance(parsed_result, dict):
+                    logger.error(f"LLM returned non-dict JSON: {type(parsed_result)} - {parsed_result}")
+                    raise ValueError("Non-dict response")
+                
+                if 'intent' not in parsed_result:
+                    logger.error(f"LLM JSON missing 'intent' field: {parsed_result}")
+                    raise ValueError("Missing intent field")
+                
+                # Success - return the properly parsed result
+                return parsed_result
+                
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.error(f"LLM JSON parsing failed: {e}")
+                logger.error(f"Raw response that failed: '{result}'")
+                logger.error(f"Cleaned response that failed: '{cleaned_result}'")
+                
+                # Check for specific malformed responses
+                if cleaned_result.strip(' "') in ['intent', 'query']:
+                    logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}'")
+                
+                # Secondary attempt: try to find JSON in the response
                 import re
-                json_match = re.search(r'\{.*\}', text, re.DOTALL)
+                json_match = re.search(r'\{.*\}', cleaned_result, re.DOTALL)
                 if json_match:
                     try:
-                        return json.loads(json_match.group())
+                        secondary_result = json.loads(json_match.group())
+                        logger.info(f"✅ Secondary JSON extraction successful: {secondary_result}")
+                        return secondary_result
                     except json.JSONDecodeError:
-                        pass
+                        logger.error("Secondary JSON extraction also failed")
                 
-                # Strategy 3: Clean and retry
-                cleaned = text.strip().strip('`').strip()
-                if cleaned.startswith('json'):
-                    cleaned = cleaned[4:].strip()
-                try:
-                    return json.loads(cleaned)
-                except json.JSONDecodeError:
-                    pass
-                
-                # Strategy 4: Handle incomplete JSON
-                if text.strip() in ['"intent"', '"query"', 'intent', 'query']:
-                    logger.error(f"LLM returned incomplete response: '{text}' - this indicates a prompt or model issue")
-                    return None
-                
-                logger.error(f"Failed to parse JSON from LLM response: '{text}'")
-                return None
-
-            parsed_result = try_parse_json(cleaned_result)
-            
-            if parsed_result is None:
-                logger.error(f"JSON parsing failed for LLM response: '{cleaned_result}' - using intelligent fallback")
+                # If all JSON parsing fails, use intelligent fallback
                 # Enhanced fallback based on user message keywords
                 user_lower = user_message.lower()
                 # Attempt structured batch create parse first

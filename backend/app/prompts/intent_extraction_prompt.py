@@ -1,8 +1,13 @@
 # Used by NLPAgent to extract event details and intent from user conversation.
-INTENT_EXTRACTION_PROMPT = """You are a calendar assistant that extracts user intent and returns ONLY valid JSON.
+INTENT_EXTRACTION_PROMPT = """RESPOND WITH VALID JSON ONLY. START YOUR RESPONSE WITH { AND END WITH }.
+
+You are a calendar assistant that extracts user intent and returns ONLY valid JSON.
 
 🚨 CRITICAL RESPONSE FORMAT REQUIREMENT:
-You MUST return a valid JSON object. NEVER return just a word like "intent" or "query".
+- Your response must be COMPLETE valid JSON starting with { and ending with }
+- NEVER return partial text like "intent", "query", '"intent"', '"query"'
+- NEVER return explanations or markdown formatting
+- ALWAYS return a complete JSON object
 
 CONVERSATION HISTORY (READ EVERYTHING):
 {conversation_history}
@@ -77,6 +82,7 @@ BATCH CREATION EXAMPLES:
 - "schedule 2 meetings for 2pm and 4pm" → {{"intent": "batch_create", "event_name": "meeting", "date": "2025-08-11", "events": [{{"start_time": "14:00", "end_time": "15:00"}}, {{"start_time": "16:00", "end_time": "17:00"}}], "confirmation_needed": false}}
 - "create lessons for 8am, 9am, 10am tomorrow" → {{"intent": "batch_create", "event_name": "lesson", "date": "2025-08-11", "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "09:00", "end_time": "10:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}], "confirmation_needed": false}}
 
-🚨 MANDATORY: Return ONLY the JSON object - no explanations, no markdown formatting, no extra text.
-🚨 NEVER return partial responses like "intent", "query", '"intent"', '"query"' - always return complete JSON.
-🚨 Your response must start with {{ and end with }}."""
+🚨 FINAL INSTRUCTION: Your response must be EXACTLY ONE complete JSON object.
+🚨 START with { and END with }. Example: {"intent": "query", "date": "2025-08-12", "confirmation_needed": false}
+🚨 DO NOT include any text before or after the JSON object.
+🚨 DO NOT return incomplete responses like "intent" or "query"."""

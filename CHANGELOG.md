@@ -4,6 +4,26 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.87] - 2025-08-12
+
+### Fixed
+- **CRITICAL: LLM Reliability Focus**: Completely refactored to prioritize LLM accuracy over fallback dependency
+- **Model Correction**: Fixed model name from "gpt-4.1-mini" to correct "gpt-4o-mini" 
+- **Clean LLM Call**: Removed problematic parameters that were causing malformed responses
+- **Simplified JSON Parsing**: Streamlined parsing to expect proper JSON responses from LLM
+- **Temperature Optimization**: Set temperature to 0.0 for maximum response consistency
+
+### Enhanced
+- **Primary LLM Focus**: System now relies on LLM returning proper JSON instead of fallback logic
+- **Better Error Detection**: Enhanced logging to identify when LLM returns malformed responses
+- **Response Validation**: Added proper structure validation for parsed JSON responses
+- **Secondary Extraction**: Backup JSON extraction for edge cases without complex fallback chains
+
+### Technical Details
+- **config.py**: Corrected LITELLM_MODEL to "gpt-4o-mini" (was "gpt-4.1-mini")
+- **nlp_agent.py**: Simplified JSON parsing, removed response_format parameter, optimized temperature
+- **Architecture**: Prioritizes LLM accuracy with minimal fallback dependency as requested
+
 ## [0.1.86] - 2025-08-12
 
 ### Fixed
