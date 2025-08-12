@@ -4,6 +4,27 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.92] - 2025-08-12
+
+### Fixed
+- **CRITICAL: Multi-Event Count Extraction Bug**: Fixed "move the last 3 lessons 1 hr later" only processing 1 event instead of 3
+- **Count Detection in NLP Fallback**: Added enhanced debugging and improved count extraction patterns in update intent fallback
+- **Multi-Event Operations Selection**: Enhanced _find_matching_events with count-based chronological selection logic
+- **Success Message Hyperlink Preservation**: Restructured multi-event success messages to prevent markdown link breaking
+- **Target-Based Event Selection**: Implemented last/first/next selection with proper chronological sorting
+
+### Enhanced
+- **Count Pattern Recognition**: Robust extraction of "last 3", "first 2", "next 5" with comprehensive regex patterns
+- **Written Number Support**: Detection of "last three", "first two" using written number mapping
+- **Time Shift Extraction**: Enhanced patterns for "1 hr later", "30 minutes earlier" with direction handling
+- **Multi-Event Debugging**: Added extensive logging with fire markers for count extraction troubleshooting
+- **Edge Case Handling**: Proper handling when requesting more events than available
+
+### Technical Details
+- **backend/app/agent/nlp_agent.py**: Enhanced update intent fallback with comprehensive count and time shift extraction
+- **backend/app/services/multi_event_operations.py**: Added count-based event selection and chronological sorting
+- **Success Message Format**: Changed to multi-line format preserving hyperlinks and improving readability
+
 ## [0.1.91] - 2025-08-12
 
 ### Fixed

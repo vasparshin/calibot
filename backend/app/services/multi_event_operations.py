@@ -410,11 +410,41 @@ class MultiEventOperationHandler:
                     'calendar_name': event.get('calendar_name', 'Unknown'),
                     'calendar_id': event.get('calendar_id', 'primary'),  # CRITICAL: Include actual calendar ID
                     'calendar_link': event.get('link', ''),
-                    'htmlLink': event.get('link', '')
+                    'htmlLink': event.get('link', ''),
+                    'start_datetime': event.get('start', '')  # Keep original datetime for sorting
                 }
                 formatted_events.append(formatted_event)
 
-            logger.info(f"Found {len(formatted_events)} matching events for criteria: {criteria}")
+            # Handle target selection and count-based filtering
+            target = criteria.get('target', '')
+            count = criteria.get('count', 1)
+            
+            logger.info(f"Processing target selection - target: '{target}', count: {count}, total events found: {len(formatted_events)}")
+            
+            # Sort events by start time
+            formatted_events.sort(key=lambda x: x.get('start_datetime', ''))
+            
+            # Apply target-based selection
+            if target in ['last', 'latest'] and len(formatted_events) > 0:
+                # Select last N events (chronologically last)
+                formatted_events = formatted_events[-count:] if count <= len(formatted_events) else formatted_events
+                logger.info(f"Selected last {len(formatted_events)} events (requested: {count})")
+            elif target in ['first', 'earliest'] and len(formatted_events) > 0:
+                # Select first N events (chronologically first)
+                formatted_events = formatted_events[:count] if count <= len(formatted_events) else formatted_events
+                logger.info(f"Selected first {len(formatted_events)} events (requested: {count})")
+            elif target in ['next', 'upcoming'] and len(formatted_events) > 0:
+                # For future events, select first N (earliest upcoming)
+                current_time = datetime.now().isoformat()
+                future_events = [e for e in formatted_events if e.get('start_datetime', '') > current_time]
+                formatted_events = future_events[:count] if count <= len(future_events) else future_events
+                logger.info(f"Selected next {len(formatted_events)} upcoming events (requested: {count})")
+            elif count > 1 and len(formatted_events) > count:
+                # If count specified but no specific target, limit to count
+                formatted_events = formatted_events[:count]
+                logger.info(f"Limited to {len(formatted_events)} events based on count: {count}")
+
+            logger.info(f"Final selection: {len(formatted_events)} events for criteria: {criteria}")
             return formatted_events
             
         except Exception as e:
@@ -678,10 +708,12 @@ class MultiEventOperationHandler:
                                 formatted_date = "today"
                             
                             update_desc = f"• Updated {formatted_name}"
+                            changes = []
+                            
                             if 'new_date' in original_request:
-                                update_desc += f" - moved to {original_request['new_date']}"
+                                changes.append(f"moved to {original_request['new_date']}")
                             if 'new_event_name' in original_request:
-                                update_desc += f" - renamed to {original_request['new_event_name']}"
+                                changes.append(f"renamed to {original_request['new_event_name']}")
                             if 'new_start_time' in original_request:
                                 # Show the time change in a user-friendly format
                                 new_start = original_request['new_start_time']
@@ -701,11 +733,15 @@ class MultiEventOperationHandler:
                                 
                                 start_12hr = format_time_12hr(new_start)
                                 end_12hr = format_time_12hr(new_end)
-                                update_desc += f" - changed time to {start_12hr} - {end_12hr}"
+                                changes.append(f"time changed to {start_12hr} - {end_12hr}")
                             if 'time_shift' in original_request:
-                                update_desc += f" - extended by {original_request['time_shift']}"
+                                changes.append(f"shifted by {original_request['time_shift']}")
                             if 'calendar_name' in original_request:
-                                update_desc += f" - moved to {original_request['calendar_name']} calendar"
+                                changes.append(f"moved to {original_request['calendar_name']} calendar")
+                            
+                            # Add changes on a new line to avoid breaking hyperlinks
+                            if changes:
+                                update_desc += f"\n  ➤ {', '.join(changes)}"
                                 
                             successful_updates.append(update_desc)
                         else:
