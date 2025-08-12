@@ -340,7 +340,7 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
             )
         
         # Clear any pending operations if cancelled
-    if confirmation == "cancel":
+        if confirmation == "cancel":
             multi_event_handler.clear_pending_operations(chat_id)
             event_queue_handler.clear_queue(chat_id)
             await send_telegram_message(chat_id, "❌ Operation cancelled")

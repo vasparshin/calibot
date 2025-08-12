@@ -358,12 +358,14 @@ class MultiEventOperationHandler:
                 query_params['timeMin'] = f"{today}T00:00:00Z"
                 query_params['timeMax'] = f"{today}T23:59:59Z"
             
-            # Get events from calendar service
-            events_response = await self.calendar_service.get_events(query_params)
+            # Get events from calendar service using the correct method
+            events_response = await self.calendar_service.query_events({
+                'date': criteria.get('date', datetime.now().strftime("%Y-%m-%d"))
+            })
             
             if not events_response.get('success'):
                 return []
-            
+
             events = events_response.get('events', [])
             
             # Filter events more precisely if needed
@@ -373,13 +375,56 @@ class MultiEventOperationHandler:
                     event for event in events 
                     if event_name in event.get('summary', '').lower()
                 ]
-            
-            logger.info(f"Found {len(events)} matching events for criteria: {criteria}")
-            return events
+
+            # Convert events to the format expected by multi-event operations
+            formatted_events = []
+            for event in events:
+                # Ensure proper event format with all required fields
+                formatted_event = {
+                    'id': event.get('id'),
+                    'event_id': event.get('id'),  # Add both for compatibility
+                    'summary': event.get('summary', 'Untitled'),
+                    'start_time': self._extract_time_from_datetime(event.get('start', '')),
+                    'end_time': self._extract_time_from_datetime(event.get('end', '')),
+                    'date': self._extract_date_from_datetime(event.get('start', '')),
+                    'calendar_name': event.get('calendar_name', 'Unknown'),
+                    'calendar_id': event.get('calendar_id', 'primary'),  # CRITICAL: Include actual calendar ID
+                    'calendar_link': event.get('link', ''),
+                    'htmlLink': event.get('link', '')
+                }
+                formatted_events.append(formatted_event)
+
+            logger.info(f"Found {len(formatted_events)} matching events for criteria: {criteria}")
+            return formatted_events
             
         except Exception as e:
             logger.error(f"Error finding matching events: {e}")
             return []
+
+    def _extract_time_from_datetime(self, datetime_str: str) -> str:
+        """Extract time in HH:MM format from datetime string"""
+        try:
+            if 'T' in datetime_str:
+                time_part = datetime_str.split('T')[1]
+                if '+' in time_part:
+                    time_part = time_part.split('+')[0]
+                elif 'Z' in time_part:
+                    time_part = time_part.split('Z')[0]
+                return time_part[:5]  # HH:MM
+            return "00:00"
+        except:
+            return "00:00"
+    
+    def _extract_date_from_datetime(self, datetime_str: str) -> str:
+        """Extract date in YYYY-MM-DD format from datetime string"""
+        try:
+            if 'T' in datetime_str:
+                return datetime_str.split('T')[0]
+            elif len(datetime_str) >= 10:
+                return datetime_str[:10]
+            return datetime.now().strftime("%Y-%m-%d")
+        except:
+            return datetime.now().strftime("%Y-%m-%d")
     
     async def _execute_operation(self, operation: Dict) -> Dict:
         """Execute the confirmed operation"""
