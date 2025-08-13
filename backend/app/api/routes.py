@@ -1098,26 +1098,34 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 return {"status": "ok"}
         
         elif intent in ["delete", "update"] and event_data.get("confirmation_needed"):
-            # CRITICAL FIX: Use proper multi-event handlers instead of simple confirmation
-            logger.info(f"🔧 ROUTES.PY DEBUG - Redirecting {intent} with confirmation to proper handlers")
+            # CRITICAL FIX: Use proper multi-event handlers with target selection
+            logger.info(f"🔧 ROUTES.PY DEBUG - Processing {intent} with target selection via multi_event_handler")
             
-            # Call our proper handlers for multi-event processing
-            handled_update_delete = await process_update_delete_with_confirmation(
-                chat_id,
-                event_data,
-                calendar_service,
-                event_queue_handler,
-                multi_event_handler,
-                send_telegram_message,
-                conversation_state,
-            )
+            # Directly call the multi-event handler operations with target selection
+            if intent == "update":
+                logger.info(f"🔧 ROUTES.PY DEBUG - Calling multi_event_handler.handle_update_operation")
+                result = await multi_event_handler.handle_update_operation(chat_id, event_data)
+                logger.info(f"🔧 ROUTES.PY DEBUG - handle_update_operation returned: {result}")
+            else:  # delete
+                logger.info(f"🔧 ROUTES.PY DEBUG - Calling multi_event_handler.handle_delete_operation")
+                result = await multi_event_handler.handle_delete_operation(chat_id, event_data)
+                logger.info(f"🔧 ROUTES.PY DEBUG - handle_delete_operation returned: {result}")
             
-            if handled_update_delete.get("handled"):
-                logger.info(f"🔧 ROUTES.PY DEBUG - Handlers successfully processed {intent} operation")
-                return handled_update_delete
-            
-            # Fallback to simple confirmation only if handlers fail
-            logger.warning(f"🔧 ROUTES.PY DEBUG - Handlers failed, using fallback confirmation for {intent}")
+            # Handle the result from multi-event operations
+            if result.get("requires_user_action"):
+                # Send confirmation message with keyboard
+                keyboard = result.get("keyboard")
+                if keyboard:
+                    await send_telegram_message(chat_id, result["message"], reply_markup=keyboard)
+                else:
+                    await send_telegram_message(chat_id, result["message"])
+                conversation_state.add_message(chat_id, "assistant", result["message"])
+                return {"status": "ok"}
+            else:
+                # Send direct result
+                await send_telegram_message(chat_id, result["message"])
+                conversation_state.add_message(chat_id, "assistant", result["message"])
+                return {"status": "ok"}
             action_text = "delete" if intent == "delete" else "update"
             target = event_data.get("event_name", "the event")
             

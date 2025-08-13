@@ -4,6 +4,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.112] - 2025-01-13
+
+### Fixed
+- **CRITICAL: Target Selection Finally Fixed**: Bypassed conflicting handler imports and directly call multi_event_handler.handle_update_operation with target selection logic
+- **Root Cause**: Routes.py was calling wrong handler function that bypassed `_find_matching_events` target selection entirely
+
+### Technical Details
+- **routes.py**: Removed intermediate handler function calls and directly invoke multi_event_handler operations with target selection
+- **Target Selection**: Now "last 3" will properly call `_find_matching_events` with comprehensive debugging to select only 3 events instead of all 5
+
 ## [0.1.111] - 2025-01-13
 
 ### Enhanced
