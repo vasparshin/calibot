@@ -4,6 +4,20 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.109] - 2025-01-13
+
+### Fixed
+- **CRITICAL: Multi-Event Button Handling**: Fixed callback routing for "All" and "One by One" buttons to use proper pending operations system
+- **Button Disappearing**: Buttons now properly disappear and show confirmation status when clicked
+- **One-by-One Processing**: Fixed "One by One" button to properly trigger individual event processing instead of falling back to LLM
+- **Event Count Selection**: Fixed routing to ensure "last 3" target selection logic is properly called
+
+### Technical Details
+- **routes.py**: Created `handle_multi_event_confirmation` function to properly route multi-event callbacks to pending operations system
+- **routes.py**: Fixed callback routing for `multi_all`, `multi_one`, and `cancel` operations to avoid calling wrong confirmation handlers
+- **multi_event_operations.py**: Added enhanced debugging to track event data flow and target parsing
+- **Root Cause**: Multi-event callbacks were calling simple confirmation handler instead of pending operations system
+
 ## [0.1.108] - 2025-01-13
 
 ### Enhanced

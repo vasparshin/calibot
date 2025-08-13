@@ -215,9 +215,29 @@ async def handle_callback_query(callback_query):
     # Unified confirmation/cancel flows
     if parsed_type in ["multi_all", "multi_one", "single", "duplicates"]:
         if parsed_type == "multi_all":
-            return await handle_confirmation_callback(chat_id, message_id, "all")
+            # Handle multi-event operations properly - use pending operations system
+            logger.info(f"🔘 Multi-event ALL confirmation received for chat {chat_id}")
+            
+            # Remove keyboard from original message  
+            await edit_message_text(chat_id, message_id, 
+                callback_query["message"]["text"] + "\n\n✅ **All Selected** - Processing all events...", 
+                reply_markup={})
+            
+            # Process pending multi-event operation
+            return await handle_multi_event_confirmation(chat_id, "all")
+            
         if parsed_type == "multi_one":
-            return await handle_confirmation_callback(chat_id, message_id, "one")
+            # Handle multi-event operations properly - use pending operations system  
+            logger.info(f"🔘 Multi-event ONE-BY-ONE confirmation received for chat {chat_id}")
+            
+            # Remove keyboard from original message
+            await edit_message_text(chat_id, message_id,
+                callback_query["message"]["text"] + "\n\n1️⃣ **One by One Selected** - Processing events individually...",
+                reply_markup={})
+            
+            # Process pending multi-event operation
+            return await handle_multi_event_confirmation(chat_id, "one")
+            
         if parsed_type == "duplicates":
             # Treat duplicates confirmation as yes
             return await handle_confirmation_callback(chat_id, message_id, "yes")
@@ -225,10 +245,58 @@ async def handle_callback_query(callback_query):
             return await handle_confirmation_callback(chat_id, message_id, "yes")
 
     if parsed_type == "cancel":
-        return await handle_confirmation_callback(chat_id, message_id, "cancel")
+        # Check if it's a multi-event operation cancel
+        operation = parsed.get("operation")
+        if operation in ["update", "delete"]:
+            logger.info(f"🔘 Multi-event CANCEL received for {operation} operation")
+            
+            # Remove keyboard from original message
+            await edit_message_text(chat_id, message_id,
+                callback_query["message"]["text"] + "\n\n❌ **Cancelled** - Operation has been cancelled",
+                reply_markup={})
+            
+            # Clear pending operations
+            multi_event_handler.clear_pending_operations(chat_id)
+            await send_telegram_message(chat_id, "Operation cancelled successfully.")
+            return {"status": "ok"}
+        else:
+            return await handle_confirmation_callback(chat_id, message_id, "cancel")
 
     logger.warning(f"Unknown callback data after parsing: {callback_data} -> {parsed}")
     return {"status": "ok"}
+
+async def handle_multi_event_confirmation(chat_id: int, confirmation: str):
+    """Handle confirmation responses for multi-event operations with pending operations"""
+    try:
+        logger.info(f"🔧 MULTI-EVENT CONFIRMATION - Processing {confirmation} for chat {chat_id}")
+        
+        # Check if there's a pending operation
+        if multi_event_handler.has_pending_operation(chat_id):
+            logger.info(f"✅ Found pending operation, processing with confirmation: {confirmation}")
+            confirmation_result = await multi_event_handler.confirm_operation(chat_id, confirmation)
+            
+            if confirmation_result.get("requires_user_action"):
+                # Send as new message if still requires action (like queue processing)
+                keyboard = confirmation_result.get("keyboard")
+                if keyboard:
+                    await send_telegram_message(chat_id, confirmation_result["message"], reply_markup=keyboard)
+                else:
+                    await send_telegram_message(chat_id, confirmation_result["message"])
+            else:
+                # Send final result as new message
+                await send_telegram_message(chat_id, confirmation_result["message"])
+            
+            conversation_state.add_message(chat_id, "assistant", confirmation_result["message"])
+            return {"status": "ok"}
+        else:
+            logger.warning(f"❌ No pending operation found for chat {chat_id}")
+            await send_telegram_message(chat_id, "No pending operation found. Please try your request again.")
+            return {"status": "ok"}
+            
+    except Exception as e:
+        logger.error(f"❌ Error in handle_multi_event_confirmation: {e}")
+        await send_telegram_message(chat_id, f"Error processing operation: {str(e)}")
+        return {"status": "ok"}
 
 async def handle_schedule_callback(chat_id: int, message_id: int, date_type: str):
     """Handle schedule button callbacks"""

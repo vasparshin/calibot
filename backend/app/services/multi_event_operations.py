@@ -140,7 +140,9 @@ class MultiEventOperationHandler:
     async def handle_update_operation(self, chat_id: int, event_data: Dict) -> Dict:
         """Handle update operations"""
         try:
+            logger.info(f"🚨 UPDATE OPERATION DEBUG - event_data received: {event_data}")
             matching_events = await self._find_matching_events(event_data)
+            logger.info(f"🚨 UPDATE OPERATION DEBUG - _find_matching_events returned {len(matching_events)} events")
             
             if not matching_events:
                 return {
