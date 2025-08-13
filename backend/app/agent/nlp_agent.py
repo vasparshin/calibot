@@ -147,8 +147,23 @@ class NLPAgent:
         try:
             formatted_history = format_conversation_history(conversation_history)
             current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
+            
+            # Calculate dynamic dates for prompt examples
+            from datetime import timedelta
+            current_date = datetime.now()
+            current_date_iso = current_date.strftime("%Y-%m-%d")
+            tomorrow_date_iso = (current_date + timedelta(days=1)).strftime("%Y-%m-%d")
+            yesterday_date_iso = (current_date - timedelta(days=1)).strftime("%Y-%m-%d")
+            next_week_date_iso = (current_date + timedelta(days=7)).strftime("%Y-%m-%d")
 
-            system_message = self.system_prompt.format(conversation_history=formatted_history, current_date=current_datetime)
+            system_message = self.system_prompt.format(
+                conversation_history=formatted_history,
+                current_date=current_datetime,
+                current_date_iso=current_date_iso,
+                tomorrow_date_iso=tomorrow_date_iso,
+                yesterday_date_iso=yesterday_date_iso,
+                next_week_date_iso=next_week_date_iso
+            )
 
             # 🔍 COMPREHENSIVE LLM DEBUGGING - Log everything being sent to the model
             logger.info(f"🔍 LLM INPUT DEBUG - User message: '{user_message}'")

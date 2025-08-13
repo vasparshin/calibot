@@ -4,6 +4,23 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.117] - 2024-12-19
+
+### Fixed
+- **Critical Intent Extraction Issue**: Fixed "move events to tomorrow" not being recognized as update intent
+- **Single Event Creation Formatting**: Implemented proper create_single_event function with consistent MessageFormatter usage
+- **Dynamic Date Examples**: Updated intent extraction prompt to use dynamic dates instead of hardcoded examples
+
+### Enhanced
+- **Intent Recognition**: Added better examples for moving events to different dates with proper new_date parameter
+- **Event Creation Consistency**: Single event creation now uses the same formatting as batch operations
+- **Multi-Event Support**: Improved handling of "move last 2 events" type commands with proper target selection
+
+### Technical Details
+- **intent_extraction_prompt.py**: Added dynamic date placeholders and better examples for date movement operations
+- **nlp_agent.py**: Added dynamic date calculation for prompt formatting with current_date_iso, tomorrow_date_iso, etc.
+- **handlers.py**: Implemented complete create_single_event function replacing placeholder with proper MessageFormatter integration
+
 ## [0.1.116] - 2024-12-19
 
 ### Fixed

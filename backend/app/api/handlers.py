@@ -74,10 +74,64 @@ async def process_batch_creation(*args, **kwargs):
     logger.warning("process_batch_creation called but not implemented")
     return {"handled": False}
 
-async def create_single_event(*args, **kwargs):
-    """Placeholder for create_single_event"""
-    logger.warning("create_single_event called but not implemented")
-    return {}
+async def create_single_event(
+    chat_id: int,
+    event_data: Dict,
+    calendar_service,
+    send_telegram_message,
+    conversation_state,
+) -> Dict[str, Any]:
+    """Create a single event and format the response consistently"""
+    try:
+        # Create the event using calendar service
+        calendar_response = await calendar_service.create_event(event_data)
+        
+        if calendar_response["success"]:
+            # Use MessageFormatter for consistent formatting
+            try:
+                from app.utils.message_formatter import MessageFormatter
+                
+                # Format the event data for display
+                event_for_display = {
+                    'summary': event_data.get('event_name', 'Event'),
+                    'start': f"{event_data.get('date', '')}T{event_data.get('start_time', '')}:00",
+                    'end': f"{event_data.get('date', '')}T{event_data.get('end_time', '')}:00",
+                    'calendar_name': calendar_response.get('calendar_used', 'Calendar'),
+                    'id': calendar_response.get('event_id', ''),
+                    'htmlLink': calendar_response.get('event_link', '')
+                }
+                
+                # Use the centralized formatter for consistency
+                formatted_event = MessageFormatter.format_single_event_display(event_for_display, include_hyperlink=True)
+                success_msg = f"Event created successfully:\n\n{formatted_event}"
+                
+            except ImportError:
+                # Fallback if MessageFormatter not available
+                event_name = event_data.get('event_name', 'Event')
+                date = event_data.get('date', 'today')
+                start_time = event_data.get('start_time', '')
+                end_time = event_data.get('end_time', '')
+                calendar_name = calendar_response.get('calendar_used', 'Calendar')
+                
+                success_msg = f"Event created successfully:\n\n• {event_name} on {date} at {start_time} - {end_time} ({calendar_name})"
+            
+            await send_telegram_message(chat_id, success_msg)
+            conversation_state.add_message(chat_id, "assistant", success_msg)
+            
+            return {"handled": True, "status": "ok"}
+        else:
+            error_msg = f"Failed to create event: {calendar_response.get('message', 'Unknown error')}"
+            await send_telegram_message(chat_id, error_msg)
+            conversation_state.add_message(chat_id, "assistant", error_msg)
+            
+            return {"handled": True, "status": "error", "message": error_msg}
+            
+    except Exception as e:
+        error_msg = f"Error creating event: {str(e)}"
+        await send_telegram_message(chat_id, error_msg)
+        conversation_state.add_message(chat_id, "assistant", error_msg)
+        
+        return {"handled": False, "error": str(e)}
 
 class IntentDispatcher:
     """Placeholder for IntentDispatcher"""
