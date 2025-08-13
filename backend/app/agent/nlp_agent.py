@@ -209,6 +209,25 @@ class NLPAgent:
                 parsed_result = json.loads(cleaned_result)
                 logger.info(f"✅ Successfully parsed LLM JSON response: {parsed_result}")
                 
+                # Debug logging for multi-event target extraction
+                if parsed_result.get('intent') in ['update', 'delete'] and 'target' in parsed_result:
+                    logger.info(f"🎯 Target field extracted: '{parsed_result['target']}'")
+                    
+                    # CRITICAL DEBUG for "last 3" issues
+                    if "last" in str(parsed_result['target']).lower():
+                        logger.info(f"🚨 LAST TARGET DEBUG - Full JSON: {parsed_result}")
+                        logger.info(f"🚨 LAST TARGET DEBUG - Target value: '{parsed_result['target']}'")
+                        logger.info(f"🚨 LAST TARGET DEBUG - Contains number? {'3' in str(parsed_result['target'])}")
+                    
+                    if 'event_name' in parsed_result:
+                        logger.info(f"📅 Event name: '{parsed_result['event_name']}'")
+                    if 'date' in parsed_result:
+                        logger.info(f"📆 Date: '{parsed_result['date']}'")
+                    if 'new_date' in parsed_result:
+                        logger.info(f"📆 New date: '{parsed_result['new_date']}'")
+                    if 'time_shift' in parsed_result:
+                        logger.info(f"⏰ Time shift: '{parsed_result['time_shift']}'")
+                
                 # Validate basic structure
                 if not isinstance(parsed_result, dict):
                     logger.error(f"LLM returned non-dict JSON: {type(parsed_result)} - {parsed_result}")

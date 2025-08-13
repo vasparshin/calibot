@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.102] - 2025-01-13
+
+### Enhanced  
+- **Critical Debugging: Enhanced LLM Intent Extraction Logging**: Added comprehensive debug logging to track "last 3" target extraction issues
+- **Debugging Infrastructure**: Added critical debug logging to verify if LLM correctly extracts numeric targets like "last 3"
+
+### Technical Details
+- **nlp_agent.py**: Added enhanced target field debugging with specific "last 3" detection logging
+- **Investigation Focus**: Determine if issue is in LLM extraction vs backend processing by monitoring production logs for actual extracted JSON
+- **Debug Output**: Logs now show full JSON, target value, and numeric presence for "last" operations
+
 ## [0.1.101] - 2025-01-13
 
 ### Fixed
