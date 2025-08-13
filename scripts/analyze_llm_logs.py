@@ -97,7 +97,7 @@ def main():
     
     # Fetch logs
     print("📡 Fetching recent logs...")
-    logs = get_calibot_logs(200)  # Get more logs for better analysis
+    logs = get_calibot_logs(50)  # Reduce limit to avoid API error
     
     if not logs:
         print("❌ Could not fetch logs")

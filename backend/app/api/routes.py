@@ -1126,15 +1126,6 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 await send_telegram_message(chat_id, result["message"])
                 conversation_state.add_message(chat_id, "assistant", result["message"])
                 return {"status": "ok"}
-            action_text = "delete" if intent == "delete" else "update"
-            target = event_data.get("event_name", "the event")
-            
-            confirmation_msg = f"Are you sure you want to {action_text} '{target}'?"
-            keyboard = InlineKeyboardHelper.create_single_event_confirmation_keyboard(action=intent)
-            
-            await send_telegram_message(chat_id, confirmation_msg, reply_markup=keyboard)
-            conversation_state.add_message(chat_id, "assistant", confirmation_msg)
-            return {"status": "ok"}
         
         # Fallback to AI response for non-query, non-confirmation intents needing conversational guidance
         if intent not in ["query"]:

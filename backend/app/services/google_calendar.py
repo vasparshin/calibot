@@ -454,6 +454,15 @@ class GoogleCalendarService:
                 elif 'date' in event_data:
                     # Separate date and time
                     event['start']['dateTime'] = f"{event_data['date']}T{start_time}:00"
+                else:
+                    # Extract date from existing event start time or use today
+                    existing_start = event.get('start', {}).get('dateTime', '')
+                    if existing_start and 'T' in existing_start:
+                        event_date = existing_start.split('T')[0]
+                    else:
+                        from datetime import datetime
+                        event_date = datetime.now().strftime('%Y-%m-%d')
+                    event['start']['dateTime'] = f"{event_date}T{start_time}:00"
             
             if 'end_time' in event_data:
                 end_time = event_data['end_time']
@@ -464,6 +473,15 @@ class GoogleCalendarService:
                 elif 'date' in event_data:
                     # Separate date and time
                     event['end']['dateTime'] = f"{event_data['date']}T{end_time}:00"
+                else:
+                    # Extract date from existing event end time or use today
+                    existing_end = event.get('end', {}).get('dateTime', '')
+                    if existing_end and 'T' in existing_end:
+                        event_date = existing_end.split('T')[0]
+                    else:
+                        from datetime import datetime
+                        event_date = datetime.now().strftime('%Y-%m-%d')
+                    event['end']['dateTime'] = f"{event_date}T{end_time}:00"
                 
             logger.info(f"CALENDAR SERVICE: Final event object start={event.get('start', {}).get('dateTime', 'MISSING')}")
             logger.info(f"CALENDAR SERVICE: Final event object end={event.get('end', {}).get('dateTime', 'MISSING')}")

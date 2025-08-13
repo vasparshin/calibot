@@ -616,11 +616,40 @@ class MultiEventOperationHandler:
                                 event_date = event.get('date', datetime.now().strftime("%Y-%m-%d"))
                             
                             new_start_time = original_request['new_start_time']  # e.g., "19:00"
-                            new_end_time = original_request.get('new_end_time', new_start_time)  # Default to same time if not specified
                             
-                            # Create full datetime strings
+                            # Calculate end time - if not specified, add 1 hour to start time
+                            if 'new_end_time' in original_request:
+                                new_end_time = original_request['new_end_time']
+                            else:
+                                # Add 1 hour to start time
+                                from datetime import datetime, timedelta
+                                try:
+                                    start_dt = datetime.strptime(new_start_time, "%H:%M")
+                                    end_dt = start_dt + timedelta(hours=1)
+                                    new_end_time = end_dt.strftime("%H:%M")
+                                except:
+                                    # Fallback if time parsing fails
+                                    new_end_time = new_start_time
+                            
+                            # Create full datetime strings with timezone
                             update_data['start_time'] = f"{event_date}T{new_start_time}:00"
                             update_data['end_time'] = f"{event_date}T{new_end_time}:00"
+                            
+                            # Add timezone information if available from original event
+                            original_start_full = event.get('start', '')
+                            if '+' in original_start_full or 'Z' in original_start_full:
+                                # Extract timezone from original event
+                                if 'Z' in original_start_full:
+                                    tz_suffix = 'Z'
+                                elif '+' in original_start_full:
+                                    tz_suffix = original_start_full.split('+')[1]
+                                    tz_suffix = '+' + tz_suffix
+                                else:
+                                    tz_suffix = ''
+                                
+                                if tz_suffix:
+                                    update_data['start_time'] += tz_suffix
+                                    update_data['end_time'] += tz_suffix
                             
                             logger.info(f"NEW TIME UPDATE: Event '{event.get('summary', 'Unknown')}' changing to {new_start_time}-{new_end_time} on {event_date}")
                         
