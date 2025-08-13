@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.113] - 2025-01-13
+
+### Added
+- **Real-Time Log Streaming**: Created comprehensive log streaming tools for debugging Render deployments in real-time
+- **Multi-Platform Support**: Python, Bash, and PowerShell versions for different development environments
+
+### Technical Details
+- **scripts/stream_logs.py**: Async Python script with color-coded output and auto-reconnection for continuous monitoring
+- **scripts/stream_logs.sh**: Bash version using curl for Unix/Linux environments
+- **scripts/stream_logs.ps1**: PowerShell version for Windows development with color coding
+- **Purpose**: Watch v0.1.112 target selection fix in real-time to confirm "last 3" operations select exactly 3 events
+
 ## [0.1.112] - 2025-01-13
 
 ### Fixed
