@@ -4,6 +4,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.110] - 2025-01-13
+
+### Enhanced
+- **Comprehensive Target Selection Debugging**: Added detailed logging throughout `_find_matching_events` to trace why "last 3" target selection is being bypassed
+- **Exception Tracking**: Enhanced error logging with full traceback to identify any silent failures
+
+### Technical Details
+- **multi_event_operations.py**: Added step-by-step debugging logs to trace exact execution flow and identify where target selection logic fails
+- **Target Issue**: Still investigating why enhanced target selection debugging doesn't appear in logs despite being called
+
 ## [0.1.109] - 2025-01-13
 
 ### Fixed

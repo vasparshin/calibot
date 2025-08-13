@@ -365,6 +365,8 @@ class MultiEventOperationHandler:
     async def _find_matching_events(self, criteria: Dict) -> List[Dict]:
         """Find events matching the given criteria"""
         try:
+            logger.info(f"🚨 _FIND_MATCHING_EVENTS START - criteria: {criteria}")
+            
             # Get ALL events from the specified date first, then filter locally
             # This ensures we can apply target selection (last 3) correctly
             
@@ -373,21 +375,28 @@ class MultiEventOperationHandler:
                 'date': criteria.get('date', datetime.now().strftime("%Y-%m-%d"))
             })
             
+            logger.info(f"🚨 CALENDAR SERVICE RESPONSE - success: {events_response.get('success')}, events count: {len(events_response.get('events', []))}")
+            
             if not events_response.get('success'):
+                logger.warning(f"🚨 CALENDAR SERVICE FAILED - returning empty list")
                 return []
 
             events = events_response.get('events', [])
+            logger.info(f"🚨 RAW EVENTS COUNT - {len(events)} events from calendar service")
             
             # Filter events by name AFTER getting all events (so we can apply target selection correctly)
             if 'event_name' in criteria:
                 event_name = criteria['event_name'].lower()
+                logger.info(f"🚨 FILTERING BY EVENT NAME - '{event_name}', before: {len(events)} events")
                 events = [
                     event for event in events 
                     if event_name in event.get('summary', '').lower()
                 ]
+                logger.info(f"🚨 AFTER NAME FILTERING - {len(events)} events remain")
 
             # Convert events to the format expected by multi-event operations
             formatted_events = []
+            logger.info(f"🚨 CONVERTING {len(events)} EVENTS TO FORMATTED LIST")
             for event in events:
                 # Ensure proper event format with all required fields
                 formatted_event = {
@@ -405,11 +414,14 @@ class MultiEventOperationHandler:
                 }
                 formatted_events.append(formatted_event)
 
+            logger.info(f"🚨 FORMATTED EVENTS COMPLETE - {len(formatted_events)} events ready for target selection")
+
             # Handle target selection and count-based filtering
             target = criteria.get('target', '')
             count = criteria.get('count', 1)
             
             logger.info(f"🚨 INITIAL VALUES - target: '{target}', count: {count}, type(count): {type(count)}")
+            logger.info(f"🚨 CRITERIA KEYS - {list(criteria.keys())}")
             
             # Parse numeric count from target string (e.g., "last 3", "first 2")
             import re
@@ -467,11 +479,14 @@ class MultiEventOperationHandler:
             else:
                 logger.info(f"🔄 NO TARGET FILTERING - Using all {len(formatted_events)} events")
 
-            logger.info(f"Final selection: {len(formatted_events)} events for criteria: {criteria}")
+            logger.info(f"🎯 FINAL SELECTION COMPLETE - returning {len(formatted_events)} events for criteria: {criteria}")
             return formatted_events
             
         except Exception as e:
-            logger.error(f"Error finding matching events: {e}")
+            logger.error(f"🚨 EXCEPTION in _find_matching_events: {e}")
+            logger.error(f"🚨 EXCEPTION criteria was: {criteria}")
+            import traceback
+            logger.error(f"🚨 EXCEPTION traceback: {traceback.format_exc()}")
             return []
 
     def _extract_time_from_datetime(self, datetime_str: str) -> str:
