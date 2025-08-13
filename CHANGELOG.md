@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.116] - 2024-12-19
+
+### Fixed
+- **Complete LLM Logging Implementation**: Removed all content truncation from LLM logging to show complete system prompts, user messages, and responses
+- **Enhanced Log Analysis Tools**: Added comprehensive test and analysis scripts for verifying LLM logging functionality
+
+### Technical Details
+- **nlp_agent.py**: Eliminated 200-character truncation limit, now shows complete content with proper chunking for long messages
+- **tests/test_llm_logging_comprehensive.py**: Added comprehensive test suite for validating complete logging functionality
+- **scripts/analyze_llm_logs.py**: Added specialized log analysis tool for LLM debugging patterns
+
 ## [0.1.115] - 2024-12-19
 
 ### Fixed

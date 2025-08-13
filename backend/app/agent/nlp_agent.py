@@ -171,23 +171,26 @@ class NLPAgent:
                 for i, msg in enumerate(messages):
                     role = msg['role']
                     content = msg['content']
+                    content_length = len(content)
                     
-                    # Show preview first
-                    logger.info(f"🔍 Message {i+1} ({role}): {content[:200]}{'...' if len(content) > 200 else ''}")
+                    logger.info(f"🔍 Message {i+1} ({role}): Length {content_length} chars")
                     
-                    # For system messages, show the full content in chunks for debugging
-                    if role == 'system' and len(content) > 200:
-                        logger.info(f"🔍 FULL SYSTEM MESSAGE - Length: {len(content)} chars")
-                        # Split into readable chunks
-                        chunk_size = 500
-                        for chunk_i in range(0, len(content), chunk_size):
-                            chunk = content[chunk_i:chunk_i + chunk_size]
-                            chunk_num = chunk_i // chunk_size + 1
-                            logger.info(f"🔍 System chunk {chunk_num}: {chunk}")
+                    # For ALL messages, show COMPLETE content - no truncation
+                    if role == 'system':
+                        logger.info(f"🔍 COMPLETE SYSTEM MESSAGE:")
+                        # Split into readable chunks for very long content
+                        if content_length > 1000:
+                            chunk_size = 500
+                            for chunk_i in range(0, content_length, chunk_size):
+                                chunk = content[chunk_i:chunk_i + chunk_size]
+                                chunk_num = chunk_i // chunk_size + 1
+                                logger.info(f"🔍 System chunk {chunk_num}: {chunk}")
+                        else:
+                            logger.info(f"🔍 System content: {content}")
                     
-                    # For user messages, always show full content 
+                    # For user messages, always show complete content 
                     elif role == 'user':
-                        logger.info(f"🔍 FULL USER MESSAGE: '{content}'")
+                        logger.info(f"🔍 COMPLETE USER MESSAGE: '{content}'")
                 
                 response = await acompletion(
                     model=self.model,
