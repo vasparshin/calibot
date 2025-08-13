@@ -407,27 +407,44 @@ class MultiEventOperationHandler:
             target = criteria.get('target', '')
             count = criteria.get('count', 1)
             
+            logger.info(f"🚨 INITIAL VALUES - target: '{target}', count: {count}, type(count): {type(count)}")
+            
             # Parse numeric count from target string (e.g., "last 3", "first 2")
             import re
             if target and (not isinstance(count, int) or count == 1):
+                logger.info(f"🔍 ENTERING TARGET PARSING - condition met")
                 # Extract number from target like "last 3", "first 2", "next 4"
                 number_match = re.search(r'(\w+)\s+(\d+)', target)
                 if number_match:
                     target_word = number_match.group(1)  # "last", "first", etc.
                     extracted_count = int(number_match.group(2))  # the number
+                    logger.info(f"🎯 REGEX MATCH - target_word: '{target_word}', extracted_count: {extracted_count}")
                     target = target_word  # Update target to just the word
                     count = extracted_count  # Update count to the extracted number
                     logger.info(f"🎯 TARGET PARSING DEBUG - Original: '{criteria.get('target', '')}' -> target: '{target}', count: {count}")
                 else:
                     logger.info(f"🚨 TARGET PARSING FAILED - No regex match for: '{target}'")
+            else:
+                logger.info(f"❌ SKIPPING TARGET PARSING - condition not met: target='{target}', count={count}, isinstance(count, int)={isinstance(count, int)}")
             
             logger.info(f"📊 Processing target selection - target: '{target}', count: {count}, total events found: {len(formatted_events)}")
             
             # Sort events by start time
             formatted_events.sort(key=lambda x: x.get('start_datetime', ''))
+            logger.info(f"📅 SORTED EVENTS ({len(formatted_events)} total):")
+            for i, event in enumerate(formatted_events):
+                logger.info(f"  {i+1}. {event.get('event_name', 'Unknown')} at {event.get('start_datetime', 'Unknown time')}")
             
             # Apply target-based selection
             if target in ['last', 'latest'] and len(formatted_events) > 0:
+                # Select last N events (chronologically last)
+                before_count = len(formatted_events)
+                formatted_events = formatted_events[-count:] if count <= len(formatted_events) else formatted_events
+                logger.info(f"✅ LAST TARGET APPLIED - Before: {before_count}, After: {len(formatted_events)}, Requested: {count}")
+                logger.info(f"🎯 SELECTED EVENTS:")
+                for i, event in enumerate(formatted_events):
+                    logger.info(f"  {i+1}. {event.get('event_name', 'Unknown')} at {event.get('start_datetime', 'Unknown time')}")
+            elif target in ['first', 'earliest'] and len(formatted_events) > 0:
                 # Select last N events (chronologically last)
                 formatted_events = formatted_events[-count:] if count <= len(formatted_events) else formatted_events
                 logger.info(f"✅ LAST TARGET APPLIED - Selected last {len(formatted_events)} events (requested: {count})")

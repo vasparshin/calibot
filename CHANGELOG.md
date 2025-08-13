@@ -4,6 +4,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.108] - 2025-01-13
+
+### Enhanced
+- **Bot Response Logging**: Added comprehensive logging of all bot messages sent to Telegram for debugging
+- **Target Selection Debugging**: Added detailed debug logging for "last N" target parsing and event selection
+
+### Technical Details
+- **telegram.py**: Added logging to send_telegram_message and edit_message_text functions to track bot responses
+- **multi_event_operations.py**: Enhanced target parsing debug logging to identify why "last 3" is selecting wrong count
+
 ## [0.1.107] - 2025-01-13
 
 ### Fixed

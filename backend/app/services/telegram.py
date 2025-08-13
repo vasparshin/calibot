@@ -1,6 +1,8 @@
 import httpx
+import logging
 from app.config import TELEGRAM_API_TOKEN
 
+logger = logging.getLogger(__name__)
 TELEGRAM_API_BASE = f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}"
 
 def strip_markdown(text: str) -> str:
@@ -25,6 +27,9 @@ async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None,
         else:
             # Strip all markdown formatting for plain text
             clean_text = strip_markdown(text)
+        
+        # Log the bot response for debugging    
+        logger.info(f"🤖 Bot sending to chat {chat_id}: {clean_text[:200]}{'...' if len(clean_text) > 200 else ''}")
             
         async with httpx.AsyncClient() as client:
             payload = {
@@ -35,10 +40,11 @@ async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None,
             # Only add parse_mode if specified
             if parse_mode:
                 payload["parse_mode"] = parse_mode
-            
+
             # Add inline keyboard if provided
             if reply_markup:
                 payload["reply_markup"] = reply_markup
+                logger.info(f"🎹 Keyboard attached: {len(reply_markup.get('inline_keyboard', []))} button rows")
                 
             response = await client.post(
                 f"{TELEGRAM_API_BASE}/sendMessage",
@@ -84,6 +90,9 @@ async def answer_callback_query(callback_query_id: str, text: str = None, show_a
 
 async def edit_message_text(chat_id: int, message_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
     """Edit existing message text and keyboard"""
+    # Log the message edit for debugging
+    logger.info(f"📝 Bot editing message {message_id} for chat {chat_id}: {text[:200]}{'...' if len(text) > 200 else ''}")
+    
     async with httpx.AsyncClient() as client:
         payload = {
             "chat_id": chat_id,
@@ -94,6 +103,7 @@ async def edit_message_text(chat_id: int, message_id: int, text: str, parse_mode
             payload["parse_mode"] = parse_mode
         if reply_markup:
             payload["reply_markup"] = reply_markup
+            logger.info(f"🎹 Keyboard updated: {len(reply_markup.get('inline_keyboard', []))} button rows")
             
         response = await client.post(
             f"{TELEGRAM_API_BASE}/editMessageText",
