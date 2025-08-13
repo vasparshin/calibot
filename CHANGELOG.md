@@ -4,6 +4,18 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.107] - 2025-01-13
+
+### Fixed
+- **CRITICAL: Route Bypass Bug**: Fixed fallback confirmation logic that was preventing multi-event handlers from being called
+- **Handler Execution Flow**: Moved proper handler call to correct location in routes.py logic flow
+- **Target Selection Integration**: Now update/delete operations with confirmation properly flow through multi-event handlers with fixed "last 3" parsing
+
+### Technical Details
+- **routes.py**: Fixed duplicate handler calls and moved `process_update_delete_with_confirmation` to proper location in confirmation logic
+- **Root Cause**: Simple confirmation fallback was running before multi-event handlers, bypassing all target selection logic
+- **Impact**: Now "last 3" operations will properly call `_find_matching_events` with fixed boolean logic and target parsing
+
 ## [0.1.106] - 2025-01-13
 
 ### Enhanced

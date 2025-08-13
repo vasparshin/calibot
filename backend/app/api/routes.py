@@ -658,19 +658,6 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             
             return {"status": "ok"}
 
-        # Handle multi-event operations (delete, update) with queue-based approach
-        handled_update_delete = await process_update_delete_with_confirmation(
-            chat_id,
-            event_data,
-            calendar_service,
-            event_queue_handler,
-            multi_event_handler,
-            send_telegram_message,
-            conversation_state,
-        )
-        if handled_update_delete.get("handled"):
-            return handled_update_delete
-
         # Handle confirmation intent (user saying yes/confirm to something)
         if event_data["intent"] == "confirm":
             logger.info(f"User confirmation received")
@@ -1043,7 +1030,26 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 return {"status": "ok"}
         
         elif intent in ["delete", "update"] and event_data.get("confirmation_needed"):
-            # Use confirmation buttons for destructive operations
+            # CRITICAL FIX: Use proper multi-event handlers instead of simple confirmation
+            logger.info(f"🔧 ROUTES.PY DEBUG - Redirecting {intent} with confirmation to proper handlers")
+            
+            # Call our proper handlers for multi-event processing
+            handled_update_delete = await process_update_delete_with_confirmation(
+                chat_id,
+                event_data,
+                calendar_service,
+                event_queue_handler,
+                multi_event_handler,
+                send_telegram_message,
+                conversation_state,
+            )
+            
+            if handled_update_delete.get("handled"):
+                logger.info(f"🔧 ROUTES.PY DEBUG - Handlers successfully processed {intent} operation")
+                return handled_update_delete
+            
+            # Fallback to simple confirmation only if handlers fail
+            logger.warning(f"🔧 ROUTES.PY DEBUG - Handlers failed, using fallback confirmation for {intent}")
             action_text = "delete" if intent == "delete" else "update"
             target = event_data.get("event_name", "the event")
             
