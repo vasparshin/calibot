@@ -1,0 +1,58 @@
+[
+  {
+    "message": "move the last 2 events of today to tomorrow",
+    "status": 200,
+    "response": {
+      "status": "ok",
+      "handled": true
+    },
+    "success": true,
+    "timestamp": "2025-08-13T18:07:45.138778",
+    "user_id": 123456789,
+    "test_number": 1,
+    "expected_intent": "update",
+    "description": "This was being incorrectly classified as 'query' instead of 'update'"
+  },
+  {
+    "message": "show me tomorrow's schedule",
+    "status": 200,
+    "response": {
+      "status": "ok",
+      "handled": true
+    },
+    "success": true,
+    "timestamp": "2025-08-13T18:07:48.869792",
+    "user_id": 123456789,
+    "test_number": 2,
+    "expected_intent": "query",
+    "description": "This should correctly be classified as 'query'"
+  },
+  {
+    "message": "create an event called 'Test Meeting' tomorrow at 3pm",
+    "status": 200,
+    "response": {
+      "status": "ok",
+      "handled": true
+    },
+    "success": true,
+    "timestamp": "2025-08-13T18:07:52.541800",
+    "user_id": 123456789,
+    "test_number": 3,
+    "expected_intent": "create",
+    "description": "Testing single event creation with formatting consistency"
+  },
+  {
+    "message": "create 3 events: 'Morning standup' at 9am, 'Code review' at 11am, 'Lunch meeting' at 12pm all for tomorrow",
+    "status": 200,
+    "response": {
+      "status": "ok",
+      "handled": true
+    },
+    "success": true,
+    "timestamp": "2025-08-13T18:07:56.423020",
+    "user_id": 123456789,
+    "test_number": 4,
+    "expected_intent": "create",
+    "description": "Testing multiple event creation"
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "test_run": 1755102839,
+  "backend_url": "http://0.0.0.0:8060/",
+  "results": [
+    {
+      "message": "move the last 2 events of today to tomorrow",
+      "error": "Cannot connect to host 0.0.0.0:8060 ssl:default [The format of the specified network name is invalid]",
+      "success": false,
+      "timestamp": "2025-08-13T17:33:52.295405"
+    },
+    {
+      "message": "create 3 events: 'Meeting 1' at 9am, 'Meeting 2' at 11am, 'Meeting 3' at 2pm all for tomorrow",
+      "error": "Cannot connect to host 0.0.0.0:8060 ssl:default [The format of the specified network name is invalid]",
+      "success": false,
+      "timestamp": "2025-08-13T17:33:53.308551"
+    },
+    {
+      "message": "create an event called 'Test Event' tomorrow at 3pm",
+      "error": "Cannot connect to host 0.0.0.0:8060 ssl:default [The format of the specified network name is invalid]",
+      "success": false,
+      "timestamp": "2025-08-13T17:33:54.319245"
+    },
+    {
+      "message": "move my first event of tomorrow to Friday at 4pm",
+      "error": "Cannot connect to host 0.0.0.0:8060 ssl:default [The format of the specified network name is invalid]",
+      "success": false,
+      "timestamp": "2025-08-13T17:33:55.335165"
+    },
+    {
+      "message": "delete the last event of tomorrow",
+      "error": "Cannot connect to host 0.0.0.0:8060 ssl:default [The format of the specified network name is invalid]",
+      "success": false,
+      "timestamp": "2025-08-13T17:33:56.346520"
+    },
+    {
+      "message": "show me my events for tomorrow",
+      "error": "Cannot connect to host 0.0.0.0:8060 ssl:default [The format of the specified network name is invalid]",
+      "success": false,
+      "timestamp": "2025-08-13T17:33:57.357264"
+    },
+    {
+      "message": "reschedule my meeting tomorrow to next Monday at 10am",
+      "error": "Cannot connect to host 0.0.0.0:8060 ssl:default [The format of the specified network name is invalid]",
+      "success": false,
+      "timestamp": "2025-08-13T17:33:58.368645"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "successful": 0,
+    "failed": 7
+  }
+}

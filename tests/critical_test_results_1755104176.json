@@ -1,0 +1,70 @@
+{
+  "scenario": "critical_intent_extraction",
+  "start_time": "2025-08-13T17:56:10.042378",
+  "messages_sent": [
+    {
+      "text": "move the last 2 events of today to tomorrow",
+      "sent_at": "2025-08-13T17:56:10.206155",
+      "result": {
+        "ok": true,
+        "result": {
+          "message_id": 5,
+          "from": {
+            "id": 8347695824,
+            "is_bot": true,
+            "first_name": "calibot_testbot",
+            "username": "calibot_testbot"
+          },
+          "chat": {
+            "id": -4627994150,
+            "title": "Calendar testing",
+            "type": "group",
+            "all_members_are_administrators": true,
+            "accepted_gift_types": {
+              "unlimited_gifts": false,
+              "limited_gifts": false,
+              "unique_gifts": false,
+              "premium_subscription": false
+            }
+          },
+          "date": 1755104170,
+          "text": "move the last 2 events of today to tomorrow"
+        }
+      }
+    },
+    {
+      "text": "show me tomorrow's schedule",
+      "sent_at": "2025-08-13T17:56:13.389232",
+      "result": {
+        "ok": true,
+        "result": {
+          "message_id": 6,
+          "from": {
+            "id": 8347695824,
+            "is_bot": true,
+            "first_name": "calibot_testbot",
+            "username": "calibot_testbot"
+          },
+          "chat": {
+            "id": -4627994150,
+            "title": "Calendar testing",
+            "type": "group",
+            "all_members_are_administrators": true,
+            "accepted_gift_types": {
+              "unlimited_gifts": false,
+              "limited_gifts": false,
+              "unique_gifts": false,
+              "premium_subscription": false
+            }
+          },
+          "date": 1755104173,
+          "text": "show me tomorrow's schedule"
+        }
+      }
+    }
+  ],
+  "responses_observed": [],
+  "success": true,
+  "errors": [],
+  "end_time": "2025-08-13T17:56:16.447665"
+}

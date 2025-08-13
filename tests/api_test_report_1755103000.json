@@ -1,0 +1,81 @@
+{
+  "test_run": 1755103000,
+  "backend_url": "https://calibot-utq6.onrender.com",
+  "results": [
+    {
+      "message": "move the last 2 events of today to tomorrow",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "handled": true
+      },
+      "success": true,
+      "timestamp": "2025-08-13T17:35:56.756445"
+    },
+    {
+      "message": "create 3 events: 'Meeting 1' at 9am, 'Meeting 2' at 11am, 'Meeting 3' at 2pm all for tomorrow",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "handled": true
+      },
+      "success": true,
+      "timestamp": "2025-08-13T17:35:59.467140"
+    },
+    {
+      "message": "create an event called 'Test Event' tomorrow at 3pm",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "handled": true
+      },
+      "success": true,
+      "timestamp": "2025-08-13T17:36:02.316070"
+    },
+    {
+      "message": "move my first event of tomorrow to Friday at 4pm",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "handled": true
+      },
+      "success": true,
+      "timestamp": "2025-08-13T17:36:05.259139"
+    },
+    {
+      "message": "delete the last event of tomorrow",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "handled": true
+      },
+      "success": true,
+      "timestamp": "2025-08-13T17:36:07.879518"
+    },
+    {
+      "message": "show me my events for tomorrow",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "handled": true
+      },
+      "success": true,
+      "timestamp": "2025-08-13T17:36:10.604106"
+    },
+    {
+      "message": "reschedule my meeting tomorrow to next Monday at 10am",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "handled": true
+      },
+      "success": true,
+      "timestamp": "2025-08-13T17:36:13.234698"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "successful": 7,
+    "failed": 0
+  }
+}

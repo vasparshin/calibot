@@ -209,31 +209,44 @@ class ScheduleService:
         """Detect if message is a schedule query and return the date type"""
         message_lower = message.lower().strip()
         
+        # Only match EXPLICIT schedule query patterns, not calendar modification requests
+        # This prevents "move events to tomorrow" from being treated as "show tomorrow's schedule"
+        
         # Handle /today command
         if message_lower in ["/today", "today", "today's schedule", "what's today", "whats today"]:
             return "today"
         
-        # Handle tomorrow queries
-        if any(phrase in message_lower for phrase in ["tomorrow", "tomorrow's schedule", "what's tomorrow", "whats tomorrow"]):
+        # Handle explicit tomorrow schedule queries (NOT event modifications)
+        if any(phrase in message_lower for phrase in [
+            "tomorrow's schedule", "tomorrows schedule", 
+            "what's tomorrow", "whats tomorrow",
+            "show me tomorrow", "show tomorrow",
+            "what do i have tomorrow", "what's on tomorrow", "whats on tomorrow",
+            "schedule for tomorrow", "tomorrow schedule"
+        ]):
             return "tomorrow"
         
-        # Handle general today queries
+        # Handle general today queries (more specific patterns)
         if any(phrase in message_lower for phrase in [
             "today's schedule", "todays schedule", "what's scheduled today", 
             "whats scheduled today", "what do i have today", "schedule today",
             "what's on today", "whats on today", "what's my schedule today",
-            "whats my schedule today"
+            "whats my schedule today", "show me today", "show today"
         ]):
             return "today"
         
-        # Handle day after tomorrow
+        # Handle day after tomorrow (explicit schedule queries only)
         if any(phrase in message_lower for phrase in [
-            "day after tomorrow", "day after", "2 days from now"
+            "day after tomorrow schedule", "schedule day after tomorrow",
+            "what do i have day after tomorrow", "show me day after tomorrow"
         ]):
             return "day after tomorrow"
         
-        # Handle next week references
-        if "next week" in message_lower:
+        # Handle next week references (explicit schedule queries only)
+        if any(phrase in message_lower for phrase in [
+            "next week schedule", "schedule next week", 
+            "what do i have next week", "show me next week"
+        ]):
             return "next week"
         
         return None
