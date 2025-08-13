@@ -20,15 +20,20 @@ async def process_update_delete_with_confirmation(
     """Handle update/delete operations with proper confirmation workflow"""
     try:
         intent = event_data.get("intent")
+        logger.info(f"🔧 HANDLERS.PY DEBUG - process_update_delete_with_confirmation called with intent: {intent}")
         
         if intent in ["update", "delete"]:
-            logger.info(f"Processing {intent} operation with event_data: {event_data}")
+            logger.info(f"🔧 HANDLERS.PY DEBUG - Processing {intent} operation with event_data: {event_data}")
             
             # Use the multi-event handler to find and process matching events
             if intent == "update":
+                logger.info(f"🔧 HANDLERS.PY DEBUG - Calling handle_update_operation")
                 result = await multi_event_handler.handle_update_operation(chat_id, event_data)
+                logger.info(f"🔧 HANDLERS.PY DEBUG - handle_update_operation returned: {result}")
             else:  # delete
+                logger.info(f"🔧 HANDLERS.PY DEBUG - Calling handle_delete_operation")
                 result = await multi_event_handler.handle_delete_operation(chat_id, event_data)
+                logger.info(f"🔧 HANDLERS.PY DEBUG - handle_delete_operation returned: {result}")
             
             if result.get("requires_user_action"):
                 # Send confirmation message with keyboard
@@ -45,10 +50,11 @@ async def process_update_delete_with_confirmation(
             
             return {"handled": True, "status": "ok"}
         
+        logger.info(f"🔧 HANDLERS.PY DEBUG - Intent {intent} not in update/delete, returning handled=False")
         return {"handled": False}
         
     except Exception as e:
-        logger.error(f"Error in process_update_delete_with_confirmation: {e}")
+        logger.error(f"🔧 HANDLERS.PY ERROR - Error in process_update_delete_with_confirmation: {e}")
         return {"handled": False, "error": str(e)}
 
 

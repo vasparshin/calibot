@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.106] - 2025-01-13
+
+### Enhanced
+- **Critical Debugging: Handlers.py Call Chain**: Added comprehensive debug logging to verify if handlers.py is being called for update operations
+- **Handler Execution Tracking**: Enhanced logging shows if `process_update_delete_with_confirmation` is invoked and what it returns
+
+### Technical Details
+- **handlers.py**: Added detailed debug output to track handler execution and results
+- **Investigation Support**: Logs will show if handler chain is working or if there's a bypass in the routes.py logic
+- **Debug Output**: Confirms handler invocation, operation processing, and return values
+
 ## [0.1.105] - 2025-01-13
 
 ### Fixed
