@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.105] - 2025-01-13
+
+### Fixed
+- **CRITICAL: Missing Handlers Module**: Created missing `backend/app/api/handlers.py` file that was causing import errors
+- **Update Operation Flow**: Fixed broken import chain that was preventing multi-event update operations from using proper target selection logic
+
+### Technical Details
+- **handlers.py**: Created `process_update_delete_with_confirmation` function that properly calls `multi_event_handler.handle_update_operation`
+- **Import Chain**: Fixed broken import in routes.py that was causing multi-event operations to bypass the fixed target parsing logic
+- **Integration**: Now update operations properly flow through `_find_matching_events` with fixed "last 3" parsing
+
 ## [0.1.104] - 2025-01-13
 
 ### Fixed
