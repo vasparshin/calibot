@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.103] - 2025-01-13
+
+### Enhanced
+- **Critical Debugging: Multi-Event Target Selection**: Added comprehensive debug logging for "last 3" target parsing and event selection
+- **Event Filtering Debug**: Enhanced logging to track target parsing, count extraction, and final selection results
+
+### Technical Details
+- **multi_event_operations.py**: Added detailed debug output for target parsing ("last 3" -> target: "last", count: 3)
+- **Selection Process**: Enhanced logging shows total events found, target applied, and final count selected
+- **Investigation Support**: Logs now clearly show if target filtering is working correctly for user confirmation process
+
 ## [0.1.102] - 2025-01-13
 
 ### Enhanced  

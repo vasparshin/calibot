@@ -417,9 +417,11 @@ class MultiEventOperationHandler:
                     extracted_count = int(number_match.group(2))  # the number
                     target = target_word  # Update target to just the word
                     count = extracted_count  # Update count to the extracted number
-                    logger.info(f"Parsed target '{criteria.get('target', '')}' -> target: '{target}', count: {count}")
+                    logger.info(f"🎯 TARGET PARSING DEBUG - Original: '{criteria.get('target', '')}' -> target: '{target}', count: {count}")
+                else:
+                    logger.info(f"🚨 TARGET PARSING FAILED - No regex match for: '{target}'")
             
-            logger.info(f"Processing target selection - target: '{target}', count: {count}, total events found: {len(formatted_events)}")
+            logger.info(f"📊 Processing target selection - target: '{target}', count: {count}, total events found: {len(formatted_events)}")
             
             # Sort events by start time
             formatted_events.sort(key=lambda x: x.get('start_datetime', ''))
@@ -428,21 +430,23 @@ class MultiEventOperationHandler:
             if target in ['last', 'latest'] and len(formatted_events) > 0:
                 # Select last N events (chronologically last)
                 formatted_events = formatted_events[-count:] if count <= len(formatted_events) else formatted_events
-                logger.info(f"Selected last {len(formatted_events)} events (requested: {count})")
+                logger.info(f"✅ LAST TARGET APPLIED - Selected last {len(formatted_events)} events (requested: {count})")
             elif target in ['first', 'earliest'] and len(formatted_events) > 0:
                 # Select first N events (chronologically first)
                 formatted_events = formatted_events[:count] if count <= len(formatted_events) else formatted_events
-                logger.info(f"Selected first {len(formatted_events)} events (requested: {count})")
+                logger.info(f"✅ FIRST TARGET APPLIED - Selected first {len(formatted_events)} events (requested: {count})")
             elif target in ['next', 'upcoming'] and len(formatted_events) > 0:
                 # For future events, select first N (earliest upcoming)
                 current_time = datetime.now().isoformat()
                 future_events = [e for e in formatted_events if e.get('start_datetime', '') > current_time]
                 formatted_events = future_events[:count] if count <= len(future_events) else future_events
-                logger.info(f"Selected next {len(formatted_events)} upcoming events (requested: {count})")
+                logger.info(f"✅ NEXT TARGET APPLIED - Selected next {len(formatted_events)} upcoming events (requested: {count})")
             elif count > 1 and len(formatted_events) > count:
                 # If count specified but no specific target, limit to count
                 formatted_events = formatted_events[:count]
-                logger.info(f"Limited to {len(formatted_events)} events based on count: {count}")
+                logger.info(f"✅ COUNT LIMIT APPLIED - Limited to {len(formatted_events)} events based on count: {count}")
+            else:
+                logger.info(f"🔄 NO TARGET FILTERING - Using all {len(formatted_events)} events")
 
             logger.info(f"Final selection: {len(formatted_events)} events for criteria: {criteria}")
             return formatted_events
