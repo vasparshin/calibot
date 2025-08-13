@@ -4,6 +4,19 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.101] - 2025-01-13
+
+### Fixed
+- **CRITICAL: Last N Events Selection Bug**: Fixed "last 3 lessons" selecting 4 events instead of 3 by changing event filtering order
+- **Event Query Logic**: Removed premature Google Calendar API filtering to ensure proper chronological target selection
+- **Multi-Event Target Processing**: Now gets ALL events first, then filters by name, then applies target selection correctly
+
+### Technical Details
+- **multi_event_operations.py**: Removed `query_params['q'] = criteria['event_name']` to prevent Google Calendar from pre-filtering events
+- **Selection Algorithm**: Changed to: 1) Get all events for date, 2) Filter by event name locally, 3) Apply target selection (last/first N)
+- **Chronological Accuracy**: "last 3 lessons" now correctly selects the 3 most recent lesson events, not all lesson events
+- **Validation**: Added comprehensive test demonstrating correct selection from 5 total events (4 lessons) -> exactly 3 selected
+
 ## [0.1.100] - 2025-01-11
 
 ### Fixed

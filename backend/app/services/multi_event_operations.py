@@ -363,22 +363,10 @@ class MultiEventOperationHandler:
     async def _find_matching_events(self, criteria: Dict) -> List[Dict]:
         """Find events matching the given criteria"""
         try:
-            # Build query parameters
-            query_params = {}
+            # Get ALL events from the specified date first, then filter locally
+            # This ensures we can apply target selection (last 3) correctly
             
-            if 'event_name' in criteria:
-                query_params['q'] = criteria['event_name']
-            
-            if 'date' in criteria:
-                query_params['timeMin'] = f"{criteria['date']}T00:00:00Z"
-                query_params['timeMax'] = f"{criteria['date']}T23:59:59Z"
-            else:
-                # Default to today if no date specified
-                today = datetime.now().strftime("%Y-%m-%d")
-                query_params['timeMin'] = f"{today}T00:00:00Z"
-                query_params['timeMax'] = f"{today}T23:59:59Z"
-            
-            # Get events from calendar service using the correct method
+            # Get events from calendar service - get ALL events, don't filter by name yet
             events_response = await self.calendar_service.query_events({
                 'date': criteria.get('date', datetime.now().strftime("%Y-%m-%d"))
             })
@@ -388,7 +376,7 @@ class MultiEventOperationHandler:
 
             events = events_response.get('events', [])
             
-            # Filter events more precisely if needed
+            # Filter events by name AFTER getting all events (so we can apply target selection correctly)
             if 'event_name' in criteria:
                 event_name = criteria['event_name'].lower()
                 events = [
