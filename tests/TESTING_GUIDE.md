@@ -11,18 +11,39 @@ python telegram_like_tester.py
 ### Real Telegram Group Messages
 ```bash
 cd tests
-python simple_group_poster.py
+python quick_telegram_test.py          # Test setup first
+python complete_telegram_simulator.py  # Full conversation demo
 ```
 
 **Setup Required**:
 1. Get your test bot token from @BotFather
 2. Add your bot to your group chat
 3. Get the group chat ID (negative number)
-4. Edit `simple_group_poster.py` or set environment variables:
+4. Edit the scripts or set environment variables:
    - `TELEGRAM_BOT_TOKEN=your_bot_token`
    - `TELEGRAM_GROUP_ID=your_group_chat_id`
 
-This posts actual messages to your Telegram group showing realistic bot conversations!
+**What you'll see in your Telegram group**:
+- 👤 **TestUser**: Realistic user messages
+- 🤖 **CaliBOT**: Bot responses with proper formatting
+- 👆 **Button presses**: Inline keyboard interactions  
+- 🔧 **System messages**: Scenario descriptions
+- **All possible scenarios**: Creation, deletion, multi-event, confirmations, errors
+
+This creates a complete bot-to-bot conversation demonstration!
+
+#### Complete Scenario Coverage:
+1. **Basic Interaction**: Greetings and calendar queries
+2. **Event Creation**: Single event with success confirmation
+3. **Multi-Event Creation**: Batch events with duplicate detection buttons
+4. **Event Modification**: Moving events with confirmation buttons
+5. **Event Deletion**: Deleting multiple events with selection buttons
+6. **Calendar Selection**: AI suggestions with calendar choice buttons
+7. **Error Handling**: Invalid input and recovery
+8. **Complex Scheduling**: Rescheduling with time modifications
+9. **Natural Conversation**: Complete workflow conversations
+
+Each scenario includes realistic button interactions and confirmations!
 
 This provides the best testing experience:
 - **Visual Telegram-like chat interface** showing user messages and bot responses
