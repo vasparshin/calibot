@@ -4,6 +4,23 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.118] - 2024-12-19
+
+### Fixed
+- **Critical Intent Extraction Pipeline Issue**: Fixed schedule service blocking intent extraction for event modification requests
+- **Schedule Detection Specificity**: Modified detect_schedule_query to only match explicit schedule queries like "tomorrow's schedule"
+- **Event Modification Routing**: Messages like "move events to tomorrow" now properly route to intent extraction instead of schedule display
+
+### Enhanced
+- **Intent Pipeline Architecture**: Ensures schedule service doesn't intercept calendar modification commands
+- **MessageFormatter Consistency**: Verified single event creation uses centralized formatting for consistent user experience
+- **Automated Testing Infrastructure**: Deployed backend bridge testing system for comprehensive validation
+
+### Technical Details
+- **schedule_service.py**: Refined detect_schedule_query method to prevent false positive matches on event modification requests
+- **handlers.py**: Confirmed create_single_event uses MessageFormatter for consistent "Event created successfully" responses
+- **routes.py**: Schedule detection now happens after proper intent classification for modification commands
+
 ## [0.1.117] - 2024-12-19
 
 ### Fixed
