@@ -409,7 +409,7 @@ class MultiEventOperationHandler:
             
             # Parse numeric count from target string (e.g., "last 3", "first 2")
             import re
-            if target and not isinstance(count, int) or count == 1:
+            if target and (not isinstance(count, int) or count == 1):
                 # Extract number from target like "last 3", "first 2", "next 4"
                 number_match = re.search(r'(\w+)\s+(\d+)', target)
                 if number_match:

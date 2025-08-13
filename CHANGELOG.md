@@ -4,6 +4,17 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.104] - 2025-01-13
+
+### Fixed
+- **CRITICAL: Last N Events Selection Logic Bug**: Fixed operator precedence bug in target parsing condition that prevented "last 3" from being parsed correctly
+- **Target Parsing Condition**: Fixed `if target and not isinstance(count, int) or count == 1:` to `if target and (not isinstance(count, int) or count == 1):`
+
+### Technical Details
+- **multi_event_operations.py**: Fixed boolean logic that was causing "last 3" to select 4 events instead of 3
+- **Root Cause**: Operator precedence made condition evaluate incorrectly, bypassing numeric target parsing
+- **Impact**: Now "last 3 lessons" will correctly select exactly 3 events instead of 4
+
 ## [0.1.103] - 2025-01-13
 
 ### Enhanced
