@@ -4,6 +4,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.111] - 2025-01-13
+
+### Enhanced
+- **Comprehensive LLM Debugging**: Added detailed logging of conversation history, system prompt, and raw model responses
+- **Intent Extraction Visibility**: Full visibility into what's sent to the model and what's returned for target selection analysis
+
+### Technical Details
+- **nlp_agent.py**: Added step-by-step debugging of LLM input (conversation history, system message) and output (raw response structure)
+- **Purpose**: Determine if model receives yesterday's schedule context and why it might select 5 events instead of 3
+
 ## [0.1.110] - 2025-01-13
 
 ### Enhanced

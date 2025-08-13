@@ -150,17 +150,48 @@ class NLPAgent:
 
             system_message = self.system_prompt.format(conversation_history=formatted_history, current_date=current_datetime)
 
+            # 🔍 COMPREHENSIVE LLM DEBUGGING - Log everything being sent to the model
+            logger.info(f"🔍 LLM INPUT DEBUG - User message: '{user_message}'")
+            logger.info(f"🔍 LLM INPUT DEBUG - Conversation history length: {len(conversation_history)} messages")
+            logger.info(f"🔍 LLM INPUT DEBUG - Formatted history preview: {formatted_history[:300]}{'...' if len(formatted_history) > 300 else ''}")
+            logger.info(f"🔍 LLM INPUT DEBUG - Current datetime: {current_datetime}")
+            logger.info(f"🔍 LLM INPUT DEBUG - System message length: {len(system_message)} chars")
+            logger.info(f"🔍 LLM INPUT DEBUG - System message preview: {system_message[:500]}{'...' if len(system_message) > 500 else ''}")
+
             async def _call_llm():
                 # Use clean LLM call for better compatibility
-                return await acompletion(
+                messages = [
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_message}
+                ]
+                
+                # Log the exact messages being sent
+                logger.info(f"🔍 LLM CALL DEBUG - Messages being sent to {self.model}:")
+                for i, msg in enumerate(messages):
+                    logger.info(f"🔍 Message {i+1} ({msg['role']}): {msg['content'][:200]}{'...' if len(msg['content']) > 200 else ''}")
+                
+                response = await acompletion(
                     model=self.model,
-                    messages=[
-                        {"role": "system", "content": system_message},
-                        {"role": "user", "content": user_message}
-                    ],
+                    messages=messages,
                     max_tokens=200,  # Reduced for focused JSON responses
                     temperature=0.1,  # Tiny bit of randomness to avoid getting stuck
                 )
+                
+                # Log the raw response structure
+                logger.info(f"🔍 LLM RESPONSE DEBUG - Raw response type: {type(response)}")
+                logger.info(f"🔍 LLM RESPONSE DEBUG - Response keys: {list(response.keys()) if isinstance(response, dict) else 'Not a dict'}")
+                if isinstance(response, dict) and 'choices' in response:
+                    logger.info(f"🔍 LLM RESPONSE DEBUG - Choices length: {len(response['choices'])}")
+                    if response['choices']:
+                        choice = response['choices'][0]
+                        logger.info(f"🔍 LLM RESPONSE DEBUG - Choice keys: {list(choice.keys())}")
+                        if 'message' in choice:
+                            message = choice['message']
+                            logger.info(f"🔍 LLM RESPONSE DEBUG - Message keys: {list(message.keys())}")
+                            content = message.get('content', '')
+                            logger.info(f"🔍 LLM RESPONSE DEBUG - Raw content: '{content}'")
+                
+                return response
 
             response = await _call_llm()
 
