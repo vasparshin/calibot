@@ -172,9 +172,9 @@ class MultiEventOperationHandler:
                     start_time = event.get('start_time', 'Unknown time')
                     calendar_name = event.get('calendar_name', 'Unknown')
                     
-                    # Add hyperlink if available
-                    event_id = event.get('event_id', '')
-                    calendar_link = event.get('calendar_link', '')
+                    # Add hyperlink if available - check multiple possible fields
+                    event_id = event.get('event_id', '') or event.get('id', '')
+                    calendar_link = event.get('calendar_link', '') or event.get('htmlLink', '') or event.get('link', '')
                     
                     if calendar_link:
                         formatted_name = f"[{event_name}]({calendar_link})"
@@ -183,7 +183,22 @@ class MultiEventOperationHandler:
                     else:
                         formatted_name = event_name
                     
-                    event_list += f"{i}. {formatted_name} on {date} at {start_time} ({calendar_name})\n"
+                    # Show current → proposed format for changes
+                    if 'time_shift' in event_data and 'day' in event_data['time_shift']:
+                        # For date shifts, show date change
+                        from datetime import datetime, timedelta
+                        try:
+                            current_date_obj = datetime.fromisoformat(date)
+                            if '1 day' in event_data['time_shift']:
+                                new_date_obj = current_date_obj + timedelta(days=1)
+                                new_date_str = new_date_obj.strftime('%Y-%m-%d')
+                                event_list += f"{i}. {formatted_name} on {date} at {start_time} → {new_date_str} at {start_time} ({calendar_name})\n"
+                            else:
+                                event_list += f"{i}. {formatted_name} on {date} at {start_time} → will be shifted ({calendar_name})\n"
+                        except:
+                            event_list += f"{i}. {formatted_name} on {date} at {start_time} → moved to today ({calendar_name})\n"
+                    else:
+                        event_list += f"{i}. {formatted_name} on {date} at {start_time} ({calendar_name})\n"
                 
                 # Describe what will be updated
                 update_desc = []
@@ -643,34 +658,65 @@ class MultiEventOperationHandler:
                             logger.info(f"Time shift request: {time_shift} for event {event.get('summary', 'Unknown')}")
                             logger.info(f"Original times: start={original_start}, end={original_end}")
                             
-                            if original_start and original_end and 'T' in original_start and 'T' in original_end:
+                            # NEW: Handle both full datetime and time-only formats
+                            if original_start and original_end:
                                 from datetime import datetime, timedelta
                                 import re
                                 
                                 try:
-                                    # Parse original datetime strings
-                                    start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
-                                    end_dt = datetime.fromisoformat(original_end.replace('Z', '+00:00'))
+                                    # Check if we have full datetime strings or just times
+                                    if 'T' in original_start and 'T' in original_end:
+                                        # Full datetime format (e.g., "2025-08-12T21:00:00+01:00")
+                                        start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
+                                        end_dt = datetime.fromisoformat(original_end.replace('Z', '+00:00'))
+                                    else:
+                                        # Time-only format (e.g., "21:00", "22:00") - need to add date
+                                        event_date = event.get('date', '')
+                                        if not event_date:
+                                            # Extract date from today or use default
+                                            from datetime import date
+                                            event_date = date.today().isoformat()
+                                        
+                                        # Combine date and time
+                                        start_dt = datetime.fromisoformat(f"{event_date}T{original_start}:00")
+                                        end_dt = datetime.fromisoformat(f"{event_date}T{original_end}:00")
                                     
                                     logger.info(f"Parsed times: start={start_dt}, end={end_dt}")
                                     
-                                    # Parse time shift (e.g., "1 hour", "30 minutes", "2 hours")
-                                    shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
-                                    if shift_match:
-                                        amount = int(shift_match.group(1))
-                                        unit = shift_match.group(2)
-                                        
-                                        # Determine direction (default is forward/later)
+                                    # Parse time shift - handle both relative and absolute shifts
+                                    delta = None
+                                    
+                                    # Check for day shift first (like "1 day", "move to today")
+                                    day_match = re.search(r'(\d+)\s*day', time_shift.lower())
+                                    if day_match:
+                                        amount = int(day_match.group(1))
+                                        # Determine direction
                                         is_negative = 'earlier' in time_shift.lower() or 'back' in time_shift.lower() or time_shift.startswith('-')
                                         if is_negative:
                                             amount = -amount
-                                        
-                                        # Calculate time shift
-                                        if unit in ['hour', 'hr']:
-                                            delta = timedelta(hours=amount)
-                                        elif unit in ['minute', 'min']:
-                                            delta = timedelta(minutes=amount)
-                                        
+                                        delta = timedelta(days=amount)
+                                        unit_name = f"{amount} day(s)"
+                                    else:
+                                        # Check for hour/minute shift
+                                        shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
+                                        if shift_match:
+                                            amount = int(shift_match.group(1))
+                                            unit = shift_match.group(2)
+                                            
+                                            # Determine direction (default is forward/later)
+                                            is_negative = 'earlier' in time_shift.lower() or 'back' in time_shift.lower() or time_shift.startswith('-')
+                                            if is_negative:
+                                                amount = -amount
+                                            
+                                            # Calculate time shift
+                                            if unit in ['hour', 'hr']:
+                                                delta = timedelta(hours=amount)
+                                                unit_name = f"{amount} hour(s)"
+                                            elif unit in ['minute', 'min']:
+                                                delta = timedelta(minutes=amount)
+                                                unit_name = f"{amount} minute(s)"
+                                    
+                                    if delta:
                                         # SHIFT BOTH start and end times by the same amount
                                         new_start_dt = start_dt + delta
                                         new_end_dt = end_dt + delta
@@ -678,16 +724,18 @@ class MultiEventOperationHandler:
                                         update_data['start_time'] = new_start_dt.isoformat()
                                         update_data['end_time'] = new_end_dt.isoformat()
                                         
-                                        logger.info(f"BEFORE UPDATE: Event start={original_start}, end={original_end}")
-                                        logger.info(f"TIME SHIFT: {time_shift} parsed as {amount} {unit} ({'earlier' if amount < 0 else 'later'})")
-                                        logger.info(f"AFTER CALCULATION: start={update_data['start_time']}, end={update_data['end_time']}")
-                                        logger.info(f"Sending to calendar service: start={update_data['start_time']}, end={update_data['end_time']}")
+                                        logger.info(f"🎯 TIME SHIFT SUCCESS: {time_shift} parsed as {unit_name}")
+                                        logger.info(f"🎯 BEFORE: start={start_dt}, end={end_dt}")
+                                        logger.info(f"🎯 AFTER: start={new_start_dt}, end={new_end_dt}")
+                                        logger.info(f"🎯 Sending to calendar: start={update_data['start_time']}, end={update_data['end_time']}")
                                     else:
-                                        logger.warning(f"Could not parse time shift: {time_shift}")
+                                        logger.warning(f"Could not parse time shift pattern: {time_shift}")
+                                        
                                 except Exception as parse_error:
                                     logger.error(f"Error parsing datetime for time shift: {parse_error}")
                             else:
-                                logger.warning(f"Invalid datetime format for time shift: start={original_start}, end={original_end}")
+                                logger.warning(f"Missing start/end times for time shift: start={original_start}, end={original_end}")
+                        
                         
                         if 'description' in original_request:
                             update_data['description'] = original_request['description']
@@ -795,32 +843,10 @@ class MultiEventOperationHandler:
                         failed_updates.append(f"{event.get('summary', 'Untitled')}: {str(e)}")
                         logger.error(f"Error updating event {event.get('id', 'unknown')}: {e}")
                 
-                # Build response message
+                # Build response message - just show the updated events without "Successfully updated" header
                 message_parts = []
                 if successful_updates:
-                    # Extract date from original request or first event for header
-                    header_date = original_request.get('new_date') or original_request.get('date')
-                    if not header_date and events:
-                        # Get date from first event
-                        first_event = events[0]
-                        if 'start' in first_event and 'T' in first_event['start']:
-                            header_date = first_event['start'].split('T')[0]
-                        elif 'date' in first_event:
-                            header_date = first_event['date']
-                    
-                    # Format the header date
-                    if header_date:
-                        try:
-                            from datetime import datetime
-                            date_obj = datetime.fromisoformat(header_date)
-                            formatted_date = date_obj.strftime('%A, %B %d, %Y')
-                        except:
-                            formatted_date = header_date
-                    else:
-                        formatted_date = "today"
-                    
-                    message_parts.append(f"Successfully updated {len(successful_updates)} event{'s' if len(successful_updates) != 1 else ''} on {formatted_date}:")
-                    message_parts.append("")  # Empty line
+                    # Just show the event list directly, no success header
                     for update_desc in successful_updates:
                         message_parts.append(update_desc)
                 

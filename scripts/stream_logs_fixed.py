@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
 Stream logs from Render.com in real-time for debugging CaliBOT
-Usage: python scripts/stream_logs.py
+Usage: python scripts/stream_logs_fixed.py
 """
 
 import asyncio
 import aiohttp
 import json
-import os
 import sys
 from datetime import datetime, timezone, timedelta
 
 # Render API configuration
 RENDER_API_KEY = 'rnd_m8U9bCF9is6HWxuVbrc5S1rA7VzP'  # Your API key
-SERVICE_ID = 'srv-ctglj6qj1k6c73fpjbeg'  # CaliBOT service ID
+SERVICE_ID = 'srv-d1vqbkp5pdvs73echbeg'  # Correct CaliBOT service ID
+OWNER_ID = 'tea-d1vp1ph5pdvs73ebf50g'  # Your owner ID
 
 async def get_logs_batch(session, start_time=None, end_time=None):
     """Get a batch of logs from Render API"""
@@ -25,7 +25,8 @@ async def get_logs_batch(session, start_time=None, end_time=None):
     
     # Build query parameters
     params = {
-        'resourceId': SERVICE_ID,
+        'ownerId': OWNER_ID,
+        'resource': SERVICE_ID,  # Use 'resource' parameter for service filtering
         'limit': 100  # Max logs per request
     }
     
@@ -114,22 +115,6 @@ async def stream_render_logs():
         # Retry with recursive call
         await stream_render_logs()
 
-def format_log_message(message):
-    """Format log message for better readability"""
-    # Add color coding based on content
-    if "� LLM" in message:
-        return f"🔍 {message}"
-    elif "🚨" in message:
-        return f"🚨 {message}"
-    elif "ERROR" in message:
-        return f"❌ {message}"
-    elif "Target" in message or "target" in message:
-        return f"🎯 {message}"
-    elif "Bot sending" in message:
-        return f"🤖 {message}"
-    else:
-        return f"� {message}"
-
 if __name__ == "__main__":
     print("🚀 Starting CaliBOT log streaming...")
     print("📋 Press Ctrl+C to stop")
@@ -140,73 +125,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n👋 Log streaming stopped")
         sys.exit(0)
-            async with session.get(logs_url, headers=headers) as response:
-                if response.status != 200:
-                    print(f"❌ Failed to connect to Render API: {response.status}")
-                    text = await response.text()
-                    print(f"Response: {text}")
-                    return
-                
-                print("✅ Connected to Render log stream")
-                print("🎯 Watching for CaliBOT activity...")
-                print("-" * 80)
-                
-                async for line in response.content:
-                    if line:
-                        try:
-                            # Decode and parse the log line
-                            log_data = json.loads(line.decode('utf-8'))
-                            timestamp = log_data.get('timestamp', datetime.now().isoformat())
-                            message = log_data.get('message', str(log_data))
-                            
-                            # Color code important log types
-                            if '🔍 LLM' in message:
-                                print(f"🔍 {timestamp} | {message}")
-                            elif '🚨' in message:
-                                print(f"🚨 {timestamp} | {message}")
-                            elif 'ERROR' in message:
-                                print(f"❌ {timestamp} | {message}")
-                            elif 'Target' in message or 'target' in message:
-                                print(f"🎯 {timestamp} | {message}")
-                            elif 'Bot sending' in message:
-                                print(f"🤖 {timestamp} | {message}")
-                            else:
-                                print(f"📝 {timestamp} | {message}")
-                                
-                        except json.JSONDecodeError:
-                            # Handle plain text logs
-                            line_str = line.decode('utf-8').strip()
-                            if line_str:
-                                print(f"📄 {datetime.now().strftime('%H:%M:%S')} | {line_str}")
-                                
-    except KeyboardInterrupt:
-        print("\n🛑 Log streaming stopped by user")
-    except Exception as e:
-        print(f"❌ Error streaming logs: {e}")
-
-def print_setup_instructions():
-    """Print setup instructions for log streaming"""
-    print("📋 Render Log Streaming Setup Instructions:")
-    print()
-    print("1. Get your Render API key:")
-    print("   - Go to: https://dashboard.render.com/user/settings")
-    print("   - Generate or copy your API key")
-    print()
-    print("2. Set environment variable:")
-    print("   Windows: set RENDER_API_KEY=your_key_here")
-    print("   Linux/Mac: export RENDER_API_KEY='your_key_here'")
-    print()
-    print("3. Run the log streamer:")
-    print("   python scripts/stream_logs.py")
-    print()
-    print("4. Test CaliBOT while logs are streaming:")
-    print("   - Send 'yesterdays schedule' to bot")
-    print("   - Send 'move the last 3 events yesterday 1 hr later'")
-    print("   - Watch real-time logs with target selection debugging")
-    print()
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "--help":
-        print_setup_instructions()
-    else:
-        asyncio.run(stream_render_logs())

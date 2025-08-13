@@ -4,6 +4,19 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.114] - 2025-08-13
+
+### Fixed
+- **CRITICAL: Time Shift Logic Fixed**: Fixed "move yesterday to today" commands that were failing due to datetime format parsing issues
+- **Confirmation Message Hyperlinks**: Added proper hyperlinks to confirmation messages with current → proposed change arrows  
+- **UI Text Improvements**: Changed "All Selected" to "Complete change" and removed redundant "Successfully updated" header
+
+### Technical Details  
+- **multi_event_operations.py**: Fixed time shift parsing to handle both full datetime and time-only formats, added day shift support
+- **multi_event_operations.py**: Enhanced confirmation message to show current → proposed changes with proper hyperlinks
+- **routes.py**: Updated callback text from "All Selected" to "Complete change"
+- **multi_event_operations.py**: Removed redundant success message header, now shows just the updated event list
+
 ## [0.1.113] - 2025-01-13
 
 ### Added

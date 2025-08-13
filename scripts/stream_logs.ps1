@@ -3,70 +3,96 @@
 
 # Configuration
 $SERVICE_ID = "srv-ctglj6qj1k6c73fpjbeg"  # CaliBOT service ID
-$LOGS_URL = "https://api.render.com/v1/services/$SERVICE_ID/logs"
-
-# Check if API key is set
-if (-not $env:RENDER_API_KEY) {
-    Write-Host "❌ RENDER_API_KEY environment variable not set" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "📋 Setup Instructions:" -ForegroundColor Yellow
-    Write-Host "1. Get your API key from: https://dashboard.render.com/user/settings"
-    Write-Host "2. Set environment variable:"
-    Write-Host "   `$env:RENDER_API_KEY = 'your_key_here'"
-    Write-Host "3. Run this script: .\scripts\stream_logs.ps1"
-    Write-Host ""
-    exit 1
-}
+$RENDER_API_KEY = "rnd_m8U9bCF9is6HWxuVbrc5S1rA7VzP"  # Your API key
+$LOGS_URL = "https://api.render.com/v1/logs"
 
 Write-Host "🔄 Streaming logs from CaliBOT service: $SERVICE_ID" -ForegroundColor Cyan
 Write-Host "📡 API endpoint: $LOGS_URL" -ForegroundColor Gray
 Write-Host "================================================================================"
-Write-Host "✅ Connected to Render log stream" -ForegroundColor Green
+Write-Host "✅ Connected to Render API" -ForegroundColor Green
 Write-Host "🎯 Watching for CaliBOT activity..." -ForegroundColor Yellow
 Write-Host "-------------------------------------------------------------------------------"
 
 # Set up headers
 $headers = @{
-    "Authorization" = "Bearer $env:RENDER_API_KEY"
+    "Authorization" = "Bearer $RENDER_API_KEY"
     "Content-Type" = "application/json"
 }
 
-try {
-    # Create web request
-    $request = [System.Net.WebRequest]::Create($LOGS_URL)
-    $request.Method = "GET"
-    foreach ($key in $headers.Keys) {
-        $request.Headers.Add($key, $headers[$key])
+# Function to get logs batch
+function Get-LogsBatch {
+    param(
+        [string]$StartTime = $null
+    )
+    
+    $params = @{
+        "resourceId" = $SERVICE_ID
+        "limit" = 100
     }
     
-    # Get response stream
-    $response = $request.GetResponse()
-    $stream = $response.GetResponseStream()
-    $reader = New-Object System.IO.StreamReader($stream)
+    if ($StartTime) {
+        $params["startTime"] = $StartTime
+    }
     
-    # Read stream line by line
-    while (-not $reader.EndOfStream) {
-        $line = $reader.ReadLine()
-        $timestamp = Get-Date -Format "HH:mm:ss"
+    # Build URL with parameters
+    $paramString = ($params.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join "&"
+    $fullUrl = "$LOGS_URL?$paramString"
+    
+    try {
+        $response = Invoke-RestMethod -Uri $fullUrl -Headers $headers -Method Get
+        return $response
+    } catch {
+        Write-Host "❌ API Error: $($_.Exception.Message)" -ForegroundColor Red
+        return $null
+    }
+}
+
+# Start streaming from 5 minutes ago
+$startTime = (Get-Date).AddMinutes(-5).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+$lastSeenTime = $startTime
+
+try {
+    while ($true) {
+        $data = Get-LogsBatch -StartTime $lastSeenTime
         
-        # Color code important log types
-        if ($line -match "🔍 LLM") {
-            Write-Host "🔍 $timestamp | $line" -ForegroundColor Blue
-        } elseif ($line -match "🚨") {
-            Write-Host "🚨 $timestamp | $line" -ForegroundColor Red
-        } elseif ($line -match "ERROR") {
-            Write-Host "❌ $timestamp | $line" -ForegroundColor Red
-        } elseif ($line -match "Target|target") {
-            Write-Host "🎯 $timestamp | $line" -ForegroundColor Magenta
-        } elseif ($line -match "Bot sending") {
-            Write-Host "🤖 $timestamp | $line" -ForegroundColor Green
-        } else {
-            Write-Host "📝 $timestamp | $line" -ForegroundColor White
+        if ($data -and $data.logs) {
+            foreach ($logEntry in $data.logs) {
+                $timestamp = $logEntry.timestamp
+                $message = $logEntry.message
+                
+                # Format timestamp for display
+                try {
+                    $dt = [DateTime]::Parse($timestamp)
+                    $displayTime = $dt.ToString("HH:mm:ss")
+                } catch {
+                    $displayTime = $timestamp.Substring(0, [Math]::Min(8, $timestamp.Length))
+                }
+                
+                # Color code important log types
+                if ($message -match "🔍 LLM") {
+                    Write-Host "🔍 $displayTime | $message" -ForegroundColor Blue
+                } elseif ($message -match "🚨") {
+                    Write-Host "🚨 $displayTime | $message" -ForegroundColor Red
+                } elseif ($message -match "ERROR") {
+                    Write-Host "❌ $displayTime | $message" -ForegroundColor Red
+                } elseif ($message -match "Target|target") {
+                    Write-Host "🎯 $displayTime | $message" -ForegroundColor Magenta
+                } elseif ($message -match "Bot sending") {
+                    Write-Host "🤖 $displayTime | $message" -ForegroundColor Green
+                } else {
+                    Write-Host "📝 $displayTime | $message" -ForegroundColor White
+                }
+            }
+            
+            # Update last seen time
+            if ($data.logs.Count -gt 0) {
+                $lastSeenTime = $data.logs[-1].timestamp
+            }
         }
+        
+        # Wait before next request
+        Start-Sleep -Seconds 2
     }
 } catch {
     Write-Host "❌ Error streaming logs: $($_.Exception.Message)" -ForegroundColor Red
-} finally {
-    if ($reader) { $reader.Close() }
-    if ($response) { $response.Close() }
 }

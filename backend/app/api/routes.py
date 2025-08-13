@@ -220,7 +220,7 @@ async def handle_callback_query(callback_query):
             
             # Remove keyboard from original message  
             await edit_message_text(chat_id, message_id, 
-                callback_query["message"]["text"] + "\n\n✅ **All Selected** - Processing all events...", 
+                callback_query["message"]["text"] + "\n\n✅ **Complete change** - Processing all events...", 
                 reply_markup={})
             
             # Process pending multi-event operation
