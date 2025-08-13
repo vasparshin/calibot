@@ -1,0 +1,149 @@
+{
+  "test_run_id": "comprehensive_1755106172",
+  "total_tests": 8,
+  "successful_tests": 0,
+  "failed_tests": 8,
+  "critical_tests": [
+    {
+      "message": "move the last 2 events of today to tomorrow",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:20.764036",
+      "user_id": 123456789,
+      "test_number": 1,
+      "expected_intent": "update",
+      "description": "This was being incorrectly classified as 'query' instead of 'update'"
+    },
+    {
+      "message": "show me tomorrow's schedule",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:22.773120",
+      "user_id": 123456789,
+      "test_number": 2,
+      "expected_intent": "query",
+      "description": "This should correctly be classified as 'query'"
+    },
+    {
+      "message": "create an event called 'Test Meeting' tomorrow at 3pm",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:24.796412",
+      "user_id": 123456789,
+      "test_number": 3,
+      "expected_intent": "create",
+      "description": "Testing single event creation with formatting consistency"
+    },
+    {
+      "message": "create 3 events: 'Morning standup' at 9am, 'Code review' at 11am, 'Lunch meeting' at 12pm all for tomorrow",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:26.800723",
+      "user_id": 123456789,
+      "test_number": 4,
+      "expected_intent": "create",
+      "description": "Testing multiple event creation"
+    }
+  ],
+  "edge_case_tests": [
+    {
+      "message": "reschedule my first meeting tomorrow to next Monday at 10am",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:28.811388",
+      "user_id": 123456789
+    },
+    {
+      "message": "delete the last 3 events created today",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:29.822781",
+      "user_id": 123456789
+    },
+    {
+      "message": "move all my meetings from today to next Friday",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:30.835026",
+      "user_id": 123456789
+    },
+    {
+      "message": "what events do I have next week between Monday and Friday",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:31.845555",
+      "user_id": 123456789
+    }
+  ],
+  "all_results": [
+    {
+      "message": "move the last 2 events of today to tomorrow",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:20.764036",
+      "user_id": 123456789,
+      "test_number": 1,
+      "expected_intent": "update",
+      "description": "This was being incorrectly classified as 'query' instead of 'update'"
+    },
+    {
+      "message": "show me tomorrow's schedule",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:22.773120",
+      "user_id": 123456789,
+      "test_number": 2,
+      "expected_intent": "query",
+      "description": "This should correctly be classified as 'query'"
+    },
+    {
+      "message": "create an event called 'Test Meeting' tomorrow at 3pm",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:24.796412",
+      "user_id": 123456789,
+      "test_number": 3,
+      "expected_intent": "create",
+      "description": "Testing single event creation with formatting consistency"
+    },
+    {
+      "message": "create 3 events: 'Morning standup' at 9am, 'Code review' at 11am, 'Lunch meeting' at 12pm all for tomorrow",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:26.800723",
+      "user_id": 123456789,
+      "test_number": 4,
+      "expected_intent": "create",
+      "description": "Testing multiple event creation"
+    },
+    {
+      "message": "reschedule my first meeting tomorrow to next Monday at 10am",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:28.811388",
+      "user_id": 123456789
+    },
+    {
+      "message": "delete the last 3 events created today",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:29.822781",
+      "user_id": 123456789
+    },
+    {
+      "message": "move all my meetings from today to next Friday",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:30.835026",
+      "user_id": 123456789
+    },
+    {
+      "message": "what events do I have next week between Monday and Friday",
+      "error": "Cannot connect to host enter your calibot backend url (e.g., https:443 ssl:default [getaddrinfo failed]",
+      "success": false,
+      "timestamp": "2025-08-13T18:29:31.845555",
+      "user_id": 123456789
+    }
+  ],
+  "start_time": "2025-08-13T18:29:32.858443"
+}

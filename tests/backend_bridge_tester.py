@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class BackendBridgeTester:
-    def __init__(self, calibot_backend_url: str, test_chat_id: int = -4627994150):
+    def __init__(self, calibot_backend_url: str = "https://calibot-utq6.onrender.com", test_chat_id: int = -4627994150):
         self.backend_url = calibot_backend_url
         self.webhook_url = f"{calibot_backend_url}/webhook"
         self.test_chat_id = test_chat_id
@@ -213,86 +213,48 @@ class BackendBridgeTester:
         return summary
 
 async def main():
-    """Run the backend bridge testing system."""
+    """Automated testing system - no user input required."""
     
-    print("🔗 CALIBOT BACKEND BRIDGE TESTER")
+    print("🔗 CALIBOT AUTOMATED TESTING SYSTEM")
     print("=" * 50)
-    print("This tool tests Calibot by sending webhook payloads directly to the backend,")
-    print("bypassing Telegram's bot-to-bot limitation completely.")
+    print("🤖 Fully automated testing - no user input required")
+    print("🎯 Backend: https://calibot-utq6.onrender.com")
+    print("🔄 Running comprehensive test suite automatically...")
     print()
     
-    # Get backend URL
-    backend_url = input("Enter your Calibot backend URL (e.g., https://calibot-utq6.onrender.com): ").strip()
-    
-    if not backend_url:
-        print("❌ Backend URL is required")
-        return
-    
-    if not backend_url.startswith("http"):
-        backend_url = f"https://{backend_url}"
-    
-    print(f"🎯 Target Backend: {backend_url}")
-    print()
-    
-    # Menu options
-    print("📋 TEST OPTIONS:")
-    print("1. 🎯 Test Critical Intent Extraction Issue (recommended)")
-    print("2. 🚀 Run Comprehensive Test Suite")
-    print("3. 🧪 Send Single Test Message")
-    print("4. ⚡ Quick Validation Test")
-    
-    choice = input("\nSelect option (1-4): ").strip()
-    
-    async with BackendBridgeTester(backend_url) as tester:
+    async with BackendBridgeTester() as tester:
+        # Run comprehensive test suite automatically
+        print("🚀 STARTING AUTOMATED COMPREHENSIVE TESTING")
+        print("=" * 50)
         
-        if choice == "1":
-            results = await tester.test_critical_intent_extraction()
-            
-            # Save results
-            timestamp = int(time.time())
-            filename = f"critical_intent_test_{timestamp}.json"
-            with open(filename, 'w') as f:
-                json.dump(results, f, indent=2)
-            
-            print(f"\n💾 Results saved to: {filename}")
-            
-            # Check for the specific intent extraction issue
-            move_test = next((r for r in results if "move the last 2 events" in r["message"]), None)
-            if move_test and move_test.get("success"):
-                print("\n🎉 CRITICAL TEST PASSED!")
-                print("The 'move the last 2 events of today to tomorrow' message was processed successfully!")
-            else:
-                print("\n⚠️ CRITICAL TEST NEEDS ATTENTION")
-                print("The intent extraction issue may still be present.")
+        summary = await tester.run_comprehensive_test_suite()
         
-        elif choice == "2":
-            summary = await tester.run_comprehensive_test_suite()
-            
-            # Save comprehensive results
-            timestamp = int(time.time())
-            filename = f"comprehensive_test_{timestamp}.json"
-            with open(filename, 'w') as f:
-                json.dump(summary, f, indent=2)
-            
-            print(f"\n💾 Comprehensive results saved to: {filename}")
+        # Save comprehensive results
+        timestamp = int(time.time())
+        filename = f"automated_test_{timestamp}.json"
+        with open(filename, 'w') as f:
+            json.dump(summary, f, indent=2)
         
-        elif choice == "3":
-            custom_message = input("Enter test message: ").strip()
-            if custom_message:
-                result = await tester.send_webhook_payload(custom_message)
-                print(f"\n📋 Result:")
-                print(json.dumps(result, indent=2))
+        print(f"\n💾 Automated test results saved to: {filename}")
         
-        elif choice == "4":
-            # Quick validation with a simple message
-            result = await tester.send_webhook_payload("show me my events for today")
-            if result.get("success"):
-                print("✅ Quick validation PASSED - Backend is responding correctly!")
-            else:
-                print("❌ Quick validation FAILED - Check backend configuration")
+        # Show summary
+        print(f"\n📊 AUTOMATED TEST SUMMARY")
+        print("=" * 40)
+        print(f"✅ Total Tests: {summary.get('total_tests', 0)}")
+        print(f"🎯 Successful: {summary.get('successful_tests', 0)}")
+        print(f"❌ Failed: {summary.get('failed_tests', 0)}")
         
+        success_rate = (summary.get('successful_tests', 0) / max(summary.get('total_tests', 1), 1)) * 100
+        print(f"📈 Success Rate: {success_rate:.1f}%")
+        
+        if success_rate >= 80:
+            print("\n🎉 EXCELLENT! Tests are mostly passing!")
+        elif success_rate >= 60:
+            print("\n⚠️ GOOD but needs some fixes")
         else:
-            print("❌ Invalid choice")
+            print("\n🔧 NEEDS ATTENTION - Multiple issues detected")
+        
+        return summary
 
 if __name__ == "__main__":
     try:
