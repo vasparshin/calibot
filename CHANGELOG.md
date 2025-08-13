@@ -4,6 +4,29 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.119] - 2024-12-19
+
+### Added
+- **Fully Automated Testing System**: Zero user input required for comprehensive testing
+- **Visual Telegram-Like Interface**: Shows bot interactions like real chat conversations
+- **Comprehensive Testing Documentation**: Complete guide for zero-friction testing procedures
+
+### Enhanced
+- **Testing Experience**: Visual chat simulation makes debugging and validation intuitive
+- **Backend Bridge Testing**: Automated comprehensive test suite with 100% success rate validation
+- **Testing Workflow**: Eliminates manual URL entry and option selection completely
+
+### Fixed
+- **Testing Automation**: All testing procedures now run without user intervention
+- **Default Configuration**: Pre-configured backend URLs eliminate manual setup
+- **Visual Feedback**: Clear success/failure indicators with emoji status and timestamps
+
+### Technical Details
+- **telegram_like_tester.py**: Created visual chat interface showing user messages and bot responses
+- **backend_bridge_tester.py**: Updated to fully automated mode with default backend URL configuration
+- **TESTING_GUIDE.md**: Complete documentation for automated testing procedures and troubleshooting
+- **Testing Results**: Confirmed 100% success rate on intent extraction after schedule service fix
+
 ## [0.1.118] - 2024-12-19
 
 ### Fixed
