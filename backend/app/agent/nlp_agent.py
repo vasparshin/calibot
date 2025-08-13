@@ -166,9 +166,28 @@ class NLPAgent:
                 ]
                 
                 # Log the exact messages being sent
+                # Enhanced LLM input logging - show full content for debugging
                 logger.info(f"🔍 LLM CALL DEBUG - Messages being sent to {self.model}:")
                 for i, msg in enumerate(messages):
-                    logger.info(f"🔍 Message {i+1} ({msg['role']}): {msg['content'][:200]}{'...' if len(msg['content']) > 200 else ''}")
+                    role = msg['role']
+                    content = msg['content']
+                    
+                    # Show preview first
+                    logger.info(f"🔍 Message {i+1} ({role}): {content[:200]}{'...' if len(content) > 200 else ''}")
+                    
+                    # For system messages, show the full content in chunks for debugging
+                    if role == 'system' and len(content) > 200:
+                        logger.info(f"🔍 FULL SYSTEM MESSAGE - Length: {len(content)} chars")
+                        # Split into readable chunks
+                        chunk_size = 500
+                        for chunk_i in range(0, len(content), chunk_size):
+                            chunk = content[chunk_i:chunk_i + chunk_size]
+                            chunk_num = chunk_i // chunk_size + 1
+                            logger.info(f"🔍 System chunk {chunk_num}: {chunk}")
+                    
+                    # For user messages, always show full content 
+                    elif role == 'user':
+                        logger.info(f"🔍 FULL USER MESSAGE: '{content}'")
                 
                 response = await acompletion(
                     model=self.model,
@@ -177,7 +196,7 @@ class NLPAgent:
                     temperature=0.1,  # Tiny bit of randomness to avoid getting stuck
                 )
                 
-                # Log the raw response structure
+                # Enhanced response logging
                 logger.info(f"🔍 LLM RESPONSE DEBUG - Raw response type: {type(response)}")
                 logger.info(f"🔍 LLM RESPONSE DEBUG - Response keys: {list(response.keys()) if isinstance(response, dict) else 'Not a dict'}")
                 if isinstance(response, dict) and 'choices' in response:
@@ -190,13 +209,14 @@ class NLPAgent:
                             logger.info(f"🔍 LLM RESPONSE DEBUG - Message keys: {list(message.keys())}")
                             content = message.get('content', '')
                             logger.info(f"🔍 LLM RESPONSE DEBUG - Raw content: '{content}'")
+                            logger.info(f"🔍 LLM RESPONSE DEBUG - Content length: {len(content)} chars")
                 
                 return response
 
             response = await _call_llm()
 
             result = response['choices'][0]['message']['content']
-            logger.info(f"Raw LLM response: '{result}'")
+            logger.info(f"🔍 COMPLETE LLM RESPONSE: '{result}'")
             logger.info(f"Response length: {len(result)}")
             logger.info(f"Response type: {type(result)}")
             

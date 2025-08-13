@@ -186,16 +186,17 @@ class MultiEventOperationHandler:
                     # Show current → proposed format for changes
                     if 'time_shift' in event_data and 'day' in event_data['time_shift']:
                         # For date shifts, show date change
-                        from datetime import datetime, timedelta
                         try:
-                            current_date_obj = datetime.fromisoformat(date)
+                            from datetime import datetime as dt, timedelta
+                            current_date_obj = dt.fromisoformat(date)
                             if '1 day' in event_data['time_shift']:
                                 new_date_obj = current_date_obj + timedelta(days=1)
                                 new_date_str = new_date_obj.strftime('%Y-%m-%d')
                                 event_list += f"{i}. {formatted_name} on {date} at {start_time} → {new_date_str} at {start_time} ({calendar_name})\n"
                             else:
                                 event_list += f"{i}. {formatted_name} on {date} at {start_time} → will be shifted ({calendar_name})\n"
-                        except:
+                        except Exception as e:
+                            logger.error(f"Error formatting date change: {e}")
                             event_list += f"{i}. {formatted_name} on {date} at {start_time} → moved to today ({calendar_name})\n"
                     else:
                         event_list += f"{i}. {formatted_name} on {date} at {start_time} ({calendar_name})\n"

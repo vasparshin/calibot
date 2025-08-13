@@ -4,6 +4,16 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 
 ## [Unreleased]
 
+## [0.1.115] - 2024-12-19
+
+### Fixed
+- **Critical: DateTime Import Conflict Bug**: Fixed "cannot access local variable 'datetime'" error in multi-event operations by using datetime alias (dt)
+- **Enhanced LLM Logging**: Implemented comprehensive LLM conversation logging with full system message content display in 500-character chunks and complete user messages for improved debugging visibility
+
+### Technical Details
+- **multi_event_operations.py**: Changed datetime import to use 'dt' alias to avoid local variable conflicts in time shift logic
+- **nlp_agent.py**: Added complete LLM input/output logging showing full system prompts in chunks, user messages in full, and detailed response analysis
+
 ## [0.1.114] - 2025-08-13
 
 ### Fixed
