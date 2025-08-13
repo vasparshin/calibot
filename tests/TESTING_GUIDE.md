@@ -8,6 +8,22 @@ cd tests
 python telegram_like_tester.py
 ```
 
+### Real Telegram Group Messages
+```bash
+cd tests
+python simple_group_poster.py
+```
+
+**Setup Required**:
+1. Get your test bot token from @BotFather
+2. Add your bot to your group chat
+3. Get the group chat ID (negative number)
+4. Edit `simple_group_poster.py` or set environment variables:
+   - `TELEGRAM_BOT_TOKEN=your_bot_token`
+   - `TELEGRAM_GROUP_ID=your_group_chat_id`
+
+This posts actual messages to your Telegram group showing realistic bot conversations!
+
 This provides the best testing experience:
 - **Visual Telegram-like chat interface** showing user messages and bot responses
 - **Fully automated** - no user input required  

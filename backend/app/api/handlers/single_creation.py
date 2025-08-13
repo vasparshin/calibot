@@ -9,19 +9,34 @@ async def create_single_event(chat_id: int, event_data: Dict[str, Any], calendar
     try:
         res = await calendar_service.create_event(event_data)
         if res.get("success"):
-            # Use simple formatting instead of the removed formatter function
-            event_details = []
-            if event_data.get("event_name"):
-                event_details.append(f"📅 {event_data['event_name']}")
-            if event_data.get("start_time") and event_data.get("end_time"):
-                event_details.append(f"🕐 {event_data['start_time']} - {event_data['end_time']}")
-            if event_data.get("date"):
-                event_details.append(f"📆 {event_data['date']}")
-            if event_data.get("calendar_name"):
-                event_details.append(f"📚 Calendar: {event_data['calendar_name']}")
+            # Use MessageFormatter for consistent formatting
+            try:
+                from app.utils.message_formatter import MessageFormatter
+                
+                # Format the event data for display
+                event_for_display = {
+                    'summary': event_data.get('event_name', 'Event'),
+                    'start': f"{event_data.get('date', '')}T{event_data.get('start_time', '')}:00",
+                    'end': f"{event_data.get('date', '')}T{event_data.get('end_time', '')}:00",
+                    'calendar_name': res.get('calendar_used', event_data.get('calendar_name', 'Calendar')),
+                    'id': res.get('event_id', ''),
+                    'htmlLink': res.get('event_link', '')
+                }
+                
+                # Use the centralized formatter for consistency
+                formatted_event = MessageFormatter.format_single_event_display(event_for_display, include_hyperlink=True)
+                msg = f"Event created successfully:\n\n{formatted_event}"
+                
+            except ImportError:
+                # Fallback formatting that matches MessageFormatter output
+                event_name = event_data.get('event_name', 'Event')
+                date = event_data.get('date', 'today')
+                start_time = event_data.get('start_time', '')
+                end_time = event_data.get('end_time', '')
+                calendar_name = res.get('calendar_used', event_data.get('calendar_name', 'Calendar'))
+                
+                msg = f"Event created successfully:\n\n• {event_name} on {date} at {start_time} - {end_time} ({calendar_name})"
             
-            formatted = "\n".join(event_details)
-            msg = f"Event created successfully:\n\n{formatted}"
             await send_fn(chat_id, msg)
             conversation_state.add_message(chat_id, "assistant", msg)
         else:
