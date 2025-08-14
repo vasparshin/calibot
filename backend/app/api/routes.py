@@ -197,15 +197,56 @@ async def handle_callback_query(callback_query):
     if callback_data == "select_cancel":
         return await handle_event_selection(chat_id, message_id, "cancel")
 
-    # Queue navigation callbacks
+    # Queue navigation callbacks - FIXED: Route to queue handler, not confirmation handler
     if action == "queue":
-        # Map queue actions to internal confirmation keywords
-        if detail == "confirm":
-            return await handle_confirmation_callback(chat_id, message_id, "yes")
-        elif detail == "skip":
-            return await handle_confirmation_callback(chat_id, message_id, "skip")
-        elif detail == "stop":
-            return await handle_confirmation_callback(chat_id, message_id, "cancel")
+        # Check if there's a pending queue for this chat
+        if event_queue_handler.has_pending_queue(chat_id):
+            logger.info(f"🔘 Queue callback '{detail}' received for chat {chat_id}")
+            
+            # Map queue actions to confirmation keywords and process through queue handler
+            confirmation = None
+            if detail == "confirm":
+                confirmation = "yes"
+            elif detail == "skip":
+                confirmation = "skip"
+            elif detail == "stop":
+                confirmation = "cancel"
+            
+            if confirmation:
+                # Process through existing queue handling logic
+                try:
+                    queue_result = await event_queue_handler.process_queue_response(chat_id, confirmation)
+                    
+                    if queue_result.get("queue_continues"):
+                        # Send the current result first
+                        await send_telegram_message(chat_id, queue_result["message"])
+                        conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+                        
+                        # Then send the next confirmation as a separate message
+                        next_conf = queue_result.get("next_confirmation", {})
+                        if next_conf:
+                            keyboard = next_conf.get("keyboard")
+                            if keyboard:
+                                await send_telegram_message(chat_id, next_conf["message"], reply_markup=keyboard)
+                            else:
+                                await send_telegram_message(chat_id, next_conf["message"])
+                            conversation_state.add_message(chat_id, "assistant", next_conf["message"])
+                    else:
+                        # Standard processing for complete operations
+                        keyboard = queue_result.get("keyboard")
+                        if keyboard:
+                            await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
+                        else:
+                            await send_telegram_message(chat_id, queue_result["message"])
+                        conversation_state.add_message(chat_id, "assistant", queue_result["message"])
+                    
+                    return {"status": "ok"}
+                except Exception as e:
+                    logger.error(f"Error processing queue callback: {e}")
+                    await send_telegram_message(chat_id, f"Error processing queue: {str(e)}")
+                    return {"status": "ok"}
+        else:
+            logger.warning(f"🔘 Queue callback '{detail}' but no pending queue for chat {chat_id}")
         return {"status": "ok"}
 
     # Schedule button callbacks

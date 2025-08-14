@@ -2,6 +2,24 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.126] - 2025-08-14
+
+### Fixed
+- **Critical: Queue Progression Bug**: Fixed issue where second event never appeared after pressing yes/skip on first event in one-by-one workflow
+  - **Root Cause**: Queue callbacks (`queue_skip_0`) were being routed to regular confirmation handler instead of queue handler
+  - **Solution**: Rerouted queue callbacks to `event_queue_handler.process_queue_response()` for proper queue progression
+  - **Result**: Now shows "UPDATE Event 2 of 2" after responding to first event
+
+### Technical Details  
+- **routes.py**: Fixed callback routing in `handle_callback_query()` - queue actions now go to queue handler instead of confirmation handler
+- **Queue Flow**: Skip/confirm buttons on individual events now properly advance to next event in queue
+- **Error Handling**: Added proper error handling for queue callback processing
+
+### User Experience Impact
+- ✅ First event shows correctly with proper formatting (from v0.1.125)
+- ✅ Second event now appears after responding to first event (NEW FIX)
+- ✅ Queue progression works: Event 1 → User Response → Event 2 → Completion
+
 ## [0.1.125] - 2025-08-14
 
 ### Fixed
