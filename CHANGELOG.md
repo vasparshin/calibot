@@ -2,6 +2,16 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.131] - 2025-08-14
+
+### Fixed
+- **Critical: 500 Internal Server Error Fix**: Fixed MessageFormatter variable scope issue causing "cannot access local variable 'MessageFormatter' where it is not associated with a value" error
+### Technical Details
+- **routes.py**: Removed duplicate local import of MessageFormatter inside query processing function that was conflicting with global imports
+- **Multi-Event Processing**: Fixed backend crash that was preventing proper event processing and queue management  
+- **Error Handling**: Eliminated 500 HTTP errors that were breaking the entire multi-event workflow
+- **Queue System**: Restored proper queue operation by fixing the underlying MessageFormatter import conflict
+
 ## [0.1.130] - 2025-01-14
 
 ### Fixed

@@ -1076,7 +1076,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             logger.info(f"Found {len(events)} events with calendar info")
             for ev in events:
                 logger.info(f"  • {ev.get('summary','No Title')} ({ev.get('calendar_name','Unknown')})")
-            from app.utils.message_formatter import MessageFormatter
+            
             if len(events) == 1:
                 formatted_event = MessageFormatter.format_single_event_display(events[0], include_hyperlink=True)
                 response = f"Found 1 event:\n\n{formatted_event}"
