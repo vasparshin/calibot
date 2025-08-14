@@ -56,9 +56,9 @@ class QuickTelegramTest:
             return False
 
 async def main():
-    # Configuration
-    BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
-    GROUP_CHAT_ID = -1000000000000
+    # Configuration - SAVED FOR AUTOMATIC USE
+    BOT_TOKEN = "8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA"
+    GROUP_CHAT_ID = -4627994150
     
     # Check environment variables
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN", BOT_TOKEN)

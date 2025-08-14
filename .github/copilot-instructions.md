@@ -5,6 +5,9 @@
 ## ⚠️ CRITICAL REMINDERS
 - **🚨 MANDATORY CHANGELOG UPDATE 🚨** - EVERY code change MUST be documented in CHANGELOG.md IMMEDIATELY before task completion
 - **🤖 MANDATORY BOT RULES COMPLIANCE 🤖** - ALL user-facing messages MUST follow formatting rules in BOT_RULES.md
+- **🚀 MANDATORY DEPLOYMENT VERIFICATION 🚀** - ALWAYS verify latest version is deployed before testing using `python scripts/verify_deployment.py`
+- **⏱️ MANDATORY RENDER RESTART 📋** - If auto-deployment fails, use `verify_deployment.py` force restart or manual Render dashboard restart
+- **📊 LOG FETCHING RULES 📊** - NEVER use streaming log scripts (`live_logs.py`) - they get stuck. ALWAYS use `recent_logs.py` to fetch last 30 minutes of logs and exit cleanly
 - **NO EXCEPTIONS TO CHANGELOG RULE** - Even the smallest bug fix, file organization, or code tweak requires CHANGELOG.md update
 - **CHANGELOG UPDATE IS PART OF THE FIX** - A change is NOT complete until CHANGELOG.md is updated
 - **ALWAYS UPDATE CHANGELOG.MD** - Every code change MUST be documented in CHANGELOG.md before task completion
@@ -30,6 +33,36 @@
 - **NEVER CREATE**: Utility scripts unless explicitly requested
 - **IMMEDIATELY DELETE**: Any summary files found during task execution
 
+## 📦 DEPLOYMENT SIZE OPTIMIZATION
+**CRITICAL: Keep Render deployment lean - currently at 4/1GB, optimize aggressively**
+
+### .gitignore Management Rules
+- **ALL test result files MUST be ignored**: `tests/*_results_*.json`, `tests/logs/`, etc.
+- **Development utilities excluded**: Non-essential scripts, debug tools, analysis scripts
+- **Media files prohibited**: `*.mp4`, `*.tgz`, large assets in `info/` directory
+- **Temporary files ignored**: `*.tmp`, `*.temp`, IDE files, backup files
+- **Test artifacts excluded**: Generated test reports, simulation results, debug outputs
+
+### File Size Monitoring
+- **Monitor deployment size** regularly via Render dashboard
+- **Large file detection**: Any file >1MB should be reviewed for necessity
+- **Asset optimization**: Compress or exclude large development assets
+- **Log file cleanup**: Exclude all generated log files and test results from repository
+
+### Essential vs. Non-Essential Files
+**Essential (included)**:
+- Core application code (`backend/`)
+- Configuration files (`pyproject.toml`, `Dockerfile`, etc.)
+- Documentation (`README.md`, `CHANGELOG.md`, `BOT_RULES.md`)
+- Production scripts (`scripts/verify_deployment.py`, `scripts/quick_version_check.py`)
+
+**Non-Essential (excluded)**:
+- Test result files and logs
+- Development debugging tools
+- Large media assets
+- Temporary analysis scripts
+- Generated documentation
+
 ## 🛡️ DEPLOYMENT ARCHITECTURE
 **CRITICAL: CaliBOT is deployed via Render.com with GitHub integration**
 - **Auto-deployment**: Render automatically deploys from GitHub main branch
@@ -38,6 +71,41 @@
 - **Docker**: Render uses the existing Dockerfile automatically
 - **Dependencies**: Render installs from requirements.txt and pyproject.toml
 - **NEVER create deployment documentation** - this information is sufficient
+
+## 🚀 MANDATORY DEPLOYMENT VERIFICATION WORKFLOW
+**CRITICAL: ALWAYS verify deployment before testing - Render auto-deployment can fail**
+
+### Pre-Testing Verification (MANDATORY)
+```bash
+# Step 1: Quick version check
+python scripts/quick_version_check.py
+
+# Step 2: If version mismatch, use automated verification
+python scripts/verify_deployment.py
+```
+
+### Deployment Verification Rules
+- **ALWAYS check version match** before running any tests
+- **Use automated tools** - `verify_deployment.py` handles restart if needed
+- **Wait 2-3 minutes** after git push for Render deployment
+- **Force restart if auto-deploy fails** - tool handles this automatically
+- **Manual Render dashboard restart** as backup option
+- **Health check required** before testing to ensure service is responsive
+
+### Automated Restart Process
+- `verify_deployment.py` compares local vs deployed versions
+- Automatically offers to force deployment via empty commit + push
+- Waits appropriate time for Render to redeploy
+- Re-verifies version after restart
+- Ensures backend health before proceeding
+
+### When Auto-Deployment Fails
+1. **Use `verify_deployment.py`** - handles most cases automatically
+2. **Manual Render dashboard restart** - if automated restart fails
+3. **Check Render logs** - for deployment errors or build failures
+4. **Verify environment variables** - in Render dashboard if service won't start
+
+**NO TESTING WITHOUT VERIFICATION** - Testing old code wastes time and gives false results
 
 ## 🛡️ MANDATORY PRE-TASK FILE ORGANIZATION CHECK
 **BEFORE ANY TASK EXECUTION, SCAN FOR:**
@@ -150,27 +218,31 @@
 8. **Code Review**: Verify code follows project conventions and is maintainable
 
 #### Phase 3: Testing & Validation
-9. **Unit Testing**: Test individual functions and components in isolation
-10. **Integration Testing**: Test feature works with existing system components
-11. **Real-World Scenario Testing**: Test with actual user scenarios and edge cases
-12. **Performance Testing**: Verify feature doesn't degrade system performance
-13. **User Experience Testing**: Ensure feature provides good UX and follows BOT_RULES.md
+9. **MANDATORY: Pre-Testing Deployment Verification**: Run `python scripts/verify_deployment.py` to ensure latest version is deployed
+10. **Unit Testing**: Test individual functions and components in isolation
+11. **Integration Testing**: Test feature works with existing system components
+12. **Real-World Scenario Testing**: Test with actual user scenarios and edge cases using `tests/test_one_by_one_workflow.py` for multi-event features
+13. **Performance Testing**: Verify feature doesn't degrade system performance
+14. **User Experience Testing**: Ensure feature provides good UX and follows BOT_RULES.md
 
 #### Phase 4: Optimization & Polish
-14. **Code Optimization**: Refactor for efficiency, readability, and maintainability
-15. **Documentation Update**: Update relevant documentation and code comments
-16. **Error Message Improvement**: Ensure all error messages are helpful and actionable
-17. **Final Validation**: Complete end-to-end testing of the entire feature
+15. **Code Optimization**: Refactor for efficiency, readability, and maintainability
+16. **Documentation Update**: Update relevant documentation and code comments
+17. **Error Message Improvement**: Ensure all error messages are helpful and actionable
+18. **Final Validation**: Complete end-to-end testing of the entire feature
 
 #### Phase 5: Release & Documentation
-18. **Version Increment**: Update version in pyproject.toml, backend/app/__init__.py
-19. **CHANGELOG.md Update**: Document what was implemented, why, and impact
-20. **Git Commit**: Commit all changes with descriptive commit message
-21. **Push to Repository**: Deploy changes and verify successful deployment
+19. **Version Increment**: Update version in pyproject.toml, backend/app/__init__.py
+20. **CHANGELOG.md Update**: Document what was implemented, why, and impact
+21. **Git Commit**: Commit all changes with descriptive commit message
+22. **Push to Repository**: Deploy changes to trigger auto-deployment
+23. **MANDATORY Deployment Verification**: Use `python scripts/verify_deployment.py` to ensure latest version is deployed
+24. **Final Testing**: Run complete test suite on deployed version to confirm functionality
 
-**🚨 NO FEATURE IS COMPLETE UNTIL ALL 21 STEPS ARE FINISHED 🚨**
+**🚨 NO FEATURE IS COMPLETE UNTIL ALL 24 STEPS ARE FINISHED 🚨**
 **🚨 CLAIMING IMPLEMENTATION WITHOUT COMPLETING ALL PHASES IS FORBIDDEN 🚨**
 **🚨 TESTING MUST BE REAL-WORLD SCENARIOS, NOT JUST SYNTAX CHECKS 🚨**
+**🚨 DEPLOYMENT VERIFICATION IS MANDATORY BEFORE FINAL TESTING 🚨**
 
 ### Changelog Update Workflow
 **🚨 CRITICAL: Changelog update is STEP 19 and happens ONLY after testing verification 🚨**

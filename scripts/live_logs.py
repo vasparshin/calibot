@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Live CaliBOT Log Streaming - Auto-refresh every 3 seconds
-This allows me to monitor CaliBOT activity in real-time
+Recent CaliBOT Logs Fetcher - Gets logs from last 30 minutes
+CRITICAL: Does NOT stream - fetches recent logs and exits to avoid getting stuck
 """
 import requests
 import time
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Configuration
 SERVICE_ID = "srv-d1vqbkp5pdvs73echbeg"
@@ -18,28 +18,32 @@ headers = {
     "Content-Type": "application/json"
 }
 
-params = {
-    "ownerId": OWNER_ID,
-    "resource": SERVICE_ID,
-    "limit": 100  # Get more logs for complete context
-}
-
-last_seen_timestamp = None
-seen_messages = set()
-
-def get_logs():
-    """Get latest logs from CaliBOT"""
+def get_recent_logs():
+    """Get logs from last 30 minutes - NO STREAMING"""
     try:
-        response = requests.get("https://api.render.com/v1/logs", headers=headers, params=params)
+        # Calculate time range for last 30 minutes
+        end_time = datetime.utcnow()
+        start_time = end_time - timedelta(minutes=30)
+        
+        params = {
+            "ownerId": OWNER_ID,
+            "resource": SERVICE_ID,
+            "limit": 200,
+            "startTime": start_time.isoformat() + "Z",
+            "endTime": end_time.isoformat() + "Z"
+        }
+        
+        print(f"🔍 Fetching logs from {start_time.strftime('%H:%M:%S')} to {end_time.strftime('%H:%M:%S')} UTC")
+        
+        response = requests.get("https://api.render.com/v1/logs", headers=headers, params=params, timeout=15)
         if response.status_code == 200:
             data = response.json()
             return data.get("logs", [])
         elif response.status_code == 429:
-            print("⏳ Rate limited, waiting...")
-            time.sleep(30)
+            print("⏳ Rate limited - try again in 1 minute")
             return []
         else:
-            print(f"❌ API Error {response.status_code}: {response.text[:100]}")
+            print(f"❌ API Error {response.status_code}: {response.text[:200]}")
             return []
     except Exception as e:
         print(f"❌ Exception: {e}")

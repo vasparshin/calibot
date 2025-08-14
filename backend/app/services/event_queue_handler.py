@@ -394,7 +394,46 @@ Choose your action:"""
         # Get proper calendar name
         calendar = self._format_calendar_name(event.get('calendar_name', 'Default calendar'))
         
-        return f"""Event: {title}
+        intent = event.get('intent', 'create')
+        
+        if intent == 'update':
+            # For updates, show what changes will be made
+            summary = f"""Current Event: {title}
+Current Date: {date_str}
+Current Time: {time_str}
+Calendar: {calendar}"""
+            
+            # Add proposed changes
+            changes = []
+            if event.get('new_date'):
+                changes.append(f"📅 Move to: {event.get('new_date')}")
+            if event.get('time_shift'):
+                changes.append(f"⏰ Time change: {event.get('time_shift')}")
+            if event.get('new_start_time') and event.get('new_end_time'):
+                new_start = event.get('new_start_time')
+                new_end = event.get('new_end_time')
+                # Format new times
+                try:
+                    if ':' in new_start:
+                        new_time_str = f"{new_start} - {new_end}"
+                    else:
+                        new_time_str = f"{new_start} - {new_end}"
+                    changes.append(f"🕐 New time: {new_time_str}")
+                except:
+                    if new_start:
+                        changes.append(f"🕐 New start time: {new_start}")
+                    if new_end:
+                        changes.append(f"🕐 New end time: {new_end}")
+            if event.get('new_event_name'):
+                changes.append(f"📝 Rename to: {event.get('new_event_name')}")
+            
+            if changes:
+                summary += f"\n\n📋 Proposed Changes:\n" + "\n".join(changes)
+            
+            return summary
+        else:
+            # For delete/create, show basic details
+            return f"""Event: {title}
 Date: {date_str}
 Time: {time_str}
 Calendar: {calendar}"""

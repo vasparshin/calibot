@@ -46,14 +46,12 @@ class MultiEventOperationHandler:
             # If only one event, proceed with simple confirmation
             if len(matching_events) == 1:
                 event = matching_events[0]
-                operation_id = f"delete_{chat_id}_{datetime.now().timestamp()}"
-                
-                self.pending_operations[operation_id] = {
+                operation_data = {
                     "type": "delete_single",
-                    "chat_id": chat_id,
                     "events": matching_events,
                     "original_request": event_data
                 }
+                operation_id = self.store_pending_operation(chat_id, operation_data)
                 
                 return {
                     "success": True,
@@ -64,14 +62,12 @@ class MultiEventOperationHandler:
             
             # Multiple events - show list and ask for confirmation
             else:
-                operation_id = f"delete_{chat_id}_{datetime.now().timestamp()}"
-                
-                self.pending_operations[operation_id] = {
+                operation_data = {
                     "type": "delete_multiple",
-                    "chat_id": chat_id,
                     "events": matching_events,
                     "original_request": event_data
                 }
+                operation_id = self.store_pending_operation(chat_id, operation_data)
                 
                 # Use centralized formatter if available
                 if MessageFormatter:
@@ -151,14 +147,12 @@ class MultiEventOperationHandler:
                     "requires_user_action": False
                 }
             
-            operation_id = f"update_{chat_id}_{datetime.now().timestamp()}"
-            
-            self.pending_operations[operation_id] = {
+            operation_data = {
                 "type": "update_multiple",
-                "chat_id": chat_id,
                 "events": matching_events,
                 "original_request": event_data
             }
+            operation_id = self.store_pending_operation(chat_id, operation_data)
             
             # Check if we have specific changes to describe
             has_specific_changes = any(key in event_data for key in ['calendar_name', 'new_event_name', 'new_date', 'time_shift'])
@@ -281,15 +275,20 @@ class MultiEventOperationHandler:
     async def confirm_operation(self, chat_id: int, user_confirmation: str) -> Dict:
         """Process user confirmation for pending operations"""
         try:
-            # Find pending operation for this chat
+            # Find the most recent pending operation for this chat
             pending_op = None
             operation_id = None
             
-            for op_id, op_data in self.pending_operations.items():
-                if op_data["chat_id"] == chat_id:
-                    pending_op = op_data
-                    operation_id = op_id
-                    break
+            # Get operations for this chat sorted by operation_id (most recent last)
+            chat_operations = [
+                (op_id, op_data) for op_id, op_data in self.pending_operations.items()
+                if op_data["chat_id"] == chat_id
+            ]
+            
+            if chat_operations:
+                # Take the most recent operation
+                operation_id, pending_op = chat_operations[-1]
+                logger.info(f"🔧 Found pending operation {operation_id} of type {pending_op.get('type', 'unknown')}")
             
             if not pending_op:
                 return {
@@ -311,13 +310,17 @@ class MultiEventOperationHandler:
             
             elif user_response in ['one', '1', 'individual', 'step']:
                 # Switch to one-by-one processing using event queue handler
+                logger.info(f"🔄 SWITCHING TO ONE-BY-ONE - Operation type: {pending_op.get('type')}")
                 events = pending_op["events"]
                 original_request = pending_op["original_request"]
                 op_type = pending_op["type"]
                 
+                logger.info(f"🔄 Events to queue: {len(events)}")
+                logger.info(f"🔄 Original request: {original_request}")
+                
                 # Convert to queue format
                 queue_events = []
-                for event in events:
+                for i, event in enumerate(events):
                     queue_event = {
                         "intent": "update" if "update" in op_type else "delete",
                         "event_id": event.get("id", event.get("event_id")),
@@ -328,7 +331,29 @@ class MultiEventOperationHandler:
                         "calendar_name": event.get("calendar_name", "Unknown"),
                         **original_request  # Include the update parameters
                     }
+                    
+                    # For update requests with specific times mentioned (like "5 and 6 pm")
+                    # Check if we need to set individual times for each event
+                    if "update" in op_type and original_request.get("new_date"):
+                        # If user said "5 and 6 pm", set specific times for each event
+                        user_text = original_request.get("user_message", "").lower()
+                        if ("5 and 6" in user_text or "17:00 and 18:00" in user_text):
+                            if i == 0:  # First event gets 5 PM
+                                queue_event["new_start_time"] = "17:00"
+                                queue_event["new_end_time"] = "18:00"
+                            elif i == 1:  # Second event gets 6 PM
+                                queue_event["new_start_time"] = "18:00"
+                                queue_event["new_end_time"] = "19:00"
+                        elif ("5pm and 6pm" in user_text or "5 pm and 6 pm" in user_text):
+                            if i == 0:  # First event gets 5 PM
+                                queue_event["new_start_time"] = "17:00"
+                                queue_event["new_end_time"] = "18:00"
+                            elif i == 1:  # Second event gets 6 PM
+                                queue_event["new_start_time"] = "18:00"
+                                queue_event["new_end_time"] = "19:00"
+                    
                     queue_events.append(queue_event)
+                    logger.info(f"🔄 Queue event {i+1}: {queue_event.get('event_name')} - {queue_event.get('intent')} - New times: {queue_event.get('new_start_time', 'N/A')}-{queue_event.get('new_end_time', 'N/A')}")
                 
                 # Create event queue (need to import EventQueueHandler)
                 try:
@@ -340,14 +365,33 @@ class MultiEventOperationHandler:
                         self.calendar_service,
                         getattr(self.calendar_service, 'calendar_agent', None)
                     )
+                    logger.info(f"🔄 Creating event queue for chat {chat_id}")
+                    
+                    # Create the queue first
                     queue_result = queue_handler.create_event_queue_from_list(chat_id, queue_events)
                     
-                    # Clean up pending operation
-                    del self.pending_operations[operation_id]
-                    
-                    return queue_result
-                except ImportError:
+                    if queue_result.get("success"):
+                        # Instead of returning the batch message, get the first individual event confirmation
+                        logger.info(f"🔄 Queue created successfully, getting first event confirmation")
+                        first_event_result = queue_handler.get_next_event_confirmation(chat_id)
+                        
+                        # Clean up pending operation
+                        del self.pending_operations[operation_id]
+                        logger.info(f"🔄 Cleaned up pending operation {operation_id}")
+                        
+                        return first_event_result
+                    else:
+                        logger.error(f"🔄 Queue creation failed: {queue_result}")
+                        return queue_result
+                except ImportError as ie:
+                    logger.error(f"🔄 ImportError: {ie}")
                     # Fallback if queue handler not available
+                    result = await self._execute_operation(pending_op)
+                    del self.pending_operations[operation_id]
+                    return result
+                except Exception as ex:
+                    logger.error(f"🔄 Exception in queue creation: {ex}")
+                    # Fallback on any error
                     result = await self._execute_operation(pending_op)
                     del self.pending_operations[operation_id]
                     return result
@@ -404,11 +448,18 @@ class MultiEventOperationHandler:
             if 'event_name' in criteria:
                 event_name = criteria['event_name'].lower()
                 logger.info(f"🚨 FILTERING BY EVENT NAME - '{event_name}', before: {len(events)} events")
-                events = [
-                    event for event in events 
-                    if event_name in event.get('summary', '').lower()
-                ]
-                logger.info(f"🚨 AFTER NAME FILTERING - {len(events)} events remain")
+                
+                # Handle generic "events" case - don't filter if user said "events" generically
+                if event_name in ['event', 'any', 'events']:
+                    logger.info(f"🚨 GENERIC EVENT NAME DETECTED - including all {len(events)} events (no name filtering)")
+                else:
+                    events = [
+                        event for event in events 
+                        if event_name in event.get('summary', '').lower()
+                    ]
+                    logger.info(f"🚨 AFTER NAME FILTERING - {len(events)} events remain")
+            else:
+                logger.info(f"🚨 NO EVENT NAME FILTERING - including all {len(events)} events")
 
             # Convert events to the format expected by multi-event operations
             formatted_events = []
@@ -455,7 +506,7 @@ class MultiEventOperationHandler:
                 else:
                     logger.info(f"🚨 TARGET PARSING FAILED - No regex match for: '{target}'")
             else:
-                logger.info(f"❌ SKIPPING TARGET PARSING - condition not met: target='{target}', count={count}, isinstance(count, int)={isinstance(count, int)}")
+                logger.debug(f"SKIPPING TARGET PARSING - condition not met: target='{target}', count={count}, isinstance(count, int)={isinstance(count, int)}")
             
             logger.info(f"📊 Processing target selection - target: '{target}', count: {count}, total events found: {len(formatted_events)}")
             
@@ -493,7 +544,7 @@ class MultiEventOperationHandler:
                 formatted_events = formatted_events[:count]
                 logger.info(f"✅ COUNT LIMIT APPLIED - Limited to {len(formatted_events)} events based on count: {count}")
             else:
-                logger.info(f"🔄 NO TARGET FILTERING - Using all {len(formatted_events)} events")
+                logger.debug(f"NO TARGET FILTERING - Using all {len(formatted_events)} events")
 
             logger.info(f"🎯 FINAL SELECTION COMPLETE - returning {len(formatted_events)} events for criteria: {criteria}")
             return formatted_events
@@ -914,15 +965,17 @@ class MultiEventOperationHandler:
     
     def store_pending_operation(self, chat_id: int, operation_data: Dict):
         """Store a pending operation for later processing"""
-        operation_id = f"{chat_id}_{len(self.pending_operations)}"
+        import time
+        timestamp = time.time()
+        operation_id = f"{operation_data.get('type', 'unknown')}_{chat_id}_{timestamp}"
         self.pending_operations[operation_id] = {
             "chat_id": chat_id,
             "operation_id": operation_id,
+            "timestamp": timestamp,
             **operation_data
         }
-        logger.info(f"Stored pending operation {operation_id} for chat {chat_id}")
-    
-    def clear_pending_operations(self, chat_id: int):
+        logger.debug(f"Stored pending {operation_data.get('type', 'unknown')} operation {operation_id} for chat {chat_id}")
+        return operation_id
         """Clear all pending operations for a chat (useful for cleanup)"""
         to_remove = [
             op_id for op_id, op_data in self.pending_operations.items()

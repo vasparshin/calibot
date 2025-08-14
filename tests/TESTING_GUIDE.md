@@ -1,11 +1,119 @@
 # CaliBOT Testing Procedures
 
+## 🚨 MANDATORY PRE-TESTING PROCEDURES
+
+### Step 1: Verify Latest Version Deployment
+**CRITICAL**: Always verify the latest version is running before testing!
+
+#### Quick Version Check
+```bash
+# Fast version comparison
+python scripts/quick_version_check.py
+```
+
+#### Detailed Health Check
+```bash
+# Comprehensive verification with restart options
+python scripts/verify_deployment.py
+```
+
+#### Manual Health Check
+```bash
+# Check current deployed version
+curl -s https://calibot-utq6.onrender.com/health | python -m json.tool
+```
+
+Expected response should show the latest version from `pyproject.toml`:
+```json
+{
+  "status": "healthy",
+  "version": "0.1.121",
+  "timestamp": "2024-12-19T..."
+}
+```
+
+If version doesn't match your latest changes, proceed to Step 2.
+
+### Step 2: Force Render Service Restart
+**When to use**: If auto-deployment failed or version mismatch detected
+
+#### Option A: Manual Restart via Render Dashboard
+1. Visit [Render Dashboard](https://dashboard.render.com/)
+2. Navigate to the `calibot` service
+3. Click **"Manual Deploy"** or **"Restart"** button
+4. Wait 2-3 minutes for deployment to complete
+5. Re-verify version using Step 1
+
+#### Option B: Force Deployment via Git Push
+```bash
+# Force a new deployment by creating an empty commit
+git commit --allow-empty -m "Force deployment: trigger restart"
+git push origin main
+```
+
+Wait 2-3 minutes, then verify version again.
+
+### Step 3: Backend Health Check
+**MANDATORY**: Always run before testing to ensure service is responsive
+
+#### Automated Health Check
+```bash
+# Recommended: Use automated verification tool
+python scripts/verify_deployment.py
+```
+
+#### Quick Manual Check
+```bash
+# Fast version and health verification
+python scripts/quick_version_check.py
+```
+
+#### Manual Health Verification
+```bash
+# Quick health verification
+python -c "
+import requests
+try:
+    r = requests.get('https://calibot-utq6.onrender.com/health', timeout=10)
+    print(f'✅ Backend Status: {r.status_code}')
+    if r.status_code == 200:
+        data = r.json()
+        print(f'✅ Version: {data.get(\"version\", \"unknown\")}')
+        print(f'✅ Health: {data.get(\"status\", \"unknown\")}')
+    else:
+        print(f'❌ Backend returned {r.status_code}')
+except Exception as e:
+    print(f'❌ Backend Error: {e}')
+"
+```
+
+**Expected Output**:
+```
+✅ Backend Status: 200
+✅ Version: 0.1.121
+✅ Health: healthy
+```
+
+**If health check fails**:
+1. Wait 2-3 minutes (service may be starting)
+2. Try Step 2 (Force Restart)
+3. Check Render dashboard for deployment errors
+4. Review recent commits for breaking changes
+
+---
+
 ## Automated Testing - Zero User Input Required
 
 ### Quick Start (Recommended)
 ```bash
 cd tests
 python telegram_like_tester.py
+```
+
+### One-by-One Workflow Testing (Critical)
+```bash
+cd tests
+python test_one_by_one_workflow.py    # Specific testing for multi-event one-by-one processing
 ```
 
 ### Real Telegram Group Messages
@@ -38,12 +146,31 @@ This creates a complete bot-to-bot conversation demonstration!
 3. **Multi-Event Creation**: Batch events with duplicate detection buttons
 4. **Event Modification**: Moving events with confirmation buttons
 5. **Event Deletion**: Deleting multiple events with selection buttons
-6. **Calendar Selection**: AI suggestions with calendar choice buttons
-7. **Error Handling**: Invalid input and recovery
-8. **Complex Scheduling**: Rescheduling with time modifications
-9. **Natural Conversation**: Complete workflow conversations
+6. **One-by-One Processing**: Critical workflow testing for individual event confirmations
+7. **Calendar Selection**: AI suggestions with calendar choice buttons
+8. **Error Handling**: Invalid input and recovery
+9. **Complex Scheduling**: Rescheduling with time modifications
+10. **Natural Conversation**: Complete workflow conversations
 
 Each scenario includes realistic button interactions and confirmations!
+
+### One-by-One Workflow Specific Testing
+
+The `test_one_by_one_workflow.py` provides comprehensive testing for the critical "one by one" functionality:
+
+#### Key Test Scenarios:
+- **Update with Date and Time Changes**: Tests "move the last 2 lessons today to tomorrow 5 and 6 pm"
+- **Delete Multiple Events**: Tests individual delete confirmations
+- **Time Shift Updates**: Tests "move my next 2 meetings 1 hour later"
+- **Event Renaming**: Tests batch renaming with individual confirmations
+- **Calendar Movement**: Tests moving events between calendars
+
+#### Expected Behavior Validation:
+- ✅ Multi-event requests trigger confirmation options correctly
+- ✅ "One by one" selection shows individual event details with proposed changes
+- ✅ Each event processed independently with clear confirmation prompts
+- ✅ No "operation not found" errors during workflow
+- ✅ Complete workflow success for all events in queue
 
 This provides the best testing experience:
 - **Visual Telegram-like chat interface** showing user messages and bot responses
@@ -182,15 +309,58 @@ python simple_logs.py
 ## Development Workflow
 
 ### After Making Code Changes:
-1. **Commit changes** to trigger deployment
-2. **Wait 30-60 seconds** for Render deployment
-3. **Run automated tests**:
+1. **Commit and push changes** to trigger deployment
+   ```bash
+   git add .
+   git commit -m "Description of changes"
+   git push origin main
+   ```
+2. **MANDATORY: Wait for deployment** (2-3 minutes for Render auto-deploy)
+3. **MANDATORY: Verify version deployment**:
+   ```bash
+   # Recommended: Use automated verification
+   python scripts/verify_deployment.py
+   
+   # Or quick check:
+   python scripts/quick_version_check.py
+   ```
+4. **If version mismatch**: Use automated restart in `verify_deployment.py` or manual procedures
+5. **MANDATORY: Ensure backend is healthy** before testing
+6. **Run automated tests**:
    ```bash
    cd tests
    python telegram_like_tester.py
    ```
-4. **Analyze results** and iterate if needed
-5. **Update CHANGELOG.md** with fixes and improvements
+7. **Analyze results** and iterate if needed
+8. **Update CHANGELOG.md** with fixes and improvements
+
+### 🚨 CRITICAL DEPLOYMENT RULES
+- **NEVER test without version verification** - you may be testing old code
+- **ALWAYS check health endpoint first** - saves time on failed tests
+- **Force restart if auto-deploy fails** - Render doesn't always deploy automatically
+- **Wait 2-3 minutes after push** - Render needs time to build and deploy
+- **Check Render dashboard if issues persist** - may show deployment errors
+
+### Troubleshooting Deployment Issues
+
+#### Auto-Deployment Not Triggering
+```bash
+# Check if webhook is properly configured
+git commit --allow-empty -m "Force deployment test"
+git push origin main
+```
+
+#### Version Mismatch After Deployment
+1. Check Render dashboard for deployment errors
+2. Verify pyproject.toml version matches __init__.py version
+3. Force manual deployment via Render dashboard
+4. Check build logs for dependency issues
+
+#### Service Not Responding After Deployment
+1. Check Render service logs for startup errors
+2. Verify environment variables are set correctly
+3. Check for breaking changes in recent commits
+4. Try restarting service via Render dashboard
 
 ### Continuous Testing
 Run tests regularly during development:
@@ -212,6 +382,8 @@ Run tests regularly during development:
 - `comprehensive_test_*.json` - Full test suite results
 
 ### Supporting Tools
+- `scripts/verify_deployment.py` - **Automated deployment verification and restart**
+- `scripts/quick_version_check.py` - **Fast version comparison**
 - `scripts/list_services.py` - Check deployment status
 - `scripts/simple_logs.py` - View recent logs
 - `scripts/stream_logs.py` - Real-time log monitoring

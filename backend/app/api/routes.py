@@ -125,7 +125,7 @@ access_token = None
 async def telegram_webhook(update: TelegramUpdate):
     """Handle incoming Telegram messages and callback queries"""
     
-    logger.info(f"📨 Received Telegram update: {update}")
+    logger.debug(f"Received Telegram update: {update}")
     
     # Handle callback queries (inline keyboard button presses)
     if hasattr(update, 'callback_query') and update.callback_query:
@@ -268,11 +268,11 @@ async def handle_callback_query(callback_query):
 async def handle_multi_event_confirmation(chat_id: int, confirmation: str):
     """Handle confirmation responses for multi-event operations with pending operations"""
     try:
-        logger.info(f"🔧 MULTI-EVENT CONFIRMATION - Processing {confirmation} for chat {chat_id}")
+        logger.debug(f"MULTI-EVENT CONFIRMATION - Processing {confirmation} for chat {chat_id}")
         
         # Check if there's a pending operation
         if multi_event_handler.has_pending_operation(chat_id):
-            logger.info(f"✅ Found pending operation, processing with confirmation: {confirmation}")
+            logger.debug(f"Found pending operation, processing with confirmation: {confirmation}")
             confirmation_result = await multi_event_handler.confirm_operation(chat_id, confirmation)
             
             if confirmation_result.get("requires_user_action"):
@@ -1099,7 +1099,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         
         elif intent in ["delete", "update"] and event_data.get("confirmation_needed"):
             # CRITICAL FIX: Use proper multi-event handlers with target selection
-            logger.info(f"🔧 ROUTES.PY DEBUG - Processing {intent} with target selection via multi_event_handler")
+            logger.debug(f"ROUTES.PY DEBUG - Processing {intent} with target selection via multi_event_handler")
             
             # Directly call the multi-event handler operations with target selection
             if intent == "update":

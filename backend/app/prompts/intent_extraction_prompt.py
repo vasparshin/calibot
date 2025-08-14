@@ -21,7 +21,7 @@ For moving/shifting multiple events by time amount:
 {{"intent": "update", "event_name": "lesson", "date": "{current_date_iso}", "target": "last 3", "time_shift": "1 hour", "confirmation_needed": true}}
 
 For moving events to a different date:
-{{"intent": "update", "event_name": "event", "date": "{current_date_iso}", "target": "last 2", "new_date": "{tomorrow_date_iso}", "confirmation_needed": true}}
+{{"intent": "update", "event_name": "ANY", "date": "{current_date_iso}", "target": "last 2", "new_date": "{tomorrow_date_iso}", "confirmation_needed": true}}
 
 CRITICAL RULES:
 - If user says "move X later/earlier by TIME" use "time_shift": "TIME"
@@ -34,12 +34,15 @@ CRITICAL RULES:
 - "yesterday" = previous day from current date
 - "today" = current date
 - "tomorrow" = next day from current date
+- When user says "events" generically (not a specific event type), use "event_name": "ANY"
+- When user specifies event type like "lessons", "meetings", "calls", use that specific name
 
 EXAMPLES:
 - "move last 3 lessons 1 hr later" → {{"intent": "update", "event_name": "lesson", "target": "last 3", "time_shift": "1 hour", "confirmation_needed": true}}
 - "move the last 3 lessons yesterday 1 hr later" → {{"intent": "update", "event_name": "lesson", "date": "{yesterday_date_iso}", "target": "last 3", "time_shift": "1 hour", "confirmation_needed": true}}
 - "change first lesson to 3pm" → {{"intent": "update", "event_name": "lesson", "target": "first", "new_start_time": "15:00", "confirmation_needed": true}}
-- "move the last 2 events of today to tomorrow" → {{"intent": "update", "event_name": "event", "date": "{current_date_iso}", "target": "last 2", "new_date": "{tomorrow_date_iso}", "confirmation_needed": true}}
+- "move the last 2 events of today to tomorrow" → {{"intent": "update", "event_name": "ANY", "date": "{current_date_iso}", "target": "last 2", "new_date": "{tomorrow_date_iso}", "confirmation_needed": true}}
+- "move the last 2 events of yesterday to today" → {{"intent": "update", "event_name": "ANY", "date": "{yesterday_date_iso}", "target": "last 2", "new_date": "{current_date_iso}", "confirmation_needed": true}}
 - "move all meetings today to next week" → {{"intent": "update", "event_name": "meeting", "date": "{current_date_iso}", "target": "all", "new_date": "{next_week_date_iso}", "confirmation_needed": true}}
 - "delete the first 2 meetings today" → {{"intent": "delete", "event_name": "meeting", "target": "first 2", "confirmation_needed": true}}
 

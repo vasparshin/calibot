@@ -50,3 +50,35 @@ FIXES_*.md
 
 # Development directories with large assets
 info/
+
+# Test result files and logs (reduce deployment size)
+tests/logs/
+tests/*_results_*.json
+tests/telegram_simulation_*.json
+tests/automated_test_*.json
+tests/comprehensive_test_*.json
+tests/critical_test_results_*.json
+tests/api_test_report_*.json
+
+# Development utilities (not needed in production)
+scripts/stream_logs*
+scripts/working_logs.py
+scripts/analyze_llm_logs.py
+scripts/explore_api.py
+scripts/test_*.py
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.orig

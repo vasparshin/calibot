@@ -2,7 +2,103 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
-## [Unreleased]
+## [0.1.124] - 2024-12-19
+
+### Critical Bug Fix
+- **Event Name Filtering Issue**: Fixed "No events found matching your criteria" error when user says "move the last 2 events of yesterday"
+- **Generic Events Handling**: Added support for "ANY" event name when user refers to "events" generically rather than specific event types
+
+### Technical Details
+- **Intent Extraction Prompt**: Updated to use "event_name": "ANY" for generic event references like "events", avoiding literal "event" name filtering
+- **Multi-Event Operations**: Enhanced filtering logic to skip name filtering when event_name is "ANY", "event", or "events"
+- **Logging Enhancement**: Added debug logs for generic event name detection to improve troubleshooting
+
+### Root Cause
+When user said "move the last 2 events of yesterday", the system extracted "event_name": "event" and then filtered for events literally named "event", finding none. Now uses "ANY" for generic references to include all events.
+
+## [0.1.123] - 2024-12-19 - DEPLOYMENT PENDING
+
+### Critical Status
+- **Local Version**: 0.1.123 (ready for deployment)
+- **Deployed Version**: 0.1.119 (4 versions behind)
+- **Action Required**: Deploy latest version before testing can proceed
+
+### Enhanced
+- **Smart Deployment Verification**: Modified verification tool to only request restart when version mismatch detected
+- **Deployment Size Optimization**: Enhanced .gitignore to exclude test results, logs, and development files from production deployment
+- **Comprehensive One-by-One Testing**: Added dedicated test suite for multi-event one-by-one workflow validation
+
+### Added
+- **One-by-One Workflow Test Suite**: Comprehensive testing specifically for "one by one" multi-event processing
+- **Enhanced .gitignore Rules**: Exclude test results, development logs, and temporary files to reduce deployment size
+- **Development Guidelines**: Updated Copilot Instructions with deployment size optimization and testing procedures
+
+### Fixed
+- **Deployment Verification Logic**: Only prompts for restart when actual version mismatch exists, not on every run
+- **Test File Organization**: Enhanced .gitignore to prevent test artifacts from being deployed to production
+
+### Technical Details
+- **scripts/verify_deployment.py**: Enhanced logic to only offer restart when version mismatch detected
+- **.gitignore**: Added comprehensive exclusions for test results, logs, temporary files, and development utilities
+- **tests/test_one_by_one_workflow.py**: Comprehensive test suite specifically for one-by-one multi-event processing
+- **.github/copilot-instructions.md**: Added deployment size optimization rules and testing procedure requirements
+- **tests/TESTING_GUIDE.md**: Enhanced with one-by-one workflow testing procedures and validation criteria
+
+## [0.1.122] - 2024-12-19
+
+### Added
+- **Automated Deployment Verification System**: Comprehensive tools to verify latest version is deployed before testing
+- **Force Deployment Capability**: Automated service restart when Render auto-deployment fails
+- **Pre-Testing Version Validation**: Mandatory verification that prevents testing outdated code
+
+### Enhanced
+- **Testing Workflow**: Updated TESTING_GUIDE.md with mandatory deployment verification procedures
+- **Development Guidelines**: Enhanced Copilot Instructions with deployment verification requirements
+- **Quality Assurance**: Added automated checks to ensure testing always uses latest deployed version
+
+### Technical Details
+- **scripts/verify_deployment.py**: Comprehensive deployment verification tool with automated restart capability
+- **scripts/quick_version_check.py**: Fast version comparison utility for quick verification
+- **tests/TESTING_GUIDE.md**: Updated with mandatory pre-testing deployment verification procedures
+- **.github/copilot-instructions.md**: Enhanced with deployment verification workflow requirements
+- **Complete workflow**: Version check → Force restart if needed → Health verification → Testing
+
+## [0.1.121] - 2024-12-19
+
+### Fixed
+- **Critical: One-by-One Event Queue Processing**: Fixed "one by one" workflow to directly show individual event confirmations instead of re-displaying batch options
+- **Update Request Detail Display**: Enhanced individual event confirmations to show complete proposed changes including date and time modifications
+- **Multi-Event Time Parsing**: Added intelligent parsing for requests like "5 and 6 pm" to assign specific times to individual events
+
+### Enhanced
+- **Individual Event Confirmation**: Improved event summary format to clearly show current details and proposed changes
+- **Update Workflow Clarity**: Enhanced confirmation messages to display both current state and planned modifications
+- **Queue Event Processing**: Added specific time assignment logic for multi-event updates with individual time specifications
+
+### Technical Details
+- **multi_event_operations.py**: Modified "one by one" processing to call get_next_event_confirmation() instead of showing batch options again
+- **event_queue_handler.py**: Enhanced _format_event_summary() to show detailed proposed changes for update operations
+- **multi_event_operations.py**: Added intelligent time parsing for requests specifying individual times (e.g., "5 and 6 pm")
+- **event_queue_handler.py**: Improved event confirmation display format with current vs. proposed states
+- **multi_event_operations.py**: Enhanced queue event creation with debug logging for time assignments
+
+## [0.1.120] - 2024-12-19
+
+### Fixed
+- **Critical: One-by-One Multi-Event Processing Bug**: Fixed "one by one" update operations incorrectly showing delete operation instead of maintaining original operation type
+- **Debug Log Verbosity**: Reduced excessive debug logging throughout backend services to improve log clarity
+
+### Enhanced
+- **Pending Operations Management**: Improved operation ID generation with timestamps for proper chronological ordering
+- **Operation Selection Logic**: Enhanced confirm_operation method to select most recent pending operation when multiple exist
+- **Centralized Operation Storage**: Unified store_pending_operation method across all multi-event handlers
+
+### Technical Details
+- **multi_event_operations.py**: Modified confirm_operation method to sort pending operations by timestamp and select most recent
+- **multi_event_operations.py**: Added centralized store_pending_operation method with timestamp-based operation IDs
+- **multi_event_operations.py**: Updated delete and update handlers to use centralized operation storage
+- **routes.py**: Reduced debug log verbosity by changing info level logs to debug level
+- **multi_event_operations.py**: Changed verbose debug messages to debug level to reduce log clutter
 
 ## [0.1.119] - 2024-12-19
 
