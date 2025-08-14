@@ -8,6 +8,7 @@
 - **🚀 MANDATORY DEPLOYMENT VERIFICATION 🚀** - ALWAYS verify latest version is deployed before testing using `python scripts/verify_deployment.py`
 - **⏱️ MANDATORY RENDER RESTART 📋** - If auto-deployment fails, use `verify_deployment.py` force restart or manual Render dashboard restart
 - **📊 LOG FETCHING RULES 📊** - NEVER use streaming log scripts (`live_logs.py`) - they get stuck. ALWAYS use `recent_logs.py` to fetch last 30 minutes of logs and exit cleanly
+- **📋 PROJECT RULES COMPLIANCE 📋** - ALWAYS follow PROJECT_RULES.md for deployment, logging, file organization, and development workflow practices
 - **NO EXCEPTIONS TO CHANGELOG RULE** - Even the smallest bug fix, file organization, or code tweak requires CHANGELOG.md update
 - **CHANGELOG UPDATE IS PART OF THE FIX** - A change is NOT complete until CHANGELOG.md is updated
 - **ALWAYS UPDATE CHANGELOG.MD** - Every code change MUST be documented in CHANGELOG.md before task completion

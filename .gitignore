@@ -41,6 +41,9 @@ ISSUE_LOG.md
 *_SUMMARY.md
 *SUMMARY*.md
 FIXES_*.md
+DEPLOY_AND_TEST.bat
+DEPLOYMENT_STATUS_REPORT.md
+CREATE_TEST_BOT.md
 
 # Development binaries and media
 *.mp4
@@ -66,6 +69,7 @@ scripts/working_logs.py
 scripts/analyze_llm_logs.py
 scripts/explore_api.py
 scripts/test_*.py
+check_deployment_status.py
 
 # Temporary files
 *.tmp
