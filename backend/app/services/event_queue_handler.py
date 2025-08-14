@@ -381,7 +381,64 @@ Choose your action:"""
         }
     
     def _format_event_summary(self, event: Dict) -> str:
-        """Format a single event for user confirmation"""
+        """Format a single event for user confirmation using centralized formatter"""
+        try:
+            # Use centralized formatter for consistency with multi-event displays
+            if MessageFormatter:
+                event_display = MessageFormatter.format_single_event_display(event, include_hyperlink=True)
+                # Remove the bullet point since we'll have our own header
+                if event_display.startswith('• '):
+                    event_display = event_display[2:]
+                
+                intent = event.get('intent', 'create')
+                
+                if intent == 'update':
+                    # For updates, show what changes will be made
+                    summary = f"""Current Event: {event_display}
+
+📋 Proposed Changes:"""
+                    
+                    # Add proposed changes
+                    changes = []
+                    if event.get('new_date'):
+                        changes.append(f"📅 Move to: {event.get('new_date')}")
+                    if event.get('time_shift'):
+                        changes.append(f"⏰ Time change: {event.get('time_shift')}")
+                    if event.get('new_start_time') and event.get('new_end_time'):
+                        new_start = event.get('new_start_time')
+                        new_end = event.get('new_end_time')
+                        # Format new times
+                        try:
+                            if ':' in new_start:
+                                new_time_str = f"{new_start} - {new_end}"
+                            else:
+                                new_time_str = f"{new_start} - {new_end}"
+                            changes.append(f"🕐 New time: {new_time_str}")
+                        except:
+                            if new_start:
+                                changes.append(f"🕐 New start time: {new_start}")
+                            if new_end:
+                                changes.append(f"🕐 New end time: {new_end}")
+                    if event.get('new_event_name'):
+                        changes.append(f"📝 Rename to: {event.get('new_event_name')}")
+                    
+                    if changes:
+                        summary += "\n" + "\n".join(changes)
+                    
+                    return summary
+                else:
+                    # For delete/create, show basic details with consistent formatting
+                    return f"Event: {event_display}"
+            else:
+                # Fallback to original formatting if MessageFormatter not available
+                return self._format_event_summary_fallback(event)
+                
+        except Exception as e:
+            logger.error(f"Error formatting event summary: {e}")
+            return self._format_event_summary_fallback(event)
+    
+    def _format_event_summary_fallback(self, event: Dict) -> str:
+        """Fallback formatting if MessageFormatter is not available"""
         title = event.get('event_name', 'Untitled Event')
         
         # Extract and format the time properly

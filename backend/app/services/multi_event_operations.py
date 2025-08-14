@@ -321,16 +321,24 @@ class MultiEventOperationHandler:
                 # Convert to queue format
                 queue_events = []
                 for i, event in enumerate(events):
+                    # CRITICAL FIX: Don't let original_request overwrite actual event data
                     queue_event = {
                         "intent": "update" if "update" in op_type else "delete",
                         "event_id": event.get("id", event.get("event_id")),
-                        "event_name": event.get("summary", ""),
+                        "event_name": event.get("summary", ""),  # KEEP THE ACTUAL EVENT NAME
                         "start_time": event.get("start", event.get("start_time", "")),
                         "end_time": event.get("end", event.get("end_time", "")),
                         "calendar_id": event.get("calendar_id", "primary"),
                         "calendar_name": event.get("calendar_name", "Unknown"),
-                        **original_request  # Include the update parameters
                     }
+                    
+                    # Add update parameters from original_request, but exclude event_name if it's generic
+                    for key, value in original_request.items():
+                        if key == "event_name" and value.lower() in ["any", "event", "events"]:
+                            # Skip generic event names to preserve actual event name
+                            continue
+                        if key not in queue_event:  # Don't overwrite event-specific data
+                            queue_event[key] = value
                     
                     # For update requests with specific times mentioned (like "5 and 6 pm")
                     # Check if we need to set individual times for each event

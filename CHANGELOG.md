@@ -2,6 +2,24 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.125] - 2025-08-14
+
+### Fixed
+- **Critical: One-by-One Event Processing UX Issues**: Fixed multiple issues with individual event confirmation workflow
+  - **Event Details Missing**: Fixed "Current Event: ANY" bug by preventing generic event names from overwriting actual event data in queue conversion
+  - **Format Consistency**: Updated individual event messages to use same centralized formatting as multi-event summary for consistency  
+  - **Message Width**: Individual event confirmations now use same MessageFormatter functions ensuring consistent formatting width and style
+  - **Progression Logic**: Enhanced queue progression to properly display second, third, etc. event confirmations after user responds
+
+### Enhanced  
+- **Event Data Handling**: Improved multi-event to queue conversion logic to preserve actual event names while filtering out generic "ANY" references from intent extraction
+- **Message Formatting**: Individual event confirmations now use centralized MessageFormatter.format_single_event_display() for consistency with BOT_RULES.md specifications
+
+### Technical Details
+- **multi_event_operations.py**: Fixed queue_event creation to skip generic event_name values and preserve actual event data
+- **event_queue_handler.py**: Updated _format_event_summary() to use centralized MessageFormatter for consistent display formatting
+- **Fallback Support**: Added proper fallback formatting when MessageFormatter is not available
+
 ## [0.1.124] - 2024-12-19
 
 ### Critical Bug Fix
