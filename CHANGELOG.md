@@ -2,6 +2,24 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.130] - 2025-01-14
+
+### Fixed
+- **Critical: Multi-Event Queue Processing Bug**: Fixed pending operations being cleaned up immediately after queue creation, causing button callbacks to fail
+- **Time Formatting Error**: Fixed invalid date formatting for time strings like "21:00" that were being parsed as dates
+- **24-Hour Time Display**: Changed all time displays to 24-hour format (HH:MM) instead of 12-hour format (AM/PM)
+
+### Enhanced  
+- **Queue Management**: Pending operations now properly maintained during queue processing and cleaned up only when queue is complete
+- **Time Formatting**: Added robust 24-hour time formatter that handles various time string formats
+- **Button Callback Processing**: Queue callbacks now properly clean up pending operations when queue processing is finished
+
+### Technical Details
+- **backend/app/services/multi_event_operations.py**: Removed premature pending operation cleanup after queue creation
+- **backend/app/api/routes.py**: Added queue completion detection and pending operation cleanup in callback handler
+- **backend/app/utils/message_formatter.py**: Added format_time_24hour() method and switched event displays to 24-hour format
+- **Queue Processing Flow**: Fixed "one by one" confirmations not working due to missing pending operations during button processing
+
 ## [0.1.129] - 2025-01-14
 
 ### Added

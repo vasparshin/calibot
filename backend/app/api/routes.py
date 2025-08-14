@@ -217,6 +217,16 @@ async def handle_callback_query(callback_query):
                 try:
                     queue_result = await event_queue_handler.process_queue_response(chat_id, confirmation)
                     
+                    # Check if queue is complete and clean up pending operations
+                    if queue_result.get("queue_complete"):
+                        logger.info(f"🔄 Queue completed for chat {chat_id}, cleaning up pending operations")
+                        # Clean up any pending operations for this chat
+                        operations_to_remove = [op_id for op_id in multi_event_handler.pending_operations.keys() 
+                                              if str(chat_id) in op_id]
+                        for op_id in operations_to_remove:
+                            del multi_event_handler.pending_operations[op_id]
+                            logger.info(f"🔄 Cleaned up pending operation {op_id}")
+                    
                     if queue_result.get("queue_continues"):
                         # Send the current result first
                         await send_telegram_message(chat_id, queue_result["message"])

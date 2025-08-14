@@ -61,6 +61,31 @@ class MessageFormatter:
             return "Unknown time"
     
     @staticmethod
+    def format_time_24hour(time_str: str) -> str:
+        """Format time as 'HH:MM' in 24-hour format"""
+        if not time_str:
+            return "Unknown time"
+        
+        try:
+            if 'T' in time_str:
+                dt = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
+                return dt.strftime('%H:%M')
+            elif ':' in time_str and len(time_str) <= 8:  # Handle "HH:MM" or "HH:MM:SS"
+                # If already in HH:MM format, just return it
+                if len(time_str) == 5 and time_str.count(':') == 1:
+                    return time_str
+                # Parse and reformat to ensure proper format
+                dt = datetime.strptime(time_str.split('.')[0], '%H:%M:%S' if time_str.count(':') == 2 else '%H:%M')
+                return dt.strftime('%H:%M')
+            else:
+                # Try parsing as time-only
+                dt = datetime.strptime(time_str, '%H:%M')
+                return dt.strftime('%H:%M')
+        except Exception as e:
+            logger.warning(f"Error formatting 24h time {time_str}: {e}")
+            return time_str  # Return original if can't parse
+    
+    @staticmethod
     def format_calendar_name(calendar_name: str) -> str:
         """Return calendar name EXACTLY as provided by API summary.
         BOT_RULES: Must not transform or strip parts (no title-casing, domain stripping).
@@ -109,8 +134,8 @@ class MessageFormatter:
             
             # Extract date from start_time
             date_str = MessageFormatter.format_date_full(start_time)
-            start_time_str = MessageFormatter.format_time_12hour(start_time)
-            end_time_str = MessageFormatter.format_time_12hour(end_time)
+            start_time_str = MessageFormatter.format_time_24hour(start_time)
+            end_time_str = MessageFormatter.format_time_24hour(end_time)
             calendar_formatted = MessageFormatter.format_calendar_name(calendar_name)
             
             # Build the formatted string

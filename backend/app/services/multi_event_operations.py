@@ -383,9 +383,9 @@ class MultiEventOperationHandler:
                         logger.info(f"🔄 Queue created successfully, getting first event confirmation")
                         first_event_result = queue_handler.get_next_event_confirmation(chat_id)
                         
-                        # Clean up pending operation
-                        del self.pending_operations[operation_id]
-                        logger.info(f"🔄 Cleaned up pending operation {operation_id}")
+                        # DO NOT clean up pending operation here - queue needs it for button callbacks
+                        # The operation will be cleaned up when queue processing is complete
+                        logger.info(f"🔄 Queue created, pending operation {operation_id} kept for button processing")
                         
                         return first_event_result
                     else:
