@@ -2,6 +2,30 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.127] - 2025-08-14
+
+### Added
+- **Complete Multi-Event Testing Automation**: Comprehensive webhook testing framework for multi-event scenarios
+  - **comprehensive_multi_event_automation.py**: Full automation for testing edit/create/delete multi-event workflows with one-by-one progression
+  - **auto_fix_retest_loop.py**: Automated fixing, deployment, and retesting loop until all scenarios pass
+  - **run_master_automation.py**: Master orchestrator script with no user input required
+- **TestBot Simulation Integration**: Automated TestBot messages in Telegram group to simulate real user interactions
+- **Render API Log Analysis**: Automated log fetching and pattern analysis for response validation
+- **BOT_RULES.md Compliance Validation**: Automated verification of message formatting, hyperlinks, date formats, and inline keyboards
+- **Auto-Fix Deployment Workflow**: Automated version increment, git commit/push, and deployment verification
+
+### Enhanced
+- **Zero User Input Testing**: All testing scripts now fully automated without any user prompts or manual intervention
+- **Comprehensive Scenario Coverage**: Tests multi-event delete with one-by-one progression, batch creation with formatting, and update confirmation flows
+- **Deployment Verification**: Integrated version checking and deployment status validation before and after testing
+
+### Technical Details
+- **tests/comprehensive_multi_event_automation.py**: Main testing framework with webhook simulation and log analysis
+- **tests/auto_fix_retest_loop.py**: Automated fixing loop with version management and deployment workflow
+- **tests/run_master_automation.py**: Master orchestrator with prerequisites checking and workflow coordination
+- **Webhook Testing**: Direct backend API calls simulating real Telegram webhook payloads
+- **Pattern Matching**: BOT_RULES.md compliance verification using regex patterns for expected behavior
+
 ## [0.1.126] - 2025-08-14
 
 ### Fixed
