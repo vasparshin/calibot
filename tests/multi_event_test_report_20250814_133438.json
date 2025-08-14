@@ -1,0 +1,276 @@
+{
+  "success": false,
+  "total_scenarios": 3,
+  "successful_scenarios": 0,
+  "scenarios": [
+    {
+      "scenario": "Multi-Event Delete One-by-One",
+      "results": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "success": false,
+      "log_analysis": {
+        "relevant_logs": [],
+        "found_patterns": [],
+        "total_logs": 50
+      }
+    },
+    {
+      "scenario": "Multi-Event Create Batch",
+      "results": [
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "success": false,
+      "formatting_checks": {
+        "hyperlinks": true,
+        "date_format": true,
+        "time_format": true,
+        "success_message": false
+      },
+      "log_analysis": {
+        "relevant_logs": [
+          {
+            "timestamp": "2025-08-14T12:34:27.082376084Z",
+            "message": "- \"move the last 3 lessons yesterday 1 hr later\" \u2192 {\"intent\": \"update\", \"event_name\": \"lesson\", \"date\": \"2025-08-13\", \"target\": \"last 3\", \"time_shift\": \"1 hour\", \"confirmation_needed\": true}",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:27.082380024Z",
+            "message": "- \"change first lesson to 3pm\" \u2192 {\"intent\": \"update\", \"event_name\": \"lesson\", \"target\": \"first\", \"new_start_time\": \"15:00\", \"confirmation_needed\": true}",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:27.082383074Z",
+            "message": "- \"move the last 2 events of today to tomorrow\" \u2192 {\"intent\": \"update\", \"event_name\": \"ANY\", \"date\": \"2025-08-14\", \"target\": \"last 2\", \"new_",
+            "term": "events"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:27.082388984Z",
+            "message": "- \"move the last 2 events of yesterday to today\" \u2192 {\"intent\": \"update\", \"event_name\": \"ANY\", \"date\": \"2025-08-13\", \"target\": \"last 2\", \"new_date\": \"2025-08-14\", \"confirmation_needed\": true}",
+            "term": "events"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:27.082479796Z",
+            "message": "INFO:app.agent.nlp_agent:\ud83d\udd0d COMPLETE USER MESSAGE: 'create lesson tomorrow at 8am, 9am and 10am'",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:28.532927925Z",
+            "message": "INFO:app.agent.nlp_agent:\ud83d\udd0d COMPLETE LLM RESPONSE: '{\"intent\": \"create\", \"event_name\": \"lesson\", \"date\": \"2025-08-15\", \"start_time\": \"08:00\", \"end_time\": \"09:00\", \"confirmation_needed\": false}'",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:28.533075348Z",
+            "message": "INFO:app.agent.nlp_agent:Cleaned response: '{\"intent\": \"create\", \"event_name\": \"lesson\", \"date\": \"2025-08-15\", \"start_time\": \"08:00\", \"end_time\": \"09:00\", \"confirmation_needed\": false}'",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:28.533148Z",
+            "message": "INFO:app.agent.nlp_agent:\u2705 Successfully parsed LLM JSON response: {'intent': 'create', 'event_name': 'lesson', 'date': '2025-08-15', 'start_time': '08:00', 'end_time': '09:00', 'confirmation_needed': False}",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:28.533219771Z",
+            "message": "INFO:app.api.routes:Extracted intent: {'intent': 'create', 'event_name': 'lesson', 'date': '2025-08-15', 'start_time': '08:00', 'end_time': '09:00', 'confirmation_needed': False}",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:29.434578066Z",
+            "message": "INFO:app.services.google_calendar:Creating event 'lesson' in calendar 'zoutna@gmail.com' (zoutna@gmail.com)",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:29.434602337Z",
+            "message": "INFO:app.services.google_calendar:Event object: {'summary': 'lesson', 'description': '', 'start': {'dateTime': '2025-08-15T08:00:00', 'timeZone': 'Europe/London'}, 'end': {'dateTime': '2025-08-15T09:00:00', 'timeZone': 'Europe/London'}}",
+            "term": "lesson"
+          },
+          {
+            "timestamp": "2025-08-14T12:34:29.622496605Z",
+            "message": "\u2022 [Lesson](https://calendar.google.com/calendar/event?eid=Z3FwbzYyazFjbDIyNHJlZ2NtYnU1N2Y3bXMgem91dG5hQG0) on Friday, August 15, 2025 at 08:00 AM - 09:00 AM (zoutna@gmail....",
+            "term": "lesson"
+          }
+        ],
+        "found_patterns": [
+          {
+            "pattern": "calendar_name",
+            "timestamp": "2025-08-14T12:34:29.434578066Z",
+            "message": "INFO:app.services.google_calendar:Creating event 'lesson' in calendar 'zoutna@gmail.com' (zoutna@gmail.com)"
+          },
+          {
+            "pattern": "event_hyperlink",
+            "timestamp": "2025-08-14T12:34:29.622496605Z",
+            "message": "\u2022 [Lesson](https://calendar.google.com/calendar/event?eid=Z3FwbzYyazFjbDIyNHJlZ2NtYnU1N2Y3bXMgem91dG5hQG0) on Friday, August 15, 2025 at 08:00 AM - 09:00 AM (zoutna@gmail...."
+          },
+          {
+            "pattern": "date_format",
+            "timestamp": "2025-08-14T12:34:29.622496605Z",
+            "message": "\u2022 [Lesson](https://calendar.google.com/calendar/event?eid=Z3FwbzYyazFjbDIyNHJlZ2NtYnU1N2Y3bXMgem91dG5hQG0) on Friday, August 15, 2025 at 08:00 AM - 09:00 AM (zoutna@gmail...."
+          },
+          {
+            "pattern": "time_format",
+            "timestamp": "2025-08-14T12:34:29.622496605Z",
+            "message": "\u2022 [Lesson](https://calendar.google.com/calendar/event?eid=Z3FwbzYyazFjbDIyNHJlZ2NtYnU1N2Y3bXMgem91dG5hQG0) on Friday, August 15, 2025 at 08:00 AM - 09:00 AM (zoutna@gmail...."
+          }
+        ],
+        "total_logs": 50
+      }
+    },
+    {
+      "scenario": "Multi-Event Update Flow",
+      "results": [
+        false,
+        false,
+        false
+      ],
+      "success": false,
+      "log_analysis": {
+        "relevant_logs": [],
+        "found_patterns": [
+          {
+            "pattern": "calendar_name",
+            "timestamp": "2025-08-14T12:34:29.434578066Z",
+            "message": "INFO:app.services.google_calendar:Creating event 'lesson' in calendar 'zoutna@gmail.com' (zoutna@gmail.com)"
+          },
+          {
+            "pattern": "event_hyperlink",
+            "timestamp": "2025-08-14T12:34:29.622496605Z",
+            "message": "\u2022 [Lesson](https://calendar.google.com/calendar/event?eid=Z3FwbzYyazFjbDIyNHJlZ2NtYnU1N2Y3bXMgem91dG5hQG0) on Friday, August 15, 2025 at 08:00 AM - 09:00 AM (zoutna@gmail...."
+          },
+          {
+            "pattern": "date_format",
+            "timestamp": "2025-08-14T12:34:29.622496605Z",
+            "message": "\u2022 [Lesson](https://calendar.google.com/calendar/event?eid=Z3FwbzYyazFjbDIyNHJlZ2NtYnU1N2Y3bXMgem91dG5hQG0) on Friday, August 15, 2025 at 08:00 AM - 09:00 AM (zoutna@gmail...."
+          },
+          {
+            "pattern": "time_format",
+            "timestamp": "2025-08-14T12:34:29.622496605Z",
+            "message": "\u2022 [Lesson](https://calendar.google.com/calendar/event?eid=Z3FwbzYyazFjbDIyNHJlZ2NtYnU1N2Y3bXMgem91dG5hQG0) on Friday, August 15, 2025 at 08:00 AM - 09:00 AM (zoutna@gmail...."
+          }
+        ],
+        "total_logs": 50
+      }
+    }
+  ],
+  "issues_found": [
+    "Multi-Event Delete One-by-One",
+    "Multi-Event Create Batch",
+    "Multi-Event Update Flow"
+  ],
+  "test_results": [
+    {
+      "timestamp": "13:34:00",
+      "test": "Version Check",
+      "success": true,
+      "message": "Deployed: 0.1.128, Local: 0.1.128",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:09",
+      "test": "Multi-Event Delete One-by-One - Initial Request",
+      "success": true,
+      "message": "Webhook status: 200",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:13",
+      "test": "Multi-Event Delete One-by-One - Confirmation Display",
+      "success": false,
+      "message": "Multi-event confirmation pattern found: False",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:13",
+      "test": "Multi-Event Delete One-by-One - One-by-One Selection",
+      "success": true,
+      "message": "Callback status: 200",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:17",
+      "test": "Multi-Event Delete One-by-One - First Event Progression",
+      "success": false,
+      "message": "Progression pattern found: False",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:20",
+      "test": "Multi-Event Delete One-by-One - First Event Response",
+      "success": true,
+      "message": "First response status: 200",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:24",
+      "test": "Multi-Event Delete One-by-One - Second Event Progression",
+      "success": false,
+      "message": "Second event progression found: False",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:29",
+      "test": "Multi-Event Create Batch - Batch Request",
+      "success": true,
+      "message": "Webhook status: 200",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:34",
+      "test": "Multi-Event Create Batch - Hyperlinks",
+      "success": true,
+      "message": "Pattern found: True",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:34",
+      "test": "Multi-Event Create Batch - Date Format",
+      "success": true,
+      "message": "Pattern found: True",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:34",
+      "test": "Multi-Event Create Batch - Time Format",
+      "success": true,
+      "message": "Pattern found: True",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:34",
+      "test": "Multi-Event Create Batch - Success Message",
+      "success": false,
+      "message": "Pattern found: False",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:34",
+      "test": "Multi-Event Update Flow - Update Request",
+      "success": false,
+      "message": "Webhook status: 502",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:38",
+      "test": "Multi-Event Update Flow - Confirmation Display",
+      "success": false,
+      "message": "Confirmation pattern found: False",
+      "details": {}
+    },
+    {
+      "timestamp": "13:34:38",
+      "test": "Multi-Event Update Flow - Inline Keyboard",
+      "success": false,
+      "message": "Keyboard pattern found: False",
+      "details": {}
+    }
+  ],
+  "version": "0.1.128"
+}
