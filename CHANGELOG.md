@@ -2,6 +2,16 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.132] - 2025-08-14
+
+### Fixed
+- **Critical: Event Queue Instance Conflict**: Fixed multi-event one-by-one workflow where queue was lost between creation and button press
+### Technical Details  
+- **routes.py**: Updated service initialization order to pass shared event_queue_handler to multi_event_handler
+- **multi_event_operations.py**: Modified constructor to accept and use shared EventQueueHandler instance instead of creating local instances
+- **Queue Management**: Eliminated instance conflict where queue was created by local handler but callbacks processed by global handler
+- **One-by-One Flow**: Fixed "no pending queue" error that prevented progression from Event 1 to Event 2
+
 ## [0.1.131] - 2025-08-14
 
 ### Fixed

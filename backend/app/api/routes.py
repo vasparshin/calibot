@@ -113,8 +113,8 @@ router = APIRouter()
 telegram_service = TelegramBotService()
 calendar_service = GoogleCalendarService()
 calendar_agent = CalendarAgent()
-multi_event_handler = MultiEventOperationHandler(calendar_service, telegram_service, conversation_state)
 event_queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
+multi_event_handler = MultiEventOperationHandler(calendar_service, telegram_service, conversation_state, event_queue_handler)
 ai_agent = NLPAgent()
 
 access_token = None

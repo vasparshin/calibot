@@ -22,10 +22,11 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 class MultiEventOperationHandler:
-    def __init__(self, calendar_service, telegram_service, conversation_state):
+    def __init__(self, calendar_service, telegram_service, conversation_state, event_queue_handler=None):
         self.calendar_service = calendar_service
         self.telegram_service = telegram_service
         self.conversation_state = conversation_state
+        self.event_queue_handler = event_queue_handler  # Use shared instance
         self.pending_operations = {}  # Store pending operations by chat_id
         # Clear any stale operations on startup
         self.clear_all_pending_operations()
@@ -363,16 +364,21 @@ class MultiEventOperationHandler:
                     queue_events.append(queue_event)
                     logger.info(f"🔄 Queue event {i+1}: {queue_event.get('event_name')} - {queue_event.get('intent')} - New times: {queue_event.get('new_start_time', 'N/A')}-{queue_event.get('new_end_time', 'N/A')}")
                 
-                # Create event queue (need to import EventQueueHandler)
+                # Create event queue using shared handler
                 try:
-                    from .event_queue_handler import EventQueueHandler
-                    # Pass required dependencies
-                    queue_handler = EventQueueHandler(
-                        self.telegram_service,
-                        self.conversation_state,
-                        self.calendar_service,
-                        getattr(self.calendar_service, 'calendar_agent', None)
-                    )
+                    if not self.event_queue_handler:
+                        # Fallback: create local instance if not provided
+                        from .event_queue_handler import EventQueueHandler
+                        queue_handler = EventQueueHandler(
+                            self.telegram_service,
+                            self.conversation_state,
+                            self.calendar_service,
+                            getattr(self.calendar_service, 'calendar_agent', None)
+                        )
+                    else:
+                        # Use shared instance - this ensures queue persistence
+                        queue_handler = self.event_queue_handler
+                        
                     logger.info(f"🔄 Creating event queue for chat {chat_id}")
                     
                     # Create the queue first
