@@ -9,11 +9,28 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
   - **Root Cause**: Queue callbacks (`queue_skip_0`) were being routed to regular confirmation handler instead of queue handler
   - **Solution**: Rerouted queue callbacks to `event_queue_handler.process_queue_response()` for proper queue progression
   - **Result**: Now shows "UPDATE Event 2 of 2" after responding to first event
+- **Critical: Event Data Corruption**: Fixed "Current Event: ANY" display by preserving actual event names during queue conversion
+- **UX: Event Display Consistency**: Integrated MessageFormatter for consistent event formatting between individual and batch operations
+- **Technical: Version Declaration**: Removed duplicate __version__ declaration in __init__.py that was causing version persistence issues
+- **Development: Verification Script**: Improved verify_deployment.py to auto-decide without user input prompts and use correct root endpoint
+
+### Enhanced
+- **Testing: Automated Monitoring**: Created comprehensive deployment monitoring and webhook testing framework
+- **Development: No-Input Verification**: Deployment verification now auto-waits and auto-forces deployment without user prompts
+- **Documentation: Deployment Procedure**: Added DEPLOYMENT_PROCEDURE.md with stable deployment and testing processes
 
 ### Technical Details  
 - **routes.py**: Fixed callback routing in `handle_callback_query()` - queue actions now go to queue handler instead of confirmation handler
+- **multi_event_operations.py**: Enhanced create_queue_from_operation() to preserve original event names during conversion
+- **event_queue_handler.py**: Updated _format_event_summary() to use centralized MessageFormatter for consistency
+- **verify_deployment.py**: Removed user input prompts, added auto-wait and auto-force deployment logic, fixed endpoint from /health to /
 - **Queue Flow**: Skip/confirm buttons on individual events now properly advance to next event in queue
 - **Error Handling**: Added proper error handling for queue callback processing
+
+### Known Issues
+- **Render Deployment Cache**: Despite multiple successful deployments, Render continues serving cached version 0.1.123
+- **Testing Blocked**: Cannot test queue progression fixes until deployment version synchronization is resolved
+- **Docker Cache Issue**: Suspected build configuration or Docker layer caching preventing new version deployment
 
 ### User Experience Impact
 - ✅ First event shows correctly with proper formatting (from v0.1.125)
