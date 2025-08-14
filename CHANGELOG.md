@@ -2,6 +2,18 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.128] - 2025-01-14
+
+### Fixed
+- **Windows Compatibility**: Removed Unicode emoji characters from automation scripts to prevent encoding errors on Windows PowerShell
+- **Cross-Platform Support**: Replaced Unicode symbols with ASCII text equivalents for better compatibility
+
+### Technical Details  
+- **tests/fix_unicode.py**: Created automated script to replace problematic Unicode characters
+- **tests/auto_fix_retest_loop.py**: Replaced emoji with ASCII text markers for Windows compatibility
+- **tests/comprehensive_multi_event_automation.py**: Updated Unicode characters for cross-platform support
+- **tests/run_master_automation.py**: Fixed Unicode encoding issues for Windows PowerShell
+
 ## [0.1.127] - 2025-08-14
 
 ### Added
