@@ -65,7 +65,7 @@ class AutoFixAndRetestLoop:
     def log_fix_attempt(self, fix_name: str, success: bool, message: str):
         """Log fix attempt with timestamp"""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        status = "✅" if success else "❌"
+        status = "[CHECK]" if success else "[X]"
         print(f"{timestamp} {status} FIX [{fix_name}]: {message}")
         
         self.applied_fixes.append({
@@ -78,7 +78,7 @@ class AutoFixAndRetestLoop:
 
     async def run_comprehensive_tests(self) -> Dict:
         """Run the comprehensive test suite"""
-        print(f"\n🧪 RUNNING COMPREHENSIVE TESTS (Iteration {self.current_iteration + 1})")
+        print(f"\n[TEST_TUBE] RUNNING COMPREHENSIVE TESTS (Iteration {self.current_iteration + 1})")
         print("=" * 70)
         
         try:
@@ -142,7 +142,7 @@ class AutoFixAndRetestLoop:
         # Remove duplicates
         unique_issues = list(set(issues))
         
-        print(f"\n🔍 IDENTIFIED ISSUES: {len(unique_issues)}")
+        print(f"\n[CHECK] IDENTIFIED ISSUES: {len(unique_issues)}")
         for issue in unique_issues:
             print(f"  • {issue}")
         
@@ -276,7 +276,7 @@ class AutoFixAndRetestLoop:
 
     async def apply_fixes(self, issues: List[str]) -> bool:
         """Apply fixes for identified issues"""
-        print(f"\n🔧 APPLYING FIXES FOR {len(issues)} ISSUES")
+        print(f"\n[FIX] APPLYING FIXES FOR {len(issues)} ISSUES")
         print("=" * 50)
         
         fix_results = []
@@ -284,7 +284,7 @@ class AutoFixAndRetestLoop:
         for issue in issues:
             if issue in self.fix_patterns:
                 fix_info = self.fix_patterns[issue]
-                print(f"\n🛠️ Fixing: {fix_info['description']}")
+                print(f"\n[REPAIR] Fixing: {fix_info['description']}")
                 
                 # Apply the fix
                 fix_success = await fix_info["fix_function"]()
@@ -296,7 +296,7 @@ class AutoFixAndRetestLoop:
         overall_success = all(fix_results)
         applied_count = sum(fix_results)
         
-        print(f"\n📊 FIX RESULTS: {applied_count}/{len(issues)} successful")
+        print(f"\n[STATS] FIX RESULTS: {applied_count}/{len(issues)} successful")
         
         return overall_success
 
@@ -314,7 +314,7 @@ class AutoFixAndRetestLoop:
             import re
             match = re.search(r'version = "([^"]+)"', content)
             if not match:
-                print("❌ Could not find version in pyproject.toml")
+                print("[X] Could not find version in pyproject.toml")
                 return False
             
             current_version = match.group(1)
@@ -347,7 +347,7 @@ class AutoFixAndRetestLoop:
             with open(init_file, "w") as f:
                 f.write(updated_init)
             
-            print(f"✅ Version updated: {current_version} → {new_version}")
+            print(f"[CHECK] Version updated: {current_version} -> {new_version}")
             
             # Update CHANGELOG.md
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -377,7 +377,7 @@ class AutoFixAndRetestLoop:
             with open("CHANGELOG.md", "w") as f:
                 f.write("\n".join(lines))
             
-            print(f"✅ CHANGELOG.md updated with version {new_version}")
+            print(f"[CHECK] CHANGELOG.md updated with version {new_version}")
             
             # Git add, commit, and push
             subprocess.run(["git", "add", "."], check=True)
@@ -385,13 +385,13 @@ class AutoFixAndRetestLoop:
             subprocess.run(["git", "commit", "-m", commit_message], check=True)
             subprocess.run(["git", "push"], check=True)
             
-            print(f"✅ Changes committed and pushed to GitHub")
-            print(f"🚀 Automatic deployment initiated via Render")
+            print(f"[CHECK] Changes committed and pushed to GitHub")
+            print(f"[DEPLOY] Automatic deployment initiated via Render")
             
             return True
             
         except Exception as e:
-            print(f"❌ Deployment failed: {e}")
+            print(f"[X] Deployment failed: {e}")
             return False
 
     async def wait_for_deployment(self, new_version: str, max_wait_minutes: int = 5) -> bool:
@@ -414,7 +414,7 @@ class AutoFixAndRetestLoop:
                     
                     if deployed_version == new_version:
                         elapsed = int(time.time() - start_time)
-                        print(f"✅ Deployment successful! Version {new_version} deployed in {elapsed} seconds")
+                        print(f"[CHECK] Deployment successful! Version {new_version} deployed in {elapsed} seconds")
                         return True
                     else:
                         print(f"⏳ Still deploying... Current: {deployed_version}, Expected: {new_version}")
@@ -424,12 +424,12 @@ class AutoFixAndRetestLoop:
             
             await asyncio.sleep(15)  # Check every 15 seconds
         
-        print(f"❌ Deployment timeout after {max_wait_minutes} minutes")
+        print(f"[X] Deployment timeout after {max_wait_minutes} minutes")
         return False
 
     async def run_auto_fix_loop(self) -> Dict:
         """Run the complete auto-fix and retest loop"""
-        print("🤖 AUTOMATED MULTI-EVENT TESTING & FIXING LOOP")
+        print("AUTOMATED MULTI-EVENT TESTING & FIXING LOOP")
         print("=" * 70)
         print(f"Max iterations: {self.max_iterations}")
         print("No user input required - fully automated workflow")
@@ -438,7 +438,7 @@ class AutoFixAndRetestLoop:
         while self.current_iteration < self.max_iterations:
             self.current_iteration += 1
             
-            print(f"\n🔄 ITERATION {self.current_iteration}/{self.max_iterations}")
+            print(f"\n[ARROWS] ITERATION {self.current_iteration}/{self.max_iterations}")
             print("=" * 70)
             
             # Step 1: Run comprehensive tests
@@ -447,7 +447,7 @@ class AutoFixAndRetestLoop:
             
             # Step 2: Check if tests passed
             if test_results.get("success", False):
-                print(f"\n🎉 ALL TESTS PASSED! Auto-fix loop completed successfully.")
+                print(f"\n[CELEBRATION] ALL TESTS PASSED! Auto-fix loop completed successfully.")
                 return {
                     "success": True,
                     "iterations": self.current_iteration,
@@ -460,21 +460,21 @@ class AutoFixAndRetestLoop:
             issues = self.analyze_test_failures(test_results)
             
             if not issues:
-                print(f"\n⚠️ Tests failed but no fixable issues identified.")
+                print(f"\n[WARNING] Tests failed but no fixable issues identified.")
                 break
             
             # Step 4: Apply fixes
             fixes_applied = await self.apply_fixes(issues)
             
             if not fixes_applied:
-                print(f"\n⚠️ Could not apply all required fixes.")
+                print(f"\n[WARNING] Could not apply all required fixes.")
                 break
             
             # Step 5: Deploy changes
             deployment_success = await self.increment_version_and_deploy()
             
             if not deployment_success:
-                print(f"\n❌ Deployment failed - stopping auto-fix loop.")
+                print(f"\n[X] Deployment failed - stopping auto-fix loop.")
                 break
             
             # Step 6: Wait for deployment and verify
@@ -487,13 +487,13 @@ class AutoFixAndRetestLoop:
             deployment_ready = await self.wait_for_deployment(new_version)
             
             if not deployment_ready:
-                print(f"\n❌ Deployment verification failed - stopping auto-fix loop.")
+                print(f"\n[X] Deployment verification failed - stopping auto-fix loop.")
                 break
             
-            print(f"\n✅ Iteration {self.current_iteration} completed - retesting...")
+            print(f"\n[CHECK] Iteration {self.current_iteration} completed - retesting...")
         
         # Final results
-        print(f"\n📊 AUTO-FIX LOOP COMPLETED")
+        print(f"\n[STATS] AUTO-FIX LOOP COMPLETED")
         print("=" * 70)
         print(f"Iterations completed: {self.current_iteration}")
         print(f"Fixes applied: {len(self.applied_fixes)}")
@@ -502,9 +502,9 @@ class AutoFixAndRetestLoop:
         final_success = final_test_results.get("success", False)
         
         if final_success:
-            print("🎉 Final result: ALL TESTS PASSING")
+            print("[CELEBRATION] Final result: ALL TESTS PASSING")
         else:
-            print("⚠️ Final result: Some tests still failing - manual intervention required")
+            print("[WARNING] Final result: Some tests still failing - manual intervention required")
         
         return {
             "success": final_success,
@@ -528,12 +528,12 @@ async def main():
         with open(results_file, "w") as f:
             json.dump(results, f, indent=2, default=str)
         
-        print(f"\n📄 Detailed results saved: {results_file}")
+        print(f"\n[DOC] Detailed results saved: {results_file}")
         
         return results["success"]
         
     except Exception as e:
-        print(f"\n❌ Auto-fix loop failed: {e}")
+        print(f"\n[X] Auto-fix loop failed: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -546,5 +546,5 @@ if __name__ == "__main__":
         print("\n\n⏹️ Auto-fix loop interrupted by user")
         exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error: {e}")
+        print(f"\n[X] Unexpected error: {e}")
         exit(1)

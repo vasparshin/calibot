@@ -70,7 +70,7 @@ class ComprehensiveMultiEventTester:
     def log_test_result(self, test_name: str, success: bool, message: str, details: Dict = None):
         """Log test result with structured format"""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        status = "✅" if success else "❌"
+        status = "[CHECK]" if success else "[X]"
         print(f"{timestamp} {status} {test_name}: {message}")
         
         result = {
@@ -281,7 +281,7 @@ class ComprehensiveMultiEventTester:
         scenario_name = "Multi-Event Delete One-by-One"
         results = []
         
-        print(f"\n🧪 TESTING: {scenario_name}")
+        print(f"\n[TEST_TUBE] TESTING: {scenario_name}")
         print("=" * 60)
         
         # Step 1: Send visual message to group
@@ -371,7 +371,7 @@ class ComprehensiveMultiEventTester:
         scenario_name = "Multi-Event Create Batch"
         results = []
         
-        print(f"\n🧪 TESTING: {scenario_name}")
+        print(f"\n[TEST_TUBE] TESTING: {scenario_name}")
         print("=" * 60)
         
         # Send visual message to group
@@ -423,7 +423,7 @@ class ComprehensiveMultiEventTester:
         scenario_name = "Multi-Event Update Flow"
         results = []
         
-        print(f"\n🧪 TESTING: {scenario_name}")
+        print(f"\n[TEST_TUBE] TESTING: {scenario_name}")
         print("=" * 60)
         
         # Send visual message to group
@@ -471,11 +471,11 @@ class ComprehensiveMultiEventTester:
 
     async def run_comprehensive_test_suite(self) -> Dict:
         """Run complete test suite with automatic fixing if needed"""
-        print("🚀 COMPREHENSIVE MULTI-EVENT TESTING AUTOMATION")
+        print("[DEPLOY] COMPREHENSIVE MULTI-EVENT TESTING AUTOMATION")
         print("=" * 70)
-        print(f"🎯 Backend: {self.backend_url}")
-        print(f"🤖 TestBot Group: {self.group_chat_id}")
-        print(f"📊 Version: {self.current_version}")
+        print(f"[DART] Backend: {self.backend_url}")
+        print(f"[ROBOT] TestBot Group: {self.group_chat_id}")
+        print(f"[STATS] Version: {self.current_version}")
         print()
         
         # Step 1: Verify deployment
@@ -506,7 +506,7 @@ class ComprehensiveMultiEventTester:
         total_scenarios = len(scenarios)
         successful_scenarios = sum(1 for s in scenarios if s["success"])
         
-        print(f"\n📊 COMPREHENSIVE TEST RESULTS")
+        print(f"\n[STATS] COMPREHENSIVE TEST RESULTS")
         print("=" * 70)
         print(f"Total Scenarios: {total_scenarios}")
         print(f"Successful: {successful_scenarios}")
@@ -515,12 +515,12 @@ class ComprehensiveMultiEventTester:
         
         # Step 4: Detailed scenario results
         for scenario in scenarios:
-            status = "✅" if scenario["success"] else "❌"
+            status = "[CHECK]" if scenario["success"] else "[X]"
             print(f"\n{status} {scenario['scenario']}:")
             
             if "results" in scenario:
                 for result in scenario["results"]:
-                    result_status = "✅" if result else "❌"
+                    result_status = "[CHECK]" if result else "[X]"
                     print(f"  {result_status} {result}")
         
         # Step 5: Identify issues for auto-fixing
@@ -544,7 +544,7 @@ class ComprehensiveMultiEventTester:
         
         # Step 6: Auto-fix if needed (placeholder for future implementation)
         if not overall_success:
-            print(f"\n🔧 ISSUES DETECTED - AUTO-FIXING REQUIRED")
+            print(f"\n[FIX] ISSUES DETECTED - AUTO-FIXING REQUIRED")
             print("Issues found in scenarios:", ", ".join(issues_found))
             print("Auto-fixing functionality to be implemented...")
         
@@ -558,7 +558,7 @@ class ComprehensiveMultiEventTester:
         with open(filename, "w") as f:
             json.dump(results, f, indent=2, default=str)
         
-        print(f"\n📄 Test report saved: {filename}")
+        print(f"\n[DOC] Test report saved: {filename}")
         return filename
 
 async def main():
@@ -573,15 +573,15 @@ async def main():
         
         # Final summary
         if results["success"]:
-            print(f"\n🎉 ALL TESTS PASSED!")
+            print(f"\n[CELEBRATION] ALL TESTS PASSED!")
             print("CaliBOT multi-event scenarios are working correctly.")
             print("The one-by-one progression workflow is functioning as expected.")
         else:
-            print(f"\n⚠️ TESTS FAILED - ISSUES DETECTED")
+            print(f"\n[WARNING] TESTS FAILED - ISSUES DETECTED")
             print(f"Failed scenarios: {len(results['issues_found'])}")
             print("Auto-fixing and redeployment may be required.")
         
-        print(f"\n📋 Detailed results saved to: {report_file}")
+        print(f"\n[REPORT] Detailed results saved to: {report_file}")
         
         return results["success"]
 
@@ -593,7 +593,7 @@ if __name__ == "__main__":
         print("\n\n⏹️ Testing interrupted by user")
         exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error: {e}")
+        print(f"\n[X] Unexpected error: {e}")
         import traceback
         traceback.print_exc()
         exit(1)

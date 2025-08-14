@@ -21,16 +21,16 @@ from datetime import datetime
 
 def print_header():
     """Print the main header"""
-    print("🤖 CALIBOT MULTI-EVENT TESTING AUTOMATION")
+    print("[ROBOT] CALIBOT MULTI-EVENT TESTING AUTOMATION")
     print("=" * 80)
-    print("🎯 COMPLETE AUTOMATED WORKFLOW:")
+    print("[DART] COMPLETE AUTOMATED WORKFLOW:")
     print("   • Webhook testing with TestBot simulation in Telegram group")
     print("   • Render API log analysis for response validation")  
     print("   • Automatic issue detection and code fixing")
     print("   • GitHub deployment and version verification")
     print("   • Retest loop until all scenarios pass")
     print()
-    print("📋 TESTING SCENARIOS:")
+    print("[REPORT] TESTING SCENARIOS:")
     print("   • Multi-event delete with one-by-one progression")
     print("   • Multi-event creation with proper formatting")
     print("   • Multi-event updates with confirmation flow")
@@ -41,7 +41,7 @@ def print_header():
 
 async def verify_prerequisites():
     """Verify all prerequisites are met"""
-    print("🔍 VERIFYING PREREQUISITES")
+    print("[CHECK] VERIFYING PREREQUISITES")
     print("-" * 40)
     
     checks = []
@@ -84,7 +84,7 @@ async def verify_prerequisites():
     # Display results
     all_passed = True
     for check_name, passed, details in checks:
-        status = "✅" if passed else "❌"
+        status = "[CHECK]" if passed else "[X]"
         print(f"{status} {check_name}: {details}")
         if not passed:
             all_passed = False
@@ -94,11 +94,11 @@ async def verify_prerequisites():
 
 async def run_testing_workflow():
     """Run the comprehensive testing workflow"""
-    print("🧪 RUNNING COMPREHENSIVE TESTING WORKFLOW")
+    print("[TEST_TUBE] RUNNING COMPREHENSIVE TESTING WORKFLOW")
     print("-" * 50)
     
     # First, try simple testing without auto-fix
-    print("🔄 Step 1: Initial comprehensive testing...")
+    print("[ARROWS] Step 1: Initial comprehensive testing...")
     
     try:
         # Run the comprehensive test automation
@@ -111,18 +111,18 @@ async def run_testing_workflow():
         stdout, stderr = await process.communicate()
         
         if process.returncode == 0:
-            print("✅ Initial testing completed successfully!")
-            print("🎉 All multi-event scenarios are working correctly.")
+            print("[CHECK] Initial testing completed successfully!")
+            print("[CELEBRATION] All multi-event scenarios are working correctly.")
             return True
         else:
-            print("⚠️ Initial testing found issues - proceeding to auto-fix workflow...")
+            print("[WARNING] Initial testing found issues - proceeding to auto-fix workflow...")
             
     except Exception as e:
-        print(f"❌ Initial testing failed: {e}")
-        print("🔄 Proceeding to auto-fix workflow...")
+        print(f"[X] Initial testing failed: {e}")
+        print("[ARROWS] Proceeding to auto-fix workflow...")
     
     # If initial testing failed, run auto-fix loop
-    print("\n🛠️ Step 2: Running auto-fix and retest loop...")
+    print("\n[REPAIR] Step 2: Running auto-fix and retest loop...")
     
     try:
         # Run the auto-fix loop
@@ -135,39 +135,39 @@ async def run_testing_workflow():
         stdout, stderr = await process.communicate()
         
         if process.returncode == 0:
-            print("✅ Auto-fix workflow completed successfully!")
-            print("🎉 All issues resolved and tests now passing.")
+            print("[CHECK] Auto-fix workflow completed successfully!")
+            print("[CELEBRATION] All issues resolved and tests now passing.")
             return True
         else:
-            print("❌ Auto-fix workflow could not resolve all issues.")
+            print("[X] Auto-fix workflow could not resolve all issues.")
             print("Manual intervention may be required.")
             print("\nError details:")
             print(stderr.decode() if stderr else "No error details available")
             return False
             
     except Exception as e:
-        print(f"❌ Auto-fix workflow failed: {e}")
+        print(f"[X] Auto-fix workflow failed: {e}")
         return False
 
 def generate_summary_report():
     """Generate a summary of the testing session"""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    print("\n📊 TESTING SESSION SUMMARY")
+    print("\n[STATS] TESTING SESSION SUMMARY")
     print("=" * 50)
-    print(f"🕐 Completed: {timestamp}")
-    print("🎯 Scenarios tested:")
+    print(f"[CLOCK] Completed: {timestamp}")
+    print("[DART] Scenarios tested:")
     print("   • Multi-event delete with one-by-one progression")
     print("   • Multi-event creation with formatting validation")
     print("   • Multi-event updates with confirmation flow")
     print()
-    print("🔗 Integration points validated:")
+    print("[LINK] Integration points validated:")
     print("   • Webhook endpoint responses")
     print("   • TestBot visual messages in Telegram group")
     print("   • Render API log analysis")
     print("   • BOT_RULES.md compliance verification")
     print()
-    print("📋 Report files generated:")
+    print("[REPORT] Report files generated:")
     
     # List generated report files
     import glob
@@ -188,10 +188,10 @@ async def main():
     # Step 1: Verify prerequisites
     prereqs_ok = await verify_prerequisites()
     if not prereqs_ok:
-        print("❌ Prerequisites check failed. Please resolve issues and try again.")
+        print("[X] Prerequisites check failed. Please resolve issues and try again.")
         return False
     
-    print("✅ All prerequisites verified - proceeding with testing workflow")
+    print("[CHECK] All prerequisites verified - proceeding with testing workflow")
     print()
     
     # Step 2: Run the testing workflow  
@@ -201,19 +201,19 @@ async def main():
     elapsed_time = int(time.time() - start_time)
     generate_summary_report()
     
-    print(f"⏱️ Total execution time: {elapsed_time} seconds")
+    print(f"[TIME] Total execution time: {elapsed_time} seconds")
     
     if success:
-        print("\n🎉 TESTING AUTOMATION COMPLETED SUCCESSFULLY!")
-        print("✅ CaliBOT multi-event scenarios are working correctly")
-        print("✅ All webhook integrations validated")
-        print("✅ TestBot simulation successful")
-        print("✅ BOT_RULES.md compliance verified")
+        print("\n[CELEBRATION] TESTING AUTOMATION COMPLETED SUCCESSFULLY!")
+        print("[CHECK] CaliBOT multi-event scenarios are working correctly")
+        print("[CHECK] All webhook integrations validated")
+        print("[CHECK] TestBot simulation successful")
+        print("[CHECK] BOT_RULES.md compliance verified")
     else:
-        print("\n⚠️ TESTING AUTOMATION COMPLETED WITH ISSUES")
-        print("❌ Some scenarios may still have problems")
-        print("📋 Check generated report files for details")
-        print("🛠️ Manual investigation may be required")
+        print("\n[WARNING] TESTING AUTOMATION COMPLETED WITH ISSUES")
+        print("[X] Some scenarios may still have problems")
+        print("[REPORT] Check generated report files for details")
+        print("[REPAIR] Manual investigation may be required")
     
     return success
 
@@ -223,9 +223,9 @@ if __name__ == "__main__":
         
         print("\n" + "=" * 80)
         if success:
-            print("🎯 MISSION ACCOMPLISHED: All multi-event scenarios validated")
+            print("[DART] MISSION ACCOMPLISHED: All multi-event scenarios validated")
         else:
-            print("🎯 MISSION INCOMPLETE: Manual intervention required")
+            print("[DART] MISSION INCOMPLETE: Manual intervention required")
         print("=" * 80)
         
         sys.exit(0 if success else 1)
@@ -234,7 +234,7 @@ if __name__ == "__main__":
         print("\n\n⏹️ Testing automation interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error in testing automation: {e}")
+        print(f"\n[X] Unexpected error in testing automation: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
