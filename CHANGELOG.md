@@ -2,6 +2,24 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.129] - 2025-01-14
+
+### Added
+- **One-by-One Event Testing Framework**: Comprehensive testing system for one-by-one event processing workflows
+- **Frontend/Backend Integration Testing**: Dual-channel testing with TestBot visual messages and CaliBOT backend webhooks
+- **Multi-Event Workflow Validation**: Complete testing of create/edit/delete event sequences with confirmation flows
+
+### Enhanced
+- **Testing Coverage**: Added comprehensive validation for one-by-one deletion confirmation flows
+- **Live Log Monitoring**: Real-time log analysis during testing to track CaliBOT responses and processing
+- **Safe Test Event System**: Created isolated test events (TEST_ONEBYONE_*) to protect real calendar data
+
+### Technical Details  
+- **tests/one_by_one_event_tester.py**: Complete framework for testing one-by-one event workflows with dual-channel integration
+- **Multi-Phase Testing**: Create events → one-by-one deletion → create/edit/delete workflows  
+- **Backend Validation**: Confirmed CaliBOT webhook processing working correctly for all test scenarios
+- **Frontend Issue Identified**: TestBot visual messages experiencing 401 authentication errors (backend functionality unaffected)
+
 ## [0.1.128] - 2025-01-14
 
 ### Fixed

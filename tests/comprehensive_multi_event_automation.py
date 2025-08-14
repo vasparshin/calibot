@@ -70,7 +70,7 @@ class ComprehensiveMultiEventTester:
     def log_test_result(self, test_name: str, success: bool, message: str, details: Dict = None):
         """Log test result with structured format"""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        status = "[CHECK]" if success else "[X]"
+        status = "✅" if success else "❌"
         print(f"{timestamp} {status} {test_name}: {message}")
         
         result = {
@@ -168,8 +168,9 @@ class ComprehensiveMultiEventTester:
             }
 
     async def send_testbot_visual_message(self, message: str, user_name: str = "TestUser") -> bool:
-        """Send visual message to Telegram group via TestBot"""
+        """Send visual message to Telegram group AND webhook to CaliBOT backend"""
         try:
+            # Step 1: Send visual message to group for user to see
             payload = {
                 "chat_id": self.group_chat_id,
                 "text": f"👤 <b>{user_name}:</b> {message}",
@@ -178,9 +179,27 @@ class ComprehensiveMultiEventTester:
             
             url = f"https://api.telegram.org/bot{self.testbot_token}/sendMessage"
             response = requests.post(url, json=payload, timeout=10)
-            return response.status_code == 200
+            visual_success = response.status_code == 200
+            
+            if visual_success:
+                print(f"[CHECK] Visual message sent to group: {message}")
+            else:
+                print(f"[X] Failed to send visual message: {response.status_code}")
+            
+            # Step 2: CRITICAL - Also send webhook to CaliBOT so it can respond
+            webhook_payload = self.create_telegram_webhook_payload(message, self.group_chat_id)
+            webhook_response = await self.send_webhook_request(webhook_payload)
+            
+            if webhook_response["success"]:
+                print(f"[CHECK] Webhook sent to CaliBOT: {message}")
+            else:
+                print(f"[X] Failed to send webhook to CaliBOT: {webhook_response.get('error', 'Unknown error')}")
+            
+            return visual_success and webhook_response["success"]
+            
         except Exception as e:
-            logger.error(f"Failed to send visual message: {e}")
+            logger.error(f"Failed to send TestBot message: {e}")
+            print(f"[X] TestBot message error: {e}")
             return False
 
     async def get_render_logs(self, minutes_back: int = 5) -> List[Dict]:
@@ -276,19 +295,51 @@ class ComprehensiveMultiEventTester:
             self.log_test_result("Version Check", False, f"Exception: {e}")
             return False
 
+    async def create_safe_test_events(self) -> bool:
+        """Create clearly marked test events that are safe to delete"""
+        test_events = [
+            {
+                "message": "create TEST_AUTOMATION_EVENT_001 tomorrow 2pm-3pm",
+                "name": "TEST_AUTOMATION_EVENT_001"
+            },
+            {
+                "message": "create TEST_AUTOMATION_EVENT_002 tomorrow 3pm-4pm", 
+                "name": "TEST_AUTOMATION_EVENT_002"
+            }
+        ]
+        
+        created_count = 0
+        for event in test_events:
+            payload = self.create_telegram_webhook_payload(event["message"])
+            response = await self.send_webhook_request(payload)
+            if response["success"]:
+                created_count += 1
+                print(f"[CHECK] Created safe test event: {event['name']}")
+            else:
+                print(f"[X] Failed to create test event: {event['name']}")
+        
+        return created_count == len(test_events)
+
     async def test_multi_event_delete_scenario(self) -> Dict:
-        """Test multi-event delete with one-by-one progression"""
+        """Test multi-event delete with one-by-one progression - SAFE TEST EVENTS ONLY"""
         scenario_name = "Multi-Event Delete One-by-One"
         results = []
         
-        print(f"\n[TEST_TUBE] TESTING: {scenario_name}")
+        print(f"\n🧪 TESTING: {scenario_name} (SAFE TEST EVENTS ONLY)")
         print("=" * 60)
         
-        # Step 1: Send visual message to group
-        await self.send_testbot_visual_message("delete all events tomorrow", "TestUser")
+        # Step 0: Create safe test events first
+        print("Step 0: Creating safe test events...")
+        safe_events_created = await self.create_safe_test_events()
+        if not safe_events_created:
+            print("[WARNING] Could not create safe test events - aborting delete test for safety")
+            return {"success": False, "error": "Could not create safe test events"}
         
-        # Step 2: Send webhook request
-        payload = self.create_telegram_webhook_payload("delete all events tomorrow")
+        # Step 1: Send visual message to group (SAFE)
+        await self.send_testbot_visual_message("delete TEST_AUTOMATION_EVENT_001 and TEST_AUTOMATION_EVENT_002", "TestUser")
+        
+        # Step 2: Send webhook request (SAFE - only test events)
+        payload = self.create_telegram_webhook_payload("delete TEST_AUTOMATION_EVENT_001 and TEST_AUTOMATION_EVENT_002")
         webhook_result = await self.send_webhook_request(payload)
         
         step1_success = webhook_result["success"]
@@ -371,7 +422,7 @@ class ComprehensiveMultiEventTester:
         scenario_name = "Multi-Event Create Batch"
         results = []
         
-        print(f"\n[TEST_TUBE] TESTING: {scenario_name}")
+        print(f"\n🧪 TESTING: {scenario_name}")
         print("=" * 60)
         
         # Send visual message to group
@@ -423,14 +474,14 @@ class ComprehensiveMultiEventTester:
         scenario_name = "Multi-Event Update Flow"
         results = []
         
-        print(f"\n[TEST_TUBE] TESTING: {scenario_name}")
+        print(f"\n🧪 TESTING: {scenario_name}")
         print("=" * 60)
         
-        # Send visual message to group
-        await self.send_testbot_visual_message("move all events tomorrow to next week", "TestUser")
+        # Send visual message to group (SAFE - only test events)
+        await self.send_testbot_visual_message("move TEST_AUTOMATION_EVENT_001 to next week", "TestUser")
         
-        # Send webhook request
-        payload = self.create_telegram_webhook_payload("move all events tomorrow to next week")
+        # Send webhook request (SAFE - only test events)
+        payload = self.create_telegram_webhook_payload("move TEST_AUTOMATION_EVENT_001 to next week")
         webhook_result = await self.send_webhook_request(payload)
         
         step1_success = webhook_result["success"]
@@ -471,11 +522,11 @@ class ComprehensiveMultiEventTester:
 
     async def run_comprehensive_test_suite(self) -> Dict:
         """Run complete test suite with automatic fixing if needed"""
-        print("[DEPLOY] COMPREHENSIVE MULTI-EVENT TESTING AUTOMATION")
+        print("🚀 COMPREHENSIVE MULTI-EVENT TESTING AUTOMATION")
         print("=" * 70)
-        print(f"[DART] Backend: {self.backend_url}")
-        print(f"[ROBOT] TestBot Group: {self.group_chat_id}")
-        print(f"[STATS] Version: {self.current_version}")
+        print(f"🎯 Backend: {self.backend_url}")
+        print(f"🤖 TestBot Group: {self.group_chat_id}")
+        print(f"📊 Version: {self.current_version}")
         print()
         
         # Step 1: Verify deployment
@@ -506,7 +557,7 @@ class ComprehensiveMultiEventTester:
         total_scenarios = len(scenarios)
         successful_scenarios = sum(1 for s in scenarios if s["success"])
         
-        print(f"\n[STATS] COMPREHENSIVE TEST RESULTS")
+        print(f"\n📊 COMPREHENSIVE TEST RESULTS")
         print("=" * 70)
         print(f"Total Scenarios: {total_scenarios}")
         print(f"Successful: {successful_scenarios}")
@@ -515,12 +566,12 @@ class ComprehensiveMultiEventTester:
         
         # Step 4: Detailed scenario results
         for scenario in scenarios:
-            status = "[CHECK]" if scenario["success"] else "[X]"
+            status = "✅" if scenario["success"] else "❌"
             print(f"\n{status} {scenario['scenario']}:")
             
             if "results" in scenario:
                 for result in scenario["results"]:
-                    result_status = "[CHECK]" if result else "[X]"
+                    result_status = "✅" if result else "❌"
                     print(f"  {result_status} {result}")
         
         # Step 5: Identify issues for auto-fixing
@@ -544,7 +595,7 @@ class ComprehensiveMultiEventTester:
         
         # Step 6: Auto-fix if needed (placeholder for future implementation)
         if not overall_success:
-            print(f"\n[FIX] ISSUES DETECTED - AUTO-FIXING REQUIRED")
+            print(f"\n🔧 ISSUES DETECTED - AUTO-FIXING REQUIRED")
             print("Issues found in scenarios:", ", ".join(issues_found))
             print("Auto-fixing functionality to be implemented...")
         
@@ -558,7 +609,7 @@ class ComprehensiveMultiEventTester:
         with open(filename, "w") as f:
             json.dump(results, f, indent=2, default=str)
         
-        print(f"\n[DOC] Test report saved: {filename}")
+        print(f"\n📄 Test report saved: {filename}")
         return filename
 
 async def main():
@@ -573,15 +624,15 @@ async def main():
         
         # Final summary
         if results["success"]:
-            print(f"\n[CELEBRATION] ALL TESTS PASSED!")
+            print(f"\n🎉 ALL TESTS PASSED!")
             print("CaliBOT multi-event scenarios are working correctly.")
             print("The one-by-one progression workflow is functioning as expected.")
         else:
-            print(f"\n[WARNING] TESTS FAILED - ISSUES DETECTED")
+            print(f"\n⚠️ TESTS FAILED - ISSUES DETECTED")
             print(f"Failed scenarios: {len(results['issues_found'])}")
             print("Auto-fixing and redeployment may be required.")
         
-        print(f"\n[REPORT] Detailed results saved to: {report_file}")
+        print(f"\n📋 Detailed results saved to: {report_file}")
         
         return results["success"]
 
@@ -593,7 +644,7 @@ if __name__ == "__main__":
         print("\n\n⏹️ Testing interrupted by user")
         exit(1)
     except Exception as e:
-        print(f"\n[X] Unexpected error: {e}")
+        print(f"\n❌ Unexpected error: {e}")
         import traceback
         traceback.print_exc()
         exit(1)

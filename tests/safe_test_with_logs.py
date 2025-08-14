@@ -59,9 +59,6 @@ class SafeTestRunner:
         log_task = asyncio.create_task(self.show_live_logs(120))  # 2 minutes of logs
         
         try:
-            # Initialize tester
-            await self.tester.initialize()
-            
             # Step 1: Create safe test events
             print("\n[FIX] STEP 1: Creating safe test events...")
             safe_events_created = await self.tester.create_safe_test_events()
@@ -101,7 +98,6 @@ class SafeTestRunner:
         finally:
             # Stop log monitoring
             log_task.cancel()
-            await self.tester.cleanup()
 
 async def main():
     """Run safe testing with live logs"""
