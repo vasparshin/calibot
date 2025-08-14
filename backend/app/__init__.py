@@ -6,5 +6,3 @@ Built with FastAPI, uses LLM for intent extraction and conversation management.
 """
 
 __version__ = "0.1.126"
-
-__version__ = "0.1.123"

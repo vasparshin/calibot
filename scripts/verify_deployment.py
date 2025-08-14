@@ -15,7 +15,7 @@ from pathlib import Path
 
 # Configuration
 BACKEND_URL = "https://calibot-utq6.onrender.com"
-HEALTH_ENDPOINT = f"{BACKEND_URL}/health"
+ROOT_ENDPOINT = f"{BACKEND_URL}/"
 
 def get_local_version():
     """Get the version from local pyproject.toml"""
@@ -39,12 +39,16 @@ def get_local_version():
 def get_deployed_version():
     """Get the version from deployed backend"""
     try:
-        response = requests.get(HEALTH_ENDPOINT, timeout=10)
+        response = requests.get(ROOT_ENDPOINT, timeout=10)
         if response.status_code == 200:
             data = response.json()
             return data.get('version'), data.get('status')
         else:
             print(f"❌ Backend returned status {response.status_code}")
+            if response.status_code == 404:
+                print("Response: {\"detail\":\"Not Found\"}")
+            else:
+                print(f"Response: {response.text}")
             return None, None
     except Exception as e:
         print(f"❌ Error checking deployed version: {e}")
@@ -55,17 +59,19 @@ def check_backend_health():
     print("🔍 Checking backend health...")
     
     try:
-        response = requests.get(HEALTH_ENDPOINT, timeout=10)
+        response = requests.get(ROOT_ENDPOINT, timeout=10)
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Backend Status: {response.status_code}")
             print(f"✅ Version: {data.get('version', 'unknown')}")
             print(f"✅ Health: {data.get('status', 'unknown')}")
-            print(f"✅ Timestamp: {data.get('timestamp', 'unknown')}")
             return True, data.get('version')
         else:
             print(f"❌ Backend returned {response.status_code}")
-            print(f"Response: {response.text}")
+            if response.status_code == 404:
+                print("Response: {\"detail\":\"Not Found\"}")
+            else:
+                print(f"Response: {response.text}")
             return False, None
     except Exception as e:
         print(f"❌ Backend Error: {e}")
@@ -149,21 +155,21 @@ def main():
     is_healthy, deployed_version = check_backend_health()
     
     if not is_healthy:
-        print("\n❌ Backend is not healthy. Try the following:")
-        print("1. Wait 2-3 minutes and try again")
-        print("2. Check Render dashboard for deployment errors")
-        print("3. Use force deployment option")
+        print("\n❌ Backend is not healthy. Auto-deploying...")
+        print("⚠️  Recent changes may still be deploying. Waiting first...")
+        print("⏳ Waiting 2 minutes for current deployment...")
+        time.sleep(120)
         
-        choice = input("\nForce deployment? (y/n): ").lower()
-        if choice == 'y':
+        # Check again after waiting
+        is_healthy, deployed_version = check_backend_health()
+        if not is_healthy:
+            print("🚀 Backend still unhealthy, forcing deployment...")
             if force_deployment():
                 print("\n🔄 Re-checking after forced deployment...")
                 is_healthy, deployed_version = check_backend_health()
             else:
                 print("❌ Force deployment failed")
                 return 1
-        else:
-            return 1
     
     print("\n" + "=" * 50)
     
@@ -177,31 +183,19 @@ def main():
     else:
         print("\n⚠️  Version mismatch detected!")
         print("This usually means Render auto-deployment failed or is still in progress.")
-        print("\nOptions:")
-        print("1. Wait 2-3 minutes if you just pushed changes")
-        print("2. Force deployment to sync versions")
-        print("3. Continue with current deployed version")
+        print("🚀 Auto-deploying to sync versions...")
         
-        choice = input("\nChoose (1=wait, 2=force, 3=continue): ").lower()
-        if choice == '2' or choice == 'force':
-            if force_deployment():
-                print("\n🔄 Re-verifying after forced deployment...")
-                if verify_deployment():
-                    print("\n🎉 Deployment verification successful!")
-                    return 0
-                else:
-                    print("\n❌ Version still mismatched after deployment")
-                    return 1
+        if force_deployment():
+            print("\n🔄 Re-verifying after forced deployment...")
+            if verify_deployment():
+                print("\n🎉 Deployment verification successful!")
+                return 0
             else:
-                print("❌ Force deployment failed")
+                print("\n❌ Version still mismatched after deployment")
                 return 1
-        elif choice == '1' or choice == 'wait':
-            print("\n⏳ Please wait 2-3 minutes and run this tool again")
-            return 1
         else:
-            print("⚠️  Proceeding with potentially outdated version")
-            print("⚠️  Test results may not reflect your latest changes")
-            return 0
+            print("❌ Force deployment failed")
+            return 1
 
 if __name__ == "__main__":
     exit_code = main()
