@@ -2,6 +2,26 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.140] - 2025-08-15
+
+### 🚨 CRITICAL FIX - Duplicate Queue Processing
+- **Root Cause Found**: Two different queue processing sections in routes.py were executing sequentially
+- **Issue**: After "Yes" button processed correctly, fallback queue handler was re-executing and sending full event list
+- **Solution**: Move `queue_processed = True` flag to prevent duplicate execution in fallback handler
+
+### Technical Details
+- **Problem**: Queue callback (`queue_confirm_0`) processed successfully but then fallback logic triggered
+- **Duplicate Processing**: Lines 204-265 (new queue handler) + Lines 508-541 (old fallback handler) both executed
+- **Fix**: Set `queue_processed = True` BEFORE processing instead of after to prevent fallback execution
+- **Impact**: One-by-one progression should now work: Event 1 "Yes" → Event 2 → Event 3, etc.
+
+### Files Modified
+- `backend/app/api/routes.py` - Fixed duplicate queue processing prevention
+
+### Expected Result
+- "Yes" button click → button disappears → next event appears ("DELETE Event 2 of 9")
+- No more "Found 9 events to delete" message after individual confirmations
+
 ## [0.1.139] - 2025-08-15
 
 ### 🚨 CRITICAL FIXES - One-by-One Logic Completely Fixed
