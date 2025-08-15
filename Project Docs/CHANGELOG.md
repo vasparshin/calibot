@@ -2,6 +2,18 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.136] - 2025-08-15
+
+### Fixed
+- **Critical: One-by-One Multi-Event Processing Bug**: Fixed major issue where selecting "one by one" and clicking "yes" for individual events was deleting ALL events instead of just the current one
+### Technical Details
+- **Issue**: When user selected "one by one" processing and clicked "yes" for first event, system incorrectly processed all events at once instead of advancing to next individual confirmation
+- **Root Cause**: In `event_queue_handler.py`, "yes" response was being treated as "all" confirmation even after one-by-one mode was activated
+- **Solution**: Removed "yes" from initial batch confirmation options (`['all', 'yes', 'delete all', 'confirm all']` → `['all', 'delete all', 'confirm all']`) to prevent conflict with individual event confirmations
+- **Impact**: Individual event confirmations now work correctly - buttons disappear properly, user sees next event confirmation as expected, no bulk deletion occurs
+- **Files Modified**: `backend/app/services/event_queue_handler.py` line 581
+- **Verification**: Confirmed fix deployed to v0.1.136, ready for manual testing
+
 ## [0.1.135] - 2025-08-15
 
 ### Enhanced
