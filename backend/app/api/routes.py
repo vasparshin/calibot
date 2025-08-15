@@ -203,6 +203,9 @@ async def handle_callback_query(callback_query):
 
     # Queue navigation callbacks - FIXED: Route to queue handler, not confirmation handler
     if action == "queue":
+        # CRITICAL: Mark queue as processed BEFORE processing to prevent duplicate execution
+        queue_processed = True
+        
         # Check if there's a pending queue for this chat
         if event_queue_handler.has_pending_queue(chat_id):
             logger.info(f"🔘 Queue callback '{detail}' received for chat {chat_id}")
@@ -260,8 +263,6 @@ async def handle_callback_query(callback_query):
         else:
             logger.warning(f"🔘 Queue callback '{detail}' but no pending queue for chat {chat_id}")
         
-        # CRITICAL: Mark queue as processed to prevent duplicate processing
-        queue_processed = True
         return {"status": "ok"}
 
     # Schedule button callbacks

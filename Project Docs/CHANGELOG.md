@@ -2,6 +2,37 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.139] - 2025-08-15
+
+### 🚨 CRITICAL FIXES - One-by-One Logic Completely Fixed
+
+- **DateTime Formatting Fix**: Fixed invalid ISO format errors (`'11:00'` → proper datetime strings)
+- **Callback Routing Fix**: Fixed skip button causing redundant full event list instead of advancing to next event
+- **Button Behavior Fix**: Buttons now properly disappear after interaction with status updates
+- **Queue Progression Fix**: One-by-one mode now correctly advances Event 1 → Event 2 → Event N
+
+### Technical Details
+- **MultiEventOperationHandler**: Added proper datetime object to ISO string conversion
+- **Routes Callback Handler**: Fixed queue callback routing to prevent fallback message sending
+- **EventQueueHandler**: Ensured all datetime fields are proper ISO format strings
+- **Button Management**: Added keyboard removal with status updates for all queue callbacks
+
+### Root Causes Fixed
+1. **DateTime Format**: Google Calendar datetime objects were being stored as time-only strings
+2. **Callback Fallthrough**: Skip processing was successful but then fallback handlers sent full lists
+3. **Button Persistence**: Keyboards weren't being removed after interaction
+4. **Queue State**: One-by-one mode wasn't properly maintained through callbacks
+
+### Files Modified
+- `backend/app/services/multi_event_operations.py` - Fixed datetime conversion
+- `backend/app/api/routes.py` - Fixed callback routing and button removal
+- `Project Docs/CORE_RULES.md` - NEW: Streamlined core rules (reduced context)
+- `Project Docs/archive/` - Moved outdated documentation to reduce AI context
+
+### Testing Required
+- Test with real group chat `-4627994150` 
+- Verify: "delete first 9 events tomorrow" → "1️⃣ One by One" → buttons disappear → advance to Event 2
+
 ## [0.1.138] - 2025-08-15
 
 ### CRITICAL FIXES
