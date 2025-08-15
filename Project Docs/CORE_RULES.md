@@ -24,5 +24,11 @@
 - **Buttons**: MUST be temporary, removed after interaction with status text
 - **One-by-one**: "DELETE Event X of Y" → button click → advance to "DELETE Event X+1 of Y"
 
+## 🚨 ANTI-STUCK RULES (MANDATORY)
+1. **NO ENDLESS DEBUGGING**: Max 2 debug iterations before fixing root cause directly
+2. **NO DEPLOYMENT WAITING**: Deploy only when you have a concrete fix, not for debugging
+3. **FIX THE ACTUAL PROBLEM**: Don't add logging - analyze the code and fix the logic
+4. **SYSTEMATIC APPROACH**: Identify root cause first, then implement targeted fix
+
 ## 🚨 CURRENT CRITICAL ISSUE
-**One-by-one logic broken**: Buttons don't disappear, no progression to next event, datetime formatting errors
+**One-by-one logic broken**: "Yes" button processed but system sends full event list instead of Event 2

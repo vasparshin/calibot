@@ -124,7 +124,8 @@ class EventQueueHandler:
             'events': validated_events,
             'current_index': 0,
             'created_at': datetime.now(),
-            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
+            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)},
+            'one_by_one_mode': True  # CRITICAL FIX: Mark as one-by-one mode when created from external handler
         }
 
         # Return initial message with options
@@ -535,11 +536,6 @@ Calendar: {calendar}"""
         queue = self.pending_queues[chat_id]
         current_index = queue['current_index']
         
-        # DEBUG: Log queue state
-        logger.info(f"🔍 QUEUE DEBUG: chat_id={chat_id}, user_response='{user_response}', current_index={current_index}")
-        logger.info(f"🔍 QUEUE DEBUG: queue state={queue}")
-        logger.info(f"🔍 QUEUE DEBUG: one_by_one_mode={queue.get('one_by_one_mode', False)}")
-        
         # Handle initial batch options (when current_index is 0 AND not yet in one-by-one mode)
         # Check if we're in one-by-one mode by looking at the queue state
         is_one_by_one_mode = queue.get('one_by_one_mode', False)
@@ -567,7 +563,6 @@ Calendar: {calendar}"""
                 }
             else:
                 # Invalid response for initial options
-                logger.info(f"🔍 QUEUE DEBUG: Falling back to initial batch message - user_response='{user_response}' not recognized")
                 return self._get_initial_batch_message(chat_id)
         
         # Handle individual event confirmations (both text and callback data)
@@ -597,12 +592,9 @@ Calendar: {calendar}"""
             }
         if is_confirm:
             # Process current event
-            logger.info(f"🔍 QUEUE DEBUG: Processing 'yes' confirmation for event {current_index + 1}")
             result = await self._process_single_event(current_event)
             queue['current_index'] += 1
-            logger.info(f"🔍 QUEUE DEBUG: Incremented queue index to {queue['current_index']}")
             next_result = self.get_next_event_confirmation(chat_id)
-            logger.info(f"🔍 QUEUE DEBUG: Next event result: {next_result.get('success')}, queue_complete: {next_result.get('queue_complete')}")
 
             if next_result.get('queue_complete'):
                 return {
