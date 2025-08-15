@@ -2,6 +2,31 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.135] - 2025-08-15
+
+### Enhanced
+- **Documentation Organization**: Restructured all project documentation into organized "Project Docs" folder
+- **File Organization Cleanup**: Removed redundant summary files that violated project organization rules
+- **Bot-to-Bot Demo Framework**: Created comprehensive B2B automation documentation with zero user input requirements
+### Technical Details
+- **Project Docs/**: Organized all core documentation (BOT_RULES.md, CHANGELOG.md, PROJECT_RULES.md, PLANNED_FEATURES.md, WORKFLOW_ARCHITECTURE.md) into dedicated folder
+- **File Cleanup**: Removed MULTI_EVENT_FIX_PROCEDURE.md, GROUP_CHAT_VERIFICATION.md, DEPLOYMENT_PROCEDURE.md (content integrated into CHANGELOG.md and PROJECT_RULES.md)
+- **B2B_DEMO_AUTOMATION.md**: Documented complete automated testing framework requiring zero user input with all 5 scenarios, button press simulation, and live log monitoring
+- **README.md**: Updated root README to point to organized documentation structure
+- **Compliance**: Enforced strict file organization rules - no summary files, all tests in tests/, all scripts in scripts/, all docs in Project Docs/
+
+## [0.1.134] - 2025-08-15
+
+### Enhanced
+- **Comprehensive Multi-Event Demo Protocol**: Implemented complete testing framework for all multi-event scenarios with live log monitoring
+- **Critical Information Documentation**: Updated PROJECT_RULES.md with essential data to prevent information loss
+### Technical Details  
+- **tests/comprehensive_multi_event_demo.py**: Created comprehensive demo testing all scenarios (update, delete, move, cancel) with bot-to-bot conversation simulation
+- **PROJECT_RULES.md**: Documented critical group chat ID (-4627994150), demo protocols, and latest test results (80% success rate)
+- **Copilot Instructions**: Updated with mandatory references to PROJECT_RULES.md to ensure critical information is never lost again
+- **Demo Results**: Verified 4/5 scenarios working (UPDATE Event 2 of 2 fix confirmed), only cancel_update callback shows 500 error
+- **Log Monitoring**: Integrated live Render API log streaming during demos for real-time verification
+
 ## [0.1.133] - 2025-08-15
 
 ### Fixed

@@ -1,6 +1,27 @@
 # CaliBOT Project Rules & Lessons Learned
 
-## 🚀 Deployment Lessons Learned
+## � CRITICAL INFORMATION - DO NOT LOSE AGAIN
+
+### YOUR ACTUAL GROUP CHAT ID
+**MANDATORY REFERENCE**: Your actual Telegram group where you see messages is:
+- **Group ID**: `-4627994150`
+- **Context**: This is where you saw the last message at 07:57
+- **Usage**: Use this ID for ALL real testing and demos
+- **Location**: Found in conversation history and multiple test files
+
+### MULTI-EVENT DEMO RESULTS (LATEST)
+**Date**: 2025-08-15
+**Success Rate**: 80% (4/5 scenarios)
+**Scenarios Tested**:
+1. ✅ UPDATE MULTIPLE EVENTS - ONE BY ONE (Core "UPDATE Event 2 of 2" fix)
+2. ✅ UPDATE MULTIPLE EVENTS - ALL AT ONCE (Batch processing)
+3. ✅ DELETE MULTIPLE EVENTS - ONE BY ONE (Mixed yes/skip responses)
+4. ✅ MOVE MULTIPLE EVENTS (Complex date changes)
+5. ❌ UPDATE MULTIPLE EVENTS - CANCEL (500 error on cancel_update callback)
+
+**Proven Working**: "UPDATE Event 2 of 2" message, one-by-one queue processing, webhook responses (200 status), button callbacks
+
+## �🚀 Deployment Lessons Learned
 
 ### ✅ What Works for Render.com Deployment
 

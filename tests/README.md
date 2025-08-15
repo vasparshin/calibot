@@ -2,6 +2,53 @@
 
 This directory contains all test files and demo scripts for the Calibot project.
 
+## 🚨 CRITICAL TESTING RULES 🚨
+
+### GROUP CHAT TESTING REQUIREMENTS
+**MANDATORY**: Always verify you're testing on the CORRECT group chat before running any real tests!
+
+1. **Check Last Message Time**: Last message should be recent (within current session)
+2. **Verify Group Identity**: Confirm you're in the right CaliBOT test group  
+3. **Check Chat History**: Look for recent test interactions to confirm correct group
+4. **Time Verification**: User mentioned last message at 07:57 - if older, check group selection
+5. **Send Test Command**: Use `/status` to verify bot is active and responsive
+
+**DETAILED VERIFICATION**: See `GROUP_CHAT_VERIFICATION.md` for complete group verification protocol
+
+### MULTI-EVENT FIX TESTING PROTOCOL
+**For "UPDATE Event 2 of 2" verification:**
+
+1. **Pre-Test Verification** (MANDATORY):
+   ```bash
+   python scripts/quick_version_check.py
+   ```
+   Must show version 0.1.133 and operational status
+
+2. **Group Chat Verification** (MANDATORY):
+   - Verify recent message activity (not 07:57 from hours ago)
+   - Send `/status` command to confirm bot responsiveness
+   - Check you're in correct CaliBOT test group
+   - Only proceed if group verification passes
+
+3. **Multi-Event Test Workflow**:
+   - Send: "update my lessons tomorrow"  
+   - Bot should show multi-event confirmation
+   - Click: "1️⃣ One by One"
+   - Bot shows: "UPDATE Event 1 of 2"
+   - Click: "✅ Yes"
+   - Bot should show: "UPDATE Event 2 of 2" ← KEY VERIFICATION
+   - Complete workflow
+
+4. **Fix Verification Points**:
+   - Event 2 appears after Event 1 confirmation
+   - No "nothing happened" behavior
+   - Complete one-by-one progression works
+
+### DOCUMENTATION REFERENCES
+- **Fix Details**: `MULTI_EVENT_FIX_PROCEDURE.md`
+- **Group Verification**: `GROUP_CHAT_VERIFICATION.md`
+- **Test Rules**: This README.md
+
 ## Organization Rules
 
 To maintain a clean project structure, **ALL** test files and demo files must be placed in this `tests/` folder:
