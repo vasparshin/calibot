@@ -5,12 +5,12 @@ All notable changes to the CaliBOT project are documented here in reverse chrono
 ## [0.1.133] - 2025-08-15
 
 ### Fixed
-- **Critical: Duplicate Queue Processing Bug**: Fixed multi-event one-by-one workflow where Event 2 never appeared after processing Event 1
-### Technical Details  
-- **routes.py**: Added queue_processed flag to prevent duplicate execution paths from both processing the same queue response
-- **Race Condition Fix**: Queue-specific callback handler (lines 207-267) and general queue handler (lines 506+) were both calling process_queue_response for same event
-- **Duplicate Processing**: When user pressed "Yes" for Event 1, both execution paths triggered simultaneously, causing Event 2 to be processed without showing confirmation
-- **One-by-One Progression**: Now properly shows "UPDATE Event 2 of 2" confirmation instead of processing both events immediately
+- **Critical: Python Scope Error**: Fixed deployment-blocking variable scope issue where `queue_processed` was undefined in `handle_confirmation_callback` function
+### Technical Details
+- **routes.py**: Added proper `queue_processed = False` initialization to `handle_confirmation_callback` function to prevent Python scope errors
+- **Deployment**: Resolved 502 Bad Gateway errors that prevented service from starting
+- **Root Cause**: Variable `queue_processed` was only defined in `handle_callback_query` but referenced in `handle_confirmation_callback`
+- **Impact**: Service is now successfully deployed and operational for testing the duplicate queue processing fix from previous version
 
 ## [0.1.132] - 2025-08-14
 
