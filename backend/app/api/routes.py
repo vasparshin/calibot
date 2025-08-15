@@ -167,6 +167,10 @@ async def handle_callback_query(callback_query):
     # Always answer to stop Telegram spinner
     await answer_callback_query(callback_query_id, "Processing...")
 
+    # CRITICAL: Flag to prevent duplicate queue processing
+    queue_processed = False
+    confirmation = None  # Initialize confirmation variable
+
     # Parse via helper
     parsed = InlineKeyboardHelper.parse_callback_data(callback_data) if InlineKeyboardHelper else {"action": "unknown"}
     action = parsed.get("action")
@@ -257,6 +261,9 @@ async def handle_callback_query(callback_query):
                     return {"status": "ok"}
         else:
             logger.warning(f"🔘 Queue callback '{detail}' but no pending queue for chat {chat_id}")
+        
+        # CRITICAL: Mark queue as processed to prevent duplicate processing
+        queue_processed = True
         return {"status": "ok"}
 
     # Schedule button callbacks
@@ -496,8 +503,8 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
             await send_telegram_message(chat_id, f"Error processing operation: {str(e)}")
             return {"status": "ok"}
     
-    # Check event queue system
-    if event_queue_handler.has_pending_queue(chat_id):
+    # Check event queue system (CRITICAL: Only if not already processed by queue-specific handler)
+    if not queue_processed and event_queue_handler.has_pending_queue(chat_id):
         logger.info(f"Processing pending event queue with confirmation: {confirmation}")
         try:
             queue_result = await event_queue_handler.process_queue_response(chat_id, confirmation)
