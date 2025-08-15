@@ -2,6 +2,16 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.133] - 2025-08-15
+
+### Fixed
+- **Critical: Duplicate Queue Processing Bug**: Fixed multi-event one-by-one workflow where Event 2 never appeared after processing Event 1
+### Technical Details  
+- **routes.py**: Added queue_processed flag to prevent duplicate execution paths from both processing the same queue response
+- **Race Condition Fix**: Queue-specific callback handler (lines 207-267) and general queue handler (lines 506+) were both calling process_queue_response for same event
+- **Duplicate Processing**: When user pressed "Yes" for Event 1, both execution paths triggered simultaneously, causing Event 2 to be processed without showing confirmation
+- **One-by-One Progression**: Now properly shows "UPDATE Event 2 of 2" confirmation instead of processing both events immediately
+
 ## [0.1.132] - 2025-08-14
 
 ### Fixed
