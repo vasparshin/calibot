@@ -323,12 +323,27 @@ class MultiEventOperationHandler:
                 queue_events = []
                 for i, event in enumerate(events):
                     # CRITICAL FIX: Don't let original_request overwrite actual event data
+                    # DATETIME FIX: Ensure start_time and end_time are proper ISO datetime strings
+                    start_time = event.get("start", event.get("start_time", ""))
+                    end_time = event.get("end", event.get("end_time", ""))
+                    
+                    # Convert datetime objects to ISO strings if needed
+                    if hasattr(start_time, 'isoformat'):
+                        start_time = start_time.isoformat()
+                    elif isinstance(start_time, dict) and 'dateTime' in start_time:
+                        start_time = start_time['dateTime']
+                    
+                    if hasattr(end_time, 'isoformat'):
+                        end_time = end_time.isoformat()
+                    elif isinstance(end_time, dict) and 'dateTime' in end_time:
+                        end_time = end_time['dateTime']
+                    
                     queue_event = {
                         "intent": "update" if "update" in op_type else "delete",
                         "event_id": event.get("id", event.get("event_id")),
                         "event_name": event.get("summary", ""),  # KEEP THE ACTUAL EVENT NAME
-                        "start_time": event.get("start", event.get("start_time", "")),
-                        "end_time": event.get("end", event.get("end_time", "")),
+                        "start_time": start_time,
+                        "end_time": end_time,
                         "calendar_id": event.get("calendar_id", "primary"),
                         "calendar_name": event.get("calendar_name", "Unknown"),
                     }

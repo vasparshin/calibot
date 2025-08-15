@@ -231,12 +231,14 @@ async def handle_callback_query(callback_query):
                             del multi_event_handler.pending_operations[op_id]
                             logger.info(f"🔄 Cleaned up pending operation {op_id}")
                     
+                    # CRITICAL FIX: Remove keyboard from original message first
+                    original_text = callback_query["message"].get("text", "")
+                    await edit_message_text(chat_id, message_id,
+                        original_text + f"\n\n✅ **{confirmation.title()}**",
+                        reply_markup={})
+                    
                     if queue_result.get("queue_continues"):
-                        # Send the current result first
-                        await send_telegram_message(chat_id, queue_result["message"])
-                        conversation_state.add_message(chat_id, "assistant", queue_result["message"])
-                        
-                        # Then send the next confirmation as a separate message
+                        # Send ONLY the next confirmation - don't send redundant messages
                         next_conf = queue_result.get("next_confirmation", {})
                         if next_conf:
                             keyboard = next_conf.get("keyboard")
@@ -246,12 +248,8 @@ async def handle_callback_query(callback_query):
                                 await send_telegram_message(chat_id, next_conf["message"])
                             conversation_state.add_message(chat_id, "assistant", next_conf["message"])
                     else:
-                        # Standard processing for complete operations
-                        keyboard = queue_result.get("keyboard")
-                        if keyboard:
-                            await send_telegram_message(chat_id, queue_result["message"], reply_markup=keyboard)
-                        else:
-                            await send_telegram_message(chat_id, queue_result["message"])
+                        # Queue is complete
+                        await send_telegram_message(chat_id, queue_result["message"])
                         conversation_state.add_message(chat_id, "assistant", queue_result["message"])
                     
                     return {"status": "ok"}
