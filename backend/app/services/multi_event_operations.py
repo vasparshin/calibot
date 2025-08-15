@@ -7,7 +7,7 @@ UPDATED: Now uses centralized message formatting from BOT_RULES.md specification
 
 import logging
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
+import datetime as dtmod
 import json
 
 # Import centralized formatters for consistent messaging
@@ -182,10 +182,10 @@ class MultiEventOperationHandler:
                     if 'time_shift' in event_data and 'day' in event_data['time_shift']:
                         # For date shifts, show date change
                         try:
-                            from datetime import datetime as dt, timedelta
-                            current_date_obj = dt.fromisoformat(date)
+                            # Use unique import names to avoid shadowing
+                            current_date_obj = dtmod.datetime.fromisoformat(date)
                             if '1 day' in event_data['time_shift']:
-                                new_date_obj = current_date_obj + timedelta(days=1)
+                                new_date_obj = current_date_obj + dtmod.timedelta(days=1)
                                 new_date_str = new_date_obj.strftime('%Y-%m-%d')
                                 event_list += f"{i}. {formatted_name} on {date} at {start_time} → {new_date_str} at {start_time} ({calendar_name})\n"
                             else:
@@ -446,7 +446,7 @@ class MultiEventOperationHandler:
             
             # Get events from calendar service - get ALL events, don't filter by name yet
             events_response = await self.calendar_service.query_events({
-                'date': criteria.get('date', datetime.now().strftime("%Y-%m-%d"))
+                'date': criteria.get('date', dtmod.datetime.now().strftime("%Y-%m-%d"))
             })
             
             logger.info(f"🚨 CALENDAR SERVICE RESPONSE - success: {events_response.get('success')}, events count: {len(events_response.get('events', []))}")
@@ -549,7 +549,7 @@ class MultiEventOperationHandler:
                 logger.info(f"✅ FIRST TARGET APPLIED - Selected first {len(formatted_events)} events (requested: {count})")
             elif target in ['next', 'upcoming'] and len(formatted_events) > 0:
                 # For future events, select first N (earliest upcoming)
-                current_time = datetime.now().isoformat()
+                current_time = dtmod.datetime.now().isoformat()
                 future_events = [e for e in formatted_events if e.get('start_datetime', '') > current_time]
                 formatted_events = future_events[:count] if count <= len(future_events) else future_events
                 logger.info(f"✅ NEXT TARGET APPLIED - Selected next {len(formatted_events)} upcoming events (requested: {count})")
@@ -591,9 +591,9 @@ class MultiEventOperationHandler:
                 return datetime_str.split('T')[0]
             elif len(datetime_str) >= 10:
                 return datetime_str[:10]
-            return datetime.now().strftime("%Y-%m-%d")
+            return dtmod.datetime.now().strftime("%Y-%m-%d")
         except:
-            return datetime.now().strftime("%Y-%m-%d")
+            return dtmod.datetime.now().strftime("%Y-%m-%d")
     
     async def _execute_operation(self, operation: Dict) -> Dict:
         """Execute the confirmed operation"""
@@ -678,7 +678,7 @@ class MultiEventOperationHandler:
                             if 'T' in original_start:
                                 event_date = original_start.split('T')[0]  # Get date part (YYYY-MM-DD)
                             else:
-                                event_date = event.get('date', datetime.now().strftime("%Y-%m-%d"))
+                                event_date = event.get('date', dtmod.datetime.now().strftime("%Y-%m-%d"))
                             
                             new_start_time = original_request['new_start_time']  # e.g., "19:00"
                             
@@ -687,12 +687,11 @@ class MultiEventOperationHandler:
                                 new_end_time = original_request['new_end_time']
                             else:
                                 # Add 1 hour to start time
-                                from datetime import datetime, timedelta
                                 try:
-                                    start_dt = datetime.strptime(new_start_time, "%H:%M")
-                                    end_dt = start_dt + timedelta(hours=1)
+                                    start_dt = dtmod.datetime.strptime(new_start_time, "%H:%M")
+                                    end_dt = start_dt + dtmod.timedelta(hours=1)
                                     new_end_time = end_dt.strftime("%H:%M")
-                                except:
+                                except Exception:
                                     # Fallback if time parsing fails
                                     new_end_time = new_start_time
                             
@@ -755,26 +754,22 @@ class MultiEventOperationHandler:
                             
                             # NEW: Handle both full datetime and time-only formats
                             if original_start and original_end:
-                                from datetime import datetime, timedelta
                                 import re
-                                
                                 try:
                                     # Check if we have full datetime strings or just times
                                     if 'T' in original_start and 'T' in original_end:
                                         # Full datetime format (e.g., "2025-08-12T21:00:00+01:00")
-                                        start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
-                                        end_dt = datetime.fromisoformat(original_end.replace('Z', '+00:00'))
+                                        start_dt = dtmod.datetime.fromisoformat(original_start.replace('Z', '+00:00'))
+                                        end_dt = dtmod.datetime.fromisoformat(original_end.replace('Z', '+00:00'))
                                     else:
                                         # Time-only format (e.g., "21:00", "22:00") - need to add date
                                         event_date = event.get('date', '')
                                         if not event_date:
                                             # Extract date from today or use default
-                                            from datetime import date
-                                            event_date = date.today().isoformat()
-                                        
+                                            event_date = dtmod.date.today().isoformat()
                                         # Combine date and time
-                                        start_dt = datetime.fromisoformat(f"{event_date}T{original_start}:00")
-                                        end_dt = datetime.fromisoformat(f"{event_date}T{original_end}:00")
+                                        start_dt = dtmod.datetime.fromisoformat(f"{event_date}T{original_start}:00")
+                                        end_dt = dtmod.datetime.fromisoformat(f"{event_date}T{original_end}:00")
                                     
                                     logger.info(f"Parsed times: start={start_dt}, end={end_dt}")
                                     
@@ -789,7 +784,7 @@ class MultiEventOperationHandler:
                                         is_negative = 'earlier' in time_shift.lower() or 'back' in time_shift.lower() or time_shift.startswith('-')
                                         if is_negative:
                                             amount = -amount
-                                        delta = timedelta(days=amount)
+                                        delta = dtmod.timedelta(days=amount)
                                         unit_name = f"{amount} day(s)"
                                     else:
                                         # Check for hour/minute shift
@@ -805,10 +800,10 @@ class MultiEventOperationHandler:
                                             
                                             # Calculate time shift
                                             if unit in ['hour', 'hr']:
-                                                delta = timedelta(hours=amount)
+                                                delta = dtmod.timedelta(hours=amount)
                                                 unit_name = f"{amount} hour(s)"
                                             elif unit in ['minute', 'min']:
-                                                delta = timedelta(minutes=amount)
+                                                delta = dtmod.timedelta(minutes=amount)
                                                 unit_name = f"{amount} minute(s)"
                                     
                                     if delta:
@@ -886,10 +881,9 @@ class MultiEventOperationHandler:
                             # Format date for display
                             if event_date:
                                 try:
-                                    from datetime import datetime
-                                    date_obj = datetime.fromisoformat(event_date)
+                                    date_obj = dtmod.datetime.fromisoformat(event_date)
                                     formatted_date = date_obj.strftime('%A, %B %d, %Y')
-                                except:
+                                except Exception:
                                     formatted_date = event_date
                             else:
                                 formatted_date = "today"
@@ -911,21 +905,17 @@ class MultiEventOperationHandler:
                             # Parse datetime and format as "Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM"
                             try:
                                 if 'T' in event_start:
-                                    from datetime import datetime
-                                    start_dt = datetime.fromisoformat(event_start.replace('Z', '+00:00'))
-                                    end_dt = datetime.fromisoformat(event_end.replace('Z', '+00:00')) if event_end and 'T' in event_end else start_dt
-                                    
-                                    # Format date as "Day, Month DD, YYYY"
+                                    start_dt = dtmod.datetime.fromisoformat(event_start.replace('Z', '+00:00'))
+                                    end_dt = dtmod.datetime.fromisoformat(event_end.replace('Z', '+00:00')) if event_end and 'T' in event_end else start_dt
+                                    # Format date as "Day, Month DD, %Y"
                                     date_formatted = start_dt.strftime('%A, %B %d, %Y')
-                                    
                                     # Format time as "HH:MM AM/PM"
                                     start_time_formatted = start_dt.strftime('%I:%M %p').lstrip('0')
                                     end_time_formatted = end_dt.strftime('%I:%M %p').lstrip('0')
-                                    
                                     datetime_display = f"on {date_formatted} at {start_time_formatted} - {end_time_formatted}"
                                 else:
                                     datetime_display = "on today (all day)"
-                            except:
+                            except Exception:
                                 datetime_display = "on today"
                             
                             # Build the properly formatted event description
