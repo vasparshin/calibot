@@ -164,12 +164,12 @@ async def handle_callback_query(callback_query):
 
     logger.info(f"🔘 Callback query from chat {chat_id}: {callback_data}")
 
+    # CRITICAL: Initialize variables BEFORE any early returns
+    queue_processed = False
+    confirmation = None
+
     # Always answer to stop Telegram spinner
     await answer_callback_query(callback_query_id, "Processing...")
-
-    # CRITICAL: Flag to prevent duplicate queue processing
-    queue_processed = False
-    confirmation = None  # Initialize confirmation variable
 
     # Parse via helper
     parsed = InlineKeyboardHelper.parse_callback_data(callback_data) if InlineKeyboardHelper else {"action": "unknown"}
@@ -402,6 +402,9 @@ async def handle_schedule_callback(chat_id: int, message_id: int, date_type: str
 
 async def handle_confirmation_callback(chat_id: int, message_id: int, confirmation: str):
     """Handle confirmation responses from inline keyboards"""
+    # CRITICAL: Initialize variables BEFORE any processing
+    queue_processed = False
+    
     # Update the conversation state with the user's choice
     conversation_state.add_message(chat_id, confirmation, "user")
     
