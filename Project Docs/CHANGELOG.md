@@ -2,6 +2,35 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.138] - 2025-08-15
+
+### CRITICAL FIXES
+- **File Corruption Fix**: Fixed corrupted EventQueueHandler file that had misplaced code at the beginning, causing all one-by-one processing to fail
+- **AI Assistant Navigation**: Documented directory navigation issues that caused development confusion and delays
+
+### New Features
+- **Logs Automation**: Added `scripts/pull_deployment_logs.py` to automatically pull and store deployment logs in `logs/` folder
+- **Project Rules Enhancement**: Added comprehensive navigation and file corruption prevention rules
+
+### Technical Details
+- **EventQueueHandler**: Removed corrupted code from lines 3-44 that contained misplaced event formatting logic
+- **Directory Navigation**: Documented correct working directory path (`G:\My Drive\Work\calibot\calibot`) vs terminal start path
+- **File Paths**: Clarified relative path usage and common navigation errors
+- **Log Storage**: Automated log collection with timestamping and auto-cleanup
+- **Recovery Procedures**: Added emergency protocols for file corruption and navigation confusion
+
+### Files Modified
+- `backend/app/services/event_queue_handler.py` - Fixed file corruption
+- `Project Docs/PROJECT_RULES.md` - Added navigation and corruption prevention rules
+- `scripts/pull_deployment_logs.py` - NEW: Automated log collection
+- `logs/.gitkeep` - NEW: Logs directory structure
+
+### Prevention Measures
+- Added file integrity checking guidelines
+- Documented PowerShell syntax differences (`&&` vs `;`)
+- Created emergency recovery protocols for AI assistants
+- Automated log preservation for debugging
+
 ## [0.1.137] - 2025-08-15
 
 ### Fixed

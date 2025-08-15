@@ -263,11 +263,62 @@ To verify multi-event and queue-based workflows, a true bot-to-bot (B2B) demo is
 
 ## 📋 Project Maintenance Rules
 
+### 🚨 CRITICAL: AI Assistant Navigation Rules (PREVENT GETTING STUCK)
+**LESSON LEARNED (2025-08-15)**: AI assistants can get confused by directory structure and use wrong paths.
+
+#### Working Directory Rules (MANDATORY)
+1. **Terminal starts in**: `G:\My Drive\Work\calibot` (parent directory)
+2. **Project operations in**: `G:\My Drive\Work\calibot\calibot` (subdirectory)
+3. **ALWAYS navigate first**: Use `cd calibot` before ANY project operations
+4. **PowerShell syntax**: Use `;` not `&&` for command chaining
+5. **Verify location**: Run `dir` after navigation to confirm `pyproject.toml` is visible
+
+#### Prevention Commands
+```powershell
+# CORRECT WORKFLOW:
+cd calibot                           # Navigate to project directory
+dir                                  # Verify: should see pyproject.toml, backend/, tests/
+python scripts/quick_version_check.py    # Now this will work
+
+# WRONG: Operations from parent directory will fail
+python scripts/quick_version_check.py    # ❌ "Could not find pyproject.toml"
+```
+
+#### File Path Rules (CRITICAL)
+- **Relative paths**: Always from project root (`calibot/` subdirectory)
+- **Examples**:
+  - ✅ `backend/app/services/event_queue_handler.py`
+  - ✅ `Project Docs/PROJECT_RULES.md`
+  - ❌ `calibot/backend/app/services/event_queue_handler.py` (from parent dir)
+
+#### Emergency Recovery Protocol
+If confused about location:
+1. Run `dir` or `pwd` to see current path
+2. Look for `pyproject.toml` file
+3. If not found, run `cd calibot`
+4. Verify with `dir` again before continuing
+
+### 🚨 CRITICAL: File Corruption Prevention
+**LESSON LEARNED (2025-08-15)**: EventQueueHandler was corrupted with misplaced code at file start.
+
+#### File Integrity Rules
+1. **Always review file headers** after editing
+2. **Check for misplaced code** at beginning of files
+3. **Verify imports and class definitions** are intact
+4. **Test deployment after any service file changes**
+
+#### Early Detection Signs
+- Import errors in logs
+- 404 errors from backend health checks
+- "File not found" or "Module not found" errors
+- Unexpected syntax errors in working code
+
 ### Regular Cleanup Tasks
 1. **Review .gitignore** to exclude generated files
 2. **Move misplaced files** to correct folders
 3. **Delete unnecessary files** from project root
 4. **Update PROJECT_RULES.md** with new lessons learned
+5. **Pull deployment logs** after every deployment using `scripts/pull_deployment_logs.py`
 
 ### Documentation Updates
 1. **CHANGELOG.md** for all code changes
@@ -281,13 +332,52 @@ To verify multi-event and queue-based workflows, a true bot-to-bot (B2B) demo is
 3. **Tag releases** for important milestones
 4. **Branch protection** for critical files
 
+## 📁 LOGS AUTOMATION (NEW)
+
+### Automatic Log Collection
+**PROBLEM SOLVED**: Logs are hard to reach and analyze after deployment issues.
+
+#### Solution: `scripts/pull_deployment_logs.py`
+```bash
+# Pull latest 2 hours of logs and save to logs/ folder
+python scripts/pull_deployment_logs.py
+```
+
+#### Features:
+- Pulls logs from Render API automatically
+- Saves both JSON (raw) and TXT (readable) formats
+- Timestamped files for easy tracking
+- Auto-cleanup of logs older than 7 days
+- Creates logs/ directory if missing
+
+#### Integration with Deployment
+Run after every deployment to capture deployment logs:
+```bash
+git push origin main          # Deploy
+sleep 180                     # Wait 3 minutes for deployment
+python scripts/pull_deployment_logs.py  # Capture logs
+```
+
+#### Environment Setup
+Set your Render API key:
+```bash
+export RENDER_API_KEY=your_render_api_key
+```
+
 ## 🚨 Emergency Procedures
+
+### File Corruption Detection
+1. **Check service files** for misplaced code at file start
+2. **Verify imports and class definitions** are intact
+3. **Look for syntax errors** in working files
+4. **Test backend health** immediately after file changes
 
 ### Deployment Issues
 1. **Check Render dashboard** for build errors
-2. **Force empty commit** to trigger rebuild
-3. **Manual deploy button** in dashboard as backup
-4. **Rollback via git revert** if needed
+2. **Pull deployment logs** using `scripts/pull_deployment_logs.py`
+3. **Force empty commit** to trigger rebuild
+4. **Manual deploy button** in dashboard as backup
+5. **Rollback via git revert** if needed
 
 ### Service Down
 1. **Check root URL** for basic health
