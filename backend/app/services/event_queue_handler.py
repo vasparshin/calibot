@@ -573,14 +573,16 @@ Calendar: {calendar}"""
         # Check if we're in one-by-one mode by looking at the queue state
         is_one_by_one_mode = queue.get('one_by_one_mode', False)
         
+        # CRITICAL FIX: Only handle batch options if NOT in one-by-one mode
+        # Once one-by-one mode is active, "yes" means confirm current event, not all events
         if current_index == 0 and not is_one_by_one_mode:
             if user_response in ['one', '1', 'review']:
                 # Start one-by-one confirmation - mark the queue as in one-by-one mode
                 queue['one_by_one_mode'] = True
                 return self.get_next_event_confirmation(chat_id)
             
-            elif user_response in ['all', 'yes', 'delete all', 'confirm all']:
-                # Process all events at once
+            elif user_response in ['all', 'delete all', 'confirm all']:
+                # Process all events at once - REMOVED 'yes' from here
                 return await self._process_all_events(chat_id)
             
             elif user_response in ['cancel', 'c', 'no', 'stop']:

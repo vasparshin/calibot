@@ -13,6 +13,11 @@ wheels/
 /backend/.env
 /backend/app/.env
 /backend/*.pickle
+
+# Test result files
+tests/*_results_*.json
+comprehensive_demo_results_*.json
+*_results_*.json
 /backend/*.txt
 /backend/client.json
 /backend/app/credentials.json
