@@ -178,75 +178,55 @@ def main():
     print(f"🔗 Backend: {BACKEND_URL}")
     print()
     
-    # Define all test scenarios
-    scenarios = [
+    # Step 1: Create fake events for testing
+    fake_event_names = [f"TestB2B_{i:03d}" for i in range(1, 4)]
+    create_steps = []
+    for idx, name in enumerate(fake_event_names):
+        # Stagger times for clarity
+        hour = 10 + idx
+        create_steps.append({
+            "type": "message",
+            "desc": f"Create fake event {name}",
+            "content": f"create event {name} tomorrow at {hour}:00"
+        })
+
+    # Step 2: Multi-event update targeting only fake events
+    update_steps = [
         {
-            "name": "ALL AT ONCE",
-            "steps": [
-                {"type": "message", "desc": "Request multi-event move", "content": "🤖 AUTO-TEST 1: move my last 2 events from yesterday to today at 2pm and 3pm"},
-                {"type": "button", "desc": "Press All button", "content": "confirm_all_update"}
-            ]
+            "type": "message",
+            "desc": "Request multi-event update for fake events",
+            "content": f"move all TestB2B events tomorrow to next Monday at 15:00"
         },
-        {
-            "name": "ONE BY ONE - ACCEPT BOTH",
-            "steps": [
-                {"type": "message", "desc": "Request multi-event move", "content": "🤖 AUTO-TEST 2: move my last 2 events from yesterday to today at 4pm and 5pm"},
-                {"type": "button", "desc": "Press One by One", "content": "confirm_one_update"},
-                {"type": "button", "desc": "Accept Event 1", "content": "queue_confirm_0"},
-                {"type": "button", "desc": "Accept Event 2", "content": "queue_confirm_1"}
-            ]
-        },
-        {
-            "name": "ONE BY ONE - MIXED RESPONSES",
-            "steps": [
-                {"type": "message", "desc": "Request multi-event move", "content": "🤖 AUTO-TEST 3: move my last 2 events from yesterday to today at 6pm and 7pm"},
-                {"type": "button", "desc": "Press One by One", "content": "confirm_one_update"},
-                {"type": "button", "desc": "Accept Event 1", "content": "queue_confirm_0"},
-                {"type": "button", "desc": "Skip Event 2", "content": "queue_skip_1"}
-            ]
-        },
-        {
-            "name": "CANCEL IMMEDIATELY",
-            "steps": [
-                {"type": "message", "desc": "Request multi-event move", "content": "🤖 AUTO-TEST 4: move my last 2 events from yesterday to today at 8pm and 9pm"},
-                {"type": "button", "desc": "Press Cancel", "content": "cancel_update"}
-            ]
-        },
-        {
-            "name": "MID-PROCESS CANCEL",
-            "steps": [
-                {"type": "message", "desc": "Request multi-event move", "content": "🤖 AUTO-TEST 5: move my last 2 events from yesterday to today at 10pm and 11pm"},
-                {"type": "button", "desc": "Press One by One", "content": "confirm_one_update"},
-                {"type": "button", "desc": "Accept Event 1", "content": "queue_confirm_0"},
-                {"type": "button", "desc": "Cancel remaining", "content": "queue_cancel"}
-            ]
-        }
+        {"type": "button", "desc": "Press One by One", "content": "confirm_one_update"},
+        {"type": "button", "desc": "Accept Event 1", "content": "queue_confirm_0"},
+        {"type": "button", "desc": "Accept Event 2", "content": "queue_confirm_1"},
+        {"type": "button", "desc": "Accept Event 3", "content": "queue_confirm_2"}
     ]
-    
-    # Start comprehensive testing automatically
-    if testbot_token:
-        send_testbot_message(testbot_token, "🤖 <b>COMPREHENSIVE AUTO-SIMULATION STARTING</b>\n\nTesting ALL multi-event scenarios with automatic explanations!")
-    
-    print("🚀 AUTO-STARTING all scenarios...")
-    print("👁️ WATCH YOUR GROUP CHAT - TestBot will explain each action!")
-    print()
-    
-    # Run all scenarios automatically
-    for i, scenario in enumerate(scenarios, 1):
-        print(f"\n🔄 AUTO-RUNNING scenario {i}/{len(scenarios)}...")
-        run_auto_scenario(testbot_token, scenario["name"], scenario["steps"])
-        
-        if i < len(scenarios):
-            print(f"⏳ Auto-pause before next scenario...")
-            time.sleep(6)
-    
+
+    # Step 3: Clean up fake events
+    cleanup_steps = [
+        {
+            "type": "message",
+            "desc": "Delete all fake events",
+            "content": "delete all TestB2B events next Monday"
+        },
+        {"type": "button", "desc": "Press All button", "content": "confirm_all_delete"}
+    ]
+
+    # Combine all steps
+    all_steps = create_steps + update_steps + cleanup_steps
+
+    # Run as a single scenario
+    print("\n🔄 AUTO-RUNNING scenario: FAKE EVENTS ONE-BY-ONE UPDATE TEST")
+    run_auto_scenario(testbot_token, "FAKE EVENTS ONE-BY-ONE UPDATE TEST", all_steps)
+
     # Final summary
     if testbot_token:
-        send_testbot_message(testbot_token, "🎊 <b>ALL AUTO-SCENARIOS COMPLETE!</b>\n\nTested:\n• All at once workflow\n• One by one acceptance\n• Mixed responses\n• Cancel workflows\n\nCheck CaliBOT responses above!")
-    
+        send_testbot_message(testbot_token, "🎊 <b>ALL AUTO-SCENARIOS COMPLETE!</b>\n\nTested:\n• Fake event creation\n• One by one update\n• Cleanup\n\nCheck CaliBOT responses above!")
+
     print(f"\n{'='*60}")
     print("🎊 COMPREHENSIVE AUTO-SIMULATION COMPLETE!")
-    print("✅ Tested 5 multi-event scenarios automatically")
+    print("✅ Tested fake event one-by-one update and cleanup automatically")
     print("📺 Visible TestBot explanations for each action")
     print("👁️ CHECK YOUR GROUP CHAT for complete conversation!")
     print("📋 All scenarios ran without user input")

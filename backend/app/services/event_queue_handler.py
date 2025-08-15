@@ -1,40 +1,6 @@
 """
 Event Queue Handler for processing multiple events one by one with user confirmation.
-This approach reuses existi        # Build event summaries for display
-        event_summaries = []
-        for i, event in enumerate(events[:5], 1):  # Show first 5 events
-            title = event.get('event_name', 'Untitled')
-            
-            # Format date and time together with more detail
-            start_time = event.get('start_time', '')
-            end_time = event.get('end_time', '')
-            
-            # Extract and format date and times
-            date_time_str = "Unknown time"
-            try:
-                if 'T' in str(start_time):
-                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                    date_part = start_dt.strftime('%a %b %d')
-                    start_time_part = start_dt.strftime('%I:%M %p')
-                    
-                    if 'T' in str(end_time):
-                        end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                        end_time_part = end_dt.strftime('%I:%M %p')
-                        date_time_str = f"{date_part}, {start_time_part} - {end_time_part}"
-                    else:
-                        date_time_str = f"{date_part}, {start_time_part}"
-                else:
-                    date_time_str = self._format_datetime_for_display(start_time)
-            except Exception as e:
-                logger.warning(f"Error formatting event time: {e}")
-                date_time_str = self._format_datetime_for_display(start_time)
-            
-            calendar = self._format_calendar_name(event.get('calendar_name', ''))
-            
-            event_summaries.append(f"{i}. {title} - {date_time_str} ({calendar})")
-        
-        if total_events > 5:
-            event_summaries.append(f"... and {total_events - 5} more events")event logic while handling multi-event requests.
+This approach reuses existing event logic while handling multi-event requests.
 """
 
 import logging

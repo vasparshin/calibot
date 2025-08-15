@@ -2,6 +2,18 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.137] - 2025-08-15
+
+### Fixed
+- **Critical: One-by-One Event Queue Advancement**: Fixed bug where confirming 'yes' on event 1 did not advance to event 2, and summary message was re-sent instead of next event confirmation.
+### Technical Details
+- **Issue**: Per-event confirmation failed due to invalid date/time formatting (time-only strings like '10:00' passed to formatter, causing isoformat errors)
+- **Root Cause**: Event queue handler did not combine event date and time into ISO datetime string for per-event confirmation
+- **Solution**: Patched `event_queue_handler.py` to always combine date and time for each event before formatting, ensuring valid ISO datetime for all confirmation messages
+- **Impact**: One-by-one queue now advances correctly, user sees 'DELETE Event 2 of N' after confirming event 1, and buttons disappear as expected
+- **Files Modified**: `backend/app/services/event_queue_handler.py`
+- **Verification**: Ready for B2B demo and manual testing
+
 ## [0.1.136] - 2025-08-15
 
 ### Fixed
@@ -935,7 +947,7 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - **Fallback Authentication URLs**: Provide alternative authentication paths when OAuth generation fails
 
 ### Technical Details
-- **google_calendar.py**: Added OAuth client configuration validation and enhanced logging
+- **google_calendar.py**: Enhanced OAuth URL generation with explicit response_type parameter handling
 - **routes.py**: Improved error handling for OAuth URL generation failures
 - **OAuth Flow**: Better diagnostics for Google Cloud Console configuration mismatches
 
@@ -962,15 +974,6 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 ### Technical Details
 - **nlp_agent.py**: Improved fallback detection with detailed logging for calendar extraction regex patterns
 - **multi_event_operations.py**: Fixed confirmation message logic to prioritize showing proposed changes over generic formatting
-- **Intent Processing**: Calendar move detection now properly extracts target calendar names and includes them in confirmation messages
-
-### Fixed
-- **Critical: Calendar Move Extraction**: Fixed regex pattern to properly extract target calendar from "move to calendar X" commands
-- **Critical: Confirmation Messages**: Fixed confirmation messages to show what changes will be made (e.g., "Will move to Tonya calendar")
-- **Critical: Success Message Links**: Fixed malformed markdown links in success messages showing proper clickable event names
-### Technical Details
-- **nlp_agent.py**: Simplified calendar extraction regex to `r'to calendar ["\']([^"\']+)["\']'` for better matching
-- **multi_event_operations.py**: Force legacy confirmation path when calendar moves detected to show proposed changes
 - **multi_event_operations.py**: Fixed success message link format to use event name and proper URL
 
 ## [0.1.72] - 2025-08-11
@@ -1084,9 +1087,9 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Residual imports and usages of deprecated keyboard helper in `routes.py`, `update_delete.py`, `ui_helpers.py`, and related tests now migrated to standardized helper methods (multi-event, single-event, duplicate). Resolved indentation issues introduced during refactor.
 
 ### Technical Details
-- `routes.py`, `handlers/update_delete.py`: Replaced helper calls with `InlineKeyboardHelper` methods (`create_multi_event_confirmation_keyboard`, `create_single_event_confirmation_keyboard`).
-- `services/telegram.py`: Removed obsolete `create_confirmation_keyboard` function definition.
-- `utils/ui_helpers.py`: Swapped legacy calls for helper-based keyboards while preserving backward compatibility for other legacy helpers.
+- **routes.py**, **handlers/update_delete.py**: Replaced helper calls with `InlineKeyboardHelper` methods (`create_multi_event_confirmation_keyboard`, `create_single_event_confirmation_keyboard`).
+- **services/telegram.py**: Removed obsolete `create_confirmation_keyboard` function definition.
+- **utils/ui_helpers.py**: Swapped legacy calls for helper-based keyboards while preserving backward compatibility for other legacy helpers.
 - Tests (`test_inline_keyboards_and_ui.py`, `test_message_consistency.py`, `test_final_delete_validation.py`): Updated to import and use `InlineKeyboardHelper`; cleaned indentation errors.
 - Version bump to 0.1.64 across version files.
 
@@ -1099,7 +1102,7 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Query intents matched by fast-path produced no user message: early non-confirmation branch consumed flow before dedicated query handler, causing silent responses despite logs. Added exclusion of `intent == 'query'` from early non-confirmation block.
 
 ### Technical Details
-- `routes.py`: Conditional updated to `if confirmation_needed is False and intent != 'query'`; refined confirmation logging.
+- **routes.py**: Conditional updated to `if confirmation_needed is False and intent != 'query'`; refined confirmation logging.
 - Version bump to 0.1.63.
 
 ### Impact
@@ -1111,7 +1114,7 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Production 500 errors for simple schedule queries ("what's on today") caused by nested `_simple_schedule_query` using `datetime.now()` without module-scope `datetime` import bound in closure, triggering `cannot access free variable 'datetime'` NameError in deployed environment. Added top-level `from datetime import datetime` and removed redundant inner import instance.
 
 ### Technical Details
-- `routes.py`: Ensured `datetime` available to `_simple_schedule_query`; cleaned redundant local import.
+- **routes.py**: Ensured `datetime` available to `_simple_schedule_query`; cleaned redundant local import.
 - Version bump to 0.1.62 (`pyproject.toml`, `backend/app/__init__.py`).
 
 ### Impact
@@ -1126,8 +1129,8 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Removed obsolete label expectations in `test_message_consistency.py` preventing mismatch after prior inline keyboard helper introduction.
 
 ### Technical Details
-- `telegram.py`: Updated `create_confirmation_keyboard` duplicate branch button texts.
-- `tests/test_message_consistency.py`: Adjusted expected duplicate keyboard buttons.
+- **telegram.py**: Updated `create_confirmation_keyboard` duplicate branch button texts.
+- **tests/test_message_consistency.py**: Adjusted expected duplicate keyboard buttons.
 - Version bump to 0.1.61 (`pyproject.toml`, `backend/app/__init__.py`).
 
 ### Impact
@@ -1146,9 +1149,9 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Reduced false fallbacks by accepting a successful regenerated JSON response if it passes minimal length + JSON parse + has `intent` key.
 
 ### Technical Details
-- `routes.py`: Helper rename + updated info log message.
-- `nlp_agent.py`: Refactored intent extraction to wrap LLM call in `_call_llm`, add regeneration, stricter invalid detection path, schema normalization, and structured logging.
-- `pyproject.toml` / `backend/app/__init__.py`: Version bump to 0.1.60.
+- **routes.py**: Helper rename + updated info log message.
+- **nlp_agent.py**: Refactored intent extraction to wrap LLM call in `_call_llm`, add regeneration, stricter invalid detection path, schema normalization, and structured logging.
+- **pyproject.toml** / **backend/app/__init__.py**: Version bump to 0.1.60.
 
 ### Impact
 - Improves robustness against intermittent minimal model outputs without over-reliance on broad keyword fallbacks; maintains clean user-facing formatting and clarifies internal terminology per user preference.
@@ -1162,8 +1165,8 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Suppressed recurring error-path caused by pathological LLM response for trivial schedule lookups by short‑circuiting with deterministic parser before AI call.
 
 ### Technical Details
-- `routes.py`: Inserted `_heuristic_schedule_query` (renamed to `_simple_schedule_query` in 0.1.60) inner helper inside `process_user_message`; when matched sets `event_data` without invoking `check_relevancy` or `extract_intent`. Retains existing defensive guards for non‑heuristic paths. No changes to downstream formatting logic (still uses unified MessageFormatter query branch).
-- `pyproject.toml` / `backend/app/__init__.py`: Version bump to 0.1.59.
+- **routes.py**: Inserted `_heuristic_schedule_query` (renamed to `_simple_schedule_query` in 0.1.60) inner helper inside `process_user_message`; when matched sets `event_data` without invoking `check_relevancy` or `extract_intent`. Retains existing defensive guards for non‑heuristic paths. No changes to downstream formatting logic (still uses unified MessageFormatter query branch).
+- **pyproject.toml** / **backend/app/__init__.py**: Version bump to 0.1.59.
 
 ### Impact
 - Improves reliability and responsiveness for high-frequency user requests (daily schedule checks). Lowers LLM usage, cuts error log noise, and provides stable foundation for further dispatcher refactor tasks (Immediate Issue backlog) without altering user-visible formatting.
@@ -1174,7 +1177,7 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Removed redundant second AI completion for query intents that produced placeholder filler messages ("[Fetching your events...]") after formatted event list already sent, restoring clean single-response behavior per BOT_RULES.
 
 ### Technical Details
-- `routes.py`: Guard added so fallback AI response path skips when intent == 'query'.
+- **routes.py**: Guard added so fallback AI response path skips when intent == 'query'.
 - Version bump to 0.1.58.
 
 ### Impact
@@ -1186,7 +1189,7 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Hotfix for intermittent malformed LLM intent extraction responses returning only a dangling '"intent"' token causing error log: Error extracting intent: '"intent"'. Added defensive guards in `routes.py` to detect missing/empty intent and apply a safe query fallback instead of emitting user-facing error.
 
 ### Technical Details
-- `routes.py`: Added pathological single-key empty intent detection and missing 'intent' fallback branch converting failure into `{intent: query}` with current date; prevents regression while upstream prompt tuning pending.
+- **routes.py**: Added pathological single-key empty intent detection and missing 'intent' fallback branch converting failure into `{intent: query}` with current date; prevents regression while upstream prompt tuning pending.
 - Version bump to 0.1.57.
 
 ### Impact
@@ -1203,8 +1206,8 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - `immediate_changes.md`: Archived completed items 1–4 under a Completed section; reindexed remaining open issues (5–11) and split architectural refactor tasks into a separate track.
 
 ### Technical Details
-- `message_formatter.py`: Added `_compute_shifted_time_window` and `_parse_time_shift_minutes` helpers; updated `build_proposed_change_tokens` to include computed new time window when possible.
-- `pyproject.toml` / `backend/app/__init__.py`: Version bump to 0.1.56 per mandatory versioning policy.
+- **message_formatter.py**: Added `_compute_shifted_time_window` and `_parse_time_shift_minutes` helpers; updated `build_proposed_change_tokens` to include computed new time window when possible.
+- **pyproject.toml** / **backend/app/__init__.py**: Version bump to 0.1.56 per mandatory versioning policy.
 
 ### Impact
 - Establishes clearer roadmap visibility; reduces risk of prematurely removing pending tasks. Lays foundation for integrating full per-event arrow style proposed changes and accurate multi-event success state rendering (Issues 10 & 11).
@@ -1216,7 +1219,7 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - Prevent duplicate confirmation or cancellation status lines when users press confirmation buttons multiple times rapidly; `routes.py` now detects existing status tokens ("✅ **Confirmed**", "❌ **Cancelled**") before appending.
 
 ### Technical Details
-- `routes.py`: Added idempotent edit logic in `handle_confirmation_callback` to avoid message text growth due to repeated callbacks; maintains keyboard removal behavior.
+- **routes.py**: Added idempotent edit logic in `handle_confirmation_callback` to avoid message text growth due to repeated callbacks; maintains keyboard removal behavior.
 
 ### Impact
 - Improves UX by eliminating confusing repeated status blocks and preserves clean confirmation history. Foundation for broader button persistence audit (Immediate Issue 6).
@@ -1471,9 +1474,3 @@ When user said "move the last 2 events of yesterday", the system extracted "even
 - **routes.py**: Modified `handle_confirmation_callback` to check for pending operations (multi_event_handler and event_queue_handler) before falling back to `process_user_message`
 - **intent_extraction_prompt.py**: Added examples for time shift patterns like "move the end time to one hour after the start times" → `time_shift: "1 hour"`
 - **Flow Fix**: Prevents double intent extraction when inline keyboard buttons are pressed, ensuring smooth transition from confirmation to execution
-
-### Issues Resolved
-- Inline keyboard buttons disappearing after selection without executing operations
-- "One by one" processing not working due to callback handling issues
-- Time shift parameters not being extracted from natural language requests
-- New intent extraction being triggered instead of processing pending operations

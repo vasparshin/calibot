@@ -178,7 +178,70 @@ while True:
 - **Running long operations** in VS Code terminal
 - **Not using batch operations** for multiple commands
 
-## 🎯 Specific Technology Issues
+
+## 🤖 Bot-to-Bot Demo Protocol (MANDATORY)
+
+### Purpose
+To verify multi-event and queue-based workflows, a true bot-to-bot (B2B) demo is required. This means:
+- Using a real test bot (not just webhook simulation)
+- Running the demo in the documented test group (`-4627994150`)
+- Simulating a real user and a test bot interacting, including button presses and all confirmation flows
+- Monitoring logs in real time to verify correct queue and event processing
+
+### Required Setup
+- **Test Group ID**: `-4627994150` (see top of this file)
+- **User Bot**: CaliBOT (production bot)
+- **Test Bot**: A separate Telegram bot with its own token, able to send messages and press buttons in the group
+- **Log Monitoring**: Use `python scripts/recent_logs.py` to fetch and analyze logs during the demo
+
+### Step-by-Step Protocol
+1. **Preparation**
+    - Ensure both bots are in the test group and have permission to send messages and interact with inline keyboards.
+    - Deploy the latest version and verify with `python scripts/verify_deployment.py`.
+    - Open a terminal to run `python scripts/recent_logs.py` for live log monitoring.
+
+2. **Conversation Flow**
+    - The test bot sends commands to create multiple events (e.g., `create TestB2B_001 tomorrow 14:00-15:00`, etc.).
+    - The test bot requests a multi-event operation (e.g., `delete all TestB2B events tomorrow`).
+    - The test bot (or user) selects the desired mode (e.g., presses "One by One").
+    - The test bot simulates button presses for each event ("Yes", "Skip", "Cancel", etc.), verifying that each step advances the queue as expected.
+    - The test bot verifies that after each confirmation, the correct next event is shown, and no bulk deletion occurs unless "All" is selected.
+
+3. **Log Monitoring**
+    - During the demo, run `python scripts/recent_logs.py` after each critical step (especially after each "Yes" click) to verify:
+      - Only one "Processing single event" log per confirmation
+      - "DELETE Event X of Y" appears for each event in sequence
+      - No premature "Successfully deleted X events!" message
+    - If any issues are found (e.g., multiple events processed at once, missing confirmations), document them immediately.
+
+4. **Cleanup**
+    - After the demo, the test bot should delete any remaining test events to leave the calendar clean.
+
+5. **Documentation**
+    - Update this section with any new lessons learned, issues encountered, or changes to the protocol.
+    - All changes must be reflected in both `CHANGELOG.md` and here.
+
+### Success Criteria
+- Each "Yes" click processes only the current event
+- Buttons disappear after each click
+- Next event confirmation appears for remaining events
+- No bulk "Successfully deleted X events!" message after individual confirmations
+- Proper event-by-event flow is maintained throughout
+
+### Failure Indicators
+- First "Yes" click deletes all remaining events
+- No second event confirmation shown
+- Immediate "Successfully deleted X events!" message
+- Buttons remain visible after clicking
+- Queue jumps to completion instead of next event
+
+### Lessons Learned (2025-08-15)
+- Webhook-only simulation is NOT sufficient for true B2B demo; must use a real test bot
+- Log monitoring is essential for verifying queue and event processing
+- Unicode in logs can cause encoding errors in PowerShell; use plain text for log analysis
+- Always verify the deployed version before testing
+- Document all issues and protocol changes here, not in separate summary files
+
 
 ### Render.com Specifics
 - **Free tier has limitations** on API access
