@@ -2,6 +2,71 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.153] - 2025-08-16
+
+### 🚨 CRITICAL BUG FIXES - LLM Intent Extraction Overhaul
+
+#### Issues Identified from Render API Logs Analysis
+- **LLM consistently returning `"start_time"`** instead of valid JSON for ALL messages
+- **Single event creation** falling back to `query` intent instead of `create` 
+- **Multi-event creation** falling back to `query` intent instead of `create`
+- **Event update "Proposed Changes"** section showing empty content
+- **Version mismatch** between `pyproject.toml` and `backend/app/__init__.py`
+
+#### Root Cause Analysis
+1. **LLM Response Parsing**: GPT-4.1-mini consistently returning malformed partial responses like `"start_time"` instead of complete JSON objects
+2. **Inadequate Fallback Logic**: Fallback for create operations was too generic and didn't preserve event details
+3. **Missing Enhanced Update Parser**: No function to extract proposed changes like "tomorrow" → `new_date`
+4. **Single Event Handling**: `_parse_simple_batch_create` rejected single events (required ≥2 events)
+
+#### Technical Fixes Applied
+
+**1. Enhanced LLM Prompt (`backend/app/prompts/intent_extraction_prompt.py`)**
+- Added explicit critical rules against partial responses
+- Emphasized complete JSON requirement with json.loads() compatibility
+- Added fallback instruction for uncertain cases
+
+**2. Improved Fallback Logic (`backend/app/agent/nlp_agent.py`)**
+- Enhanced malformed response detection with better logging
+- Route create operations through detailed `_parse_simple_batch_create` instead of generic fallback
+- Route update operations through new `_parse_enhanced_fallback` function
+
+**3. Single Event Support (`_parse_simple_batch_create`)**
+- Removed requirement for ≥2 events 
+- Return standard create format for single events: `{"intent": "create", "start_time": "X", "end_time": "Y"}`
+- Return events array format for multiple events: `{"intent": "create", "events": [...]}`
+
+**4. New Enhanced Update Parser (`_parse_enhanced_fallback`)**
+- Extract target patterns: "2nd", "last", "first" → `target` field
+- Parse "tomorrow" → `new_date` field with proper date calculation
+- Extract time patterns → `new_start_time` field
+- Generate `time_shift` for move operations
+
+**5. Version Synchronization**
+- Updated both `pyproject.toml` and `backend/app/__init__.py` to `0.1.153`
+- Enforced consistent versioning protocol
+
+#### Expected Results
+- **✅ Single event creation**: `"add a new event today 'lesson' to Tonya calendar at 11am"` → `create` intent with proper event details
+- **✅ Multi-event creation**: `"create 2 new events 'lesson' in Tonya calendar, at 11 and 12am today"` → `create` intent with `events` array
+- **✅ Event updates with changes**: `"move the 2nd event today to tomorrow"` → `update` intent with `new_date` field
+- **✅ Proper "Proposed Changes"**: Show "📅 Move to: 2025-08-17" for tomorrow moves
+- **✅ Consistent fallback behavior**: Preserve user intent even when LLM fails
+
+#### Deployment & Testing Protocol
+1. **Mandatory Version Check**: Verify both version files updated
+2. **Render API Logs Monitoring**: Use `python calibot/scripts/recent_logs.py` to verify no more `"start_time"` errors
+3. **Real Bot Testing**: Test in group `-4627994150` with actual conversations
+4. **Intent Recognition Verification**: Confirm create/update intents are properly detected
+
+#### Technical Debt Addressed
+- ❌ Removed dependency on perfect LLM JSON output
+- ✅ Robust fallback system that preserves user intent
+- ✅ Enhanced logging for debugging intent extraction failures
+- ✅ Comprehensive error handling for malformed LLM responses
+
+---
+
 ## [0.1.152] - 2025-08-16
 
 ### 🚨 CRITICAL FIXES - Version Sync & Single Event UX

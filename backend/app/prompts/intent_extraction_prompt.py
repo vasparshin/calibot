@@ -1,7 +1,11 @@
 # Used by NLPAgent to extract event details and intent from user conversation.
 INTENT_EXTRACTION_PROMPT = """You are a calendar assistant. Analyze the user message and return ONLY valid JSON.
 
-CRITICAL: Your response must be COMPLETE, VALID JSON. Do not return partial responses or single field names.
+CRITICAL RULES:
+1. ALWAYS return COMPLETE, VALID JSON - never just field names like "start_time" or "intent"
+2. NEVER return partial responses or single words
+3. Your response must be valid JSON that can be parsed with json.loads()
+4. If unsure, return the query format: {{"intent": "query", "date": "{current_date_iso}", "confirmation_needed": false}}
 
 CONVERSATION HISTORY:
 {conversation_history}

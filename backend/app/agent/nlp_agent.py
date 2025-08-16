@@ -108,16 +108,90 @@ class NLPAgent:
         for ev in events:
             if ev['start_time'] in seen: continue
             seen.add(ev['start_time']); dedup.append(ev)
-        if len(dedup) < 2:
+        
+        # Handle both single and multiple events
+        if len(dedup) == 0:
             return None
-        return {
-            "intent": "create",
-            "event_name": event_name,
-            "date": date,
-            "events": dedup,
-            "calendar_name": calendar_name,
-            "confirmation_needed": False
+        elif len(dedup) == 1:
+            # Single event - return standard create format
+            return {
+                "intent": "create",
+                "event_name": event_name,
+                "date": date,
+                "start_time": dedup[0]["start_time"],
+                "end_time": dedup[0]["end_time"],
+                "calendar_name": calendar_name,
+                "confirmation_needed": False
+            }
+        else:
+            # Multiple events - return events array format
+            return {
+                "intent": "create",
+                "event_name": event_name,
+                "date": date,
+                "events": dedup,
+                "calendar_name": calendar_name,
+                "confirmation_needed": False
+            }
+
+    def _parse_enhanced_fallback(self, user_message: str) -> dict:
+        """Enhanced fallback for update operations to extract proposed changes"""
+        user_lower = user_message.lower()
+        
+        fallback = {
+            "intent": "update", 
+            "date": datetime.now().strftime("%Y-%m-%d"), 
+            "confirmation_needed": True,
+            "event_name": "event"  # Generic for now
         }
+        
+        # Extract target (1st, 2nd, last, etc.)
+        target_patterns = [
+            r'(\d+)(?:st|nd|rd|th)\s+event',
+            r'(\d+)(?:st|nd|rd|th)',
+            r'(first|second|third|last)\s+event',
+            r'(first|second|third|last)',
+        ]
+        
+        for pattern in target_patterns:
+            import re
+            match = re.search(pattern, user_lower)
+            if match:
+                fallback["target"] = match.group(1)
+                break
+        
+        # Extract proposed changes
+        # Handle "tomorrow" -> new_date
+        if "tomorrow" in user_lower:
+            from datetime import timedelta
+            tomorrow = datetime.now() + timedelta(days=1)
+            fallback["new_date"] = tomorrow.strftime("%Y-%m-%d")
+        
+        # Handle time shift patterns
+        if "move" in user_lower and "to" in user_lower:
+            if "tomorrow" in user_lower:
+                fallback["time_shift"] = "1 day"
+        
+        # Extract specific times if mentioned
+        import re
+        time_pattern = r'(\d{1,2}):?(\d{2})?\s*(am|pm)?'
+        times = re.findall(time_pattern, user_lower)
+        if times:
+            for hour, minute, meridiem in times:
+                if meridiem:
+                    try:
+                        hour_24 = int(hour)
+                        if meridiem == 'pm' and hour_24 != 12:
+                            hour_24 += 12
+                        elif meridiem == 'am' and hour_24 == 12:
+                            hour_24 = 0
+                        minute = minute or "00"
+                        fallback["new_start_time"] = f"{hour_24:02d}:{minute}"
+                        break
+                    except:
+                        pass
+        
+        return fallback
 
         
     async def check_relevancy(self, user_message: str, history: list) -> dict:
@@ -266,17 +340,22 @@ class NLPAgent:
                 'new_start_time', 'new_end_time', 'events', 'count'
             ]
             if cleaned_result.strip(' "') in malformed_responses:
-                logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}' - using fallback")
-                # Determine intent based on user message
+                logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}' - using enhanced fallback")
+                # Use enhanced fallback that preserves user message details
                 user_lower = user_message.lower()
+                
                 if any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
+                    logger.info("Exception fallback: detected query intent")
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 elif any(word in user_lower for word in ['add', 'create', 'make']):
-                    return {"intent": "create", "event_name": "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                    logger.info("Exception fallback: detected create intent - using detailed fallback")
+                    return self._parse_simple_batch_create(user_message)
                 elif any(word in user_lower for word in ['delete', 'remove']):
+                    logger.info("Exception fallback: detected delete intent")
                     return {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
                 elif any(word in user_lower for word in ['move', 'update', 'change']):
-                    return {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                    logger.info("Exception fallback: detected update intent")
+                    return self._parse_enhanced_fallback(user_message)
                 else:
                     return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             
