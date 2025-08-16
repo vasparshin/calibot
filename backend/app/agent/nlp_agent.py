@@ -137,6 +137,7 @@ class NLPAgent:
     def _parse_enhanced_fallback(self, user_message: str) -> dict:
         """Enhanced fallback for update operations to extract proposed changes"""
         user_lower = user_message.lower()
+        logger.info(f"🔧 ENHANCED FALLBACK: Processing '{user_message}'")
         
         fallback = {
             "intent": "update", 
@@ -166,6 +167,7 @@ class NLPAgent:
             from datetime import timedelta
             tomorrow = datetime.now() + timedelta(days=1)
             fallback["new_date"] = tomorrow.strftime("%Y-%m-%d")
+            logger.info(f"🔧 ENHANCED FALLBACK: Extracted tomorrow → new_date: {fallback['new_date']}")
         
         # Handle time shift patterns
         if "move" in user_lower and "to" in user_lower:
@@ -191,6 +193,7 @@ class NLPAgent:
                     except:
                         pass
         
+        logger.info(f"🔧 ENHANCED FALLBACK: Final result: {fallback}")
         return fallback
 
         
@@ -339,8 +342,10 @@ class NLPAgent:
                 'confirmation_needed', 'new_date', 'time_shift', 'calendar_name',
                 'new_start_time', 'new_end_time', 'events', 'count'
             ]
-            if cleaned_result.strip(' "') in malformed_responses:
-                logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}' - using enhanced fallback")
+            stripped_result = cleaned_result.strip(' "')
+            logger.info(f"🔍 Checking malformed: cleaned='{cleaned_result}', stripped='{stripped_result}'")
+            if stripped_result in malformed_responses:
+                logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}' → '{stripped_result}' - using enhanced fallback")
                 # Use enhanced fallback that preserves user message details
                 user_lower = user_message.lower()
                 
@@ -416,10 +421,8 @@ class NLPAgent:
                 user_lower = user_message.lower()
                 logger.error(f"🚨 JSON parsing failed for: '{result}' - using enhanced fallback")
                 
-                if any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
-                    logger.info("Exception fallback: detected query intent")
-                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
-                elif any(word in user_lower for word in ['add', 'create', 'make']):
+                # CRITICAL: Check create/update operations FIRST before query (to handle "add lesson today")
+                if any(word in user_lower for word in ['add', 'create', 'make']):
                     logger.info("Exception fallback: detected create intent - using detailed fallback")
                     batch_parsed = self._parse_simple_batch_create(user_message)
                     if batch_parsed:
@@ -431,6 +434,9 @@ class NLPAgent:
                 elif any(word in user_lower for word in ['move', 'update', 'change']):
                     logger.info("Exception fallback: detected update intent")
                     return self._parse_enhanced_fallback(user_message)
+                elif any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
+                    logger.info("Exception fallback: detected query intent")
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 
                 if any(word in user_lower for word in ['delete', 'remove']):
                     logger.info("Exception fallback: detected delete intent")

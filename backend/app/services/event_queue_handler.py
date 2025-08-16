@@ -371,8 +371,12 @@ Choose your action:"""
                     
                     # Add proposed changes
                     changes = []
+                    logger.info(f"🔧 PROPOSED CHANGES DEBUG: Event fields: {list(event.keys())}")
+                    logger.info(f"🔧 PROPOSED CHANGES DEBUG: new_date={event.get('new_date')}, time_shift={event.get('time_shift')}")
+                    
                     if event.get('new_date'):
                         changes.append(f"📅 Move to: {event.get('new_date')}")
+                        logger.info(f"🔧 PROPOSED CHANGES: Added new_date change")
                     if event.get('time_shift'):
                         changes.append(f"⏰ Time change: {event.get('time_shift')}")
                     if event.get('new_start_time') and event.get('new_end_time'):
