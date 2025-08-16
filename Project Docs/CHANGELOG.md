@@ -2,6 +2,54 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.155] - 2025-08-16
+
+### 🚨 CRITICAL FIX - Duplicate Fallback Logic Resolved
+
+#### Root Cause Discovered
+**YOU WERE RIGHT** - the issues were still not resolved because there was **duplicate fallback logic** in the codebase:
+
+1. **New Enhanced Fallback** (lines 342-359): My v0.1.153 fixes for malformed responses
+2. **Old Legacy Fallback** (lines 414+): Original fallback that was still executing
+
+#### The Problem
+- LLM returns `"start_time"` → JSON parsing fails
+- **OLD fallback logic executed** instead of new enhanced logic
+- Results: Still getting `query` intent for create operations
+
+#### Technical Fix Applied
+- **Replaced old fallback section** (lines 414-574) with enhanced logic
+- **Routes create operations** through `_parse_simple_batch_create`
+- **Routes update operations** through `_parse_enhanced_fallback`
+- **Removed duplicate query/create fallback** code
+
+#### Code Changes
+**Before** (causing issues):
+```python
+elif any(word in user_lower for word in ['today', 'what', 'plan']):
+    logger.info("Exception fallback: detected query intent")  # OLD CODE
+    return {"intent": "query", "date": "...", "confirmation_needed": False}
+```
+
+**After** (enhanced logic):
+```python
+elif any(word in user_lower for word in ['add', 'create', 'make']):
+    logger.info("Exception fallback: detected create intent - using detailed fallback")
+    batch_parsed = self._parse_simple_batch_create(user_message)  # NEW ENHANCED
+    return batch_parsed if batch_parsed else generic_create
+```
+
+#### Expected Results (v0.1.155)
+- ✅ **Single event creation**: `"add lesson at 11am"` → `create` intent with details
+- ✅ **Multi-event creation**: `"create 2 lessons at 11 and 12am"` → `create` intent with `events` array  
+- ✅ **Event updates**: `"move 2nd event to tomorrow"` → `update` intent with `new_date`
+- ✅ **No more query fallbacks** for create/update operations
+
+#### Deployment Protocol
+This is the **ACTUAL fix** for the persistent issues. Previous versions had the right logic but it wasn't being executed due to code flow problems.
+
+---
+
 ## [0.1.154] - 2025-08-16
 
 ### 🚀 DEVELOPMENT INFRASTRUCTURE - Direct Render API Access

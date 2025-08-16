@@ -414,11 +414,23 @@ class NLPAgent:
                 # If all JSON parsing fails, use intelligent fallback
                 # Enhanced fallback based on user message keywords
                 user_lower = user_message.lower()
-                # Attempt structured batch create parse first
-                batch_parsed = self._parse_simple_batch_create(user_message)
-                if batch_parsed:
-                    logger.info(f"Rule-based batch_create fallback parsed: {batch_parsed}")
-                    return batch_parsed
+                logger.error(f"🚨 JSON parsing failed for: '{result}' - using enhanced fallback")
+                
+                if any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
+                    logger.info("Exception fallback: detected query intent")
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                elif any(word in user_lower for word in ['add', 'create', 'make']):
+                    logger.info("Exception fallback: detected create intent - using detailed fallback")
+                    batch_parsed = self._parse_simple_batch_create(user_message)
+                    if batch_parsed:
+                        logger.info(f"✅ Enhanced create fallback parsed: {batch_parsed}")
+                        return batch_parsed
+                    else:
+                        logger.info("⚠️ Batch create parsing failed, using generic create")
+                        return {"intent": "create", "event_name": "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                elif any(word in user_lower for word in ['move', 'update', 'change']):
+                    logger.info("Exception fallback: detected update intent")
+                    return self._parse_enhanced_fallback(user_message)
                 
                 if any(word in user_lower for word in ['delete', 'remove']):
                     logger.info("Exception fallback: detected delete intent")
@@ -554,12 +566,9 @@ class NLPAgent:
                     logger.error(f"🔥 📋 CRITICAL DEBUG: Fallback result for update BEFORE return: {fallback}")
                     return fallback
                     
-                elif any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
-                    logger.info("Exception fallback: detected query intent")
-                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 else:
-                    logger.info("Exception fallback: detected create intent")
-                    return {"intent": "create", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False, "event_name": "event"}
+                    logger.info("Exception fallback: detected generic intent - defaulting to query")
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             
             # SUCCESS: LLM returned valid JSON
             logger.info(f"✅ Successfully parsed LLM JSON response: {parsed_result}")
