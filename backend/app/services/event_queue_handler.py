@@ -916,6 +916,9 @@ Calendar: {calendar}"""
                         update_data['start_time'] = event.get('new_start_time')
                     if event.get('new_end_time'):
                         update_data['end_time'] = event.get('new_end_time')
+                    if event.get('new_date'):
+                        update_data['date'] = event.get('new_date')
+                        logger.info(f"EventQueue: Moving event to new date: {event.get('new_date')}")
                     if event.get('new_event_name'):
                         update_data['event_name'] = event.get('new_event_name')
                     if event.get('description'):
