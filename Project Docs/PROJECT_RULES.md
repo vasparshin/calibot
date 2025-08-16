@@ -72,24 +72,133 @@ git push origin main
 - **No reliable completion notification** - must poll manually
 - **Build failures are silent** - check Render dashboard for errors
 
-## 📊 Logging Lessons Learned
+## 📊 Logging & Debugging (MANDATORY PROTOCOLS)
 
-### ✅ What Works for Log Retrieval
+### ✅ WORKING Log Access Methods
 
-#### Render API Logs Access (MANDATORY INSTRUCTIONS)
+#### Primary: Direct Render API Access (RECOMMENDED)
 ```bash
-# STEP 1: Set environment variable (use API key from scripts/recent_logs.py)
+# STEP 1: Set environment variable  
 $env:RENDER_API_KEY = "rnd_m8U9bCF9is6HWxuVbrc5S1rA7VzP"
 
-# STEP 2: Run logs script to check latest chat interactions
-python calibot/scripts/recent_logs.py | findstr /i "intent\|create\|update\|error\|webhook"
+# STEP 2: Use PowerShell-compatible log analyzer (NO EMOJIS)
+python scripts/render_api_logs.py                    # Show recent CaliBOT activity
+python scripts/render_api_logs.py intent create     # Filter for specific terms
+python scripts/render_api_logs.py error             # Show only errors
 
-# STEP 3: For deployment logs (stores in logs/ folder)
-python calibot/scripts/pull_deployment_logs.py
-
-# ALTERNATIVE: Quick logs for immediate check
-python calibot/scripts/quick_logs.py
+# This script provides:
+# - Real-time intent extraction analysis
+# - 'start_time' error detection  
+# - Create/update intent verification
+# - PowerShell Unicode compatibility
 ```
+
+#### API Documentation Reference
+- **Render API Logs Endpoint**: https://api-docs.render.com/openapi/6140fb3daeae351056086186
+- **Service ID**: `srv-d1vqbkp5pdvs73echbeg`
+- **Owner ID**: `tea-kks41ij4d82bpujdqv0g`
+
+### ❌ BROKEN/PROBLEMATIC Log Methods
+
+#### Unicode Issues in PowerShell
+```bash
+# BROKEN: These fail with UnicodeEncodeError in PowerShell
+python scripts/recent_logs.py | findstr /i "intent"
+python scripts/quick_logs.py | head -20
+
+# CAUSE: Emoji characters (🔍, 📊, etc.) can't encode in Windows cp1252
+# SOLUTION: Use scripts/render_api_logs.py (no emojis, PowerShell compatible)
+```
+
+#### Unreliable Health Checks
+```bash
+# BROKEN: Returns 404 errors inconsistently
+python scripts/quick_version_check.py
+
+# CAUSE: Health endpoint may not exist or have different path
+# SOLUTION: Check logs directly for version confirmation
+```
+
+### 🔧 DEBUGGING WORKFLOW (LESSONS LEARNED)
+
+#### Step 1: Version Verification
+```bash
+# 1. Check deployed version in logs (NOT health endpoint)
+python scripts/render_api_logs.py | findstr "starting up\|Version:"
+
+# 2. Verify both version files are synchronized
+Get-Content pyproject.toml | Select-String "version"
+Get-Content backend/app/__init__.py | Select-String "__version__"
+```
+
+#### Step 2: Real-Time Issue Analysis  
+```bash
+# 1. Monitor for specific issues
+python scripts/render_api_logs.py error start_time    # Check for LLM failures
+python scripts/render_api_logs.py intent create       # Verify intent extraction
+python scripts/render_api_logs.py webhook             # Monitor user interactions
+
+# 2. Test bot and immediately check logs
+# Send message to bot in group -4627994150
+# Then: python scripts/render_api_logs.py
+```
+
+#### Step 3: Root Cause Investigation
+1. **Always check actual conversation logs** from Render API
+2. **Look for patterns** in error messages (e.g., consistent "start_time" failures)
+3. **Verify fixes in real-time** by testing bot and checking logs immediately
+4. **Don't rely on assumptions** - actual user message processing tells the truth
+
+### 📈 DEVELOPMENT INSIGHTS (v0.1.153 Lessons)
+
+#### ✅ What WORKS for Development & Debugging
+
+1. **Direct Render API Access** 
+   - `scripts/render_api_logs.py` provides reliable, real-time log analysis
+   - PowerShell compatible (no Unicode issues)
+   - Structured filtering and analysis capabilities
+
+2. **Version Synchronization Protocol**
+   - ALWAYS update both `pyproject.toml` AND `backend/app/__init__.py`
+   - Verify deployment via logs, not health endpoints
+   - Use consistent `vX.Y.Z: Description` commit messages
+
+3. **LLM Debugging Strategy**
+   - Enhanced fallback logic preserves user intent when LLM fails
+   - Detailed logging shows exact LLM responses and parsing failures
+   - Robust pattern matching for intent extraction
+
+4. **Real-Time Testing Workflow**
+   - Deploy → Check logs for version → Test bot → Check logs immediately
+   - Look for specific error patterns (e.g., "start_time" errors)
+   - Verify intent extraction actually works vs assumed fixes
+
+#### ❌ What DOESN'T WORK
+
+1. **Emoji-Heavy Scripts in PowerShell**
+   - Unicode encoding issues with Windows cp1252
+   - `recent_logs.py` and `quick_logs.py` fail with UnicodeEncodeError
+
+2. **Health Endpoint Reliance**
+   - `quick_version_check.py` returns inconsistent 404 errors
+   - Better to check deployment status via logs directly
+
+3. **Assumption-Based Debugging**
+   - "Fixes should work" ≠ fixes actually working
+   - Must verify every change with actual bot testing + log analysis
+
+4. **Terminal Commands That Block**
+   - `curl -s https://calibot-utq6.onrender.com/` gets stuck in pager
+   - `git log --oneline` enters pager mode
+   - Use `--no-pager` flags or PowerShell-specific alternatives
+
+#### 🎯 FUTURE DEVELOPMENT RECOMMENDATIONS
+
+1. **Always Use `scripts/render_api_logs.py`** for debugging
+2. **Test every fix immediately** with real bot interactions
+3. **Check logs before and after** any code changes
+4. **Maintain comprehensive changelog** with technical details
+5. **Document both working AND broken methods** to save time
 
 #### Batch Log Fetching
 ```python

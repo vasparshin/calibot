@@ -2,6 +2,51 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.154] - 2025-08-16
+
+### 🚀 DEVELOPMENT INFRASTRUCTURE - Direct Render API Access
+
+#### New Features
+- **PowerShell-Compatible Log Analysis**: Created `scripts/render_api_logs.py` for reliable log access
+- **Direct Render API Integration**: Implemented proper API access using [Render's OpenAPI documentation](https://api-docs.render.com/openapi/6140fb3daeae351056086186)
+- **Real-Time Intent Analysis**: Automated detection of LLM failures and intent extraction issues
+- **Unicode-Safe Debugging**: Resolved PowerShell Unicode encoding issues with emoji-free output
+
+#### Technical Implementation
+- **Service ID**: `srv-d1vqbkp5pdvs73echbeg`
+- **Owner ID**: `tea-kks41ij4d82bpujdqv0g` 
+- **API Endpoint**: `https://api.render.com/v1/logs`
+- **Authentication**: Bearer token via `RENDER_API_KEY`
+
+#### Usage Commands
+```bash
+python scripts/render_api_logs.py                    # Show recent CaliBOT activity
+python scripts/render_api_logs.py intent create     # Filter for specific terms
+python scripts/render_api_logs.py error             # Show only errors
+python scripts/render_api_logs.py | findstr "Version:"  # PowerShell filtering
+```
+
+#### Project Documentation Updates
+- **Enhanced PROJECT_RULES.md**: Added comprehensive debugging workflows
+- **Documented Working vs Broken Methods**: Clear guidance on what tools to use
+- **Real-Time Testing Protocols**: Step-by-step debugging procedures
+- **Development Insights**: Lessons learned from v0.1.153 debugging session
+
+#### Issues Resolved
+- ❌ Fixed: `recent_logs.py` Unicode errors in PowerShell (`UnicodeEncodeError: 'charmap' codec`)
+- ❌ Fixed: Unreliable health endpoint checks (`quick_version_check.py` 404 errors)
+- ✅ Added: Direct API access for immediate log analysis
+- ✅ Added: Structured error pattern detection
+- ✅ Added: Real-time deployment verification
+
+#### Future Development Benefits
+- **No More Copy-Paste Debugging**: Direct API access eliminates manual log copying
+- **Immediate Issue Detection**: Real-time analysis of intent extraction failures
+- **PowerShell Compatibility**: All debugging tools work in Windows development environment
+- **Comprehensive Documentation**: Clear protocols for future debugging sessions
+
+---
+
 ## [0.1.153] - 2025-08-16
 
 ### 🚨 CRITICAL BUG FIXES - LLM Intent Extraction Overhaul
