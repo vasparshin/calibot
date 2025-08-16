@@ -2,6 +2,27 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.151] - 2025-08-16
+
+### 🚨 CRITICAL FIX - Multi-Event Detection Missing Logic
+
+- **Root Cause Found**: EventQueueHandler.detect_multi_event_request() only checked for "batch_create" intent, not "create" with "events" array
+- **Issue**: Multi-event requests with correct "create" + "events" format were being processed as single events
+- **Impact**: "create 2 new events" was falling through to single event creation logic instead of multi-event queue
+
+### Technical Details
+- **Detection Fix**: Added check for `intent == "create" and "events" in intent_data` to detect_multi_event_request()
+- **Backward Compatibility**: Kept existing "batch_create" detection for legacy requests
+- **Logic Flow**: Multi-event requests now properly trigger queue-based processing instead of single event logic
+
+### Files Modified
+- `backend/app/services/event_queue_handler.py` - Added multi-event detection for new format
+
+### Expected Results  
+- ✅ "create 2 new events 'lesson' at 11 and 12am today" → Triggers multi-event queue processing
+- ✅ Multi-event creation requests properly detected and handled
+- ✅ Single events continue to work as before
+
 ## [0.1.150] - 2025-08-16
 
 ### 🚨 CRITICAL FIXES - Multi-Event Creation & Single Event Update UX

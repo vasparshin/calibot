@@ -52,8 +52,12 @@ class EventQueueHandler:
     
     def detect_multi_event_request(self, intent_data: Dict) -> bool:
         """Detect if the intent data represents multiple events"""
-        # Check for batch_create format
+        # Check for batch_create format (legacy)
         if intent_data.get('intent') == 'batch_create' and 'events' in intent_data:
+            return len(intent_data['events']) > 1
+        
+        # FIXED: Check for create intent with events array (new format)
+        if intent_data.get('intent') == 'create' and 'events' in intent_data:
             return len(intent_data['events']) > 1
         
         # Check for multiple time indicators in single event
