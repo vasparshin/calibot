@@ -258,7 +258,14 @@ class NLPAgent:
             logger.info(f"Cleaned response: '{cleaned_result}'")
             
             # Handle malformed partial responses immediately
-            if cleaned_result.strip(' "') in ['intent', 'query', 'create', 'delete', 'update']:
+            # CRITICAL FIX: Expanded list to catch all common field names returned by confused LLM
+            malformed_responses = [
+                'intent', 'query', 'create', 'delete', 'update',
+                'start_time', 'end_time', 'event_name', 'date', 'target', 
+                'confirmation_needed', 'new_date', 'time_shift', 'calendar_name',
+                'new_start_time', 'new_end_time', 'events', 'count'
+            ]
+            if cleaned_result.strip(' "') in malformed_responses:
                 logger.error(f"🚨 LLM returned malformed partial response: '{cleaned_result}' - using fallback")
                 # Determine intent based on user message
                 user_lower = user_message.lower()

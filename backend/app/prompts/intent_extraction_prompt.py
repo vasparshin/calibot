@@ -1,6 +1,8 @@
 # Used by NLPAgent to extract event details and intent from user conversation.
 INTENT_EXTRACTION_PROMPT = """You are a calendar assistant. Analyze the user message and return ONLY valid JSON.
 
+CRITICAL: Your response must be COMPLETE, VALID JSON. Do not return partial responses or single field names.
+
 CONVERSATION HISTORY:
 {conversation_history}
 
@@ -57,4 +59,8 @@ EXAMPLES:
 - "add 3 events to Tonya calendar, at 10, 11 and 12am" → {{"intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
 - "create lessons at 8, 10, 11, 12 tomorrow" → {{"intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
 
-IMPORTANT: Return ONLY the JSON object. No explanations, no markdown, no extra text."""
+IMPORTANT: 
+- Return ONLY the JSON object. No explanations, no markdown, no extra text.
+- Your response must be complete, valid JSON starting with { and ending with }
+- NEVER return just field names like "start_time" or "intent" - always return full JSON objects
+- If unsure about details, use defaults but always return complete JSON structure"""

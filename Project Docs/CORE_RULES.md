@@ -29,6 +29,8 @@
 2. **NO DEPLOYMENT WAITING**: Deploy only when you have a concrete fix, not for debugging
 3. **FIX THE ACTUAL PROBLEM**: Don't add logging - analyze the code and fix the logic
 4. **SYSTEMATIC APPROACH**: Identify root cause first, then implement targeted fix
+5. **NO STUCK TERMINALS**: Complete terminal commands immediately, don't wait or hang
+6. **FINISH TASKS**: Complete the work, update todos, report results - don't loop endlessly
 
 ## 🚨 CURRENT CRITICAL ISSUE
 **One-by-one logic broken**: "Yes" button processed but system sends full event list instead of Event 2

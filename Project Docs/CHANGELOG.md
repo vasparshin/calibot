@@ -2,6 +2,37 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.149] - 2025-08-16
+
+### 🚨 CRITICAL FIXES - LLM Intent Extraction Failure
+
+- **Root Cause Found**: LLM returning malformed partial responses like `"start_time"` instead of complete JSON objects
+- **Issue 1**: JSONDecodeError when LLM returns single field names instead of proper JSON structures
+- **Issue 2**: Create/update intents being fallback-parsed as query intents, causing functionality loss
+- **Issue 3**: Intent extraction prompt not explicit enough about complete JSON requirements
+
+### Technical Details
+- **Primary Fix**: Extended malformed response detection to catch all common field names (start_time, end_time, event_name, etc.)
+- **Prompt Enhancement**: Added explicit instructions to prevent partial responses and ensure complete JSON
+- **Fallback Improvement**: Malformed responses now trigger proper intent-based fallbacks instead of defaulting to query
+- **Prevention**: Clear warnings about returning complete JSON structures vs. single field names
+
+### Files Modified
+- `backend/app/agent/nlp_agent.py` - Extended malformed response detection list
+- `backend/app/prompts/intent_extraction_prompt.py` - Added explicit JSON completion requirements
+
+### Expected Results
+- Creation requests like "create 2 new events" now properly parsed as create intent, not query
+- Update/delete operations now correctly extract intent instead of falling back to query
+- LLM partial responses caught and handled gracefully with proper fallbacks
+- Reduced JSONDecodeError occurrences in logs
+
+### Root Causes Fixed
+1. **Incomplete Response Detection**: Single field names like "start_time" now caught as malformed
+2. **Prompt Clarity**: LLM explicitly instructed to return complete JSON, not partial responses
+3. **Fallback Logic**: Malformed responses trigger appropriate intent-based fallbacks
+4. **Error Handling**: Better logging and recovery from LLM confusion
+
 ## [0.1.140] - 2025-08-15
 
 ### 🚨 CRITICAL FIX - Duplicate Queue Processing
