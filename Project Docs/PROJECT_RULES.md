@@ -31,10 +31,19 @@
 - **Environment variables** set in Render dashboard persist across deployments
 - **Docker builds** work reliably when Dockerfile is properly configured
 
-#### Version Management
-- **pyproject.toml version field** is the source of truth
+#### Version Management (CRITICAL - FOLLOW EXACTLY)
+- **BOTH pyproject.toml AND backend/app/__init__.py** must have SAME version number
 - **Automatic health endpoint** at root URL shows current version: `{"version": "X.Y.Z"}`
-- **Version bumping** must be done before commit to ensure proper tracking
+- **Version bumping** must update BOTH files before commit to ensure proper tracking
+
+```bash
+# MANDATORY VERSION UPDATE STEPS:
+# 1. Update pyproject.toml: version = "0.1.XXX"
+# 2. Update backend/app/__init__.py: __version__ = "0.1.XXX"  
+# 3. Commit with version: git commit -m "v0.1.XXX: Description"
+# 4. Verify deployment shows correct version at backend URL
+# 5. If Render logs show wrong version = deployment failed, check both files
+```
 
 #### Force Deployment Methods
 ```bash
@@ -66,6 +75,21 @@ git push origin main
 ## 📊 Logging Lessons Learned
 
 ### ✅ What Works for Log Retrieval
+
+#### Render API Logs Access (MANDATORY INSTRUCTIONS)
+```bash
+# STEP 1: Set environment variable (use API key from scripts/recent_logs.py)
+$env:RENDER_API_KEY = "rnd_m8U9bCF9is6HWxuVbrc5S1rA7VzP"
+
+# STEP 2: Run logs script to check latest chat interactions
+python calibot/scripts/recent_logs.py | findstr /i "intent\|create\|update\|error\|webhook"
+
+# STEP 3: For deployment logs (stores in logs/ folder)
+python calibot/scripts/pull_deployment_logs.py
+
+# ALTERNATIVE: Quick logs for immediate check
+python calibot/scripts/quick_logs.py
+```
 
 #### Batch Log Fetching
 ```python
