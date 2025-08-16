@@ -257,6 +257,23 @@ class MultiEventOperationHandler:
                 message = f"Found {len(matching_events)} events to update:\n{event_list}"
                 keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("update") if InlineKeyboardHelper else None
             
+            # CRITICAL FIX: For single events, bypass summary and go directly to one-by-one
+            if len(matching_events) == 1:
+                logger.info(f"🔧 SINGLE EVENT UPDATE: Bypassing summary, going directly to one-by-one processing")
+                # Switch to one-by-one processing immediately 
+                await self.switch_to_one_by_one(chat_id, operation_id)
+                # Get the first event confirmation directly
+                if hasattr(self, 'event_queue_handler') and self.event_queue_handler:
+                    result = self.event_queue_handler.get_next_event_confirmation(str(chat_id))
+                    if result and result.get("message"):
+                        return {
+                            "success": True,
+                            "message": result["message"],
+                            "requires_user_action": True,
+                            "operation_id": operation_id,
+                            "keyboard": InlineKeyboardHelper.create_queue_confirmation_keyboard() if InlineKeyboardHelper else None
+                        }
+            
             return {
                 "success": True,
                 "message": message,

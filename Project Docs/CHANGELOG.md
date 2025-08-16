@@ -2,6 +2,42 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.156] - 2025-08-16
+
+### 🚨 URGENT FIX - Single Event Summary Message Finally Removed
+
+#### User Report Confirmed Issue Still Present
+Despite previous claims, the **"Found 1 events to update" message was STILL showing** for single events because:
+
+#### Root Cause Analysis (ACTUAL)
+- Update operations processed by `multi_event_handler.handle_update_operation()` at line 1196
+- **Single event bypass code at line 1043 NEVER REACHED** 
+- Multi-event handler generated summary message at line 257: `f"Found {len(matching_events)} events to update"`
+- My previous "fix" was in unreachable code
+
+#### Technical Fix Applied
+**Modified `services/multi_event_operations.py` line 260-275**:
+```python
+# CRITICAL FIX: For single events, bypass summary and go directly to one-by-one
+if len(matching_events) == 1:
+    logger.info(f"🔧 SINGLE EVENT UPDATE: Bypassing summary, going directly to one-by-one processing")
+    await self.switch_to_one_by_one(chat_id, operation_id)
+    # Get first event confirmation directly
+    result = self.event_queue_handler.get_next_event_confirmation(str(chat_id))
+    return {"message": result["message"], "keyboard": queue_keyboard}
+```
+
+#### Expected Result
+- **Single event**: "move 2nd event to tomorrow" → **Direct** "UPDATE Event 1 of 1" message
+- **NO MORE** "Found 1 events to update" summary for single events
+- Multi-events still show summary with "🔄 All" / "1️⃣ One by One" options
+
+#### Still investigating
+- Multi-event creation "add 2 lessons" returning query results 
+- Empty "Proposed Changes" section (needs `new_date` field propagation)
+
+---
+
 ## [0.1.155] - 2025-08-16
 
 ### 🚨 CRITICAL FIX - Duplicate Fallback Logic Resolved
