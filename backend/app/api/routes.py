@@ -1039,22 +1039,48 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 # Single event processing
                 event_id = events[0]["id"]
                 
-                # Proceed with update or delete after getting event_id
+                # Check intent and proceed accordingly
                 if event_data["intent"] == "update":
-                    # Get the source calendar ID from the matched event
-                    source_calendar_id = events[0].get('calendar_id', 'primary')
-                    calendar_response = calendar_service.update_event(event_id, event_data, source_calendar_id)
-                    if calendar_response["success"]:
-                        updated_event = calendar_response.get('updated_event') or {}
-                        formatted_event = MessageFormatter.format_single_event_display(updated_event, include_hyperlink=True)
-                        change_note = "(moved)" if calendar_response.get("moved") else ""
-                        success_msg = f"Successfully updated event {change_note}:\n\n{formatted_event}".strip()
-                        await send_telegram_message(chat_id, success_msg)
-                        conversation_state.add_message(chat_id, "assistant", success_msg)
+                    # FIXED: Use queue handler for consistent UI even with 1 event to show proposed changes
+                    logger.info(f"🔧 SINGLE EVENT UPDATE FIX: Using EventQueueHandler for consistency")
+                    
+                    # Format as if it's a multi-event operation but with only 1 event
+                    events_for_queue = events.copy()
+                    for event in events_for_queue:
+                        # Add the proposed changes from the original request
+                        for key in ['new_date', 'time_shift', 'new_start_time', 'new_end_time', 'calendar_name']:
+                            if key in event_data:
+                                event[key] = event_data[key]
+                        event['intent'] = 'update'
+                    
+                    # Create single-event queue to show proper "UPDATE Event 1 of 1" message with proposed changes
+                    result = event_queue_handler.create_event_queue_from_list(
+                        str(chat_id), 
+                        events_for_queue,
+                        "update_multiple",
+                        event_data
+                    )
+                    
+                    if result and result.get("message"):
+                        keyboard = InlineKeyboardHelper.create_queue_confirmation_keyboard()
+                        await send_telegram_message(chat_id, result["message"], reply_markup=keyboard)
+                        conversation_state.add_message(chat_id, "assistant", result["message"])
                     else:
-                        error_msg = f"Failed to update event: {calendar_response.get('message', 'Unknown error')}"
-                        await send_telegram_message(chat_id, error_msg)
-                        conversation_state.add_message(chat_id, "assistant", error_msg)
+                        # Fallback to old behavior if queue creation fails
+                        source_calendar_id = events[0].get('calendar_id', 'primary')
+                        calendar_response = calendar_service.update_event(event_id, event_data, source_calendar_id)
+                        if calendar_response["success"]:
+                            updated_event = calendar_response.get('updated_event') or {}
+                            formatted_event = MessageFormatter.format_single_event_display(updated_event, include_hyperlink=True)
+                            change_note = "(moved)" if calendar_response.get("moved") else ""
+                            success_msg = f"Successfully updated event {change_note}:\n\n{formatted_event}".strip()
+                            await send_telegram_message(chat_id, success_msg)
+                            conversation_state.add_message(chat_id, "assistant", success_msg)
+                        else:
+                            error_msg = f"Failed to update event: {calendar_response.get('message', 'Unknown error')}"
+                            await send_telegram_message(chat_id, error_msg)
+                            conversation_state.add_message(chat_id, "assistant", error_msg)
+                            
                 elif event_data["intent"] == "delete":
                     # Get the source calendar ID from the matched event
                     source_calendar_id = events[0].get('calendar_id', 'primary')

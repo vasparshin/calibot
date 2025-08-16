@@ -111,7 +111,7 @@ class NLPAgent:
         if len(dedup) < 2:
             return None
         return {
-            "intent": "batch_create",
+            "intent": "create",
             "event_name": event_name,
             "date": date,
             "events": dedup,
@@ -683,9 +683,9 @@ class NLPAgent:
                 logger.error(f"🔥 TIME DEBUG: Found times: {times_found}")
                 
                 if len(times_found) > 1:
-                    # Batch create
+                    # Batch create - FIXED: Use "create" intent with "events" array as expected by routes.py
                     logger.info(f"Exception fallback: detected batch create with {len(times_found)} times")
-                    fallback = {"intent": "batch_create", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                    fallback = {"intent": "create", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                     
                     # Extract date - check for tomorrow
                     if "tomorrow" in user_lower:

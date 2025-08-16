@@ -19,6 +19,8 @@ For creating single events:
 For creating multiple events in one message (e.g., "add lessons at 8, 10, 11, 12"):
 {{"intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
 
+CRITICAL: For multiple events, ALWAYS use "intent": "create" with "events" array, NEVER use "batch_create"
+
 For deleting events:
 {{"intent": "delete", "event_name": "lesson", "date": "{current_date_iso}", "target": "last", "confirmation_needed": true}}
 

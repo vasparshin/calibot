@@ -2,6 +2,38 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.150] - 2025-08-16
+
+### 🚨 CRITICAL FIXES - Multi-Event Creation & Single Event Update UX
+
+- **Root Cause Found**: Multi-event creation failing due to LLM using "batch_create" intent instead of "create" with "events" array  
+- **Root Cause Found**: Single event updates bypassing proposed changes display, going straight to execution
+- **Issue 1**: "create 2 new events" parsed as query intent instead of creating multiple events
+- **Issue 2**: Single event updates missing "UPDATE Event 1 of 1" message with proposed changes
+
+### Technical Details  
+- **Multi-Event Fix**: Changed LLM prompt and fallback to use `"intent": "create"` with `"events"` array instead of `"batch_create"`
+- **Single Event UX Fix**: Route single event updates through EventQueueHandler to show "UPDATE Event 1 of 1" with proposed changes
+- **Consistency**: Single and multi-event operations now use same queue-based UI for uniformity
+- **Prompt Enhancement**: Added explicit instruction "NEVER use batch_create" to prevent confusion
+
+### Files Modified
+- `backend/app/api/routes.py` - Fixed single event update to use queue handler for consistent UX
+- `backend/app/agent/nlp_agent.py` - Fixed fallback batch creation to use "create" intent
+- `backend/app/prompts/intent_extraction_prompt.py` - Fixed multi-event format specification
+
+### Expected Results
+- ✅ "create 2 new events 'lesson' in Tonya calendar, at 11 and 12am today" → Creates 2 events successfully
+- ✅ Single event updates show "UPDATE Event 1 of 1" with proposed changes before confirmation  
+- ✅ Consistent UI between single and multi-event operations
+- ✅ Multi-event creation works through both LLM parsing and fallback mechanisms
+
+### Root Causes Fixed
+1. **Multi-Event Format Mismatch**: LLM and fallback now use routes.py expected format
+2. **Single Event UX Bypass**: Single updates now go through queue system for consistency
+3. **Intent Recognition**: Batch creation properly categorized as "create" intent
+4. **UI Consistency**: All event operations use same confirmation flow
+
 ## [0.1.149] - 2025-08-16
 
 ### 🚨 CRITICAL FIXES - LLM Intent Extraction Failure

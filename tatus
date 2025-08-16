@@ -1,0 +1,5 @@
+[33m511e4a9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m v0.1.149: CRITICAL FIX - LLM Intent Extraction Malformed Response Handling
+[33m0bce953[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m v0.1.148: Add debug logging for queue creation to trace missing change data
+[33m2a5cdd0[m v0.1.147: Fix prompt JSON examples formatting
+[33mfc1d8c1[m v0.1.146: Fix JSON escaping, missing 2nd/3rd target selection, and queue change data propagation
+[33m2a6f4c4[m v0.1.145: Fix multiple event creation + date-only update bugs
