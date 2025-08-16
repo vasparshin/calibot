@@ -11,8 +11,11 @@ Return exactly one of these JSON formats:
 For viewing schedule:
 {{"intent": "query", "date": "{current_date_iso}", "confirmation_needed": false}}
 
-For creating events:
+For creating single events:
 {{"intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "start_time": "09:00", "end_time": "10:00", "confirmation_needed": false}}
+
+For creating multiple events in one message (e.g., "add lessons at 8, 10, 11, 12"):
+{{"intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
 
 For deleting events:
 {{"intent": "delete", "event_name": "lesson", "date": "{current_date_iso}", "target": "last", "confirmation_needed": true}}
@@ -37,6 +40,12 @@ CRITICAL RULES:
 - When user says "events" generically (not a specific event type), use "event_name": "ANY"
 - When user specifies event type like "lessons", "meetings", "calls", use that specific name
 
+MULTIPLE EVENTS DETECTION:
+- When user requests multiple times in one message (e.g., "add lessons at 8, 10, 11, 12"), use "events" array
+- When user says "3 events" or mentions multiple times, create events array with individual start_time/end_time
+- Each event in array should have start_time and end_time (default 1 hour duration if not specified)
+- Example: "add 3 events at 10, 11 and 12am" -> events: [{"start_time": "10:00", "end_time": "11:00"}, {"start_time": "11:00", "end_time": "12:00"}, {"start_time": "12:00", "end_time": "13:00"}]
+
 EXAMPLES:
 - "move last 3 lessons 1 hr later" → {{"intent": "update", "event_name": "lesson", "target": "last 3", "time_shift": "1 hour", "confirmation_needed": true}}
 - "move the last 3 lessons yesterday 1 hr later" → {{"intent": "update", "event_name": "lesson", "date": "{yesterday_date_iso}", "target": "last 3", "time_shift": "1 hour", "confirmation_needed": true}}
@@ -45,5 +54,7 @@ EXAMPLES:
 - "move the last 2 events of yesterday to today" → {{"intent": "update", "event_name": "ANY", "date": "{yesterday_date_iso}", "target": "last 2", "new_date": "{current_date_iso}", "confirmation_needed": true}}
 - "move all meetings today to next week" → {{"intent": "update", "event_name": "meeting", "date": "{current_date_iso}", "target": "all", "new_date": "{next_week_date_iso}", "confirmation_needed": true}}
 - "delete the first 2 meetings today" → {{"intent": "delete", "event_name": "meeting", "target": "first 2", "confirmation_needed": true}}
+- "add 3 events to Tonya calendar, at 10, 11 and 12am" → {{"intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
+- "create lessons at 8, 10, 11, 12 tomorrow" → {{"intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
 
 IMPORTANT: Return ONLY the JSON object. No explanations, no markdown, no extra text."""

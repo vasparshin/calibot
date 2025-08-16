@@ -445,6 +445,25 @@ class GoogleCalendarService:
                 event['description'] = event_data['description']
             
             # Handle datetime updates - support both ISO format and date+time format
+            # CRITICAL FIX: Handle date-only updates (moving event to different date)
+            if 'date' in event_data and 'start_time' not in event_data and 'end_time' not in event_data:
+                new_date = event_data['date']
+                logger.info(f"CALENDAR SERVICE: Moving event to new date: {new_date}")
+                
+                # Extract existing times and apply to new date
+                existing_start = event.get('start', {}).get('dateTime', '')
+                existing_end = event.get('end', {}).get('dateTime', '')
+                
+                if existing_start and 'T' in existing_start:
+                    start_time_part = existing_start.split('T')[1]  # Keep time part
+                    event['start']['dateTime'] = f"{new_date}T{start_time_part}"
+                    logger.info(f"CALENDAR SERVICE: Updated start to {event['start']['dateTime']}")
+                
+                if existing_end and 'T' in existing_end:
+                    end_time_part = existing_end.split('T')[1]  # Keep time part
+                    event['end']['dateTime'] = f"{new_date}T{end_time_part}"
+                    logger.info(f"CALENDAR SERVICE: Updated end to {event['end']['dateTime']}")
+            
             if 'start_time' in event_data:
                 start_time = event_data['start_time']
                 logger.info(f"CALENDAR SERVICE: Updating start_time to {start_time}")
