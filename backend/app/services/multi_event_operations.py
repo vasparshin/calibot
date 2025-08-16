@@ -318,6 +318,7 @@ class MultiEventOperationHandler:
                 
                 logger.info(f"🔄 Events to queue: {len(events)}")
                 logger.info(f"🔄 Original request: {original_request}")
+                logger.info(f"🔄 Original request keys: {list(original_request.keys())}")
                 
                 # Convert to queue format
                 queue_events = []
@@ -349,14 +350,21 @@ class MultiEventOperationHandler:
                     }
                     
                     # Add update parameters from original_request, but exclude event_name if it's generic
+                    logger.info(f"🔄 Adding original_request params to queue_event {i}")
                     for key, value in original_request.items():
                         if key == "event_name" and value.lower() in ["any", "event", "events"]:
                             # Skip generic event names to preserve actual event name
+                            logger.info(f"🔄 Skipping generic event_name: {key}={value}")
                             continue
                         # CRITICAL FIX: Always include change parameters (new_date, time_shift, etc.)
                         # Don't overwrite basic event data (event_id, start_time, end_time)
                         if key not in ["event_id", "start_time", "end_time", "calendar_id", "calendar_name"]:
+                            logger.info(f"🔄 Adding to queue_event: {key}={value}")
                             queue_event[key] = value
+                        else:
+                            logger.info(f"🔄 Skipping overwrite protection: {key}={value}")
+                    
+                    logger.info(f"🔄 Final queue_event {i}: {queue_event}")
                     
                     # For update requests with specific times mentioned (like "5 and 6 pm")
                     # Check if we need to set individual times for each event
