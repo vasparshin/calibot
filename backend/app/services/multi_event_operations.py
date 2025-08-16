@@ -1045,3 +1045,54 @@ class MultiEventOperationHandler:
         """Clear all pending operations (useful for startup cleanup)"""
         self.pending_operations.clear()
         logger.info("Cleared all pending operations on startup")
+    
+    async def switch_to_one_by_one(self, chat_id: int, operation_id: str):
+        """Switch a multi-event operation to one-by-one processing mode"""
+        try:
+            if operation_id not in self.pending_operations:
+                logger.error(f"🚨 Operation {operation_id} not found for switch_to_one_by_one")
+                return
+            
+            operation = self.pending_operations[operation_id]
+            events = operation.get("events", [])
+            original_request = operation.get("original_request", {})
+            
+            if not events:
+                logger.error(f"🚨 No events found in operation {operation_id} for switch_to_one_by_one")
+                return
+            
+            logger.info(f"🔄 Switching operation {operation_id} to one-by-one mode with {len(events)} events")
+            
+            # Prepare events for the queue with original request parameters
+            queue_events = []
+            for i, event in enumerate(events):
+                queue_event = event.copy()
+                # Add original request parameters to each event for proper processing
+                logger.info(f"🔄 Adding original_request params to queue_event {i}")
+                for key, value in original_request.items():
+                    if key == "event_name" and value.lower() in ["any", "event", "events"]:
+                        # Skip generic event names to preserve actual event name
+                        logger.info(f"🔄 Skipping generic event_name: {key}={value}")
+                        continue
+                    # CRITICAL FIX: Always include change parameters (new_date, time_shift, etc.)
+                    # Don't overwrite basic event data (event_id, start_time, end_time)
+                    if key not in ["event_id", "start_time", "end_time", "calendar_id", "calendar_name"]:
+                        logger.info(f"🔄 Adding to queue_event: {key}={value}")
+                        queue_event[key] = value
+                    else:
+                        logger.info(f"🔄 Skipping overwrite protection: {key}={value}")
+                
+                logger.info(f"🔄 Final queue_event {i}: {queue_event}")
+                queue_events.append(queue_event)
+            
+            # Use EventQueueHandler to create the one-by-one queue
+            if self.event_queue_handler:
+                result = self.event_queue_handler.create_event_queue_from_list(str(chat_id), queue_events)
+                logger.info(f"✅ Created one-by-one queue: {result}")
+            else:
+                logger.error("🚨 EventQueueHandler not available for switch_to_one_by_one")
+            
+        except Exception as e:
+            logger.error(f"🚨 Error in switch_to_one_by_one: {e}")
+            import traceback
+            logger.error(f"🚨 Traceback: {traceback.format_exc()}")

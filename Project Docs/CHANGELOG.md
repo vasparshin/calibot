@@ -2,6 +2,42 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.158] - 2025-08-16
+
+### 🚨 CRITICAL HOTFIX - Missing Method Error
+
+#### User Report: AttributeError
+```
+Error processing update request: 'MultiEventOperationHandler' object has no attribute 'switchtoonebyone'
+```
+
+#### Root Cause Found
+The `switch_to_one_by_one` method was **completely missing** from the `MultiEventOperationHandler` class. The v0.1.156 fix attempted to call this method but it was never implemented.
+
+#### Fix Applied
+**Added the missing `switch_to_one_by_one` method** to `MultiEventOperationHandler`:
+```python
+async def switch_to_one_by_one(self, chat_id: int, operation_id: str):
+    """Switch a multi-event operation to one-by-one processing mode"""
+    # Implementation: Creates event queue from operation events
+    # Transfers original request parameters to each queue event
+    # Uses EventQueueHandler.create_event_queue_from_list()
+```
+
+#### Expected Results (v0.1.158)
+- ✅ **Single event updates** now work without AttributeError
+- ✅ **"move the 2nd event today to tomorrow"** → proper one-by-one processing
+- ✅ **No more missing method crashes** for single event operations
+
+#### Why This Wasn't Caught
+- Previous versions didn't hit single-event update path consistently
+- v0.1.156 added the call but not the implementation
+- Error only appears when single events trigger one-by-one bypass logic
+
+**This is the missing piece that was breaking all single event operations!**
+
+---
+
 ## [0.1.157] - 2025-08-16
 
 ### 🚨 COMPREHENSIVE FIX - All Critical Issues Addressed
