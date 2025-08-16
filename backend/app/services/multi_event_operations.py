@@ -353,7 +353,9 @@ class MultiEventOperationHandler:
                         if key == "event_name" and value.lower() in ["any", "event", "events"]:
                             # Skip generic event names to preserve actual event name
                             continue
-                        if key not in queue_event:  # Don't overwrite event-specific data
+                        # CRITICAL FIX: Always include change parameters (new_date, time_shift, etc.)
+                        # Don't overwrite basic event data (event_id, start_time, end_time)
+                        if key not in ["event_id", "start_time", "end_time", "calendar_id", "calendar_name"]:
                             queue_event[key] = value
                     
                     # For update requests with specific times mentioned (like "5 and 6 pm")
@@ -555,10 +557,6 @@ class MultiEventOperationHandler:
                 for i, event in enumerate(formatted_events):
                     logger.info(f"  {i+1}. {event.get('event_name', 'Unknown')} at {event.get('start_datetime', 'Unknown time')}")
             elif target in ['first', 'earliest'] and len(formatted_events) > 0:
-                # Select last N events (chronologically last)
-                formatted_events = formatted_events[-count:] if count <= len(formatted_events) else formatted_events
-                logger.info(f"✅ LAST TARGET APPLIED - Selected last {len(formatted_events)} events (requested: {count})")
-            elif target in ['first', 'earliest'] and len(formatted_events) > 0:
                 # Select first N events (chronologically first)
                 formatted_events = formatted_events[:count] if count <= len(formatted_events) else formatted_events
                 logger.info(f"✅ FIRST TARGET APPLIED - Selected first {len(formatted_events)} events (requested: {count})")
@@ -568,6 +566,18 @@ class MultiEventOperationHandler:
                 future_events = [e for e in formatted_events if e.get('start_datetime', '') > current_time]
                 formatted_events = future_events[:count] if count <= len(future_events) else future_events
                 logger.info(f"✅ NEXT TARGET APPLIED - Selected next {len(formatted_events)} upcoming events (requested: {count})")
+            elif target in ['2nd', 'second', '2'] and len(formatted_events) >= 2:
+                # Select the 2nd event specifically
+                formatted_events = [formatted_events[1]]
+                logger.info(f"✅ 2ND TARGET APPLIED - Selected 2nd event: {formatted_events[0].get('event_name', 'Unknown')}")
+            elif target in ['3rd', 'third', '3'] and len(formatted_events) >= 3:
+                # Select the 3rd event specifically
+                formatted_events = [formatted_events[2]]
+                logger.info(f"✅ 3RD TARGET APPLIED - Selected 3rd event: {formatted_events[0].get('event_name', 'Unknown')}")
+            elif target in ['4th', 'fourth', '4'] and len(formatted_events) >= 4:
+                # Select the 4th event specifically
+                formatted_events = [formatted_events[3]]
+                logger.info(f"✅ 4TH TARGET APPLIED - Selected 4th event: {formatted_events[0].get('event_name', 'Unknown')}")
             elif count > 1 and len(formatted_events) > count:
                 # If count specified but no specific target, limit to count
                 formatted_events = formatted_events[:count]
