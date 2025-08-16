@@ -1065,7 +1065,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                     result = event_queue_handler.get_next_event_confirmation(str(chat_id))
                     
                     if result and result.get("message"):
-                        keyboard = InlineKeyboardHelper.create_queue_confirmation_keyboard()
+                        keyboard = InlineKeyboardHelper.create_queue_navigation_keyboard(0, 1, "update")
                         await send_telegram_message(chat_id, result["message"], reply_markup=keyboard)
                         conversation_state.add_message(chat_id, "assistant", result["message"])
                     else:

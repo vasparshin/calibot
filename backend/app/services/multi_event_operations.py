@@ -271,7 +271,7 @@ class MultiEventOperationHandler:
                             "message": result["message"],
                             "requires_user_action": True,
                             "operation_id": operation_id,
-                            "keyboard": InlineKeyboardHelper.create_queue_confirmation_keyboard() if InlineKeyboardHelper else None
+                            "keyboard": InlineKeyboardHelper.create_queue_navigation_keyboard(0, 1, "update") if InlineKeyboardHelper else None
                         }
             
             return {

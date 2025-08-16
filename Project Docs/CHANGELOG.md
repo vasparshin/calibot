@@ -2,6 +2,30 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.159] - 2025-08-16
+
+### 🔧 QUICK FIX - Keyboard Method Error
+
+#### User Report: InlineKeyboardHelper Error
+```
+Error: type object 'InlineKeyboardHelper' has no attribute 'createqueueconfirmation_keyboard'
+```
+
+#### Root Cause
+Method `create_queue_confirmation_keyboard` doesn't exist in `InlineKeyboardHelper` class.
+
+#### Fix Applied
+**Changed to correct method name:**
+- `create_queue_confirmation_keyboard()` → `create_queue_navigation_keyboard(0, 1, "update")`
+- Fixed in both `multi_event_operations.py` and `routes.py`
+
+#### Expected Results (v0.1.159)
+- ✅ **Single event updates** work without keyboard method error
+- ✅ **Proper navigation buttons** for queue processing
+- ✅ **"move the 2nd event today to tomorrow"** should now work
+
+---
+
 ## [0.1.158] - 2025-08-16
 
 ### 🚨 CRITICAL HOTFIX - Missing Method Error
