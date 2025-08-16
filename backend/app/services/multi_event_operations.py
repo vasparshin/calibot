@@ -995,6 +995,8 @@ class MultiEventOperationHandler:
         }
         logger.debug(f"Stored pending {operation_data.get('type', 'unknown')} operation {operation_id} for chat {chat_id}")
         return operation_id
+    
+    def clear_pending_operations(self, chat_id: int):
         """Clear all pending operations for a chat (useful for cleanup)"""
         to_remove = [
             op_id for op_id, op_data in self.pending_operations.items()
@@ -1002,6 +1004,7 @@ class MultiEventOperationHandler:
         ]
         for op_id in to_remove:
             del self.pending_operations[op_id]
+        logger.debug(f"Cleared {len(to_remove)} pending operations for chat {chat_id}")
     
     def clear_all_pending_operations(self):
         """Clear all pending operations (useful for startup cleanup)"""
