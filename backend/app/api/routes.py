@@ -1041,8 +1041,8 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 
                 # Check intent and proceed accordingly
                 if event_data["intent"] == "update":
-                    # FIXED: Use queue handler for consistent UI even with 1 event to show proposed changes
-                    logger.info(f"🔧 SINGLE EVENT UPDATE FIX: Using EventQueueHandler for consistency")
+                    # FIXED: Skip "Found 1 events to update" and go directly to "UPDATE Event 1 of 1" with proposed changes
+                    logger.info(f"🔧 SINGLE EVENT UPDATE FIX: Skipping summary, going directly to individual confirmation")
                     
                     # Format as if it's a multi-event operation but with only 1 event
                     events_for_queue = events.copy()
@@ -1053,13 +1053,16 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                                 event[key] = event_data[key]
                         event['intent'] = 'update'
                     
-                    # Create single-event queue to show proper "UPDATE Event 1 of 1" message with proposed changes
-                    result = event_queue_handler.create_event_queue_from_list(
-                        str(chat_id), 
-                        events_for_queue,
-                        "update_multiple",
-                        event_data
-                    )
+                    # Create queue but bypass the summary for single events
+                    event_queue_handler.pending_queues[str(chat_id)] = {
+                        'events': events_for_queue,
+                        'current_index': 0,
+                        'created_at': datetime.now(),
+                        'original_request': event_data
+                    }
+                    
+                    # Get the individual confirmation directly (skip summary)
+                    result = event_queue_handler.get_next_event_confirmation(str(chat_id))
                     
                     if result and result.get("message"):
                         keyboard = InlineKeyboardHelper.create_queue_confirmation_keyboard()

@@ -2,6 +2,29 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.152] - 2025-08-16
+
+### 🚨 CRITICAL FIXES - Version Sync & Single Event UX
+
+- **Version Fix**: Updated backend/app/__init__.py to match pyproject.toml (was stuck at 0.1.142)
+- **Single Event UX Fix**: Removed "Found 1 events to update" summary message for single events
+- **Direct Confirmation**: Single event updates now go directly to "UPDATE Event 1 of 1" with proposed changes
+
+### Technical Details
+- **Version Sync**: Fixed version mismatch between pyproject.toml and __init__.py causing deployment confusion
+- **UX Improvement**: Bypassed multi-event summary for single events by calling get_next_event_confirmation() directly
+- **Queue Management**: Single events now create queue internally but skip the list display
+
+### Files Modified
+- `backend/app/__init__.py` - Updated version to match pyproject.toml
+- `backend/app/api/routes.py` - Skip summary for single event updates
+- `pyproject.toml` - Version sync
+
+### Expected Results
+- ✅ Render logs will show correct version (0.1.152) instead of stuck 0.1.142
+- ✅ Single event updates skip "Found 1 events to update" message  
+- ✅ Single events go directly to "UPDATE Event 1 of 1" with proposed changes
+
 ## [0.1.151] - 2025-08-16
 
 ### 🚨 CRITICAL FIX - Multi-Event Detection Missing Logic
