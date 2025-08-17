@@ -2,6 +2,40 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.160] - 2025-08-17
+
+### 🔧 Schedule Query Detection & Multi-Event Creation Fixes
+
+#### Issues Addressed
+1. **Schedule Query Pattern Matching**: Bot wasn't recognizing queries like "whats the schedule tomorrow" and "wjats the schedule the day after tomorrow"
+2. **Multi-Event Creation Parsing**: Messages like "add two events tomorrow 'lesson' to TOnya calendar at 10am and 12am" were showing "Unknown date at Unknown time"
+
+#### Fixes Applied
+
+**Schedule Service (`schedule_service.py`)**:
+- Added missing query patterns: "whats the schedule tomorrow", "schedule tomorrow", "the schedule tomorrow"
+- Added day-after-tomorrow patterns: "whats the schedule the day after tomorrow", "schedule the day after tomorrow"
+- Added support for common typos: "tomororw", "tommorow", "wjats"
+
+**NLP Agent (`nlp_agent.py`)**:
+- Enhanced date detection to handle typos: "tomorrow", "tomororw", "tommorow"
+- Improved calendar detection pattern: now matches "to Tonya calendar" in addition to "Tonya's calendar"
+- Fixed calendar name normalization to return "Tonya" instead of raw match
+
+**Intent Extraction Prompt (`intent_extraction_prompt.py`)**:
+- Added specific example for the failing pattern: "add two events tomorrow 'lesson' to Tonya calendar at 10am and 12am"
+- Clarified multi-event creation format with proper calendar_name field
+
+#### Technical Details
+- **Files Modified**: `schedule_service.py`, `nlp_agent.py`, `intent_extraction_prompt.py`
+- **Version Updated**: Both `pyproject.toml` and `backend/app/__init__.py` to 0.1.160
+- **Deployment**: Auto-deployed via git push to Render
+
+#### Expected Results
+- Schedule queries with typos now properly detected and processed
+- Multi-event creation requests properly parse date, times, and calendar names
+- Better handling of natural language variations in user messages
+
 ## [0.1.158] - 2025-08-16
 
 ### 🚨 CRITICAL HOTFIX - Missing Method Error

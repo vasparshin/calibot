@@ -816,6 +816,10 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         # If no confirmation is needed (excluding query which is handled separately), proceed
         if event_data.get("confirmation_needed") is False and event_data.get("intent") != "query":
             logger.info(f"Processing non-query intent '{event_data.get('intent')}' without confirmation")
+            logger.info(f"🔍 Event data keys: {list(event_data.keys())}")
+            logger.info(f"🔍 Has events array: {'events' in event_data}")
+            if 'events' in event_data:
+                logger.info(f"🔍 Events array length: {len(event_data['events'])}")
             
             if event_data["intent"] in ["create", "batch_create"]:
                 # Detect batch creation scenarios (multiple events)
