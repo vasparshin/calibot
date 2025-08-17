@@ -217,12 +217,20 @@ class ScheduleService:
             return "today"
         
         # Handle explicit tomorrow schedule queries (NOT event modifications)
+        # Include common typos like "tomororw", "tommorow"
         if any(phrase in message_lower for phrase in [
             "tomorrow's schedule", "tomorrows schedule", 
             "what's tomorrow", "whats tomorrow",
             "show me tomorrow", "show tomorrow",
             "what do i have tomorrow", "what's on tomorrow", "whats on tomorrow",
-            "schedule for tomorrow", "tomorrow schedule"
+            "schedule for tomorrow", "tomorrow schedule",
+            "whats the schedule tomorrow", "what's the schedule tomorrow",
+            "schedule tomorrow", "the schedule tomorrow",
+            # Handle common typos
+            "whats the schedule tomororw", "what's the schedule tomororw",
+            "schedule tomororw", "the schedule tomororw",
+            "whats the schedule tommorow", "what's the schedule tommorow",
+            "schedule tommorow", "the schedule tommorow"
         ]):
             return "tomorrow"
         
@@ -238,7 +246,11 @@ class ScheduleService:
         # Handle day after tomorrow (explicit schedule queries only)
         if any(phrase in message_lower for phrase in [
             "day after tomorrow schedule", "schedule day after tomorrow",
-            "what do i have day after tomorrow", "show me day after tomorrow"
+            "what do i have day after tomorrow", "show me day after tomorrow",
+            "whats the schedule the day after tomorrow", "what's the schedule the day after tomorrow",
+            "schedule the day after tomorrow", "the schedule the day after tomorrow",
+            # Handle common typos
+            "wjats the schedule the day after tomorrow", "wjat's the schedule the day after tomorrow"
         ]):
             return "day after tomorrow"
         

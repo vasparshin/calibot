@@ -64,6 +64,7 @@ EXAMPLES:
 - "delete the first 2 meetings today" → {{"intent": "delete", "event_name": "meeting", "target": "first 2", "confirmation_needed": true}}
 - "add 3 events to Tonya calendar, at 10, 11 and 12am" → {{"intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
 - "create lessons at 8, 10, 11, 12 tomorrow" → {{"intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
+- "add two events tomorrow 'lesson' to Tonya calendar at 10am and 12am" → {{"intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "calendar_name": "Tonya", "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "00:00", "end_time": "01:00"}}]}}
 
 IMPORTANT: 
 - Return ONLY the JSON object. No explanations, no markdown, no extra text.

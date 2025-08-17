@@ -59,15 +59,16 @@ class NLPAgent:
             event_name = "event"
         # Date detection
         from datetime import datetime, timedelta
-        if "tomorrow" in text:
+        # Handle common typos for "tomorrow"
+        if any(word in text for word in ["tomorrow", "tomororw", "tommorow"]):
             date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
         else:
             date = datetime.now().strftime("%Y-%m-%d")
-        # Calendar detection (tonya's calendar etc.)
+        # Calendar detection (tonya's calendar, to tonya calendar, etc.)
         calendar_name = None
-        cal_match = re.search(r"(tonya'?s calendar)", text)
+        cal_match = re.search(r"(?:to )?tonya'?s? calendar", text)
         if cal_match:
-            calendar_name = cal_match.group(1)
+            calendar_name = "Tonya"
         # Times extraction
         time_tokens = re.findall(r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b", text)
         if not time_tokens:
