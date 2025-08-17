@@ -398,25 +398,8 @@ class NLPAgent:
                     logger.error(f"LLM JSON missing 'intent' field: {parsed_result}")
                     raise ValueError("Missing intent field")
                 
-                # CRITICAL FIX: Check if LLM returned single event for what should be multi-event
-                # If user message has multiple time indicators but LLM returned single event, use fallback
-                if parsed_result.get('intent') == 'create' and 'events' not in parsed_result:
-                    # Check if the user message should have triggered multi-event creation
-                    user_lower = user_message.lower()
-                    import re
-                    time_tokens = re.findall(r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b", user_lower)
-                    has_create_words = any(k in user_lower for k in ["add", "create", "schedule", "lesson", "meet", "call"])
-                    
-                    if has_create_words and len(time_tokens) >= 2:
-                        logger.warning(f"🔧 LLM returned single event but user message has {len(time_tokens)} time tokens - using batch create fallback")
-                        logger.warning(f"🔧 LLM single event result: {parsed_result}")
-                        fallback_result = self._parse_simple_batch_create(user_message)
-                        logger.warning(f"🔧 Batch create fallback result: {fallback_result}")
-                        if fallback_result and 'events' in fallback_result:
-                            logger.info(f"✅ Batch create fallback successful: {len(fallback_result['events'])} events")
-                            return fallback_result
-                        else:
-                            logger.warning(f"⚠️ Batch create fallback failed, using LLM result")
+                # Log what the LLM returned for debugging
+                logger.info(f"🔍 LLM returned: {parsed_result}")
                 
                 # Success - return the properly parsed result
                 return parsed_result

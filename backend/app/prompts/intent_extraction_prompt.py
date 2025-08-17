@@ -6,6 +6,7 @@ CRITICAL RULES:
 2. NEVER return partial responses or single words
 3. Your response must be valid JSON that can be parsed with json.loads()
 4. If unsure, return the query format: {{"intent": "query", "date": "{current_date_iso}", "confirmation_needed": false}}
+5. MULTI-EVENT DETECTION: If user mentions multiple times (e.g., "at 10am and 12am"), ALWAYS use "events" array format, never single event format
 
 CONVERSATION HISTORY:
 {conversation_history}
@@ -44,9 +45,11 @@ CRITICAL RULES:
 - ALWAYS preserve numbers in target: "last 3" not "last", "first 2" not "first"
 - "yesterday" = previous day from current date
 - "today" = current date
-- "tomorrow" = next day from current date
+- "tomorrow" = next day from current date (handle typos: "tomororw", "tommorow")
 - When user says "events" generically (not a specific event type), use "event_name": "ANY"
 - When user specifies event type like "lessons", "meetings", "calls", use that specific name
+- ALWAYS include valid date in ISO format (YYYY-MM-DD) - never leave date empty
+- ALWAYS include valid time in HH:MM format (24-hour) - never leave times empty
 
 MULTIPLE EVENTS DETECTION:
 - When user requests multiple times in one message (e.g., "add lessons at 8, 10, 11, 12"), use "events" array
