@@ -2,6 +2,16 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.163] - 2025-01-16
+
+### Fixed
+- **Critical: OAuth Authentication Error**: Fixed "Required parameter is missing: response_type" error in Google OAuth 2.0 flow that had regressed
+- **OAuth URL Generation**: Added missing `response_type='code'` parameter to `authorization_url()` call in GoogleCalendarService
+
+### Technical Details
+- **google_calendar.py**: Enhanced OAuth URL generation with explicit `response_type='code'` parameter to comply with Google OAuth 2.0 requirements
+- **Version Management**: Updated both pyproject.toml and backend/app/__init__.py to v0.1.163
+
 ## [0.1.160] - 2025-08-17
 
 ### 🔧 Schedule Query Detection & Multi-Event Creation Fixes

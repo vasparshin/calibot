@@ -40,7 +40,8 @@ class GoogleCalendarService:
         auth_url, state = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
-            prompt='consent'
+            prompt='consent',
+            response_type='code'
         )
 
         # Store only the state
