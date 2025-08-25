@@ -426,43 +426,32 @@ class NLPAgent:
                 logger.error(f"🚨 JSON parsing failed for: '{result}' - using enhanced fallback")
                 
                 # CRITICAL: Check create/update operations FIRST before query (to handle "add lesson today")
-                if any(word in user_lower for word in ['add', 'create', 'make']):
-                    logger.info("Exception fallback: detected create intent - using detailed fallback")
+                # Fixed priority: CREATE > UPDATE > DELETE > QUERY (most specific first)
+                if any(word in user_lower for word in ['add', 'create', 'make', 'schedule', 'book']):
+                    logger.info("🎯 FALLBACK: CREATE INTENT DETECTED - processing with enhanced fallback")
                     batch_parsed = self._parse_simple_batch_create(user_message)
                     if batch_parsed:
                         logger.info(f"✅ Enhanced create fallback parsed: {batch_parsed}")
                         return batch_parsed
                     else:
                         logger.info("⚠️ Batch create parsing failed, using generic create")
-                        return {"intent": "create", "event_name": "event", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                        return {"intent": "create", "event_name": "lesson", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                 elif any(word in user_lower for word in ['move', 'update', 'change']):
                     logger.info("Exception fallback: detected update intent")
                     return self._parse_enhanced_fallback(user_message)
-                elif any(word in user_lower for word in ['today', 'what', 'plan', 'schedule', 'agenda', 'list', 'show']):
-                    logger.info("Exception fallback: detected query intent")
-                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
-                
-                if any(word in user_lower for word in ['delete', 'remove']):
+                elif any(word in user_lower for word in ['delete', 'remove', 'cancel']):
                     logger.info("Exception fallback: detected delete intent")
                     fallback = {"intent": "delete", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
                     if "lesson" in user_lower:
                         fallback["event_name"] = "lesson"
-                    elif "event" in user_lower:
-                        fallback["event_name"] = "event"
-                    # Extract target
-                    if "last" in user_lower:
-                        fallback["target"] = "last"
-                    elif "first" in user_lower:
-                        fallback["target"] = "first"
-                    elif "2nd" in user_lower or "second" in user_lower:
-                        fallback["target"] = "2nd"
-                    elif "3rd" in user_lower or "third" in user_lower:
-                        fallback["target"] = "3rd"
                     return fallback
-                    
-                elif any(word in user_lower for word in ['move', 'update', 'change']):
-                    logger.info("Exception fallback: detected update intent")
-                    fallback = {"intent": "update", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": True}
+                elif any(word in user_lower for word in ['what', 'plan', 'agenda', 'list', 'show']) and not any(word in user_lower for word in ['add', 'create', 'make']):
+                    logger.info("Exception fallback: detected query intent")
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
+                else:
+                    # Default fallback to query if no clear intent detected
+                    logger.info("Exception fallback: no clear intent detected, defaulting to query")
+                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
                     if "lesson" in user_lower:
                         fallback["event_name"] = "lesson"
                     elif "event" in user_lower:
