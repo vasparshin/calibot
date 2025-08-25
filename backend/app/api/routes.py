@@ -570,7 +570,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         
         if auth_check is not True:
             try:
-                url_auth = calendar_service.get_auth_url()
+                url_auth = calendar_service.get_auth_url(force_fresh=True)
                 await send_telegram_message(
                     chat_id,
                     f"To use this bot, please authenticate your Google account: [Click here]({url_auth})\n\n"
@@ -1234,7 +1234,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
         # Handle authentication errors specifically
         if he.status_code == 401:
             try:
-                url_auth = calendar_service.get_auth_url()
+                url_auth = calendar_service.get_auth_url(force_fresh=True)
                 await send_telegram_message(
                     chat_id,
                     f"Your Google authentication has expired. Please re-authenticate: [Click here]({url_auth})"
@@ -1300,7 +1300,7 @@ async def auth_status():
         
         if not status["authenticated"]:
             try:
-                auth_url = calendar_service.get_auth_url()
+                auth_url = calendar_service.get_auth_url(force_fresh=True)
                 status["auth_url"] = auth_url
             except Exception as e:
                 status["auth_error"] = str(e)
@@ -1318,7 +1318,7 @@ async def login():
         if calendar_service.is_authenticated():
             return {"message": "Already authenticated", "authenticated": True}
             
-        auth_url = calendar_service.get_auth_url()
+        auth_url = calendar_service.get_auth_url(force_fresh=True)
         return {"auth_url": auth_url, "message": "Please visit the auth_url to authenticate"}
     except ValueError as ve:
         logger.error(f"OAuth configuration error in login endpoint: {ve}")
@@ -1329,6 +1329,29 @@ async def login():
     except Exception as e:
         logger.error(f"Error initiating login: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to initiate login: {str(e)}")
+
+
+@router.get("/auth/fresh")
+async def get_fresh_auth_url():
+    """Get a guaranteed fresh OAuth authentication URL with cache-busting"""
+    try:
+        if calendar_service.is_authenticated():
+            return {
+                "message": "Already authenticated", 
+                "authenticated": True,
+                "fresh_auth_url": calendar_service.get_auth_url(force_fresh=True),
+                "note": "You can use the fresh_auth_url to re-authenticate if needed"
+            }
+            
+        auth_url = calendar_service.get_auth_url(force_fresh=True)
+        return {
+            "auth_url": auth_url, 
+            "message": "Fresh OAuth URL generated with cache-busting",
+            "instructions": "Please visit the auth_url to authenticate. This URL includes cache-busting to prevent old URL issues."
+        }
+    except Exception as e:
+        logger.error(f"Error generating fresh auth URL: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate fresh auth URL: {str(e)}")
 
 
 @router.get("/calendars")

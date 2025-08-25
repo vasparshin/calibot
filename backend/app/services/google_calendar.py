@@ -30,8 +30,14 @@ class GoogleCalendarService:
         self.calendar_agent = CalendarAgent()
         self._calendars_loaded = False
     
-    def get_auth_url(self):
+    def get_auth_url(self, force_fresh=True):
+        """Generate OAuth authorization URL with proper parameters
+        
+        Args:
+            force_fresh: If True, ensures a fresh URL with no caching issues
+        """
         try:
+            # Create a fresh Flow instance every time to avoid any caching issues
             flow = Flow.from_client_secrets_file(
                 GOOGLE_CLIENT_SECRET_FILE,
                 scopes=GOOGLE_API_SCOPES,
@@ -39,33 +45,49 @@ class GoogleCalendarService:
             )
             logger.info(f"Redirect URI: {flow.redirect_uri}")
             
-            # Generate authorization URL with explicit parameters including response_type
+            # Generate authorization URL with explicit parameters
+            # The authorization_url() method automatically includes response_type=code
             auth_url, state = flow.authorization_url(
                 access_type='offline',
                 include_granted_scopes='true',
                 prompt='consent'
             )
             
-            # Ensure response_type=code is included in the URL
+            # Double-check and ensure response_type=code is present
             if 'response_type=code' not in auth_url:
+                # This should never happen with google-auth-oauthlib, but adding as failsafe
                 separator = '&' if '?' in auth_url else '?'
                 auth_url += f'{separator}response_type=code'
-                logger.info("Added missing response_type=code parameter to OAuth URL")
+                logger.warning("Had to manually add missing response_type=code parameter to OAuth URL")
             
-            logger.info(f"Generated auth URL: {auth_url[:100]}...")
+            # Add cache-busting parameter if force_fresh is True
+            if force_fresh:
+                import time
+                cache_buster = int(time.time())
+                separator = '&' if '?' in auth_url else '?'
+                auth_url += f'{separator}_cb={cache_buster}'
+                logger.info(f"Added cache-busting parameter: _cb={cache_buster}")
             
-            # Store only the state
+            logger.info(f"Generated fresh auth URL: {auth_url[:120]}...")
+            
+            # Store the state for later validation
             with open("oauth_state.txt", "w") as f:
                 f.write(state)
 
-            # store client_config and redirect_uri to use in the callback function.
+            # Store client config for callback processing
             with open("client_config.pickle", "wb") as f:
-                pickle.dump({"client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, "scopes": GOOGLE_API_SCOPES, "redirect_uri": self.redirect_uri}, f)
+                pickle.dump({
+                    "client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, 
+                    "scopes": GOOGLE_API_SCOPES, 
+                    "redirect_uri": self.redirect_uri
+                }, f)
 
             return auth_url
             
         except Exception as e:
             logger.error(f"Error generating auth URL: {e}")
+            logger.error(f"Redirect URI: {getattr(self, 'redirect_uri', 'Not set')}")
+            logger.error(f"Client secrets file: {GOOGLE_CLIENT_SECRET_FILE}")
             raise
 
     async def handle_oauth_callback(self, request: Request):
