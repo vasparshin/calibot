@@ -564,10 +564,6 @@ class NLPAgent:
                     
                     logger.error(f"🔥 📋 CRITICAL DEBUG: Fallback result for update BEFORE return: {fallback}")
                     return fallback
-                    
-                else:
-                    logger.info("Exception fallback: detected generic intent - defaulting to query")
-                    return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             
             # SUCCESS: LLM returned valid JSON
             logger.info(f"✅ Successfully parsed LLM JSON response: {parsed_result}")
