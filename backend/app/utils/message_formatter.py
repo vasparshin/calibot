@@ -134,8 +134,8 @@ class MessageFormatter:
             
             # Extract date from start_time
             date_str = MessageFormatter.format_date_full(start_time)
-            start_time_str = MessageFormatter.format_time_24hour(start_time)
-            end_time_str = MessageFormatter.format_time_24hour(end_time)
+            start_time_str = MessageFormatter.format_time_12hour(start_time)
+            end_time_str = MessageFormatter.format_time_12hour(end_time)
             calendar_formatted = MessageFormatter.format_calendar_name(calendar_name)
             
             # Build the formatted string

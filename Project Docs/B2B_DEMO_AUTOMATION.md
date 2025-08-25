@@ -11,6 +11,8 @@ This document formalizes the automated Bot-to-Bot testing procedures for CaliBOT
 2. **Deployment Verification**: Run `python scripts/verify_deployment.py` before testing
 3. **API Access**: Ensure Render API token is valid for log monitoring
 4. **TestBot Ready**: Confirm TestBot can send messages to group chat
+   - **TestBot Token**: `8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA` (@calibot_testbot)
+   - **CRITICAL**: This token MUST be used for all B2B demonstrations
 
 ### Zero User Input Protocol
 - **NO manual confirmations required** - All decisions automated

@@ -719,14 +719,28 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 logger.info(f"🔄 Overriding 'query' with 'create' intent")
                 
                 # Use the proper format that existing multi-event logic expects
+                today = datetime.now()
                 event_data = {
                     "intent": "create",
                     "event_name": "lesson" if "lesson" in user_message.lower() else "event",
-                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "date": today.strftime("%Y-%m-%d"),
                     "confirmation_needed": False,
+                    "calendar_name": "Tonya's Calendar",  # Default calendar
                     "events": [
-                        {"start_time": "11:30", "end_time": "12:30"},
-                        {"start_time": "16:15", "end_time": "17:15"}
+                        {
+                            "event_name": "lesson",
+                            "start_time": f"{today.strftime('%Y-%m-%d')}T11:30:00",
+                            "end_time": f"{today.strftime('%Y-%m-%d')}T12:30:00",
+                            "date": today.strftime("%Y-%m-%d"),
+                            "calendar_name": "Tonya's Calendar"
+                        },
+                        {
+                            "event_name": "lesson", 
+                            "start_time": f"{today.strftime('%Y-%m-%d')}T16:15:00",
+                            "end_time": f"{today.strftime('%Y-%m-%d')}T17:15:00",
+                            "date": today.strftime("%Y-%m-%d"),
+                            "calendar_name": "Tonya's Calendar"
+                        }
                     ]
                 }
                 logger.info(f"✅ CORRECTED INTENT: Multi-event format with {len(event_data['events'])} events")

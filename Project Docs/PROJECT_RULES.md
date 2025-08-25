@@ -9,6 +9,13 @@
 - **Usage**: Use this ID for ALL real testing and demos
 - **Location**: Found in conversation history and multiple test files
 
+### TESTBOT CREDENTIALS (CRITICAL - DO NOT LOSE)
+**TestBot for B2B Demonstrations**: @calibot_testbot
+- **Bot Token**: `8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA`
+- **Purpose**: Sends REAL visible messages to group chat for bot-to-bot testing
+- **Usage**: Required for all proper B2B demos where TestBot message appears in chat
+- **Reference**: Located in B2B_DEMO_AUTOMATION.md and this rules file
+
 ### MULTI-EVENT DEMO RESULTS (LATEST)
 **Date**: 2025-08-15
 **Success Rate**: 80% (4/5 scenarios)
