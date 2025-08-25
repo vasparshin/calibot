@@ -38,6 +38,7 @@ except ImportError:
     InlineKeyboardHelper = None
 from datetime import datetime
 from app.utils.ui_helpers import format_duplicate_confirmation_with_keyboard, format_event_for_display, is_confirmation_yes, is_confirmation_no
+import json
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -701,8 +702,14 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
             conversation_state.add_message(chat_id, "assistant", ai_response)
             return {"status": "ok"}  
         try:
+            logger.info(f"🧠 INTENT EXTRACTION START - Message: '{user_message}'")
             event_data = await ai_agent.extract_intent(user_message, history)
-            logger.info(f"Extracted intent: {event_data}")
+            logger.info(f"🎯 EXTRACTED INTENT RESULT: {json.dumps(event_data, indent=2)}")
+            logger.info(f"🔍 Intent Type: {event_data.get('intent', 'MISSING')}")
+            logger.info(f"🔍 Has Events Array: {'events' in event_data}")
+            if 'events' in event_data:
+                logger.info(f"🔍 Events Count: {len(event_data.get('events', []))}")
+            
             if not isinstance(event_data, dict):
                 logger.error(f"CRITICAL: Invalid event_data type: {type(event_data)} - {event_data}")
                 await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
