@@ -31,28 +31,36 @@ class GoogleCalendarService:
         self._calendars_loaded = False
     
     def get_auth_url(self):
-        flow = Flow.from_client_secrets_file(
-            GOOGLE_CLIENT_SECRET_FILE,
-            scopes=GOOGLE_API_SCOPES,
-            redirect_uri=self.redirect_uri
-        )
-        logger.info(f"Redirect URI: {flow.redirect_uri}")
-        auth_url, state = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true',
-            prompt='consent',
-            response_type='code'
-        )
+        try:
+            flow = Flow.from_client_secrets_file(
+                GOOGLE_CLIENT_SECRET_FILE,
+                scopes=GOOGLE_API_SCOPES,
+                redirect_uri=self.redirect_uri
+            )
+            logger.info(f"Redirect URI: {flow.redirect_uri}")
+            
+            # Generate authorization URL with explicit parameters
+            auth_url, state = flow.authorization_url(
+                access_type='offline',
+                include_granted_scopes='true',
+                prompt='consent'
+            )
+            
+            logger.info(f"Generated auth URL: {auth_url[:100]}...")
+            
+            # Store only the state
+            with open("oauth_state.txt", "w") as f:
+                f.write(state)
 
-        # Store only the state
-        with open("oauth_state.txt", "w") as f:
-            f.write(state)
+            # store client_config and redirect_uri to use in the callback function.
+            with open("client_config.pickle", "wb") as f:
+                pickle.dump({"client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, "scopes": GOOGLE_API_SCOPES, "redirect_uri": self.redirect_uri}, f)
 
-        # store client_config and redirect_uri to use in the callback function.
-        with open("client_config.pickle", "wb") as f:
-            pickle.dump({"client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, "scopes": GOOGLE_API_SCOPES, "redirect_uri": self.redirect_uri}, f)
-
-        return auth_url
+            return auth_url
+            
+        except Exception as e:
+            logger.error(f"Error generating auth URL: {e}")
+            raise
 
     async def handle_oauth_callback(self, request: Request):
         """Handle the OAuth callback and exchange code for token"""

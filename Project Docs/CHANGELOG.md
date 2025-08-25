@@ -2,6 +2,18 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.164] - 2025-01-16
+
+### Fixed
+- **Critical: OAuth Authentication Error**: Fixed "prepare_grant_uri() got multiple values for argument 'response_type'" error in Google OAuth 2.0 flow
+- **OAuth URL Generation**: Corrected authorization_url() method call to avoid duplicate response_type parameter (method includes it by default)
+- **Enhanced Error Handling**: Added proper try-catch blocks and logging to OAuth URL generation
+
+### Technical Details
+- **google_calendar.py**: Fixed OAuth URL generation by removing explicit response_type parameter (already included by default in authorization_url method)
+- **Enhanced Logging**: Added detailed logging for OAuth URL generation and error handling
+- **Version Management**: Updated both pyproject.toml and backend/app/__init__.py to v0.1.164
+
 ## [0.1.163] - 2025-01-16
 
 ### Fixed
