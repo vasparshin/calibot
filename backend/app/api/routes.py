@@ -954,6 +954,9 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         for event in failed_events:
                             failure_msg += f"• {event['time']}: {event['error']}\n"
                         await send_telegram_message(chat_id, failure_msg)
+                    
+                    # CRITICAL FIX: Return after batch creation to prevent fall-through to AI response
+                    return {"status": "ok"}
                 
                 else:
                     # Single event creation (refactored call)
