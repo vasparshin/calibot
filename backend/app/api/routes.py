@@ -822,6 +822,8 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 logger.info(f"🔍 Events array length: {len(event_data['events'])}")
             
             if event_data["intent"] in ["create", "batch_create"]:
+                logger.info(f"🎯 CREATE INTENT DETECTED: {event_data.get('intent')} - Processing event creation")
+                
                 # Detect batch creation scenarios (multiple events)
                 events_to_create = []
                 
@@ -960,6 +962,7 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 
                 else:
                     # Single event creation (refactored call)
+                    logger.info(f"🔧 SINGLE EVENT CREATION: Processing single event with data: {event_data}")
                     await create_single_event(
                         chat_id,
                         event_data,
@@ -968,7 +971,12 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                         # deprecated format_event_for_display removed
                         conversation_state,
                     )
+                    logger.info(f"🔧 SINGLE EVENT CREATION COMPLETED - Returning status OK")
                     return {"status": "ok"}
+                
+                # CRITICAL FALLBACK: Ensure ANY create intent returns here to prevent AI response
+                logger.info(f"🚨 CREATE INTENT FALLBACK: Ensuring return for intent {event_data.get('intent')}")
+                return {"status": "ok"}
 
             elif event_data["intent"] in ["update", "delete"]:
                 # Check if user is referring to recent events with pronouns
