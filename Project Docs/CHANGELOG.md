@@ -2,6 +2,19 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.167] - 2025-01-16
+
+### Fixed
+- **CRITICAL: Event Creation Bug**: Fixed "No matching events found" error when creating multiple events
+- **Multi-Event Flow**: Fixed execution fall-through in batch creation causing wrong response messages
+- **Intent Routing**: Ensured proper return statements prevent fall-through to irrelevant AI responses
+
+### Technical Details
+- **routes.py**: Added missing `return {"status": "ok"}` after batch creation logic (line 959)
+- **Root Cause**: Multi-event creation was falling through to AI response fallback instead of returning properly
+- **Impact**: Commands like "add two lessons at 11:30 and 16:15" now work correctly instead of showing search errors
+- **Version Management**: Updated both pyproject.toml and backend/app/__init__.py to v0.1.167
+
 ## [0.1.166] - 2025-01-16
 
 ### Fixed
