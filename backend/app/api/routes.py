@@ -241,9 +241,14 @@ async def handle_callback_query(callback_query):
                         original_text + f"\n\n✅ **{confirmation.title()}**",
                         reply_markup={})
                     
+                    # CRITICAL FIX: Add detailed logging for queue processing
+                    logger.info(f"🔄 Queue result: {queue_result}")
+                    logger.info(f"🔄 Queue continues: {queue_result.get('queue_continues')}")
+                    
                     if queue_result.get("queue_continues"):
                         # Send ONLY the next confirmation - don't send redundant messages
                         next_conf = queue_result.get("next_confirmation", {})
+                        logger.info(f"🔄 Next confirmation: {bool(next_conf)}")
                         if next_conf:
                             keyboard = next_conf.get("keyboard")
                             if keyboard:
@@ -251,8 +256,10 @@ async def handle_callback_query(callback_query):
                             else:
                                 await send_telegram_message(chat_id, next_conf["message"])
                             conversation_state.add_message(chat_id, "assistant", next_conf["message"])
+                            logger.info(f"✅ Sent next confirmation message")
                     else:
-                        # Queue is complete
+                        # Queue is complete or first result
+                        logger.info(f"🔄 Queue complete or sending result message")
                         await send_telegram_message(chat_id, queue_result["message"])
                         conversation_state.add_message(chat_id, "assistant", queue_result["message"])
                     
@@ -508,6 +515,7 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, confirmati
     
     # Check event queue system (CRITICAL: Only if not already processed by queue-specific handler)
     if not queue_processed and event_queue_handler.has_pending_queue(chat_id):
+        logger.info(f"🔄 FALLBACK: Processing queue via confirmation handler")
         logger.info(f"Processing pending event queue with confirmation: {confirmation}")
         try:
             queue_result = await event_queue_handler.process_queue_response(chat_id, confirmation)
