@@ -2,6 +2,18 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.165] - 2025-01-16
+
+### Fixed
+- **Critical: OAuth Authentication Error**: Implemented failsafe to ensure response_type=code parameter is always included in OAuth URLs
+- **Robust OAuth URL Generation**: Added URL validation and automatic parameter injection if missing
+- **Enhanced Logging**: Added specific logging when response_type parameter is added to OAuth URLs
+
+### Technical Details
+- **google_calendar.py**: Added URL validation to check for response_type=code parameter and inject it if missing
+- **Failsafe Approach**: Ensures OAuth compliance regardless of google-auth-oauthlib library version behavior
+- **Version Management**: Updated both pyproject.toml and backend/app/__init__.py to v0.1.165
+
 ## [0.1.164] - 2025-01-16
 
 ### Fixed

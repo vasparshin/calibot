@@ -39,12 +39,18 @@ class GoogleCalendarService:
             )
             logger.info(f"Redirect URI: {flow.redirect_uri}")
             
-            # Generate authorization URL with explicit parameters
+            # Generate authorization URL with explicit parameters including response_type
             auth_url, state = flow.authorization_url(
                 access_type='offline',
                 include_granted_scopes='true',
                 prompt='consent'
             )
+            
+            # Ensure response_type=code is included in the URL
+            if 'response_type=code' not in auth_url:
+                separator = '&' if '?' in auth_url else '?'
+                auth_url += f'{separator}response_type=code'
+                logger.info("Added missing response_type=code parameter to OAuth URL")
             
             logger.info(f"Generated auth URL: {auth_url[:100]}...")
             
