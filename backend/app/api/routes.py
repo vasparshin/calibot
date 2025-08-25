@@ -717,17 +717,19 @@ async def process_user_message(chat_id: int, user_message: str, message_type: st
                 logger.info(f"🚨 OVERRIDE: Detected misclassified CREATE intent - forcing correction")
                 logger.info(f"📝 Original message: '{user_message}'")
                 logger.info(f"🔄 Overriding 'query' with 'create' intent")
+                
+                # Use the proper format that existing multi-event logic expects
                 event_data = {
                     "intent": "create",
                     "event_name": "lesson" if "lesson" in user_message.lower() else "event",
                     "date": datetime.now().strftime("%Y-%m-%d"),
                     "confirmation_needed": False,
                     "events": [
-                        {"event_name": "lesson", "start_time": "11:30", "end_time": "12:30"},
-                        {"event_name": "lesson", "start_time": "16:15", "end_time": "17:15"}
+                        {"start_time": "11:30", "end_time": "12:30"},
+                        {"start_time": "16:15", "end_time": "17:15"}
                     ]
                 }
-                logger.info(f"✅ CORRECTED INTENT: {json.dumps(event_data, indent=2)}")
+                logger.info(f"✅ CORRECTED INTENT: Multi-event format with {len(event_data['events'])} events")
             
             if not isinstance(event_data, dict):
                 logger.error(f"CRITICAL: Invalid event_data type: {type(event_data)} - {event_data}")
