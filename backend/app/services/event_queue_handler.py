@@ -79,6 +79,19 @@ class EventQueueHandler:
         if intent_data.get('intent') == 'batch_create' and 'events' in intent_data:
             events = intent_data['events']
         
+        # Handle create intent with events array (NEW FORMAT)
+        elif intent_data.get('intent') == 'create' and 'events' in intent_data:
+            events = []
+            for event_item in intent_data['events']:
+                # Create full event by merging base data with specific event times
+                event = intent_data.copy()
+                event.update(event_item)
+                # Remove the events array from individual events to avoid recursion
+                if 'events' in event:
+                    del event['events']
+                event['intent'] = 'create'  # Ensure single intent
+                events.append(event)
+        
         # Handle multiple start_times
         elif isinstance(intent_data.get('start_time'), list):
             start_times = intent_data['start_time']
