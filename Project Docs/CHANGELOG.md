@@ -2,6 +2,25 @@
 
 All notable changes to the CaliBOT project are documented here in reverse chronological order.
 
+## [0.1.166] - 2025-01-16
+
+### Fixed
+- **Critical: OAuth Cache-Busting**: Implemented cache-busting parameter (_cb=timestamp) to prevent old OAuth URL issues
+- **Fresh URL Generation**: Added force_fresh parameter to get_auth_url() method ensuring truly fresh URLs
+- **Enhanced OAuth Debugging**: Added /auth/fresh endpoint for guaranteed fresh OAuth URLs with comprehensive logging
+- **Comprehensive OAuth Failsafe**: Multiple layers of protection against missing response_type parameter
+
+### Added
+- **New Endpoint**: `/auth/fresh` - Get guaranteed fresh OAuth authentication URL with cache-busting
+- **Cache-Busting**: Automatic timestamp parameter added to prevent browser/system caching of OAuth URLs
+- **Enhanced Logging**: Detailed logging for fresh URL generation and cache-busting operations
+
+### Technical Details
+- **google_calendar.py**: Enhanced get_auth_url() with force_fresh parameter and cache-busting timestamp
+- **routes.py**: Added /auth/fresh endpoint and updated all auth URL calls to use force_fresh=True
+- **OAuth Reliability**: Multiple safeguards to ensure OAuth URLs work regardless of caching issues
+- **Version Management**: Updated both pyproject.toml and backend/app/__init__.py to v0.1.166
+
 ## [0.1.165] - 2025-01-16
 
 ### Fixed
