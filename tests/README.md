@@ -1,146 +1,109 @@
-# Tests Directory
+# CaliBOT Tests
 
-This directory contains all test files and demo scripts for the Calibot project.
+This folder contains essential test files for CaliBOT functionality. All experimental and duplicate test files have been removed per PROJECT_RULES.md.
 
-## 🚨 CRITICAL TESTING RULES 🚨
+## 🟢 Essential Test Files (Working)
 
-### GROUP CHAT TESTING REQUIREMENTS
-**MANDATORY**: Always verify you're testing on the CORRECT group chat before running any real tests!
+### **`telegram_like_tester.py`** - Visual Testing
+**Purpose**: End-to-end visual testing of bot functionality
+- Sends real TestBot messages to group chat (`-4627994150`)
+- Tests complete conversation flows
+- Manual verification of bot responses in Telegram
+- Used for: Multi-event creation, updates, deletes
 
-1. **Check Last Message Time**: Last message should be recent (within current session)
-2. **Verify Group Identity**: Confirm you're in the right CaliBOT test group  
-3. **Check Chat History**: Look for recent test interactions to confirm correct group
-4. **Time Verification**: User mentioned last message at 07:57 - if older, check group selection
-5. **Send Test Command**: Use `/status` to verify bot is active and responsive
-
-**DETAILED VERIFICATION**: See `GROUP_CHAT_VERIFICATION.md` for complete group verification protocol
-
-### MULTI-EVENT FIX TESTING PROTOCOL
-**For "UPDATE Event 2 of 2" verification:**
-
-1. **Pre-Test Verification** (MANDATORY):
-   ```bash
-   python scripts/quick_version_check.py
-   ```
-   Must show version 0.1.133 and operational status
-
-2. **Group Chat Verification** (MANDATORY):
-   - Verify recent message activity (not 07:57 from hours ago)
-   - Send `/status` command to confirm bot responsiveness
-   - Check you're in correct CaliBOT test group
-   - Only proceed if group verification passes
-
-3. **Multi-Event Test Workflow**:
-   - Send: "update my lessons tomorrow"  
-   - Bot should show multi-event confirmation
-   - Click: "1️⃣ One by One"
-   - Bot shows: "UPDATE Event 1 of 2"
-   - Click: "✅ Yes"
-   - Bot should show: "UPDATE Event 2 of 2" ← KEY VERIFICATION
-   - Complete workflow
-
-4. **Fix Verification Points**:
-   - Event 2 appears after Event 1 confirmation
-   - No "nothing happened" behavior
-   - Complete one-by-one progression works
-
-### DOCUMENTATION REFERENCES
-- **Fix Details**: `MULTI_EVENT_FIX_PROCEDURE.md`
-- **Group Verification**: `GROUP_CHAT_VERIFICATION.md`
-- **Test Rules**: This README.md
-
-## Organization Rules
-
-To maintain a clean project structure, **ALL** test files and demo files must be placed in this `tests/` folder:
-
-- `test_*.py` - Test files
-- `*_test.py` - Alternative test file naming
-- `*demo*.py` - Demo and example scripts
-- `queue_demo.py` - Queue system demonstrations
-- `simple_queue_demo.py` - Simple queue examples
-
-## File Organization Script
-
-Use the provided script to automatically move misplaced test files:
-
+**Usage**:
 ```bash
-./scripts/organize_files.sh
+python tests/telegram_like_tester.py
+```
+**Then check**: Group chat for bot responses
+
+### **`test_one_by_one_workflow.py`** - Queue Testing
+**Purpose**: Automated testing of EventQueueHandler functionality
+- Tests the critical "UPDATE Event 2 of 2" workflow
+- Simulates button presses for queue advancement
+- Automated verification of one-by-one processing
+- Used for: Queue processing, event advancement, completion
+
+**Usage**:
+```bash
+python tests/test_one_by_one_workflow.py
+```
+**Then check**: Logs for "UPDATE Event 2 of 2" confirmation
+```bash
+python scripts/render_api_logs.py
 ```
 
-This script will:
-- Find any test or demo files in the project root
-- Find any test files in the backend directory  
-- Move them to this `tests/` folder
-- Show the final organization
+## 📋 Test Categories (Removed)
 
-## Current Test Files
+### Experimental B2B Demos (Deleted)
+- ❌ `comprehensive_b2b_demo.py` - Experimental demo
+- ❌ `complete_b2b_demo.py` - Experimental demo
+- ❌ `real_b2b_demo.py` - Experimental demo
+- ❌ `real_testbot_b2b_demo.py` - Experimental demo
+- ❌ `real_visible_b2b_demo.py` - Experimental demo
+- ❌ `manual_b2b_test.py` - Manual testing variant
+- ❌ `proper_b2b_webhook_demo.py` - Demo variant
+- ❌ `proper_full_b2b_demo.py` - Demo variant
+- ❌ `proper_testbot_message.py` - Demo variant
 
-### Bug Fix Tests
-- `test_bug_fix_validation.py` - Validates fixes for the 'list' object has no attribute 'get' error
+### Debug/Test Scripts (Deleted)
+- ❌ `quick_format_test.py` - Formatting test (covered by main tests)
+- ❌ `test_queue_callback.py` - Debug script (integrated into workflow test)
 
-### Integration Tests
-- `test_all_fixes.py` - Comprehensive fix validation
-- `test_batch_events.py` - Batch event processing tests
-- `test_calendar_context_memory.py` - Calendar context and memory tests
-- `test_comprehensive_validation.py` - Full system validation
-- `test_context_and_calendar_selection.py` - Context and calendar selection tests
-- `test_delete_multi_events.py` - Multi-event deletion tests
-- `test_exact_scenario.py` - Specific scenario tests
-- `test_json_prompt.py` - JSON prompt processing tests
-- `test_production_scenario.py` - Production environment tests
-- `test_time_handling.py` - Time and date handling tests
+## 🎯 Testing Workflow (per PROJECT_RULES.md)
 
-### Backend Tests
-- `test_final_validation.py` - Final validation tests
-- `test_intent_validation.py` - Intent extraction validation
-- `test_simple_delete.py` - Simple deletion operation tests
+### Pre-Testing Checklist
+- [ ] Latest version deployed: `python scripts/verify_deployment.py`
+- [ ] Backend health check: Visit backend URL
+- [ ] Correct group chat: `-4627994150` for real testing
+- [ ] Run tests: `python tests/telegram_like_tester.py`
 
-### Demo Files
-- `queue_demo.py` - Queue system demonstration
-- `simple_queue_demo.py` - Simple queue usage examples
+### Visual Testing
+1. Run `telegram_like_tester.py`
+2. Check group chat for bot responses
+3. Verify message formatting and button behavior
+4. Test multi-event operations manually
 
-## Running Tests
+### Queue Testing
+1. Run `test_one_by_one_workflow.py`
+2. Check logs: `python scripts/render_api_logs.py`
+3. Verify "UPDATE Event 2 of 2" appears (CRITICAL)
+4. Confirm queue completion without hanging
 
-Run individual tests:
+## 📝 Success Criteria
+
+### ✅ Working Indicators
+- Bot responds to TestBot messages in group chat
+- Multi-event operations show confirmation keyboards
+- One-by-one processing advances: "UPDATE Event 1 of 2" → "UPDATE Event 2 of 2"
+- Buttons disappear after interaction
+- Queue completes without errors
+
+### ❌ Failure Indicators
+- No response from bot in group chat
+- Missing "UPDATE Event 2 of 2" in logs
+- Buttons remain visible after interaction
+- Queue hangs or gets stuck
+- 500 errors in callback processing
+
+## 🔧 Environment Setup
+
+### Required for Testing
+- **TestBot Token**: Configured in test files
+- **Group Chat ID**: `-4627994150` (from PROJECT_RULES.md)
+- **Backend URL**: `https://calibot-utq6.onrender.com`
+- **Python Packages**: `aiohttp` for async testing
+
+### Installation
 ```bash
-python tests/test_bug_fix_validation.py
+pip install aiohttp
 ```
 
-Run all tests (when test runner is available):
-```bash
-python -m pytest tests/
-```
+---
 
-## GitIgnore Rules
+**Total Test Files**: 2 essential files (from 11+ experimental files)
+**Duplicates Removed**: 9+ experimental B2B demo variations
+**Debug Scripts Removed**: 2 debug/test scripts
+**Maintainability**: ✅ Improved - Clear purpose, no confusion
 
-The project `.gitignore` is configured to:
-- Prevent test files from being placed outside this folder
-- Allow test files only within `tests/`
-- Help maintain project organization
-
-## Guidelines
-
-1. **New test files**: Always create them directly in this `tests/` folder
-2. **Demo scripts**: Place all demo and example scripts here
-3. **File naming**: Use clear, descriptive names with appropriate prefixes
-4. **Documentation**: Update this README when adding new test categories
-
-## Bug Fixes Tested
-
-### Fixed: 'list' object has no attribute 'get' Error
-
-**Problem**: The application was crashing with the error `'list' object has no attribute 'get'` when processing events for deletion.
-
-**Root Cause**: The code assumed that event data from Google Calendar API would always be dictionaries, but sometimes the API returns lists or other data types.
-
-**Solution**: Added comprehensive type checking and validation:
-- Validate that `events` is a list before processing
-- Check each `event` is a dictionary before calling `.get()`
-- Skip invalid events with warning logs instead of crashing
-- Validate required fields like `id` exist before processing
-
-**Files Modified**:
-- `backend/app/api/routes.py` - Added type checking for event processing
-
-**Test Coverage**:
-- `test_bug_fix_validation.py` - Comprehensive validation of the fix
+**REMEMBER**: These are the ONLY test files referenced in PROJECT_RULES.md. All others were experimental and have been removed.

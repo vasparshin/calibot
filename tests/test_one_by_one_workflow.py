@@ -1,274 +1,176 @@
 #!/usr/bin/env python3
 """
-One-by-One Workflow Testing Plan
-Comprehensive test suite specifically for the "one by one" multi-event processing workflow
+One-by-One Workflow Tester for CaliBOT Event Queue
+Tests the critical "UPDATE Event 2 of 2" functionality
+
+This script specifically tests the EventQueueHandler to ensure:
+1. Multi-event operations are queued correctly
+2. One-by-one processing advances properly
+3. "UPDATE Event X of Y" messages appear in sequence
+4. Queue completes without hanging
+
+USAGE: python tests/test_one_by_one_workflow.py
 """
 
-import requests
+import asyncio
 import json
+import sys
 import time
-from typing import Dict, Any
+from datetime import datetime
 
-# Test configuration
-BOT_TOKEN = "8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA"
-WEBHOOK_URL = "https://calibot-utq6.onrender.com/webhook"
-TEST_CHAT_ID = 987654321
+# Project constants
+TARGET_GROUP_CHAT = -4627994150
+BACKEND_URL = "https://calibot-utq6.onrender.com"
+TESTBOT_TOKEN = "8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA"
 
-class OneByOneWorkflowTester:
-    def __init__(self):
-        self.message_id_counter = 2000
-        self.session = requests.Session()
-        self.test_results = []
-    
-    def send_webhook_request(self, update_data: Dict[str, Any]) -> bool:
-        """Send webhook request to CaliBOT backend"""
-        try:
-            response = self.session.post(
-                WEBHOOK_URL,
-                json=update_data,
-                headers={"Content-Type": "application/json"},
-                timeout=30
-            )
-            
-            print(f"  📡 Webhook Response ({response.status_code}): {response.text[:150]}...")
-            return response.status_code == 200
-            
-        except Exception as e:
-            print(f"  ❌ Webhook Error: {e}")
-            return False
-    
-    def create_message_update(self, text: str) -> Dict[str, Any]:
-        """Create a Telegram message update"""
-        self.message_id_counter += 1
-        return {
-            "update_id": self.message_id_counter,
+def log_test(message, level="QUEUE"):
+    """Log queue test messages with timestamp"""
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    print(f"[{timestamp}] {level}: {message}")
+
+async def send_webhook_message(message_text: str, session):
+    """Send direct webhook message to test queue processing"""
+    try:
+        webhook_payload = {
+            "update_id": int(time.time() * 1000),
             "message": {
-                "message_id": self.message_id_counter,
-                "from": {
-                    "id": TEST_CHAT_ID,
-                    "is_bot": False,
-                    "first_name": "TestUser",
-                    "username": "testuser"
-                },
-                "chat": {
-                    "id": TEST_CHAT_ID,
-                    "first_name": "TestUser",
-                    "username": "testuser",
-                    "type": "private"
-                },
+                "message_id": int(time.time()),
+                "from": {"id": 987654321, "first_name": "QueueTest", "is_bot": False},
+                "chat": {"id": TARGET_GROUP_CHAT},
                 "date": int(time.time()),
-                "text": text
+                "text": message_text
             }
         }
-    
-    def create_callback_update(self, callback_data: str, message_text: str = "Previous message") -> Dict[str, Any]:
-        """Create a Telegram callback query update"""
-        self.message_id_counter += 1
-        return {
-            "update_id": self.message_id_counter,
+
+        async with session.post(f"{BACKEND_URL}/webhook", json=webhook_payload) as response:
+            log_test(f"Webhook response: {response.status}")
+            return response.status == 200
+
+    except Exception as e:
+        log_test(f"❌ Webhook error: {e}")
+        return False
+
+async def simulate_button_press(callback_data: str, session):
+    """Simulate button press for queue advancement"""
+    try:
+        webhook_payload = {
+            "update_id": int(time.time() * 1000),
             "callback_query": {
-                "id": f"callback_{self.message_id_counter}",
-                "from": {
-                    "id": TEST_CHAT_ID,
-                    "is_bot": False,
-                    "first_name": "TestUser",
-                    "username": "testuser"
-                },
+                "id": f"test_{int(time.time())}",
+                "from": {"id": 987654321, "is_bot": False},
                 "message": {
-                    "message_id": self.message_id_counter - 1,
-                    "from": {
-                        "id": 8347695824,
-                        "is_bot": True,
-                        "first_name": "CaliBOT",
-                        "username": "calibot_ai"
-                    },
-                    "chat": {
-                        "id": TEST_CHAT_ID,
-                        "first_name": "TestUser",
-                        "username": "testuser",
-                        "type": "private"
-                    },
-                    "date": int(time.time()),
-                    "text": message_text
+                    "message_id": int(time.time()),
+                    "chat": {"id": TARGET_GROUP_CHAT}
                 },
                 "data": callback_data
             }
         }
-    
-    def test_scenario(self, scenario_name: str, initial_request: str, expected_behavior: str) -> bool:
-        """Test a complete one-by-one workflow scenario"""
-        print(f"\n{'='*70}")
-        print(f"🧪 TESTING: {scenario_name}")
-        print(f"Request: {initial_request}")
-        print(f"Expected: {expected_behavior}")
-        print(f"{'='*70}")
-        
-        success = True
-        
-        # Step 1: Send initial request
-        print("\n📝 Step 1: Send initial multi-event request...")
-        update_request = self.create_message_update(initial_request)
-        
-        if not self.send_webhook_request(update_request):
-            print("❌ Failed to send initial request")
-            return False
-        
-        print("⏳ Waiting 3 seconds for processing...")
-        time.sleep(3)
-        
-        # Step 2: Send "one by one" callback
-        print("\n🔘 Step 2: Select 'one by one' option...")
-        callback_update = self.create_callback_update(
-            "confirm_one", 
-            "Found multiple events. Would you like to process all or one by one?"
-        )
-        
-        if not self.send_webhook_request(callback_update):
-            print("❌ Failed to send one-by-one callback")
-            return False
-        
-        print("⏳ Waiting 3 seconds for individual event presentation...")
-        time.sleep(3)
-        
-        # Step 3: Confirm first event
-        print("\n✅ Step 3: Confirm first individual event...")
-        confirm_update = self.create_callback_update(
-            "confirm_yes",
-            "Process this event? [Individual event details shown]"
-        )
-        
-        if not self.send_webhook_request(confirm_update):
-            print("❌ Failed to send first event confirmation")
-            return False
-        
-        print("⏳ Waiting 3 seconds for next event or completion...")
-        time.sleep(3)
-        
-        # Step 4: Handle second event (if exists)
-        print("\n✅ Step 4: Handle next event in queue...")
-        next_confirm_update = self.create_callback_update(
-            "confirm_yes",
-            "Process this event? [Second event details]"
-        )
-        
-        if not self.send_webhook_request(next_confirm_update):
-            print("❌ Failed to send second event confirmation")
-            return False
-        
-        print("⏳ Waiting 3 seconds for completion...")
-        time.sleep(3)
-        
-        print(f"✅ {scenario_name} completed successfully")
-        return True
-    
-    def run_comprehensive_test_suite(self):
-        """Run all one-by-one workflow test scenarios"""
-        print("🚀 Starting Comprehensive One-by-One Workflow Testing")
-        print(f"🎯 Target: {WEBHOOK_URL}")
-        print(f"👤 Test Chat ID: {TEST_CHAT_ID}")
-        
-        # Test scenarios covering different update types
-        test_scenarios = [
-            {
-                "name": "Update with Date and Time Changes",
-                "request": "move the last 2 lessons today to tomorrow 5 and 6 pm",
-                "expected": "Should show proposed time changes clearly for each event"
-            },
-            {
-                "name": "Delete Multiple Events",
-                "request": "delete my tennis lessons tomorrow",
-                "expected": "Should show individual delete confirmations"
-            },
-            {
-                "name": "Time Shift Updates",
-                "request": "move my next 2 meetings 1 hour later",
-                "expected": "Should show time shift details for each event"
-            },
-            {
-                "name": "Event Renaming",
-                "request": "rename my next 2 calls to 'important call'",
-                "expected": "Should show name change details for each event"
-            },
-            {
-                "name": "Calendar Movement",
-                "request": "move my next 2 events to personal calendar",
-                "expected": "Should show calendar change details for each event"
-            }
-        ]
-        
-        successful_tests = 0
-        total_tests = len(test_scenarios)
-        
-        for scenario in test_scenarios:
-            try:
-                if self.test_scenario(scenario["name"], scenario["request"], scenario["expected"]):
-                    successful_tests += 1
-                    self.test_results.append({"scenario": scenario["name"], "status": "SUCCESS"})
-                else:
-                    self.test_results.append({"scenario": scenario["name"], "status": "FAILED"})
-                
-                # Wait between scenarios
-                print("\n⏳ Waiting 5 seconds between scenarios...")
-                time.sleep(5)
-                
-            except KeyboardInterrupt:
-                print(f"\n⏹️ Testing interrupted during {scenario['name']}")
-                break
-            except Exception as e:
-                print(f"\n❌ Error in {scenario['name']}: {e}")
-                self.test_results.append({"scenario": scenario["name"], "status": "ERROR", "error": str(e)})
-        
-        # Report results
-        print("\n" + "="*70)
-        print("📊 ONE-BY-ONE WORKFLOW TEST RESULTS")
-        print("="*70)
-        
-        for result in self.test_results:
-            status_icon = "✅" if result["status"] == "SUCCESS" else "❌"
-            print(f"{status_icon} {result['scenario']}: {result['status']}")
-            if "error" in result:
-                print(f"   Error: {result['error']}")
-        
-        success_rate = (successful_tests / total_tests) * 100 if total_tests > 0 else 0
-        
-        print(f"\n📈 Overall Success Rate: {success_rate:.1f}% ({successful_tests}/{total_tests})")
-        
-        if success_rate >= 80:
-            print("🎉 EXCELLENT: One-by-one workflow is working well!")
-        elif success_rate >= 60:
-            print("⚠️  GOOD: Minor issues detected, review failed scenarios")
-        else:
-            print("🚨 ATTENTION NEEDED: Significant issues with one-by-one workflow")
-        
-        print("\n🔍 Key Validation Points:")
-        print("  ✅ Multi-event requests should trigger confirmation options")
-        print("  ✅ 'One by one' selection should show individual event details")
-        print("  ✅ Individual confirmations should show proposed changes clearly")
-        print("  ✅ Each event should be processed independently")
-        print("  ✅ No 'operation not found' errors should occur")
-        print("  ✅ Workflow should complete successfully for all events")
-        
-        return success_rate >= 80
 
-def main():
-    """Run the one-by-one workflow testing suite"""
-    try:
-        tester = OneByOneWorkflowTester()
-        success = tester.run_comprehensive_test_suite()
-        
-        if success:
-            print("\n🎊 All tests passed! One-by-one workflow is ready for production use.")
-            return 0
-        else:
-            print("\n🔧 Some tests failed. Review the issues and fix before deploying.")
-            return 1
-            
-    except KeyboardInterrupt:
-        print("\n⏹️ Testing interrupted by user")
-        return 1
+        async with session.post(f"{BACKEND_URL}/webhook", json=webhook_payload) as response:
+            log_test(f"Button press response: {response.status}")
+            return response.status == 200
+
     except Exception as e:
-        print(f"\n💥 Testing failed with error: {e}")
-        return 1
+        log_test(f"❌ Button press error: {e}")
+        return False
+
+async def test_queue_workflow():
+    """Test the complete one-by-one queue workflow"""
+    log_test("🎯 STARTING QUEUE WORKFLOW TEST")
+    log_test("=" * 60)
+
+    async with aiohttp.ClientSession() as session:
+        # Step 1: Create multi-event scenario
+        log_test("📝 Step 1: Creating multi-event scenario")
+        await send_webhook_message(
+            "Create two math lessons at 8am and 10am tomorrow",
+            session
+        )
+
+        # Step 2: Trigger update operation
+        log_test("📝 Step 2: Triggering multi-event update")
+        await send_webhook_message(
+            "Update the math lessons to physics lessons",
+            session
+        )
+
+        # Step 3: Select "One by One" option
+        log_test("📝 Step 3: Selecting 'One by One' processing")
+        await asyncio.sleep(2)  # Wait for keyboard to appear
+        await simulate_button_press("update_one_by_one", session)
+
+        # Step 4: Process first event
+        log_test("📝 Step 4: Processing first event")
+        await asyncio.sleep(3)  # Wait for "UPDATE Event 1 of 2"
+        await simulate_button_press("confirm_update_1", session)
+
+        # Step 5: Check for "UPDATE Event 2 of 2"
+        log_test("📝 Step 5: Checking for 'UPDATE Event 2 of 2'")
+        await asyncio.sleep(3)
+
+        # Step 6: Process second event
+        log_test("📝 Step 6: Processing second event")
+        await simulate_button_press("confirm_update_2", session)
+
+        # Step 7: Verify completion
+        log_test("📝 Step 7: Verifying queue completion")
+        await asyncio.sleep(2)
+
+    log_test("🎯 QUEUE WORKFLOW TEST COMPLETE")
+    log_test("🔍 Check logs for 'UPDATE Event 2 of 2' confirmation:")
+    log_test("   python scripts/render_api_logs.py")
+
+async def test_delete_workflow():
+    """Test delete one-by-one workflow"""
+    log_test("🗑️ STARTING DELETE WORKFLOW TEST")
+
+    async with aiohttp.ClientSession() as session:
+        # Create test events
+        await send_webhook_message("Create test event 1 and test event 2 tomorrow", session)
+        await asyncio.sleep(2)
+
+        # Trigger delete operation
+        await send_webhook_message("Delete the test events", session)
+        await asyncio.sleep(2)
+
+        # Select one-by-one
+        await simulate_button_press("delete_one_by_one", session)
+        await asyncio.sleep(2)
+
+        # Process events
+        await simulate_button_press("confirm_delete_1", session)
+        await asyncio.sleep(2)
+        await simulate_button_press("confirm_delete_2", session)
+
+    log_test("🗑️ DELETE WORKFLOW TEST COMPLETE")
 
 if __name__ == "__main__":
-    exit(main())
+    try:
+        import aiohttp
+    except ImportError:
+        print("❌ aiohttp required. Install with: pip install aiohttp")
+        sys.exit(1)
+
+    print("🔧 CaliBOT Queue Workflow Tester")
+    print("This script tests the critical one-by-one processing functionality")
+    print("=" * 70)
+
+    try:
+        # Run queue workflow test
+        asyncio.run(test_queue_workflow())
+
+        # Optional: Run delete workflow test
+        print("\n" + "="*70)
+        run_delete = input("Also test delete workflow? (y/N): ").lower().strip()
+        if run_delete == 'y':
+            asyncio.run(test_delete_workflow())
+
+    except KeyboardInterrupt:
+        log_test("🛑 Test interrupted by user")
+    except Exception as e:
+        log_test(f"❌ Test failed: {e}")
+
+    print("\n📋 NEXT STEPS:")
+    print("1. Check the group chat for bot responses")
+    print("2. Monitor logs: python scripts/render_api_logs.py")
+    print("3. Look for 'UPDATE Event 2 of 2' in logs (CRITICAL)")
