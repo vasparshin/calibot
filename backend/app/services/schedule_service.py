@@ -23,10 +23,10 @@ class ScheduleService:
 
         # Direct schedule queries that don't need LLM processing
         schedule_patterns = {
-            "today": ["what's on today", "today's schedule", "what do i have today", "schedule today", "today"],
-            "tomorrow": ["what's on tomorrow", "tomorrow's schedule", "what do i have tomorrow", "schedule tomorrow", "tomorrow"],
-            "day after tomorrow": ["day after tomorrow", "what's on day after tomorrow", "schedule day after tomorrow"],
-            "next week": ["next week", "what's next week", "schedule next week"]
+            "today": ["what's on today", "whats on today", "today's schedule", "todays schedule", "what do i have today", "schedule today", "what's today", "whats today", "today"],
+            "tomorrow": ["what's on tomorrow", "whats on tomorrow", "tomorrow's schedule", "tomorrows schedule", "what do i have tomorrow", "schedule tomorrow", "what's tomorrow", "whats tomorrow", "tomorrow"],
+            "day after tomorrow": ["day after tomorrow", "what's on day after tomorrow", "whats on day after tomorrow", "schedule day after tomorrow"],
+            "next week": ["next week", "what's next week", "whats next week", "schedule next week"]
         }
 
         for schedule_type, patterns in schedule_patterns.items():

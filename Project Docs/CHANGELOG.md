@@ -35,11 +35,25 @@ calibot/backend/app/__init__.py: Version 0.1.182 → 0.1.183
 
 **calibot/backend/app/__init__.py**: Incremented __version__ from '0.1.183' to '0.1.184'
 
+### 🔧 **SCHEDULE QUERY PATTERN FIX**
+
+**calibot/backend/app/services/schedule_service.py: detect_schedule_query()**: Expanded pattern matching for schedule queries to handle common variations:
+- Added support for "whats on today" (without apostrophe)
+- Added support for "whats on tomorrow" (without apostrophe)
+- Added support for "todays schedule" and "tomorrows schedule" (possessive without apostrophe)
+- Added support for "what's today" and "whats today" variations
+- Added support for "what's tomorrow" and "whats tomorrow" variations
+
+**calibot/pyproject.toml**: Incremented version from '0.1.184' to '0.1.185'
+
+**calibot/backend/app/__init__.py**: Incremented __version__ from '0.1.184' to '0.1.185'
+
 ### 📈 Impact:
 - **Fixed critical AttributeError**: Eliminated "'ScheduleService' object has no attribute 'detect_schedule_query'" errors
 - **Fixed critical AttributeError**: Eliminated "'TelegramBotService' object has no attribute 'edit_message_text'" errors
 - **Fixed unknown callback data**: Added support for multi-event operation callbacks
-- **Improved error handling**: Proper callback processing for one-by-one and confirmation operations
+- **Enhanced schedule query detection**: Now recognizes "whats on today", "whats on tomorrow", and similar natural language variations
+- **Improved user experience**: Schedule queries bypass expensive LLM processing for faster response times
 - **Enhanced stability**: Bot can now handle schedule queries and button interactions without crashes
 
 ## CHANGELOG STANDARDS (MANDATORY)
