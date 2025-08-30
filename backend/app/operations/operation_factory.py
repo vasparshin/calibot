@@ -32,11 +32,13 @@ class OperationFactory:
         }
 
     async def execute_operation(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute operation based on intent in event_data."""
+        """Execute operation based on intent."""
         try:
             intent = event_data.get("intent")
+            logger.info(f"🔧 OperationFactory: Executing intent '{intent}' for chat {chat_id}")
 
             if not intent:
+                logger.warning("🔧 OperationFactory: No intent specified")
                 return {
                     "success": False,
                     "error": "No intent specified",
@@ -44,9 +46,10 @@ class OperationFactory:
                 }
 
             operation = self.operations.get(intent)
+            logger.info(f"🔧 OperationFactory: Found operation for intent '{intent}': {type(operation).__name__ if operation else 'None'}")
 
             if not operation:
-                logger.warning(f"Unknown intent: {intent}")
+                logger.warning(f"🔧 OperationFactory: Unknown intent: {intent}")
                 return {
                     "success": False,
                     "error": f"Unknown intent: {intent}",
@@ -54,10 +57,13 @@ class OperationFactory:
                 }
 
             # Execute the operation with hooks
-            return await operation.run_with_hooks(chat_id, event_data)
+            logger.info(f"🔧 OperationFactory: Executing {type(operation).__name__} for intent '{intent}'")
+            result = await operation.run_with_hooks(chat_id, event_data)
+            logger.info(f"🔧 OperationFactory: Operation result: {result}")
+            return result
 
         except Exception as e:
-            logger.error(f"Error executing operation for intent {event_data.get('intent')}: {e}")
+            logger.error(f"🔧 OperationFactory: Error executing operation for intent {event_data.get('intent')}: {e}")
             return {
                 "success": False,
                 "error": str(e),

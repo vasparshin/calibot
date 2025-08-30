@@ -221,8 +221,15 @@ async def process_user_message(chat_id: int, user_message: str):
             await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
             return {"status": "ok"}
 
+        # Debug logging for operation execution
+        logger.info(f"🎯 Executing operation for intent: {intent_result.get('intent')}")
+        logger.info(f"🎯 Intent data: {intent_result}")
+
         # Execute operation through factory
         result = await operation_factory.execute_operation(chat_id, intent_result)
+
+        # Debug logging for operation result
+        logger.info(f"📊 Operation result: success={result.get('success')}, requires_llm={result.get('requires_llm_formatting')}, requires_action={result.get('requires_user_action')}")
 
         # Handle result
         if result.get("requires_llm_formatting"):
