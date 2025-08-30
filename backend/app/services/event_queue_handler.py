@@ -1,6 +1,40 @@
 """
 Event Queue Handler for processing multiple events one by one with user confirmation.
-This approach reuses existing event logic while handling multi-event requests.
+This approach reuses existi        # Build event summaries for display
+        event_summaries = []
+        for i, event in enumerate(events[:5], 1):  # Show first 5 events
+            title = event.get('event_name', 'Untitled')
+            
+            # Format date and time together with more detail
+            start_time = event.get('start_time', '')
+            end_time = event.get('end_time', '')
+            
+            # Extract and format date and times
+            date_time_str = "Unknown time"
+            try:
+                if 'T' in str(start_time):
+                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    date_part = start_dt.strftime('%a %b %d')
+                    start_time_part = start_dt.strftime('%I:%M %p')
+                    
+                    if 'T' in str(end_time):
+                        end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                        end_time_part = end_dt.strftime('%I:%M %p')
+                        date_time_str = f"{date_part}, {start_time_part} - {end_time_part}"
+                    else:
+                        date_time_str = f"{date_part}, {start_time_part}"
+                else:
+                    date_time_str = self._format_datetime_for_display(start_time)
+            except Exception as e:
+                logger.warning(f"Error formatting event time: {e}")
+                date_time_str = self._format_datetime_for_display(start_time)
+            
+            calendar = self._format_calendar_name(event.get('calendar_name', ''))
+            
+            event_summaries.append(f"{i}. {title} - {date_time_str} ({calendar})")
+        
+        if total_events > 5:
+            event_summaries.append(f"... and {total_events - 5} more events")event logic while handling multi-event requests.
 """
 
 import logging
@@ -9,13 +43,9 @@ from datetime import datetime
 import json
 
 # Import centralized formatters for consistent messaging
-try:
-    from ..utils.message_formatter import MessageFormatter
-    from ..utils.inline_keyboard import InlineKeyboardHelper
-except ImportError:
-    # Fallback for development/testing
-    MessageFormatter = None
-    InlineKeyboardHelper = None
+# NO FALLBACK IMPORTS - per PROJECT_RULES.md
+from ..utils.message_formatter import MessageFormatter
+from ..utils.inline_keyboard import InlineKeyboardHelper
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +82,8 @@ class EventQueueHandler:
     
     def detect_multi_event_request(self, intent_data: Dict) -> bool:
         """Detect if the intent data represents multiple events"""
-        # Check for batch_create format (legacy)
+        # Check for batch_create format
         if intent_data.get('intent') == 'batch_create' and 'events' in intent_data:
-            return len(intent_data['events']) > 1
-        
-        # FIXED: Check for create intent with events array (new format)
-        if intent_data.get('intent') == 'create' and 'events' in intent_data:
             return len(intent_data['events']) > 1
         
         # Check for multiple time indicators in single event
@@ -78,19 +104,6 @@ class EventQueueHandler:
         # Handle batch_create format
         if intent_data.get('intent') == 'batch_create' and 'events' in intent_data:
             events = intent_data['events']
-        
-        # Handle create intent with events array (NEW FORMAT)
-        elif intent_data.get('intent') == 'create' and 'events' in intent_data:
-            events = []
-            for event_item in intent_data['events']:
-                # Create full event by merging base data with specific event times
-                event = intent_data.copy()
-                event.update(event_item)
-                # Remove the events array from individual events to avoid recursion
-                if 'events' in event:
-                    del event['events']
-                event['intent'] = 'create'  # Ensure single intent
-                events.append(event)
         
         # Handle multiple start_times
         elif isinstance(intent_data.get('start_time'), list):
@@ -141,8 +154,7 @@ class EventQueueHandler:
             'events': validated_events,
             'current_index': 0,
             'created_at': datetime.now(),
-            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)},
-            'one_by_one_mode': True  # CRITICAL FIX: Mark as one-by-one mode when created from external handler
+            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
         }
 
         # Return initial message with options
@@ -384,12 +396,8 @@ Choose your action:"""
                     
                     # Add proposed changes
                     changes = []
-                    logger.info(f"🔧 PROPOSED CHANGES DEBUG: Event fields: {list(event.keys())}")
-                    logger.info(f"🔧 PROPOSED CHANGES DEBUG: new_date={event.get('new_date')}, time_shift={event.get('time_shift')}")
-                    
                     if event.get('new_date'):
                         changes.append(f"📅 Move to: {event.get('new_date')}")
-                        logger.info(f"🔧 PROPOSED CHANGES: Added new_date change")
                     if event.get('time_shift'):
                         changes.append(f"⏰ Time change: {event.get('time_shift')}")
                     if event.get('new_start_time') and event.get('new_end_time'):
@@ -418,70 +426,14 @@ Choose your action:"""
                     # For delete/create, show basic details with consistent formatting
                     return f"Event: {event_display}"
             else:
-                # Fallback to original formatting if MessageFormatter not available
-                return self._format_event_summary_fallback(event)
-                
+                # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+                raise ValueError("MessageFormatter not available and no fallback allowed")
+
         except Exception as e:
             logger.error(f"Error formatting event summary: {e}")
-            return self._format_event_summary_fallback(event)
-    
-    def _format_event_summary_fallback(self, event: Dict) -> str:
-        """Fallback formatting if MessageFormatter is not available"""
-        title = event.get('event_name', 'Untitled Event')
-        
-        # Extract and format the time properly
-        start_time = event.get('start_time', 'Unknown time')
-        end_time = event.get('end_time', '')
-        
-        # Parse the datetime and format it nicely
-        date_str, time_str = self._format_datetime_nice(start_time, end_time)
-        
-        # Get proper calendar name
-        calendar = self._format_calendar_name(event.get('calendar_name', 'Default calendar'))
-        
-        intent = event.get('intent', 'create')
-        
-        if intent == 'update':
-            # For updates, show what changes will be made
-            summary = f"""Current Event: {title}
-Current Date: {date_str}
-Current Time: {time_str}
-Calendar: {calendar}"""
-            
-            # Add proposed changes
-            changes = []
-            if event.get('new_date'):
-                changes.append(f"📅 Move to: {event.get('new_date')}")
-            if event.get('time_shift'):
-                changes.append(f"⏰ Time change: {event.get('time_shift')}")
-            if event.get('new_start_time') and event.get('new_end_time'):
-                new_start = event.get('new_start_time')
-                new_end = event.get('new_end_time')
-                # Format new times
-                try:
-                    if ':' in new_start:
-                        new_time_str = f"{new_start} - {new_end}"
-                    else:
-                        new_time_str = f"{new_start} - {new_end}"
-                    changes.append(f"🕐 New time: {new_time_str}")
-                except:
-                    if new_start:
-                        changes.append(f"🕐 New start time: {new_start}")
-                    if new_end:
-                        changes.append(f"🕐 New end time: {new_end}")
-            if event.get('new_event_name'):
-                changes.append(f"📝 Rename to: {event.get('new_event_name')}")
-            
-            if changes:
-                summary += f"\n\n📋 Proposed Changes:\n" + "\n".join(changes)
-            
-            return summary
-        else:
-            # For delete/create, show basic details
-            return f"""Event: {title}
-Date: {date_str}
-Time: {time_str}
-Calendar: {calendar}"""
+            # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+            raise ValueError(f"MessageFormatter failed and no fallback allowed: {str(e)}")
+
     
     def _format_datetime_nice(self, start_time: str, end_time: str = '') -> tuple:
         """Format datetime strings into readable date and time"""
@@ -937,9 +889,6 @@ Calendar: {calendar}"""
                         update_data['start_time'] = event.get('new_start_time')
                     if event.get('new_end_time'):
                         update_data['end_time'] = event.get('new_end_time')
-                    if event.get('new_date'):
-                        update_data['date'] = event.get('new_date')
-                        logger.info(f"EventQueue: Moving event to new date: {event.get('new_date')}")
                     if event.get('new_event_name'):
                         update_data['event_name'] = event.get('new_event_name')
                     if event.get('description'):

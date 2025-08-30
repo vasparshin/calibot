@@ -1,22 +1,25 @@
 # CaliBOT Development Rules
-
-## 🚨 CRITICAL PROJECT INFO
-
 ### Essential References
-- **Group Chat ID**: `-4627994150` (NEVER LOSE - used for testing)
 - **Backend URL**: `https://calibot-utq6.onrender.com`
 - **Version Source**: `pyproject.toml` and `backend/app/__init__.py` (BOTH required)
 - **TestBot Token**: `8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA` (@calibot_testbot)
-
-## 🏗️ CORE ARCHITECTURE
 
 ### Key Services
 - `GoogleCalendarService`: Calendar API operations, OAuth management
 - `TelegramBotService`: Message sending, webhook management
 - `EventQueueHandler`: One-by-one event processing (CRITICAL COMPONENT)
 - `MultiEventOperationHandler`: Batch operations with confirmations
-- `NLPAgent`: Intent extraction using GPT-4.1-mini
+- `NLPAgent`: Intent extraction using GPT-4.1-mini (NO FALLBACK FUNCTIONALITY)
 - `CalendarAgent`: AI-powered calendar selection
+
+### 🚨 CRITICAL: NO FALLBACK FUNCTIONALITY
+**MANDATORY RULE**: User messages are ALWAYS processed by the LLM. There is NO fallback functionality, keyword-based parsing, or manual intent extraction. All responses must be formatted by the LLM prompt only. If the LLM fails, the system should return an error rather than implementing fallback logic.
+
+- ❌ **FORBIDDEN**: Keyword-based intent detection
+- ❌ **FORBIDDEN**: Manual parsing of user messages
+- ❌ **FORBIDDEN**: Fallback to hardcoded responses
+- ✅ **REQUIRED**: All processing through LLM with proper prompt engineering
+- ✅ **REQUIRED**: LLM handles all edge cases and formatting
 
 ### File Structure (MANDATORY)
 ```
@@ -29,19 +32,25 @@ calibot/
 └── requirements.txt       # Dependencies
 ```
 
-## 🔧 MANDATORY WORKFLOW
-
-### Version Management (CRITICAL)
+### Version Management 
 1. **Update BOTH `pyproject.toml` AND `backend/app/__init__.py`** with SAME version
 2. **Commit with version**: `git commit -m "v0.1.XXX: Description"`
 3. **Deploy to Render**: `git push origin main` (auto-deploys)
-4. **Verify deployment**: Check logs for correct version
+4. **Verify deployment**: Check logs via Render MCP server
 
-### Pre-Testing Protocol
-1. **Verify version deployed**: `python scripts/render_api_logs.py`
-2. **Check backend health**: Visit backend URL
-3. **Use correct group chat**: `-4627994150` for real testing
-4. **Run tests**: `python tests/telegram_like_tester.py`
+### Before Starting New Feature:
+1. **Document Requirements** in Project Docs/
+2. **Update version numbers** in both files
+3. **Add comprehensive tests** to tests/ folder
+4. **Test via B2B protocol** in group chat
+5. **Update CHANGELOG.md** with feature details
+
+### Feature Checklist:
+- [ ] Tests written and passing
+- [ ] Documentation updated
+- [ ] B2B testing completed
+- [ ] Performance impact assessed
+- [ ] Error handling implemented
 
 ## 🤖 BOT BEHAVIOR RULES (MANDATORY)
 
@@ -62,24 +71,44 @@ calibot/
 
 ## 🧪 B2B TESTING PROTOCOL (CRITICAL)
 
-### Essential Setup
-- **Test Group**: `-4627994150` (your actual group chat)
-- **TestBot**: `@calibot_testbot` with token above
-- **Demo Script**: `tests/comprehensive_multi_event_demo.py`
-- **Log Monitor**: `python scripts/render_api_logs.py`
+### Core Concept
+B2B (Bot-to-Bot) testing uses `@calibot_testbot` in group chat `-4627994150` as the frontend interface. Since Telegram bots cannot communicate directly, actual bot responses are sent via webhook while the testbot provides visual demo and validation feedback.
 
-### Testing Workflow
-1. **Deploy latest version** and verify
-2. **Run B2B demo**: TestBot sends messages to group
-3. **Monitor logs**: Check for "UPDATE Event 2 of 2" in one-by-one mode
-4. **Verify buttons**: All keyboards removed after interaction
-5. **Success rate**: 80%+ scenarios must pass
+### Complete Testing Workflow
+1. **Frontend Demo**: TestBot sends scenario message to group chat (shows what user would type)
+2. **Expected Response**: TestBot immediately shows expected bot response for validation
+3. **Webhook Simulation**: Send equivalent webhook request to backend
+5. **Log Validation**: Use Render MCP server to verify successful webhook processing
+6. **Response Validation**: Check actual bot response against expected criteria
+7. **TestBot Feedback**: TestBot reports success/failure with specific validation details
+8. **Proceed**: Continue to next test step or scenario
 
-### Critical Test Scenarios
-1. Multi-event creation with batch confirmation
-2. One-by-one updates (verify "UPDATE Event 2 of 2" appears)
-3. One-by-one deletes with mixed yes/skip responses
-4. Cancel operations (check for 500 errors)
+### Test File Structure
+All test files reside in `tests/` folder
+
+#### Critical: Functionality Test Log
+**MANDATORY**: Maintain `tests/functionality_test_log.md` for systematic debugging
+- **Tracks all bugs** discovered during testing with root cause analysis
+- **Prevents repeating mistakes** by documenting fix attempts and results
+- **Provides debugging history** for complex issues
+- **Update after every test run** with findings, fixes, and verification results
+- **Essential for**: Multi-event processing, button behavior, response validation
+
+#### Critical: B2B Test Message Requirements
+**MANDATORY**: Every test case must send TestBot messages for complete B2B validation
+- **Expected Response Messages**: TestBot MUST send expected CaliBOT response immediately after user input
+- **Test Verification Messages**: TestBot MUST send pass/fail verification immediately after each test
+- **Button Press Messages**: TestBot MUST send messages showing backend button interactions
+- **Complete Coverage**: ALL test cases must have expected responses and verification messages
+- **No Exceptions**: Messages must be sent regardless of webhook success/failure status 
+
+### Critical Validation Points
+- ✅ Webhook processed successfully (confirmed via Render MCP logs)
+- ✅ Bot response matches expected format and content
+- ✅ One-by-one processing shows "UPDATE Event X of Y" progression
+- ✅ All inline keyboards removed after interaction
+- ✅ No 500 errors or failed operations
+- ✅ Response time within acceptable limits
 
 ## 🚨 ANTI-STUCK RULES
 
@@ -89,20 +118,20 @@ calibot/
 4. **SYSTEMATIC APPROACH**: Identify root cause first, then targeted fix
 5. **COMPLETE TASKS**: Finish work, update todos, report results
 
-## 🛠️ WORKING TOOLS
+## 🛠️ LOG MONITORING VIA RENDER MCP
 
-### Log Analysis (RECOMMENDED)
-```bash
-# Primary tool - PowerShell compatible, no Unicode issues
-python scripts/render_api_logs.py                    # Recent activity
-python scripts/render_api_logs.py intent create     # Filter terms
-python scripts/render_api_logs.py error             # Errors only
-```
+### Primary Log Monitoring
+Use Render MCP server tools for all log analysis:
+- `mcp_render_list_logs` - View recent logs with filtering
+- `mcp_render_get_metrics` - Monitor performance and errors
+- `mcp_render_list_deploys` - Check deployment status
 
-### Other Essential Scripts
-- `python scripts/verify_deployment.py` - Deployment verification  
-- `python scripts/verify_test_group.py` - B2B demo group verification
-- `python scripts/pull_deployment_logs.py` - Automated log archiving
+### Log Analysis Best Practices
+- Filter by resource ID for CaliBOT-specific logs
+- Monitor webhook processing and response times
+- Check for "UPDATE Event X of Y" in one-by-one processing
+- Validate intent extraction and error patterns
+- Track deployment success and version updates
 
 ## 📁 FILE ORGANIZATION
 
@@ -111,26 +140,5 @@ python scripts/render_api_logs.py error             # Errors only
 - Summary files (`*_SUMMARY.md`, `STATUS_*.md`)
 - Temporary scripts (`check_*.py`, `deploy_*.py`)
 
-### Required Locations
-- **ALL tests**: `tests/` folder (no exceptions)
-- **ALL docs**: `Project Docs/` folder (except root README.md)
-- **Version info**: `pyproject.toml` is source of truth
-
-## 🎯 CURRENT STATUS
-
-### Working Features (v0.1.136+)
-- ✅ Event creation (single and batch)
-- ✅ One-by-one event queue advancement
-- ✅ Multi-event processing with confirmations
-- ✅ Calendar selection via AI
-- ✅ Button removal after confirmations
-- ✅ OAuth 2.0 authentication flow
-
-### Known Issues
-- Cancel operation callbacks (some 500 errors)
-- Complex time formatting edge cases
-- Large event list handling performance
-
----
 
 **REMEMBER**: This is a production system. Always test thoroughly, update CHANGELOG.md, and maintain high quality standards. Bot reliability and user experience are paramount.

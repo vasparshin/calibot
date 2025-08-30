@@ -12,13 +12,9 @@ import re
 from app.services.telegram import create_event_selection_keyboard
 
 # Import new centralized formatters
-try:
-    from .message_formatter import MessageFormatter
-    from .inline_keyboard import InlineKeyboardHelper
-except ImportError:
-    # Fallback for when new modules are not available
-    MessageFormatter = None
-    InlineKeyboardHelper = None
+# NO FALLBACK IMPORTS - per PROJECT_RULES.md
+from .message_formatter import MessageFormatter
+from .inline_keyboard import InlineKeyboardHelper
 
 def format_event_title(title):
     """Format event title with proper capitalization"""
@@ -285,68 +281,18 @@ def format_confirmation_message(operation, count, events):
     Format confirmation messages consistently - UPDATED TO FOLLOW BOT_RULES.md
     CRITICAL: Shows ALL events, never truncates with "... and X more"
     """
-    # Use new centralized formatter if available
-    if MessageFormatter:
-        return MessageFormatter.format_confirmation_message(operation, events, count)
-    
-    # Legacy fallback implementation
-    action_verb = operation
-    if operation == "delete":
-        action_verb = "delete"
-    elif operation == "update":
-        action_verb = "update"
-    
-    message = f"Found {count} events to {action_verb}:\n\n"
-    
-    # CRITICAL CHANGE: Show ALL events, never truncate
-    for i, event in enumerate(events, 1):
-        event_display = format_event_list_item(event, i)
-        message += event_display + "\n"
-    
-    # REMOVED: Truncation logic that violated BOT_RULES.md
-    
-    message += f"\nChoose an option:\n"
-    message += f"• 'one' or '1' - Review and {action_verb} one by one\n"
-    message += f"• 'all' or 'yes' - {action_verb.title()} all events now\n"
-    message += f"• 'cancel' or 'c' - Cancel operation"
-    
-    return message
+    # Use new centralized formatter
+    # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+    return MessageFormatter.format_confirmation_message(operation, events, count)
 
 def format_duplicate_message(duplicates):
     """
     Format duplicate detection message - UPDATED TO FOLLOW BOT_RULES.md
     CRITICAL: Shows ALL duplicates, never truncates with "... and X more"
     """
-    # Use new centralized formatter if available
-    if MessageFormatter:
-        return MessageFormatter.format_duplicate_message(duplicates)
-    
-    # Legacy fallback implementation
-    count = len(duplicates)
-    message = f"Found {count} potential duplicate event(s):\n\n"
-    
-    # CRITICAL CHANGE: Show ALL duplicates, never truncate
-    for dup in duplicates:
-        event = dup["new_event"]
-        event_name = format_event_title(event.get("event_name", "Event"))
-        start_time = format_time_12hour(event.get("start_time", ""))
-        date = format_date_full(event.get("date", ""))
-        calendar_name = event.get("calendar_name", "Unknown Calendar")
-        message += f"• {event_name} on {date} at {start_time} ({calendar_name})\n"
-    
-    # REMOVED: Truncation logic that violated BOT_RULES.md
-    
-    message += f"\nDo you want to create these events anyway?\n"
-    message += f"• 'yes' - Create all events anyway\n"
-    message += f"• 'no' or 'cancel' - Cancel creation"
-    
-    return message
-    
-    message += f"\nDo you want to create duplicate events?\n"
-    message += f"• 'yes' - Create all events anyway\n"
-    message += f"• 'no' or 'cancel' - Cancel creation"
-    
-    return message
+    # Use new centralized formatter
+    # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+    return MessageFormatter.format_duplicate_message(duplicates)
 
 def is_confirmation_yes(text):
     """Check if user input is a positive confirmation"""
@@ -537,11 +483,8 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
     # Use buttons only - no text instructions per user request
     message += f"\nUse the buttons below to proceed:"
     
-    if InlineKeyboardHelper:
-        keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action=action)
-    else:
-        from app.utils.inline_keyboard import InlineKeyboardHelper as _IKH
-        keyboard = _IKH.create_multi_event_confirmation_keyboard(action=action)
+    # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+    keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard(action=action)
     return message, keyboard
 
 def format_event_selection_with_keyboard(events, action="select"):

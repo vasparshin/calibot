@@ -173,21 +173,13 @@ async def process_user_message(chat_id: int, user_message: str):
         # Add message to conversation
         conversation_state.add_message(chat_id, "user", user_message)
 
-        # Check if message is relevant to calendar operations
-        history = conversation_state.get_conversation_history(chat_id)
-        relevancy_result = await ai_agent.check_relevancy(user_message, history)
-
-        if not relevancy_result.get("relevant", False):
-            # Handle casual conversation
-            await handle_casual_conversation(chat_id, user_message)
-            return {"status": "ok"}
-
         # Handle schedule requests first
         schedule_result = await handle_schedule_request(chat_id, user_message)
         if schedule_result:
             return schedule_result
 
         # Extract intent using NLP agent
+        history = conversation_state.get_conversation_history(chat_id)
         intent_result = await ai_agent.extract_intent(user_message, history)
 
         if not intent_result or not isinstance(intent_result, dict):
@@ -255,53 +247,6 @@ async def check_authentication(chat_id: int) -> bool:
         logger.error(f"Authentication check error: {e}")
         await send_telegram_message(chat_id, "Authentication system error. Please try again later.")
         return False
-
-async def handle_casual_conversation(chat_id: int, user_message: str):
-    """Handle casual conversation that isn't calendar-related."""
-    try:
-        user_lower = user_message.lower().strip()
-
-        # Basic greeting responses
-        if any(word in user_lower for word in ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening']):
-            responses = [
-                "Hello! 👋 I'm CaliBOT, your calendar assistant. How can I help you with your schedule today?",
-                "Hi there! 📅 I'm here to help you manage your calendar. What would you like to do?",
-                "Hey! 🗓️ Ready to help you organize your time. What can I assist you with?"
-            ]
-        elif any(word in user_lower for word in ['how are you', 'how do you do', 'what\'s up']):
-            responses = [
-                "I'm doing great, thanks for asking! 🌟 How about you? Ready to tackle some calendar tasks?",
-                "I'm fantastic! 📊 All systems operational. How can I help you with your schedule?",
-                "Doing well, thank you! ⏰ I'm here and ready to help you manage your time effectively."
-            ]
-        elif any(word in user_lower for word in ['thank you', 'thanks', 'thx']):
-            responses = [
-                "You're very welcome! 😊 Is there anything else I can help you with regarding your calendar?",
-                "My pleasure! 📅 Happy to assist. Let me know if you need help with scheduling.",
-                "Glad I could help! 🎯 What else can I do for you today?"
-            ]
-        elif any(word in user_lower for word in ['bye', 'goodbye', 'see you', 'later']):
-            responses = [
-                "Goodbye! 👋 Have a great day! Remember, I'm here whenever you need calendar help.",
-                "See you later! 📅 Take care and stay organized!",
-                "Farewell! ⏰ I'm always here when you need assistance with your schedule."
-            ]
-        else:
-            # Generic conversational responses for unclear messages
-            responses = [
-                "I'm not sure I understand. 🤔 I'm a calendar assistant - I can help you schedule events, check your agenda, or manage your time. What would you like to do?",
-                "Hmm, that doesn't seem calendar-related. 📝 I specialize in helping you organize your schedule. Try asking me about events, meetings, or your agenda!",
-                "I think I might have missed that. 🧐 I'm best at calendar tasks like creating events, checking schedules, or updating appointments. How can I help?"
-            ]
-
-        # Send a random response from the appropriate category
-        import random
-        response = random.choice(responses)
-        await send_telegram_message(chat_id, response)
-
-    except Exception as e:
-        logger.error(f"Error handling casual conversation: {e}")
-        await send_telegram_message(chat_id, "I'm sorry, I'm having trouble responding right now. Please try again!")
 
 async def handle_schedule_request(chat_id: int, request: str) -> dict:
     """Handle schedule-related requests."""
@@ -468,6 +413,6 @@ async def root():
     """Root endpoint"""
     return {
         "message": "CaliBOT - AI Calendar Bot is running",
-        "version": "0.1.177",  # Would import from __init__
+        "version": "0.1.176",  # Would import from __init__
         "status": "operational"
     }
