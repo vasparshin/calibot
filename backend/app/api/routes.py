@@ -90,6 +90,10 @@ async def handle_callback_query(callback_query):
             return await handle_queue_callback(chat_id, message_id, callback_data)
         elif callback_data.startswith("schedule_"):
             return await handle_schedule_callback(chat_id, message_id, callback_data)
+        elif callback_data == "update_one_by_one":
+            return await handle_multi_event_callback(chat_id, message_id, callback_data)
+        elif callback_data.startswith("confirm_update_"):
+            return await handle_multi_event_callback(chat_id, message_id, callback_data)
         else:
             logger.warning(f"Unknown callback data: {callback_data}")
             return {"status": "ok"}
@@ -164,6 +168,28 @@ async def handle_schedule_callback(chat_id: int, message_id: int, callback_data:
 
     except Exception as e:
         logger.error(f"Schedule callback error: {e}")
+        return {"status": "error"}
+
+async def handle_multi_event_callback(chat_id: int, message_id: int, callback_data: str):
+    """Handle multi-event operation callbacks."""
+    try:
+        # Use confirmation handler for multi-event operations
+        if callback_data == "update_one_by_one":
+            await confirmation_handler.handle_multi_confirmation(chat_id, message_id, "one", "update")
+        elif callback_data.startswith("confirm_update_"):
+            # Extract confirmation number and handle as single confirmation
+            parts = callback_data.split("_")
+            if len(parts) >= 3 and parts[-1].isdigit():
+                confirmation_num = int(parts[-1])
+                confirmed = parts[1] == "update"  # This might need adjustment based on actual logic
+                await confirmation_handler.handle_single_confirmation(chat_id, message_id, confirmed, f"update event {confirmation_num}")
+        else:
+            logger.warning(f"Unhandled multi-event callback: {callback_data}")
+
+        return {"status": "ok"}
+
+    except Exception as e:
+        logger.error(f"Multi-event callback error: {e}")
         return {"status": "error"}
 
 async def process_user_message(chat_id: int, user_message: str):

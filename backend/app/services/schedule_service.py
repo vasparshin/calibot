@@ -16,6 +16,24 @@ class ScheduleService:
     
     def __init__(self, calendar_service):
         self.calendar_service = calendar_service
+
+    def detect_schedule_query(self, request: str) -> Optional[str]:
+        """Detect if request is a direct schedule query that can be handled without LLM"""
+        request_lower = request.lower().strip()
+
+        # Direct schedule queries that don't need LLM processing
+        schedule_patterns = {
+            "today": ["what's on today", "today's schedule", "what do i have today", "schedule today", "today"],
+            "tomorrow": ["what's on tomorrow", "tomorrow's schedule", "what do i have tomorrow", "schedule tomorrow", "tomorrow"],
+            "day after tomorrow": ["day after tomorrow", "what's on day after tomorrow", "schedule day after tomorrow"],
+            "next week": ["next week", "what's next week", "schedule next week"]
+        }
+
+        for schedule_type, patterns in schedule_patterns.items():
+            if any(pattern in request_lower for pattern in patterns):
+                return schedule_type
+
+        return None
     
     async def get_today_schedule(self, chat_id: int) -> Dict:
         """Get today's schedule with optimized formatting"""

@@ -5,6 +5,7 @@ Base handler class providing common functionality for all operation handlers.
 import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
+from app.services.telegram import edit_message_text
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +34,9 @@ class BaseHandler:
         """Edit message with optional keyboard through telegram service."""
         try:
             if keyboard:
-                await self.telegram_service.edit_message_text(chat_id, message_id, message, reply_markup=keyboard)
+                await edit_message_text(chat_id, message_id, message, reply_markup=keyboard)
             else:
-                await self.telegram_service.edit_message_text(chat_id, message_id, message, reply_markup={})
+                await edit_message_text(chat_id, message_id, message, reply_markup={})
         except Exception as e:
             logger.error(f"Error editing message: {e}")
             raise

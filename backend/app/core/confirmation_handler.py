@@ -6,6 +6,7 @@ Consolidates confirmation logic from routes, queue handler, and multi-event oper
 import logging
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
+from app.services.telegram import edit_message_text
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +29,9 @@ class ConfirmationHandler:
     async def edit_message(self, chat_id: int, message_id: int, message: str, keyboard: Optional[Dict] = None) -> None:
         """Edit message and remove keyboard."""
         if keyboard:
-            await self.telegram_service.edit_message_text(chat_id, message_id, message, reply_markup=keyboard)
+            await edit_message_text(chat_id, message_id, message, reply_markup=keyboard)
         else:
-            await self.telegram_service.edit_message_text(chat_id, message_id, message, reply_markup={})
+            await edit_message_text(chat_id, message_id, message, reply_markup={})
 
     async def handle_single_confirmation(self, chat_id: int, message_id: int, confirmed: bool, action: str = "process") -> None:
         """Handle single event confirmation response."""

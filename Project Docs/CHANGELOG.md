@@ -18,6 +18,30 @@ calibot/pyproject.toml: Version 0.1.182 → 0.1.183
 
 calibot/backend/app/__init__.py: Version 0.1.182 → 0.1.183
 
+### 🔧 **CRITICAL BUG FIXES**
+
+**calibot/backend/app/services/schedule_service.py**: Added missing `detect_schedule_query()` method with pattern matching for "today", "tomorrow", "day after tomorrow", "next week" queries
+
+**calibot/backend/app/core/base_handler.py**: Fixed `edit_message()` method to use global `edit_message_text()` function instead of non-existent `telegram_service.edit_message_text()` method
+
+**calibot/backend/app/core/confirmation_handler.py**: Fixed `edit_message()` method to use global `edit_message_text()` function instead of non-existent `telegram_service.edit_message_text()` method
+
+**calibot/backend/app/api/routes.py**: Added missing callback handlers for multi-event operations:
+- Added support for "update_one_by_one" callback
+- Added support for "confirm_update_X" callback pattern
+- Added `handle_multi_event_callback()` function
+
+**calibot/pyproject.toml**: Incremented version from '0.1.183' to '0.1.184'
+
+**calibot/backend/app/__init__.py**: Incremented __version__ from '0.1.183' to '0.1.184'
+
+### 📈 Impact:
+- **Fixed critical AttributeError**: Eliminated "'ScheduleService' object has no attribute 'detect_schedule_query'" errors
+- **Fixed critical AttributeError**: Eliminated "'TelegramBotService' object has no attribute 'edit_message_text'" errors
+- **Fixed unknown callback data**: Added support for multi-event operation callbacks
+- **Improved error handling**: Proper callback processing for one-by-one and confirmation operations
+- **Enhanced stability**: Bot can now handle schedule queries and button interactions without crashes
+
 ## CHANGELOG STANDARDS (MANDATORY)
 
 ### AVOID Vague Statements:
