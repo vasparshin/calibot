@@ -65,9 +65,11 @@ class QueryOperation(BaseOperation):
             elif schedule_type == "tomorrow":
                 result = await schedule_service.get_tomorrow_schedule(chat_id)
             elif schedule_type == "week":
-                result = await schedule_service.get_week_schedule(chat_id)
+                # Week schedule not implemented yet, fall back to general query
+                result = await self.handle_general_query(chat_id, event_data)
             elif schedule_type == "month":
-                result = await schedule_service.get_month_schedule(chat_id)
+                # Month schedule not implemented yet, fall back to general query
+                result = await self.handle_general_query(chat_id, event_data)
             else:
                 # General query
                 result = await self.handle_general_query(chat_id, event_data)

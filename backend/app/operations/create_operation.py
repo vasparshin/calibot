@@ -76,9 +76,6 @@ class CreateOperation(BaseOperation):
 
         # Format 3: Single event
         elif event_data.get("intent") == "create":
-            # Check if we have required fields
-            if not event_data.get("event_name") and not event_data.get("start_time"):
-                return []  # No valid events to create
             events = [event_data]
 
         return events
