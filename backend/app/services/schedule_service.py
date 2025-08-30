@@ -28,15 +28,11 @@ class ScheduleService:
         return await self._get_schedule_for_date(tomorrow, "tomorrow", chat_id)
     
     async def get_schedule_for_relative_date(self, date_str: str, chat_id: int) -> Dict:
-        """Get schedule for relative dates like 'day after tomorrow', 'next Monday'"""
-        parsed_date = self._parse_relative_date(date_str)
-        if not parsed_date:
-            return {
-                "success": False,
-                "message": f"Could not understand date: {date_str}"
-            }
-        
-        return await self._get_schedule_for_date(parsed_date, date_str, chat_id)
+        """Get schedule for relative dates - LLM should provide proper date format"""
+        # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+        # LLM should provide date in proper format, no manual parsing
+        # If LLM provides relative date strings, they should be converted to ISO format by LLM
+        raise ValueError(f"LLM should provide dates in ISO format, not relative strings like '{date_str}'")
     
     async def _get_schedule_for_date(self, date: str, date_description: str, chat_id: int) -> Dict:
         """Internal method to get and format schedule for a specific date"""
@@ -174,91 +170,5 @@ class ScheduleService:
         except Exception:
             return date_str
     
-    def _parse_relative_date(self, date_str: str) -> Optional[str]:
-        """Parse relative date expressions like 'day after tomorrow', 'next Monday'"""
-        date_str_lower = date_str.lower().strip()
-        
-        # Handle common relative dates
-        if date_str_lower in ["day after tomorrow", "day after", "2 days"]:
-            return (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
-        
-        if date_str_lower in ["3 days", "in 3 days"]:
-            return (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
-        
-        if date_str_lower in ["next week", "1 week"]:
-            return (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
-        
-        # Handle weekdays
-        weekdays = {
-            "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
-            "friday": 4, "saturday": 5, "sunday": 6
-        }
-        
-        for day_name, day_num in weekdays.items():
-            if day_name in date_str_lower:
-                today = datetime.now()
-                days_ahead = (day_num - today.weekday()) % 7
-                if days_ahead == 0:  # Today is the target day
-                    days_ahead = 7  # Next week
-                target_date = today + timedelta(days=days_ahead)
-                return target_date.strftime("%Y-%m-%d")
-        
-        return None
-    
-    def detect_schedule_query(self, message: str) -> Optional[str]:
-        """Detect if message is a schedule query and return the date type"""
-        message_lower = message.lower().strip()
-        
-        # Only match EXPLICIT schedule query patterns, not calendar modification requests
-        # This prevents "move events to tomorrow" from being treated as "show tomorrow's schedule"
-        
-        # Handle /today command
-        if message_lower in ["/today", "today", "today's schedule", "what's today", "whats today"]:
-            return "today"
-        
-        # Handle explicit tomorrow schedule queries (NOT event modifications)
-        # Include common typos like "tomororw", "tommorow"
-        if any(phrase in message_lower for phrase in [
-            "tomorrow's schedule", "tomorrows schedule", 
-            "what's tomorrow", "whats tomorrow",
-            "show me tomorrow", "show tomorrow",
-            "what do i have tomorrow", "what's on tomorrow", "whats on tomorrow",
-            "schedule for tomorrow", "tomorrow schedule",
-            "whats the schedule tomorrow", "what's the schedule tomorrow",
-            "schedule tomorrow", "the schedule tomorrow",
-            # Handle common typos
-            "whats the schedule tomororw", "what's the schedule tomororw",
-            "schedule tomororw", "the schedule tomororw",
-            "whats the schedule tommorow", "what's the schedule tommorow",
-            "schedule tommorow", "the schedule tommorow"
-        ]):
-            return "tomorrow"
-        
-        # Handle general today queries (more specific patterns)
-        if any(phrase in message_lower for phrase in [
-            "today's schedule", "todays schedule", "what's scheduled today", 
-            "whats scheduled today", "what do i have today", "schedule today",
-            "what's on today", "whats on today", "what's my schedule today",
-            "whats my schedule today", "show me today", "show today"
-        ]):
-            return "today"
-        
-        # Handle day after tomorrow (explicit schedule queries only)
-        if any(phrase in message_lower for phrase in [
-            "day after tomorrow schedule", "schedule day after tomorrow",
-            "what do i have day after tomorrow", "show me day after tomorrow",
-            "whats the schedule the day after tomorrow", "what's the schedule the day after tomorrow",
-            "schedule the day after tomorrow", "the schedule the day after tomorrow",
-            # Handle common typos
-            "wjats the schedule the day after tomorrow", "wjat's the schedule the day after tomorrow"
-        ]):
-            return "day after tomorrow"
-        
-        # Handle next week references (explicit schedule queries only)
-        if any(phrase in message_lower for phrase in [
-            "next week schedule", "schedule next week", 
-            "what do i have next week", "show me next week"
-        ]):
-            return "next week"
-        
-        return None
+
+

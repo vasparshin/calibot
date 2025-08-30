@@ -117,7 +117,7 @@ class EventQueueHandler:
                 event['intent'] = 'create'  # Normalize to single intent
                 events.append(event)
         
-        # Handle pattern-based detection (fallback)
+        # Handle single event processing
         else:
             # For now, treat as single event but mark for queue processing
             events = [intent_data]
@@ -183,18 +183,9 @@ class EventQueueHandler:
             proposed_changes = []
             if first_event.get('time_shift'):
                 time_shift = first_event.get('time_shift')
-                # Check for negative shifts (earlier) or keywords
-                is_earlier = time_shift.startswith('-') or any(keyword in time_shift.lower() for keyword in ['earlier', 'back'])
-                is_extend = any(keyword in time_shift.lower() for keyword in ['extend', 'make it', 'long', 'after start'])
-                
-                if is_earlier:
-                    # Remove the minus sign for display
-                    display_shift = time_shift.replace('-', '').strip()
-                    proposed_changes.append(f"move {display_shift} earlier")
-                elif is_extend:
-                    proposed_changes.append(f"extend duration to {time_shift}")
-                else:
-                    proposed_changes.append(f"shift by {time_shift}")
+                # LLM should provide clear time shift descriptions
+                # NO KEYWORD-BASED PARSING - per PROJECT_RULES.md
+                proposed_changes.append(f"time shift: {time_shift}")
             if first_event.get('new_event_name'):
                 proposed_changes.append(f"rename to '{first_event.get('new_event_name')}'")
             if first_event.get('new_date'):
@@ -238,24 +229,14 @@ class EventQueueHandler:
                 "keyboard": keyboard
             }
         
-        # Legacy fallback implementation (FIXED to show ALL events with proposed changes)
-        # Determine what changes will be made
+        # Determine what changes will be made - LLM-driven approach
+        # NO KEYWORD-BASED PARSING - per PROJECT_RULES.md
         first_event = events[0] if events else {}
         proposed_changes = []
         if first_event.get('time_shift'):
             time_shift = first_event.get('time_shift')
-            # Check for negative shifts (earlier) or keywords
-            is_earlier = time_shift.startswith('-') or any(keyword in time_shift.lower() for keyword in ['earlier', 'back'])
-            is_extend = any(keyword in time_shift.lower() for keyword in ['extend', 'make it', 'long', 'after start'])
-            
-            if is_earlier:
-                # Remove the minus sign for display
-                display_shift = time_shift.replace('-', '').strip()
-                proposed_changes.append(f"move {display_shift} earlier")
-            elif is_extend:
-                proposed_changes.append(f"extend duration to {time_shift}")
-            else:
-                proposed_changes.append(f"shift by {time_shift}")
+            # LLM should provide clear time shift descriptions
+            proposed_changes.append(f"time shift: {time_shift}")
         if first_event.get('new_event_name'):
             proposed_changes.append(f"rename to '{first_event.get('new_event_name')}'")
         if first_event.get('new_date'):
@@ -822,57 +803,13 @@ Choose your action:"""
                                 logger.info(f"EventQueue: Time shift request: {time_shift} for event")
                                 logger.info(f"EventQueue: BEFORE UPDATE: Event start={current_start}, end={current_end}")
                                 
-                                # Determine if this is a duration change or a time shift
-                                is_duration_change = any(keyword in time_shift.lower() for keyword in [
-                                    'extend', 'make it', 'long', 'duration', 'end time to', 'after start'
-                                ])
-                                is_time_shift = any(keyword in time_shift.lower() for keyword in [
-                                    'move', 'shift', 'earlier', 'later', 'forward', 'back'
-                                ])
+                                # NO KEYWORD-BASED PARSING - per PROJECT_RULES.md
+                                # LLM should provide properly formatted time_shift that calendar service can handle
+                                # Pass time_shift directly without manual parsing
                                 
-                                # Extract amount and direction
-                                negative_shift = '-' in time_shift or any(word in time_shift.lower() for word in ['earlier', 'back'])
-                                shift_match = re.search(r'(\d+)\s*(hour|minute|hr|min)', time_shift.lower())
-                                
-                                if shift_match:
-                                    amount = int(shift_match.group(1))
-                                    unit = shift_match.group(2)
-                                    
-                                    if negative_shift:
-                                        amount = -amount
-                                    
-                                    if is_duration_change:
-                                        # Duration change: keep start time, modify end time to be X hours/minutes after start
-                                        if unit in ['hour', 'hr']:
-                                            new_end_dt = start_dt + timedelta(hours=abs(amount))  # Duration is always positive
-                                        elif unit in ['minute', 'min']:
-                                            new_end_dt = start_dt + timedelta(minutes=abs(amount))
-                                        
-                                        update_data['start_time'] = start_dt.isoformat()
-                                        update_data['end_time'] = new_end_dt.isoformat()
-                                        
-                                        logger.info(f"EventQueue: DURATION CHANGE: {time_shift} -> duration = {abs(amount)} {unit}")
-                                        logger.info(f"EventQueue: RESULT: start unchanged, end = start + {abs(amount)} {unit}")
-                                        
-                                    else:
-                                        # Time shift: move both start and end times by the same amount
-                                        if unit in ['hour', 'hr']:
-                                            time_delta = timedelta(hours=amount)
-                                        elif unit in ['minute', 'min']:
-                                            time_delta = timedelta(minutes=amount)
-                                        
-                                        new_start_dt = start_dt + time_delta
-                                        new_end_dt = end_dt + time_delta if end_dt else new_start_dt + timedelta(hours=1)  # Default 1hr if no end
-                                        
-                                        update_data['start_time'] = new_start_dt.isoformat()
-                                        update_data['end_time'] = new_end_dt.isoformat()
-                                        
-                                        logger.info(f"EventQueue: TIME SHIFT: {time_shift} -> shift = {amount} {unit}")
-                                        logger.info(f"EventQueue: RESULT: both start and end moved by {amount} {unit}")
-                                    
-                                    logger.info(f"EventQueue: AFTER CALCULATION: start={update_data['start_time']}, end={update_data['end_time']}")
-                                else:
-                                    logger.warning(f"EventQueue: Could not parse time shift: {time_shift}")
+                                # NO MANUAL PARSING - Pass time_shift directly to calendar service
+                                update_data['time_shift'] = time_shift
+                                logger.info(f"EventQueue: Time shift passed to calendar service: {time_shift}")
                                     
                             else:
                                 logger.warning(f"EventQueue: Invalid datetime format for time shift: start={current_start}, end={current_end}")

@@ -59,9 +59,9 @@ class CalendarAgent:
             'hobbies': ['hobby', 'music', 'art', 'reading', 'gaming']
         }
         
-        for theme, keywords in theme_patterns.items():
-            if any(keyword in name_lower for keyword in keywords):
-                themes.append(theme)
+        # NO KEYWORD-BASED MATCHING - per PROJECT_RULES.md
+        # LLM should provide calendar selection directly
+        # Theme matching removed - calendars should be selected by LLM
                 
         return themes
         
@@ -87,9 +87,12 @@ class CalendarAgent:
                 return calendar_suggestion
         except Exception as e:
             logger.error(f"Error in AI calendar suggestion: {e}")
-            
-        # Fallback to rule-based selection
-        return self._rule_based_calendar_selection(event_data)
+
+        # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+        # If AI calendar suggestion fails, default to primary calendar
+        # LLM should provide calendar information through proper prompting
+        logger.warning("AI calendar suggestion failed, defaulting to primary calendar")
+        return 'primary'
         
     def _find_calendar_by_name(self, calendar_name: str) -> Optional[str]:
         """Find calendar ID by name (case insensitive partial match)"""
@@ -156,46 +159,7 @@ Respond with only the calendar ID (e.g., "primary" or the specific calendar ID).
             
         return None
         
-    def _rule_based_calendar_selection(self, event_data: Dict) -> str:
-        """Fallback rule-based calendar selection"""
-        event_text = f"{event_data.get('event_name', '')} {event_data.get('description', '')}".lower()
-        
-        # Score calendars based on keyword matches
-        calendar_scores = {}
-        
-        for cal_id, cal_info in self.calendar_cache.items():
-            score = 0
-            
-            # Check themes match
-            for theme in cal_info['themes']:
-                theme_keywords = {
-                    'work': ['meeting', 'conference', 'work', 'office', 'business', 'client'],
-                    'sports': ['training', 'game', 'match', 'workout', 'gym', 'exercise', 'sport'],
-                    'education': ['lesson', 'class', 'study', 'school', 'university', 'tutor', 'course'],
-                    'health': ['doctor', 'dentist', 'appointment', 'medical', 'checkup', 'therapy'],
-                    'personal': ['family', 'friend', 'birthday', 'anniversary', 'personal'],
-                    'social': ['dinner', 'lunch', 'party', 'social', 'gathering', 'event']
-                }.get(theme, [])
-                
-                for keyword in theme_keywords:
-                    if keyword in event_text:
-                        score += 2
-                        
-            # Direct name matching
-            if any(word in event_text for word in cal_info['name'].lower().split()):
-                score += 3
-                
-            calendar_scores[cal_id] = score
-            
-        # Return highest scoring calendar, or primary if no matches
-        if calendar_scores:
-            best_calendar = max(calendar_scores.items(), key=lambda x: x[1])
-            if best_calendar[1] > 0:
-                logger.info(f"Rule-based selection: {best_calendar[0]} (score: {best_calendar[1]})")
-                return best_calendar[0]
-                
-        # Default to primary
-        return 'primary'
+
         
     def get_calendar_suggestions(self, query: str = "") -> List[Dict]:
         """Get list of calendars with relevance scoring for user selection"""

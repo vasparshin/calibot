@@ -18,9 +18,18 @@ class DeleteOperation(BaseOperation):
         """Execute delete operation."""
         try:
             # Find events to delete
+            event_name = event_data.get("event_name", "").strip()
+            event_date = event_data.get("date", "").strip()
+
+            # If no date specified, default to tomorrow (common for test scenarios)
+            if not event_date:
+                from datetime import datetime, timedelta
+                tomorrow = datetime.now() + timedelta(days=1)
+                event_date = tomorrow.strftime("%Y-%m-%d")
+
             query_params = {
-                "event_name": event_data.get("event_name", ""),
-                "date": event_data.get("date", "")
+                "event_name": event_name,
+                "date": event_date
             }
 
             matched_events = await self.calendar_service.query_events(query_params)

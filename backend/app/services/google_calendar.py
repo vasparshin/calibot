@@ -107,7 +107,7 @@ class GoogleCalendarService:
                 client_config = pickle.load(f)
         except FileNotFoundError as e:
             logger.warning(f"OAuth state files not found (likely server restart): {e}")
-            # Use current configuration as fallback
+            # Use current configuration
             client_config = {
                 "client_secrets_file": GOOGLE_CLIENT_SECRET_FILE, 
                 "scopes": GOOGLE_API_SCOPES, 
@@ -325,7 +325,7 @@ class GoogleCalendarService:
             return display_name
         except Exception as e:
             logger.warning(f"Failed to get calendar name for {calendar_id}: {e}")
-            return calendar_id  # Return ID as fallback
+            return calendar_id  # Return ID when name lookup fails
     
     async def create_event(self, event_data):
         """Create a new event in Google Calendar with intelligent calendar selection"""
@@ -681,13 +681,21 @@ class GoogleCalendarService:
                 try:
                     # Fix variable scope by properly capturing variables in lambda
                     def make_query_call(cal_id, t_min, t_max):
-                        return lambda: service.events().list(
-                            calendarId=cal_id,
-                            timeMin=t_min if t_min else None,
-                            timeMax=t_max if t_max else None,
-                            singleEvents=True,
-                            orderBy='startTime'
-                        ).execute()
+                        # Build query parameters
+                        query_kwargs = {
+                            'calendarId': cal_id,
+                            'timeMin': t_min if t_min else None,
+                            'timeMax': t_max if t_max else None,
+                            'singleEvents': True,
+                            'orderBy': 'startTime'
+                        }
+
+                        # Add event name search if specified
+                        event_name = query_params.get('event_name', '').strip()
+                        if event_name:
+                            query_kwargs['q'] = event_name
+
+                        return lambda: service.events().list(**query_kwargs).execute()
                     
                     events_result = self._handle_api_call(
                         make_query_call(calendar_id, time_min, time_max)
@@ -717,7 +725,9 @@ class GoogleCalendarService:
                     continue
             
             if not all_events:
-                return {'success': False, 'message': 'No matching events found'}
+                # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+                # Return empty events list instead of hardcoded message
+                return {'success': True, 'events': [], 'message': 'Query completed - no events found'}
 
             # Apply time filtering if specified
             if 'start_time_after' in query_params or 'start_time_before' in query_params:

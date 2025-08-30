@@ -54,7 +54,8 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
             display_name = calendar_service.get_calendar_display_name(calendar_id)
             return display_name
         except Exception:
-            pass  # Fall through to manual parsing
+            # NO MANUAL PARSING - per PROJECT_RULES.md
+            # Return calendar ID if name lookup fails
     
     # Try calendar agent method
     if calendar_service and hasattr(calendar_service, 'calendar_agent'):
@@ -126,9 +127,9 @@ def format_time_12hour(time_str):
             time_obj = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
             return time_obj.strftime('%I:%M %p')
         else:
-            # Try to parse as time only
-            time_obj = datetime.strptime(time_str, '%H:%M')
-            return time_obj.strftime('%I:%M %p')
+            # NO MANUAL TIME PARSING - per PROJECT_RULES.md
+            # LLM should provide properly formatted time data
+            return time_str  # Return as-is if LLM provides proper format
     except:
         return time_str
 

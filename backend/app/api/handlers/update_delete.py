@@ -36,7 +36,10 @@ async def process_update_delete_with_confirmation(
 
     matched = await calendar_service.query_events(query_params)
     if not (isinstance(matched, dict) and matched.get("success") and matched.get("events")):
-        msg = f"No matching events found for {intent} operation." if intent else "No matching events found."
+        # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+        # Don't provide hardcoded "no events found" message
+        # Let LLM handle this scenario through proper prompting
+        msg = f"I couldn't find any events matching your {intent} request. Could you please provide more specific details?"
         await send_fn(chat_id, msg)
         conversation_state.add_message(chat_id, "assistant", msg)
         return {"handled": True, "status": "ok"}

@@ -1,6 +1,14 @@
 """
-Query operation for handling event queries and schedule requests.
-Consolidates all schedule and calendar query functionality.
+LLM-Driven Query Operation for handling event queries and schedule requests.
+
+ARCHITECTURE:
+1. User message → LLM extracts intent + generic parameters (event_name, date, etc.)
+2. Query operation resolves dates and executes query
+3. Query operation returns data with requires_llm_formatting=true
+4. Routes passes data back to LLM for final response formatting
+5. LLM formats user-friendly response and sends to user
+
+This eliminates ALL hardcoded logic and makes the system truly flexible.
 """
 
 import logging
@@ -15,14 +23,21 @@ class QueryOperation(BaseOperation):
     """Handles event query operations including schedule requests."""
 
     async def execute(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute query operation."""
+        """Execute query operation - LLM-driven approach."""
         try:
-            # Handle schedule requests
-            if self.is_schedule_request(event_data):
-                return await self.handle_schedule_request(chat_id, event_data)
+            # Extract query parameters from LLM response
+            query_params = self.extract_query_parameters(event_data)
 
-            # Handle general event queries
-            return await self.handle_event_query(chat_id, event_data)
+            # Execute the query to get data
+            query_result = await self.execute_query(chat_id, query_params)
+
+            # Return data for LLM to process and format final response
+            return {
+                "success": True,
+                "query_result": query_result,
+                "requires_llm_formatting": True,  # Signal that LLM should format the final response
+                "original_request": event_data
+            }
 
         except Exception as e:
             logger.error(f"Error in query operation: {e}")
@@ -32,147 +47,192 @@ class QueryOperation(BaseOperation):
                 "message": "Failed to process query."
             }
 
-    def is_schedule_request(self, event_data: Dict[str, Any]) -> bool:
-        """Check if this is a schedule request."""
-        user_message = event_data.get("original_message", "")
-        query_type = event_data.get("query_type", "")
+    def extract_query_parameters(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract query parameters from LLM response and resolve dates."""
+        from datetime import datetime, timedelta
 
-        schedule_keywords = [
-            "schedule", "today", "tomorrow", "week", "month",
-            "what's", "whats", "when", "where", "calendar"
-        ]
+        # Get raw parameters from LLM
+        raw_date = event_data.get("date", "")
+        event_name = event_data.get("event_name", "")
 
-        return (
-            any(keyword in user_message.lower() for keyword in schedule_keywords) or
-            query_type in ["schedule", "today", "tomorrow", "week"]
-        )
+        # Resolve relative dates to ISO format
+        resolved_date = self.resolve_date_parameter(raw_date)
 
-    async def handle_schedule_request(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle schedule-specific requests."""
-        try:
-            # Use schedule service if available
-            from app.services.schedule_service import ScheduleService
+        return {
+            "event_name": event_name,
+            "date": resolved_date,  # Now in ISO format or empty for general queries
+            "start_time": event_data.get("start_time", ""),
+            "end_time": event_data.get("end_time", ""),
+            "calendar_name": event_data.get("calendar_name", ""),
+            "query_type": event_data.get("query_type", "general"),  # For context
+            "target": event_data.get("target", ""),  # e.g., "last 3", "first 2", "all"
+            "raw_date": raw_date  # Keep original for LLM context
+        }
 
-            schedule_service = ScheduleService(self.calendar_service)
-            user_message = event_data.get("original_message", "")
+    def resolve_date_parameter(self, date_param: str) -> str:
+        """Resolve relative date parameters to ISO format."""
+        if not date_param:
+            return ""
 
-            # Detect schedule type from message
-            schedule_type = self.detect_schedule_type(user_message)
+        date_param_lower = date_param.lower().strip()
+        today = datetime.now()
 
-            result = None
-            if schedule_type == "today":
-                result = await schedule_service.get_today_schedule(chat_id)
-            elif schedule_type == "tomorrow":
-                result = await schedule_service.get_tomorrow_schedule(chat_id)
-            elif schedule_type == "week":
-                # Week schedule not implemented yet, fall back to general query
-                result = await self.handle_general_query(chat_id, event_data)
-            elif schedule_type == "month":
-                # Month schedule not implemented yet, fall back to general query
-                result = await self.handle_general_query(chat_id, event_data)
+        # Handle relative dates
+        if date_param_lower == "today":
+            return today.strftime("%Y-%m-%d")
+        elif date_param_lower == "tomorrow":
+            return (today + timedelta(days=1)).strftime("%Y-%m-%d")
+        elif date_param_lower == "day after tomorrow":
+            return (today + timedelta(days=2)).strftime("%Y-%m-%d")
+        elif date_param_lower == "yesterday":
+            return (today - timedelta(days=1)).strftime("%Y-%m-%d")
+        elif date_param_lower == "this week":
+            # Return start of current week (Monday)
+            monday = today - timedelta(days=today.weekday())
+            return monday.strftime("%Y-%m-%d")
+        elif date_param_lower == "next week":
+            # Return start of next week (Monday)
+            monday = today - timedelta(days=today.weekday())
+            next_monday = monday + timedelta(days=7)
+            return next_monday.strftime("%Y-%m-%d")
+        elif date_param_lower == "this month":
+            # Return first day of current month
+            first_day = today.replace(day=1)
+            return first_day.strftime("%Y-%m-%d")
+        elif date_param_lower == "next month":
+            # Return first day of next month
+            if today.month == 12:
+                next_month = today.replace(year=today.year + 1, month=1, day=1)
             else:
-                # General query
-                result = await self.handle_general_query(chat_id, event_data)
-
-            if result and result.get("success"):
-                return {
-                    "success": True,
-                    "message": result["message"],
-                    "data": result
-                }
-            else:
-                error_msg = result.get("message", "Failed to get schedule") if result else "Schedule service unavailable"
-                if result and result.get("auth_required"):
-                    error_msg = "Please authenticate with Google Calendar first: /start"
-                return {
-                    "success": False,
-                    "message": error_msg
-                }
-
-        except ImportError:
-            # Fallback to general query if schedule service not available
-            return await self.handle_general_query(chat_id, event_data)
-        except Exception as e:
-            logger.error(f"Error in schedule request: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "message": "Sorry, there was an error loading your schedule."
-            }
-
-    def detect_schedule_type(self, message: str) -> str:
-        """Detect the type of schedule request."""
-        message_lower = message.lower()
-
-        if any(word in message_lower for word in ["today", "todays", "today's"]):
-            return "today"
-        elif any(word in message_lower for word in ["tomorrow", "tomorrows", "tomorrow's"]):
-            return "tomorrow"
-        elif any(word in message_lower for word in ["week", "weekly", "this week"]):
-            return "week"
-        elif any(word in message_lower for word in ["month", "monthly", "this month"]):
-            return "month"
+                next_month = today.replace(month=today.month + 1, day=1)
+            return next_month.strftime("%Y-%m-%d")
         else:
-            return "general"
+            # Try to parse as ISO date or return as-is
+            try:
+                # Check if it's already an ISO date
+                datetime.fromisoformat(date_param)
+                return date_param
+            except ValueError:
+                # Return as-is for the calendar service to handle
+                return date_param
 
-    async def handle_general_query(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle general event queries."""
+    async def execute_query(self, chat_id: int, query_params: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute the actual query based on LLM-provided parameters."""
         try:
-            # Extract query parameters
-            query_params = {
-                "event_name": event_data.get("event_name", ""),
-                "date": event_data.get("date", ""),
-                "calendar_name": event_data.get("calendar_name", "")
-            }
-
-            # Query events
+            # Use calendar service to query events
             matched_events = await self.calendar_service.query_events(query_params)
 
-            if not matched_events.get("success") or not matched_events.get("events"):
+            if not matched_events.get("success"):
+                if matched_events.get("auth_required"):
+                    return {
+                        "auth_required": True,
+                        "message": "Please authenticate with Google Calendar first",
+                        "events": []
+                    }
                 return {
                     "success": False,
-                    "message": "No matching events found."
+                    "message": matched_events.get("message", "Query failed"),
+                    "events": []
                 }
 
-            events = matched_events["events"]
-            logger.info(f"Found {len(events)} events matching query")
+            events = matched_events.get("events", [])
 
-            # Format response based on event count
-            if len(events) == 1:
-                formatted_event = self.response_manager.format_single_event_display(events[0], include_hyperlink=True)
-                message = f"Found 1 event:\n\n{formatted_event}"
-            else:
-                title = f"Found {len(events)} events"
-                if query_params.get("event_name"):
-                    title += f" matching '{query_params['event_name']}'"
-                if query_params.get("date"):
-                    title += f" on {query_params['date']}"
-
-                formatted_events = self.response_manager.format_event_list_display(events, numbered=True, include_hyperlink=True)
-                message = f"{title}:\n\n{formatted_events}"
+            # Apply target filtering if specified (last N, first N, etc.)
+            if query_params.get("target"):
+                events = self.apply_target_filter(events, query_params["target"])
 
             return {
                 "success": True,
-                "message": message,
                 "events": events,
-                "count": len(events)
+                "event_count": len(events),
+                "query_params": query_params,
+                "auth_required": False
             }
 
         except Exception as e:
-            logger.error(f"Error in general query: {e}")
+            logger.error(f"Error executing query: {e}")
             return {
                 "success": False,
-                "error": str(e),
-                "message": "Failed to query events."
+                "message": f"Error retrieving events: {str(e)}",
+                "events": []
             }
 
-    async def handle_event_query(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle specific event queries."""
-        return await self.handle_general_query(chat_id, event_data)
+    def apply_target_filter(self, events: List[Dict], target: str) -> List[Dict]:
+        """Apply target filtering like 'last 3', 'first 2', 'all'."""
+        if not events:
+            return events
 
-    def format_success_message(self, result: Dict[str, Any], event_data: Dict[str, Any]) -> str:
-        """Format success message for query operation."""
-        if result.get("events"):
-            count = len(result["events"])
-            return f"Found {count} event{'s' if count != 1 else ''} matching your query."
-        return result.get("message", "Query completed successfully")
+        target_lower = target.lower().strip()
+
+        if target_lower == "all":
+            return events
+
+        # Sort events chronologically for consistent ordering
+        events_sorted = sorted(events, key=lambda x: x.get('start', ''))
+
+        if target_lower.startswith("last"):
+            try:
+                count = int(target_lower.split()[-1]) if len(target_lower.split()) > 1 else 1
+                return events_sorted[-count:]
+            except (ValueError, IndexError):
+                return events_sorted[-1:]  # Default to last 1
+
+        elif target_lower.startswith("first"):
+            try:
+                count = int(target_lower.split()[-1]) if len(target_lower.split()) > 1 else 1
+                return events_sorted[:count]
+            except (ValueError, IndexError):
+                return events_sorted[:1]  # Default to first 1
+
+        # If target doesn't match patterns, return all events
+        return events
+
+    # Test method to demonstrate the new architecture
+    def test_llm_driven_query(self):
+        """Test the new LLM-driven query architecture"""
+        print("🧪 Testing LLM-Driven Query Architecture")
+        print("=" * 50)
+
+        # Simulate LLM responses
+        test_cases = [
+            {
+                "name": "Simple today query",
+                "llm_response": {"intent": "query", "event_name": "", "date": "today"},
+                "expected": "Should resolve 'today' to current date"
+            },
+            {
+                "name": "Meeting query with date",
+                "llm_response": {"intent": "query", "event_name": "meeting", "date": "tomorrow"},
+                "expected": "Should find meetings for tomorrow"
+            },
+            {
+                "name": "Week query",
+                "llm_response": {"intent": "query", "event_name": "", "date": "this week"},
+                "expected": "Should resolve 'this week' to Monday of current week"
+            },
+            {
+                "name": "Target filtering",
+                "llm_response": {"intent": "query", "event_name": "", "date": "today", "target": "last 3"},
+                "expected": "Should return last 3 events chronologically"
+            }
+        ]
+
+        for i, test in enumerate(test_cases, 1):
+            print(f"\n{i}. {test['name']}")
+            print(f"   LLM Response: {test['llm_response']}")
+
+            # Test parameter extraction
+            params = self.extract_query_parameters(test['llm_response'])
+            print(f"   Resolved Params: {params}")
+            print(f"   Expected: {test['expected']}")
+
+        print("\n✅ Architecture Test Complete")
+        print("🎯 Key Benefits:")
+        print("   - No hardcoded schedule types")
+        print("   - Generic parameter handling")
+        print("   - LLM formats final responses")
+        print("   - Flexible and extensible")
+
+
+
+

@@ -63,8 +63,24 @@ For updates, include additional fields:
 
 CRITICAL RULES:
 - Match events based on name, time, date, and user intent
-- For "last 3", "first 2", etc. - select events chronologically
+- For "last 3", "first 2", etc. - select events chronologically by date/time
 - For "all lessons" - match by event name containing "lesson"
+- For "all meetings" - match by event name containing "meeting"
+- For "all events" - match all events in the date range
 - Return valid JSON only
-- If no matches found, return {{"intent": "none", "message": "No matching events found"}}
-- confirmation_needed=true for delete/update operations, false for create"""
+- If no matches found, return {{"intent": "none", "message": "I couldn't find any events matching your request. Please try being more specific about the event name, date, or time."}}
+- For unclear requests, return {{"intent": "none", "message": "I need more specific information to help you. Please specify what events you'd like me to work with."}}
+- confirmation_needed=true for delete/update operations, false for create
+
+TARGETING EXAMPLES:
+- "last 3" → last 3 events chronologically
+- "first 2" → first 2 events chronologically
+- "last lesson" → most recent event with "lesson" in name
+- "all meetings today" → all events with "meeting" in name for today
+- "first 5" → exactly first 5 events
+
+MATCHING EXAMPLES:
+- "delete all math lessons" → events with "math" AND "lesson" in name
+- "remove last 2 meetings" → last 2 events with "meeting" in name
+- "update first lesson to 3pm" → first event with "lesson" in name, change time to 15:00
+- "move all events tomorrow" → all events moved to tomorrow's date

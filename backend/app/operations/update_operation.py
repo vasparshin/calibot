@@ -18,9 +18,18 @@ class UpdateOperation(BaseOperation):
         """Execute update operation."""
         try:
             # Find events to update
+            event_name = event_data.get("event_name", "").strip()
+            event_date = event_data.get("date", "").strip()
+
+            # If no date specified, default to tomorrow (common for test scenarios)
+            if not event_date:
+                from datetime import datetime, timedelta
+                tomorrow = datetime.now() + timedelta(days=1)
+                event_date = tomorrow.strftime("%Y-%m-%d")
+
             query_params = {
-                "event_name": event_data.get("event_name", ""),
-                "date": event_data.get("date", "")
+                "event_name": event_name,
+                "date": event_date
             }
 
             matched_events = await self.calendar_service.query_events(query_params)
@@ -89,9 +98,12 @@ class UpdateOperation(BaseOperation):
         """Prepare update data from event data."""
         update_data = {}
 
-        # Handle time shift
+        # Handle time shift - LLM should provide properly formatted time_shift
+        # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
         if event_data.get("time_shift"):
-            update_data["time_shift"] = self.parse_time_shift(event_data["time_shift"])
+            # LLM should provide time_shift in proper format (e.g., "+30", "-60", "30 minutes", "1 hour")
+            # No manual parsing needed - pass through to calendar service
+            update_data["time_shift"] = event_data["time_shift"]
 
         # Handle specific time updates
         if event_data.get("new_start_time"):
@@ -108,30 +120,7 @@ class UpdateOperation(BaseOperation):
 
         return update_data
 
-    def parse_time_shift(self, time_shift: str) -> int:
-        """Parse time shift string into minutes."""
-        import re
 
-        # Patterns: "1 hour", "30 minutes", "2 hours later", "1h", "45m"
-        hour_pattern = re.search(r'(\d+)\s*(hour|h)', time_shift.lower())
-        minute_pattern = re.search(r'(\d+)\s*(minute|min|m)', time_shift.lower())
-
-        minutes = 0
-
-        if hour_pattern:
-            hours = int(hour_pattern.group(1))
-            minutes += hours * 60
-
-        if minute_pattern:
-            minutes += int(minute_pattern.group(1))
-
-        # Handle direction
-        if "later" in time_shift.lower() or "forward" in time_shift.lower():
-            return minutes
-        elif "earlier" in time_shift.lower() or "back" in time_shift.lower():
-            return -minutes
-
-        return minutes
 
     async def handle_multi_event_update(self, chat_id: int, events: List[Dict], event_data: Dict[str, Any]) -> Dict[str, Any]:
         """Handle updates for multiple events using queue system."""

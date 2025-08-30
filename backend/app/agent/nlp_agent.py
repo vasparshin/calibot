@@ -42,6 +42,23 @@ class NLPAgent:
         except Exception as e:
             return {"relevant": False, "reason": "Failed to process response"}
 
+    async def generate_response(self, prompt: str, conversation_history: list) -> str:
+        """Generate a natural language response using LLM."""
+        try:
+            formatted_history = format_conversation_history(conversation_history)
+
+            response = await acompletion(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": f"CONVERSATION HISTORY:\n{formatted_history}\n\nYou are a helpful calendar assistant. Respond naturally and helpfully."},
+                    {"role": "user", "content": prompt}
+                ],
+            )
+
+            return response["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            logger.error(f"Error generating response: {e}")
+            return ""
 
     async def extract_intent(self, user_message, conversation_history):
         """Process user message and extract calendar intent and details"""
@@ -232,21 +249,9 @@ class NLPAgent:
                 logger.error(f"LLM JSON missing 'intent' field: {parsed_result} - falling back")
                 return {"intent": "query", "date": datetime.now().strftime("%Y-%m-%d"), "confirmation_needed": False}
             
-            # Add calendar extraction for update intents if missing but mentioned in message
-            if parsed_result.get("intent") == "update" and "calendar_name" not in parsed_result:
-                user_lower = user_message.lower()
-                if any(cal_word in user_lower for cal_word in ['calendar', 'tonya', 'personal']):
-                    import re
-                    calendar_patterns = [
-                        r'to calendar ["\']([^"\']+)["\']',
-                        r'calendar ["\']([^"\']+)["\']',
-                    ]
-                    for pattern in calendar_patterns:
-                        match = re.search(pattern, user_lower)
-                        if match:
-                            parsed_result["calendar_name"] = match.group(1).title()
-                            logger.info(f"✅ Added missing calendar_name to LLM result: {match.group(1).title()}")
-                            break
+            # NO MANUAL MESSAGE PARSING - per PROJECT_RULES.md
+            # LLM should provide ALL necessary information including calendar names
+            # If calendar_name is missing, let the operation handle it or default appropriately
             
             return parsed_result
 

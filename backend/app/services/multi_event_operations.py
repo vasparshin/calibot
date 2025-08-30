@@ -39,10 +39,10 @@ class MultiEventOperationHandler:
             if operations_data.get('intent') == 'none':
                 return {
                     "success": False,
-                    "message": operations_data.get('message', 'No matching events found'),
+                    "message": operations_data.get('message', 'LLM failed to provide message for none intent'),
                     "requires_user_action": False
                 }
-
+            
             # Store operations for confirmation
             operation_id = self.store_pending_operation(chat_id, operations_data)
 
@@ -53,7 +53,7 @@ class MultiEventOperationHandler:
                 "operation_id": operation_id,
                 "keyboard": None  # LLM handles confirmation logic
             }
-
+                
         except Exception as e:
             logger.error(f"Error in delete operation: {e}")
             return {
@@ -78,13 +78,13 @@ class MultiEventOperationHandler:
             if operations_data.get('intent') == 'none':
                 return {
                     "success": False,
-                    "message": operations_data.get('message', 'No matching events found'),
+                    "message": operations_data.get('message', 'LLM failed to provide message for none intent'),
                     "requires_user_action": False
                 }
-
+            
             # Store operations for confirmation
             operation_id = self.store_pending_operation(chat_id, operations_data)
-
+            
             return {
                 "success": True,
                 "message": self._format_operations_summary(operations_data),
@@ -92,7 +92,7 @@ class MultiEventOperationHandler:
                 "operation_id": operation_id,
                 "keyboard": None
             }
-
+            
         except Exception as e:
             logger.error(f"Error in update operation: {e}")
             return {
@@ -100,7 +100,7 @@ class MultiEventOperationHandler:
                 "message": f"Error processing update request: {str(e)}",
                 "requires_user_action": False
             }
-
+    
     async def _get_calendar_events_context(self, event_data: Dict) -> str:
         """Get current calendar events for LLM context"""
         try:
@@ -156,7 +156,7 @@ class MultiEventOperationHandler:
             # Parse and validate JSON
             operations_data = json.loads(result.strip())
             return operations_data
-
+                
         except Exception as e:
             logger.error(f"Error in LLM analysis: {e}")
             return {
@@ -199,7 +199,7 @@ class MultiEventOperationHandler:
             return "00:00"
         except:
             return "00:00"
-
+    
     def _extract_date_from_datetime(self, datetime_str: str) -> str:
         """Extract date in YYYY-MM-DD format from datetime string"""
         try:
@@ -232,7 +232,7 @@ class MultiEventOperationHandler:
                     "message": "No pending operation found.",
                     "requires_user_action": False
                 }
-
+            
             user_response = user_confirmation.lower().strip()
 
             if user_response in ['yes', 'y', 'confirm', 'proceed', 'all']:
@@ -249,14 +249,14 @@ class MultiEventOperationHandler:
                     "message": "Operation cancelled.",
                     "requires_user_action": False
                 }
-
+            
             else:
                 return {
                     "success": False,
                     "message": "Please respond with 'yes' to confirm or 'cancel' to abort.",
                     "requires_user_action": True
                 }
-
+                
         except Exception as e:
             logger.error(f"Error confirming operation: {e}")
             return {
@@ -264,7 +264,7 @@ class MultiEventOperationHandler:
                 "message": f"Error processing confirmation: {str(e)}",
                 "requires_user_action": False
             }
-
+    
     async def _execute_llm_operations(self, operations_data: Dict) -> Dict:
         """Execute operations determined by LLM"""
         try:
@@ -341,11 +341,11 @@ class MultiEventOperationHandler:
             }
     
 
-
+    
     def has_pending_operation(self, chat_id: int) -> bool:
         """Check if there's a pending operation for this chat"""
         return any(op["chat_id"] == chat_id for op in self.pending_operations.values())
-
+    
     def store_pending_operation(self, chat_id: int, operation_data: Dict):
         """Store a pending operation for later processing"""
         import time
@@ -359,7 +359,7 @@ class MultiEventOperationHandler:
         }
         logger.debug(f"Stored pending {operation_data.get('intent', 'unknown')} operation {operation_id} for chat {chat_id}")
         return operation_id
-
+    
     def clear_pending_operations(self, chat_id: int):
         """Clear all pending operations for a chat (useful for cleanup)"""
         to_remove = [
@@ -369,7 +369,7 @@ class MultiEventOperationHandler:
         for op_id in to_remove:
             del self.pending_operations[op_id]
         logger.debug(f"Cleared {len(to_remove)} pending operations for chat {chat_id}")
-
+    
     def clear_all_pending_operations(self):
         """Clear all pending operations (useful for startup cleanup)"""
         self.pending_operations.clear()

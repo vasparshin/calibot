@@ -7,6 +7,9 @@ from fastapi import APIRouter, Request, HTTPException
 import os
 from datetime import datetime
 import logging
+from typing import Dict, List
+
+from app import __version__
 
 from app.config import GOOGLE_CLIENT_SECRET_FILE, GOOGLE_API_SCOPES
 from app.services.telegram import (
@@ -190,7 +193,10 @@ async def process_user_message(chat_id: int, user_message: str):
         result = await operation_factory.execute_operation(chat_id, intent_result)
 
         # Handle result
-        if result.get("requires_user_action"):
+        if result.get("requires_llm_formatting"):
+            # LLM-driven query result - pass data back to LLM for final response formatting
+            await handle_llm_formatted_query(chat_id, intent_result, result, history)
+        elif result.get("requires_user_action"):
             # Send message with keyboard if needed
             keyboard = result.get("keyboard")
             if keyboard:
@@ -211,6 +217,96 @@ async def process_user_message(chat_id: int, user_message: str):
         logger.error(f"Message processing error: {e}")
         await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
         return {"status": "error"}
+
+async def handle_llm_formatted_query(chat_id: int, original_intent: Dict, query_result: Dict, conversation_history: List):
+    """Handle LLM-driven query results by passing data back to LLM for final response formatting."""
+    try:
+        # Extract query data
+        query_data = query_result.get("query_result", {})
+
+        # Check for authentication requirement
+        if query_data.get("auth_required"):
+            auth_message = "Please authenticate with Google Calendar first: /start"
+            await send_telegram_message(chat_id, auth_message)
+            return
+
+        # Format events data for LLM
+        events_data = format_events_for_llm(query_data.get("events", []))
+        query_params = query_data.get("query_params", {})
+
+        # Create LLM prompt for response formatting
+        formatting_prompt = f"""
+You received this query from the user: "{original_intent.get('original_message', '')}"
+
+I retrieved the following calendar data:
+{events_data}
+
+Query parameters used: {query_params}
+
+Based on the user's request and the retrieved data, provide a natural, helpful response.
+If no events were found, explain this clearly and suggest alternatives if appropriate.
+Format the response appropriately for Telegram with proper event formatting.
+
+Return only the response message that should be sent to the user.
+"""
+
+        # Get LLM response
+        try:
+            llm_response = await ai_agent.generate_response(formatting_prompt, conversation_history)
+            if llm_response and llm_response.strip():
+                await send_telegram_message(chat_id, llm_response.strip())
+            else:
+                await send_telegram_message(chat_id, "I found some information but couldn't format it properly. Please try rephrasing your request.")
+        except Exception as llm_error:
+            logger.error(f"LLM formatting error: {llm_error}")
+            # Fallback: provide basic formatted response
+            await send_basic_query_response(chat_id, query_data)
+
+    except Exception as e:
+        logger.error(f"Error in LLM formatted query: {e}")
+        await send_telegram_message(chat_id, "I encountered an error while processing your query. Please try again.")
+
+def format_events_for_llm(events: List[Dict]) -> str:
+    """Format events data for LLM consumption."""
+    if not events:
+        return "No events found matching the query criteria."
+
+    formatted_events = []
+    for i, event in enumerate(events, 1):
+        event_info = f"""
+Event {i}:
+- Title: {event.get('summary', 'Untitled')}
+- Start: {event.get('start', 'Unknown')}
+- End: {event.get('end', 'Unknown')}
+- Calendar: {event.get('calendar_name', 'Unknown')}
+- Link: {event.get('link', 'N/A')}
+"""
+        formatted_events.append(event_info)
+
+    return f"Found {len(events)} event(s):\n" + "\n".join(formatted_events)
+
+async def send_basic_query_response(chat_id: int, query_data: Dict):
+    """Send a basic formatted response when LLM formatting fails."""
+    try:
+        events = query_data.get("events", [])
+        event_count = query_data.get("event_count", 0)
+
+        if event_count == 0:
+            await send_telegram_message(chat_id, "No events found matching your query.")
+        elif event_count == 1:
+            event = events[0]
+            message = f"Found 1 event:\n\n{event.get('summary', 'Untitled')} at {event.get('start', 'Unknown time')}"
+            await send_telegram_message(chat_id, message)
+        else:
+            message = f"Found {event_count} events:\n\n"
+            for i, event in enumerate(events[:5], 1):  # Show first 5 events
+                message += f"{i}. {event.get('summary', 'Untitled')} at {event.get('start', 'Unknown time')}\n"
+            if event_count > 5:
+                message += f"\n... and {event_count - 5} more events"
+            await send_telegram_message(chat_id, message)
+    except Exception as e:
+        logger.error(f"Error in basic query response: {e}")
+        await send_telegram_message(chat_id, "I found some events but had trouble formatting the response.")
 
 async def check_authentication(chat_id: int) -> bool:
     """Check if user is authenticated and handle auth flow."""
@@ -413,6 +509,6 @@ async def root():
     """Root endpoint"""
     return {
         "message": "CaliBOT - AI Calendar Bot is running",
-        "version": "0.1.176",  # Would import from __init__
+        "version": __version__,
         "status": "operational"
     }

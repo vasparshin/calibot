@@ -19,8 +19,12 @@ CURRENT DATE: {current_date}
 
 Return exactly one of these JSON formats:
 
-For viewing schedule:
-{{"intent": "query", "date": "{current_date_iso}", "confirmation_needed": false}}
+For viewing schedule (use generic parameters, let code handle date resolution):
+{{"intent": "query", "event_name": "", "date": "today", "confirmation_needed": false}}
+{{"intent": "query", "event_name": "", "date": "tomorrow", "confirmation_needed": false}}
+{{"intent": "query", "event_name": "", "date": "next week", "confirmation_needed": false}}
+{{"intent": "query", "event_name": "meeting", "date": "today", "confirmation_needed": false}}
+{{"intent": "query", "event_name": "", "date": "2024-01-15", "confirmation_needed": false}}
 
 For creating single events:
 {{"intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "start_time": "09:00", "end_time": "10:00", "confirmation_needed": false}}
@@ -76,17 +80,46 @@ CALENDAR SPECIFICATION:
 - "personal calendar" → "calendar_name": "Personal"
 - "work calendar" → "calendar_name": "Work"
 
-EXAMPLES (MANDATORY PATTERNS):
+SCHEDULE QUERY EXAMPLES (use generic parameters):
+- "what's my schedule today" → {{"intent": "query", "event_name": "", "date": "today", "confirmation_needed": false}}
+- "show me tomorrow" → {{"intent": "query", "event_name": "", "date": "tomorrow", "confirmation_needed": false}}
+- "what do i have tomorrow" → {{"intent": "query", "event_name": "", "date": "tomorrow", "confirmation_needed": false}}
+- "schedule for tomorrow" → {{"intent": "query", "event_name": "", "date": "tomorrow", "confirmation_needed": false}}
+- "what's on tomorrow" → {{"intent": "query", "event_name": "", "date": "tomorrow", "confirmation_needed": false}}
+- "day after tomorrow schedule" → {{"intent": "query", "event_name": "", "date": "day after tomorrow", "confirmation_needed": false}}
+- "what do i have day after tomorrow" → {{"intent": "query", "event_name": "", "date": "day after tomorrow", "confirmation_needed": false}}
+- "this week schedule" → {{"intent": "query", "event_name": "", "date": "this week", "confirmation_needed": false}}
+- "this month schedule" → {{"intent": "query", "event_name": "", "date": "this month", "confirmation_needed": false}}
+- "show me meetings today" → {{"intent": "query", "event_name": "meeting", "date": "today", "confirmation_needed": false}}
+- "what lessons do I have this week" → {{"intent": "query", "event_name": "lesson", "date": "this week", "confirmation_needed": false}}
+
+TIME SHIFT EXAMPLES (MANDATORY - use proper format):
 - "move last 3 lessons 1 hr later" → {{"intent": "update", "event_name": "lesson", "target": "last 3", "time_shift": "1 hour", "confirmation_needed": true}}
+- "shift first lesson 30 minutes earlier" → {{"intent": "update", "event_name": "lesson", "target": "first", "time_shift": "-30 minutes", "confirmation_needed": true}}
+- "move last 2 events 2 hours later" → {{"intent": "update", "event_name": "ANY", "target": "last 2", "time_shift": "2 hours", "confirmation_needed": true}}
 - "change first lesson to 3pm" → {{"intent": "update", "event_name": "lesson", "target": "first", "new_start_time": "15:00", "confirmation_needed": true}}
 - "move last 2 events to tomorrow" → {{"intent": "update", "event_name": "ANY", "target": "last 2", "new_date": "{tomorrow_date_iso}", "confirmation_needed": true}}
+- "update the test meeting to 5pm" → {{"intent": "update", "event_name": "test meeting", "new_start_time": "17:00", "confirmation_needed": false}}
+- "change meeting time to 2pm" → {{"intent": "update", "event_name": "meeting", "new_start_time": "14:00", "confirmation_needed": false}}
+- "update the lessons to advanced lessons" → {{"intent": "update", "event_name": "lesson", "target": "all", "new_event_name": "advanced lesson", "confirmation_needed": true}}
+
+MULTI-EVENT CREATION EXAMPLES:
+- "add lessons at 8, 10, 11, 12 tomorrow" → {{"intent": "batch_create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
+- "create two events at 10am and 12pm" → {{"intent": "batch_create", "event_name": "event", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
+- "add 3 meetings today at 9, 10, 11" → {{"intent": "batch_create", "event_name": "meeting", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "09:00", "end_time": "10:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}]}}
+- "schedule calls at 14:00 and 16:00 to Tonya calendar" → {{"intent": "batch_create", "event_name": "call", "date": "{current_date_iso}", "calendar_name": "Tonya", "confirmation_needed": false, "events": [{{"start_time": "14:00", "end_time": "15:00"}}, {{"start_time": "16:00", "end_time": "17:00"}}]}}
+- "create lesson 1 at 8am and lesson 2 at 10am tomorrow" → {{"intent": "batch_create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00", "summary": "lesson 1"}}, {{"start_time": "10:00", "end_time": "11:00", "summary": "lesson 2"}}]}}
+- "create event A at 1pm and event B at 3pm tomorrow" → {{"intent": "batch_create", "event_name": "event", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "13:00", "end_time": "14:00", "summary": "event A"}}, {{"start_time": "15:00", "end_time": "16:00", "summary": "event B"}}]}}
+
+DELETE EXAMPLES:
 - "delete first 2 meetings" → {{"intent": "delete", "event_name": "meeting", "target": "first 2", "confirmation_needed": true}}
-- "add lessons at 8, 10, 11, 12 tomorrow" → {{"intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
-- "create two events at 10am and 12pm" → {{"intent": "create", "event_name": "event", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
-- "add 3 meetings today at 9, 10, 11" → {{"intent": "create", "event_name": "meeting", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "09:00", "end_time": "10:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}]}}
-- "schedule calls at 14:00 and 16:00 to Tonya calendar" → {{"intent": "create", "event_name": "call", "date": "{current_date_iso}", "calendar_name": "Tonya", "confirmation_needed": false, "events": [{{"start_time": "14:00", "end_time": "15:00"}}, {{"start_time": "16:00", "end_time": "17:00"}}]}}
+- "remove last lesson" → {{"intent": "delete", "event_name": "lesson", "target": "last", "confirmation_needed": true}}
+- "delete all events today" → {{"intent": "delete", "event_name": "ANY", "target": "all", "confirmation_needed": true}}
+- "delete the test event" → {{"intent": "delete", "event_name": "test event", "confirmation_needed": false}}
+- "remove meeting" → {{"intent": "delete", "event_name": "meeting", "confirmation_needed": false}}
 
 MANDATORY: Return ONLY the JSON object. No explanations, no markdown, no extra text.
 Your response must be complete, valid JSON starting with {{ and ending with }}
 NEVER return just field names - always return full JSON objects
+For queries, use generic parameters (event_name, date, etc.) - let the code handle the rest
 If completely unsure, default to query intent but ALWAYS return valid JSON structure"""
