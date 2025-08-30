@@ -203,26 +203,36 @@ async def process_user_message(chat_id: int, user_message: str):
         conversation_state.add_message(chat_id, "user", user_message)
 
         # Handle schedule requests first
+        logger.info(f"📅 Checking for schedule query: '{user_message}'")
         schedule_result = await handle_schedule_request(chat_id, user_message)
+        logger.info(f"📅 Schedule result: {schedule_result}")
         if schedule_result:
+            logger.info("✅ Schedule request handled directly")
             return schedule_result
 
         # Extract intent using NLP agent
+        logger.info(f"🧠 Extracting intent for message: '{user_message[:100]}{'...' if len(user_message) > 100 else ''}'")
         history = conversation_state.get_conversation_history(chat_id)
         intent_result = await ai_agent.extract_intent(user_message, history)
+        logger.info(f"🎭 Intent extraction result: {intent_result}")
 
         if not intent_result or not isinstance(intent_result, dict):
+            logger.warning("❌ Intent extraction failed or returned invalid result")
             await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
             return {"status": "ok"}
 
         # Execute operation through factory
+        logger.info(f"🎯 Executing operation for intent: {intent_result.get('intent', 'unknown')}")
         result = await operation_factory.execute_operation(chat_id, intent_result)
+        logger.info(f"📊 Operation result: success={result.get('success')}, requires_llm={result.get('requires_llm_formatting')}, requires_action={result.get('requires_user_action')}")
 
         # Handle result
         if result.get("requires_llm_formatting"):
+            logger.info("🤖 Processing LLM-formatted response...")
             # LLM-driven query result - pass data back to LLM for final response formatting
             await handle_llm_formatted_query(chat_id, intent_result, result, history)
         elif result.get("requires_user_action"):
+            logger.info("🎹 Sending message with user action...")
             # Send message with keyboard if needed
             keyboard = result.get("keyboard")
             if keyboard:
@@ -230,9 +240,11 @@ async def process_user_message(chat_id: int, user_message: str):
             else:
                 await send_telegram_message(chat_id, result["message"])
         elif result.get("success"):
+            logger.info("✅ Sending success message...")
             # Send success message
             await send_telegram_message(chat_id, result["message"])
         else:
+            logger.info("❌ Sending error message...")
             # Send error message
             error_msg = result.get("message", "An error occurred while processing your request.")
             await send_telegram_message(chat_id, error_msg)
