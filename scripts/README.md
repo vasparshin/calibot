@@ -1,6 +1,6 @@
 # CaliBOT Scripts
 
-This folder contains essential utility scripts for the CaliBOT project. All broken and duplicate scripts have been removed as per PROJECT_RULES.md.
+This folder contains essential utility scripts for the CaliBOT project. All broken and duplicate scripts have been removed as per .cursorrules.
 
 ## 🟢 Working Scripts (Use These)
 
@@ -25,7 +25,7 @@ This folder contains essential utility scripts for the CaliBOT project. All brok
 
 ## 🚨 Script Categories (Removed)
 
-### Broken Tools (Deleted per PROJECT_RULES.md)
+### Broken Tools (Deleted per .cursorrules)
 - ❌ `recent_logs.py` - Unicode errors in PowerShell  
 - ❌ `quick_version_check.py` - 404 errors
 - ❌ All streaming scripts (`live_logs.py`, `stream_logs.*`) - Get stuck
@@ -62,7 +62,7 @@ python scripts/verify_test_group.py
 - **Always use `render_api_logs.py`** for log analysis
 - **Verify deployment** before testing with `verify_deployment.py`
 - **Use proper group ID** (`-4627994150`) for real testing
-- **Check PROJECT_RULES.md** for latest tool classifications
+- **Check .cursorrules** for latest tool classifications
 
 ## 🔧 Environment Setup
 

@@ -1,6 +1,6 @@
 # CaliBOT Tests
 
-This folder contains essential test files for CaliBOT functionality. All experimental and duplicate test files have been removed per PROJECT_RULES.md.
+This folder contains essential test files for CaliBOT functionality. All experimental and duplicate test files have been removed per .cursorrules.
 
 ## 🟢 Essential Test Files (Working)
 
@@ -50,7 +50,7 @@ python scripts/render_api_logs.py
 - ❌ `quick_format_test.py` - Formatting test (covered by main tests)
 - ❌ `test_queue_callback.py` - Debug script (integrated into workflow test)
 
-## 🎯 Testing Workflow (per PROJECT_RULES.md)
+## 🎯 Testing Workflow (per .cursorrules)
 
 ### Pre-Testing Checklist
 - [ ] Latest version deployed: `python scripts/verify_deployment.py`
@@ -90,7 +90,7 @@ python scripts/render_api_logs.py
 
 ### Required for Testing
 - **TestBot Token**: Configured in test files
-- **Group Chat ID**: `-4627994150` (from PROJECT_RULES.md)
+- **Group Chat ID**: `-4627994150` (from .cursorrules)
 - **Backend URL**: `https://calibot-utq6.onrender.com`
 - **Python Packages**: `aiohttp` for async testing
 
@@ -106,4 +106,4 @@ pip install aiohttp
 **Debug Scripts Removed**: 2 debug/test scripts
 **Maintainability**: ✅ Improved - Clear purpose, no confusion
 
-**REMEMBER**: These are the ONLY test files referenced in PROJECT_RULES.md. All others were experimental and have been removed.
+**REMEMBER**: These are the ONLY test files referenced in .cursorrules. All others were experimental and have been removed.

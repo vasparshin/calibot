@@ -1,5 +1,0 @@
-[33ma50f366[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m v0.1.181: Backend fixes - version synchronization and linter error fixes
-[33m256bf53[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m v0.1.177: Complete fallback functionality removal - LLM-only user message processing
-[33m06d0dd8[m v0.1.177: Fix critical functionality issues
-[33m4365084[m v0.1.177: MAJOR ARCHITECTURE OPTIMIZATION - Complete modular redesign reducing complexity by 75%
-[33mc65b480[m v0.1.176: Fix queue callback routing with detailed logging to debug Event 1→2 advancement
