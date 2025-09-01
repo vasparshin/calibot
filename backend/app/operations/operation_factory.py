@@ -10,6 +10,7 @@ from .create_operation import CreateOperation
 from .update_operation import UpdateOperation
 from .delete_operation import DeleteOperation
 from .query_operation import QueryOperation
+from .undo_operation import UndoOperation
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,8 @@ class OperationFactory:
             "batch_create": CreateOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
             "update": UpdateOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
             "delete": DeleteOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
-            "query": QueryOperation(telegram_service, conversation_state, calendar_service, calendar_agent)
+            "query": QueryOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
+            "undo": UndoOperation(telegram_service, conversation_state, calendar_service, calendar_agent)
         }
 
     async def execute_operation(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -118,7 +120,8 @@ class OperationFactory:
             "batch_create": CreateOperation,
             "update": UpdateOperation,
             "delete": DeleteOperation,
-            "query": QueryOperation
+            "query": QueryOperation,
+            "undo": UndoOperation
         }.get(intent)
 
         if operation_class:

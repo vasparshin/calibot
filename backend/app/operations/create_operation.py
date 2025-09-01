@@ -133,10 +133,22 @@ class CreateOperation(BaseOperation):
                     single_result = await self.create_single_event(chat_id, event_data)
 
                     if single_result.get("success"):
+                        # Format just the event display without "Event created successfully:" prefix for batch
+                        from app.utils.message_formatter import MessageFormatter
+                        formatted_event = {
+                            'summary': event_data.get('event_name', 'Untitled'),
+                            'start': f"{event_data.get('date', '')}T{event_data.get('start_time', '')}:00",
+                            'end': f"{event_data.get('date', '')}T{event_data.get('end_time', '')}:00",
+                            'calendar_name': single_result["calendar_response"].get('calendar_used', 'Calendar'),
+                            'id': single_result["calendar_response"].get('event_id', ''),
+                            'htmlLink': single_result["calendar_response"].get('event_link', '')
+                        }
+                        event_display = MessageFormatter.format_single_event_display(formatted_event, include_hyperlink=True)
+                        
                         successful_events.append({
                             "event_data": event_data,
                             "calendar_response": single_result["calendar_response"],
-                            "formatted": self.format_single_event_success(event_data, single_result["calendar_response"])
+                            "formatted": event_display  # Just the event display, no extra prefix
                         })
                     else:
                         failed_events.append({

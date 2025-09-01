@@ -31,6 +31,11 @@ class MessageFormatter:
                                                                     'July', 'August', 'September', 'October', 'November', 'December']):
             return date_str
         
+        # Skip time-only strings (e.g., "09:00", "14:30") - these are not dates
+        if ':' in date_str and len(date_str) <= 8 and not 'T' in date_str and not '-' in date_str:
+            logger.warning(f"Received time-only string '{date_str}' in date formatter - skipping")
+            return "Unknown date"
+        
         try:
             # Handle various date formats
             if 'T' in date_str:

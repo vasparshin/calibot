@@ -118,6 +118,15 @@ DELETE EXAMPLES:
 - "delete the test event" → {{"intent": "delete", "event_name": "test event", "confirmation_needed": false}}
 - "remove meeting" → {{"intent": "delete", "event_name": "meeting", "confirmation_needed": false}}
 
+UNDO EXAMPLES:
+- "undo" → {{"intent": "undo", "confirmation_needed": false}}
+- "undo that" → {{"intent": "undo", "confirmation_needed": false}}
+- "undo last action" → {{"intent": "undo", "confirmation_needed": false}}
+- "revert" → {{"intent": "undo", "confirmation_needed": false}}
+- "cancel that" → {{"intent": "undo", "confirmation_needed": false}}
+- "undo the creation" → {{"intent": "undo", "action_type": "create", "confirmation_needed": false}}
+- "undo deletion" → {{"intent": "undo", "action_type": "delete", "confirmation_needed": false}}
+
 MANDATORY: Return ONLY the JSON object. No explanations, no markdown, no extra text.
 Your response must be complete, valid JSON starting with {{ and ending with }}
 NEVER return just field names - always return full JSON objects
