@@ -153,7 +153,14 @@ async def process_update_delete_with_confirmation(
         op_type = "delete_single"
     else:
         if event_data.get("new_date"):
-            action_desc = f"move to {event_data['new_date']}"
+            # CRITICAL FIX: Use dd.mm.yy format for user-facing messages
+            from datetime import datetime
+            try:
+                date_obj = datetime.fromisoformat(event_data['new_date'].split('T')[0])
+                date_formatted = date_obj.strftime('%d.%m.%y')
+                action_desc = f"move to {date_formatted}"
+            except:
+                action_desc = f"move to {event_data['new_date']}"  # Fallback
         elif event_data.get("new_event_name"):
             action_desc = f"rename to '{event_data['new_event_name']}'"
         elif event_data.get("time_shift"):

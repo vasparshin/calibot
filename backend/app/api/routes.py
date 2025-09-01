@@ -142,15 +142,14 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                 reply_markup={}   # Remove buttons only
             )
             
-            # Send separate processing message
-            processing_msg = await send_telegram_message(chat_id, f"✅ Processing {choice} option...")
-            processing_message_id = processing_msg.get("result", {}).get("message_id") if processing_msg else None
+            # REMOVED: No useless processing message needed
+            processing_message_id = None
         else:
-            # Fallback if we can't get original message
+            # REMOVED: No useless processing message - just remove buttons
             await edit_message_text(
                 chat_id, 
                 message_id, 
-                f"✅ Processing {choice} option for {action} operation...",
+                message.get('text', 'Operation confirmed'),
                 reply_markup={}
             )
             processing_message_id = message_id

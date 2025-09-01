@@ -57,6 +57,18 @@ class EventQueueHandler:
         self.calendar_agent = calendar_agent
         self.pending_queues = {}  # Store event queues by chat_id
     
+    def _format_date_for_user(self, date_str: str) -> str:
+        """Convert ISO date format to dd.mm.yy format for user-facing messages"""
+        try:
+            from datetime import datetime
+            # Parse ISO date (e.g., '2025-09-03') to datetime
+            date_obj = datetime.fromisoformat(date_str.split('T')[0])  # Handle both '2025-09-03' and '2025-09-03T...'
+            # Format as dd.mm.yy
+            return date_obj.strftime('%d.%m.%y')
+        except Exception as e:
+            logger.warning(f"Could not format date {date_str}: {e}")
+            return date_str  # Fallback to original format
+
     def has_pending_queue(self, chat_id) -> bool:
         """Check if user has pending events in queue"""
         # CRITICAL: Ensure consistent chat_id type
@@ -206,7 +218,9 @@ class EventQueueHandler:
             if first_event.get('new_event_name'):
                 proposed_changes.append(f"rename to '{first_event.get('new_event_name')}'")
             if first_event.get('new_date'):
-                proposed_changes.append(f"move to {first_event.get('new_date')}")
+                # CRITICAL FIX: Use dd.mm.yy format for user-facing messages
+                date_formatted = self._format_date_for_user(first_event.get('new_date'))
+                proposed_changes.append(f"move to {date_formatted}")
             
             # Convert events to proper format for the formatter
             formatted_events = []
@@ -257,7 +271,9 @@ class EventQueueHandler:
         if first_event.get('new_event_name'):
             proposed_changes.append(f"rename to '{first_event.get('new_event_name')}'")
         if first_event.get('new_date'):
-            proposed_changes.append(f"move to {first_event.get('new_date')}")
+            # CRITICAL FIX: Use dd.mm.yy format for user-facing messages  
+            date_formatted = self._format_date_for_user(first_event.get('new_date'))
+            proposed_changes.append(f"move to {date_formatted}")
         
         change_description = ", ".join(proposed_changes) if proposed_changes else action_text
         
@@ -374,9 +390,7 @@ class EventQueueHandler:
 
         confirmation_message = f"""{action_prefix} Event {current_index + 1} of {total_events}:
 
-{event_summary}
-
-Choose your action:"""
+{event_summary}"""
 
         return {
             "success": True,
@@ -928,6 +942,11 @@ Choose your action:"""
                     if event.get('location'):
                         update_data['location'] = event.get('location')
                     
+                    # CRITICAL FIX: Handle calendar changes - this was missing!
+                    if event.get('new_calendar'):
+                        update_data['calendar'] = event.get('new_calendar')
+                        logger.info(f"📅 CALENDAR CHANGE: Moving event to calendar: {event.get('new_calendar')}")
+                    
                     # If no specific updates provided, default to current values
                     if not update_data:
                         update_data = {
@@ -1019,13 +1038,13 @@ Choose your action:"""
                             'calendar_name': calendar_name
                         }
                         
-                        # Use master formatter for consistent hyperlinks - but only get the clickable title part
-                        if event_link:
-                            formatted_title = f"[{event_title}]({event_link})"
-                            logger.info(f"🔗 HYPERLINK: Created [{event_title}]({event_link})")
-                        else:
-                            formatted_title = f"'{event_title}'"
-                            logger.info(f"🔗 NO LINK: Using plain title '{event_title}'")
+                        # CRITICAL FIX: Use master formatter which handles URL normalization
+                        formatted_title = MessageFormatter.create_event_hyperlink(
+                            event_title, 
+                            event.get('id', ''),
+                            event_link
+                        )
+                        logger.info(f"🔗 HYPERLINK MASTER: Created {formatted_title} from link: {event_link}")
                         
                         # Build comprehensive message showing UPDATED info, not original
                         if date_info and time_info:

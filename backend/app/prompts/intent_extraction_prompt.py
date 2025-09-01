@@ -102,6 +102,9 @@ TIME SHIFT EXAMPLES (MANDATORY - use proper format):
 - "update the test meeting to 5pm" → {{"intent": "update", "event_name": "test meeting", "new_start_time": "17:00", "confirmation_needed": false}}
 - "change meeting time to 2pm" → {{"intent": "update", "event_name": "meeting", "new_start_time": "14:00", "confirmation_needed": false}}
 - "update the lessons to advanced lessons" → {{"intent": "update", "event_name": "lesson", "target": "all", "new_event_name": "advanced lesson", "confirmation_needed": true}}
+- "move lessons to Tonya calendar" → {{"intent": "update", "event_name": "lesson", "target": "all", "new_calendar": "Tonya", "confirmation_needed": true}}
+- "change the meeting to work calendar" → {{"intent": "update", "event_name": "meeting", "new_calendar": "Work", "confirmation_needed": false}}
+- "move to my personal calendar" → {{"intent": "update", "event_name": "ANY", "new_calendar": "Personal", "confirmation_needed": false}}
 
 MULTI-EVENT CREATION EXAMPLES:
 - "add lessons at 8, 10, 11, 12 tomorrow" → {{"intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
