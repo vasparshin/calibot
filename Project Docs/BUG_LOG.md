@@ -11,14 +11,14 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.206 - Current Version Testing
+## v0.1.207 - Current Version Testing
 
 ### 📊 **BUG STATUS SUMMARY**
 
-- **🟢 FIXED**: 5 bugs (38%)
-- **🟡 IN PROGRESS**: 5 bugs (38%) 
-- **🔴 ACTIVE**: 3 bugs (23%)
-- **🔵 LOW PRIORITY**: 2 bugs (15%)
+- **🟢 FIXED**: 6 bugs (43%)
+- **🟡 IN PROGRESS**: 5 bugs (36%) 
+- **🔴 ACTIVE**: 3 bugs (21%)
+- **🔵 LOW PRIORITY**: 2 bugs (14%)
 
 ### 🔴 **ACTIVE BUGS**
 
@@ -53,19 +53,6 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 - **Implementation**: UndoOperation class exists, registered in factory, included in intent extraction prompt
 - **Current Fix**: v0.1.205 - Added comprehensive debug logging to track undo operation execution flow
 - **Implementation**: Log conversation history count, recent operations found, and operation type processing
-
-### 🟢 **RECENTLY FIXED BUGS**
-
-#### **BUG-013: Recurring OAuth Authorization Error** - 🟢 **FIXED**
-- **Description**: OAuth authorization error with "Required parameter is missing: response_type" recurring from time to time
-- **User Report**: "Access blocked: authorisation error" with "Required parameter is missing: response_type" - "this issue reappears from time to time so it should be documented in the old changelog as well as the fixe that resolved it. its purely in the code, not an issue with telegram/google console/anything else"
-- **Expected**: OAuth URLs should always include response_type=code parameter for Google Calendar authentication
-- **Actual**: OAuth URL generation occasionally missing response_type parameter causing authorization failures
-- **Status**: 🟢 **FIXED** - Resolved in v0.1.206
-- **Root Cause**: OAuth URL generation not consistently including response_type=code parameter
-- **Fix Applied**: Enhanced OAuth URL generation with explicit response_type parameter and failsafe validation
-- **Implementation**: Added explicit `response_type='code'` parameter to authorization_url() call and double-check validation
-- **Impact**: ✅ Eliminates recurring OAuth authorization errors that prevent Google Calendar authentication
 
 ### 🔵 **LOW PRIORITY BUGS**
 
