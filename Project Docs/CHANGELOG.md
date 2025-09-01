@@ -2,6 +2,43 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.191] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - DELETE OPERATIONS, EVENT CREATION & FALLBACK REMOVAL**
+
+**calibot/backend/app/api/routes.py**: Removed fallback schedule detection mechanism that was bypassing LLM processing
+- **Root Cause**: `handle_schedule_request()` ran BEFORE LLM processing, catching creation requests containing "today" and treating them as schedule queries
+- **Fix Applied**: Completely removed lines 205-214 that handled schedule requests first
+- **Impact**: ✅ ALL user messages now go through LLM processing without fallback shortcuts - event creation requests no longer treated as schedule queries
+
+**calibot/backend/app/operations/delete_operation.py**: Fixed delete operations showing "Unknown" event details and missing multi-event summary
+- **Root Cause**: Data structure mismatch between GoogleCalendarService (returns `summary`, `start`, `end`, `link`) and EventQueueHandler (expects `event_name`, `start_time`, `end_time`, `calendar_link`)
+- **Fix Applied**: Added proper data structure mapping in `handle_multi_event_delete()`:
+  - `summary` → `event_name`
+  - `start` → `start_time`
+  - `end` → `end_time`
+  - `link` → `calendar_link`
+- **Fix Applied**: Changed from `create_event_queue()` to `create_event_queue_from_list()` for proper multi-event summary display
+- **Impact**: ✅ Delete operations now show "Found X events to delete" with proper event details and All/One by One/Cancel buttons
+
+**calibot/backend/app/prompts/intent_extraction_prompt.py**: Fixed contradictory intent examples causing LLM confusion
+- **Root Cause**: Prompt showed both `"intent": "create"` (line 35) and `"intent": "batch_create"` (lines 107-112) for multi-event creation
+- **Fix Applied**: Changed all multi-event creation examples from `"batch_create"` to `"create"` for consistency
+- **Impact**: ✅ LLM now consistently returns `"intent": "create"` for all event creation requests
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.190 → 0.1.191
+- **calibot/backend/app/__init__.py**: __version__ 0.1.190 → 0.1.191
+
+### 📈 **TECHNICAL IMPACT**
+- **Eliminated fallback bypass**: All user messages now processed by LLM, no more schedule detection shortcuts
+- **Fixed delete operation data**: Events show proper names, dates, times, and calendar information instead of "Unknown"
+- **Restored multi-event workflow**: Delete operations show summary with confirmation options before processing
+- **Consistent intent extraction**: LLM no longer confused by contradictory creation intent examples
+- **Enhanced reliability**: Removed non-LLM processing paths that violated PROJECT_RULES.md "NO FALLBACK FUNCTIONALITY"
+
+**Testing Required**: Verify delete operations show proper event summaries and creation requests work correctly in group chat -4627994150
+
 ## [0.1.190] - 2025-09-01
 
 ### 🛠️ **TECHNICAL IMPROVEMENTS - ENHANCED CHANGELOG RULES**

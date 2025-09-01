@@ -202,16 +202,9 @@ async def process_user_message(chat_id: int, user_message: str):
         # Add message to conversation
         conversation_state.add_message(chat_id, "user", user_message)
 
-        # Handle schedule requests first
-        schedule_result = await handle_schedule_request(chat_id, user_message)
-        if schedule_result:
-            # Actually send the schedule response to Telegram
-            if schedule_result.get("success"):
-                await send_telegram_message(chat_id, schedule_result["message"])
-            else:
-                error_msg = schedule_result.get("message", "Failed to get schedule")
-                await send_telegram_message(chat_id, error_msg)
-            return {"status": "ok"}
+        # REMOVED: Fallback schedule detection - ALL requests must go through LLM
+        # This was bypassing LLM processing for creation requests that contained "today"
+        # Per PROJECT_RULES.md: NO FALLBACK FUNCTIONALITY - LLM handles everything
 
         # Extract intent using NLP agent
         history = conversation_state.get_conversation_history(chat_id)
