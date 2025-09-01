@@ -11,6 +11,30 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
+## v0.1.231 - Backend Cleanup and Critical Bug Fixes
+
+**CRITICAL BUG FIX**: Fixed "technical difficulties" error in duplicate confirmation processing
+- **Root Cause**: Operation factory looking for `pending_operation` but create operation stores data as `pending_duplicates`
+- **Evidence**: "I'm experiencing technical difficulties. Please try again in a moment." errors after duplicate confirmations
+- **Fix Applied**: Updated operation factory to check for `pending_duplicates` first for duplicate confirmations
+- **Impact**: ✅ Eliminates "technical difficulties" errors when processing duplicate confirmations
+
+**UI BUG FIX**: Fixed duplicate confirmation message preservation
+- **Root Cause**: Event summary disappeared when buttons were pressed, only status text remained
+- **Evidence**: User reported "after event summary message button is pressed, the event summary shouldnt dissapear, just the buttons replaced by the outcome"
+- **Fix Applied**: Modified confirmation handler to preserve original message content
+- **Impact**: ✅ Event summary now preserved when buttons are pressed, only buttons removed
+
+**BACKEND CLEANUP**: Removed 9 redundant/unused files
+- **Removed**: Backup files, unused prompts, empty files, unused handlers
+- **Impact**: ✅ Reduced codebase complexity, eliminated confusion from unused files
+
+### Testing Required
+- Send duplicate event creation: "add a 'test event' today at 7pm"
+- Verify event summary preserved when buttons pressed
+- Verify "✅ Create Anyway" processes without "technical difficulties"
+- Verify "❌ Cancel" processes without "technical difficulties"
+
 ## v0.1.230 - Message Deduplication and Queuing Fix
 
 **CRITICAL BUG FIX**: Implemented proper message deduplication and queuing to prevent concurrent operations.

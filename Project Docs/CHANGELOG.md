@@ -2,7 +2,66 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.228] - 2025-09-01
+## [0.1.231] - 2025-09-01
+
+### 🧹 **BACKEND CLEANUP - REMOVED REDUNDANT FILES**
+
+**Backend Directory Cleanup**: Removed 9 redundant/unused files to improve maintainability
+- **Removed Files**: 
+  - `prompts/intent_extraction_prompt.py.backup` - Backup file not used
+  - `prompts/calendar_selection_prompt.py` - Unused prompt never imported
+  - `api/handlers/immediate_update_delete.py` - Empty file (0 lines)
+  - `routes_optimized.py` - Legacy file not used in main.py
+  - `api/handlers.py` - Placeholder file with duplicate functions
+  - `api/handlers/event_query.py` - Not imported in active routes
+  - `api/handlers/duplicate_detection.py` - Not imported in active routes
+  - `api/handlers/batch_creation.py` - Not imported in active routes
+  - `api/handlers/single_creation.py` - Not imported in active routes
+  - `api/handlers/intent_dispatcher.py` - Not imported in active routes
+  - `api/handlers/update_delete.py` - Not imported in active routes
+  - `api/handlers/__init__.py` - Empty handler package
+- **Impact**: ✅ Reduced codebase complexity, eliminated confusion from unused files
+- **Maintainability**: Cleaner architecture with only actively used components
+
+### 🐛 **UI BUG FIX - DUPLICATE CONFIRMATION MESSAGE PRESERVATION**
+
+**calibot/backend/app/core/confirmation_handler.py**: Fixed duplicate confirmation UI bug
+- **Root Cause**: Event summary disappeared when buttons were pressed, only status text remained
+- **Evidence**: User reported "after event summary message button is pressed, the event summary shouldnt dissapear, just the buttons replaced by the outcome"
+- **Fix Applied**: Modified `handle_duplicate_confirmation()` to preserve original message content
+- **Implementation**: Get original message from conversation state and append status text instead of replacing
+- **Impact**: ✅ Event summary now preserved when buttons are pressed, only buttons removed
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE CONFIRMATION PROCESSING**
+
+**calibot/backend/app/operations/operation_factory.py**: Fixed "technical difficulties" error in duplicate confirmations
+- **Root Cause**: Operation factory looking for `pending_operation` but create operation stores data as `pending_duplicates`
+- **Evidence**: "I'm experiencing technical difficulties. Please try again in a moment." errors after duplicate confirmations
+- **Fix Applied**: Updated `handle_confirmation()` to check for `pending_duplicates` first for duplicate confirmations
+- **Implementation**: Added specific handling for `confirmation == "duplicates"` before generic pending operation logic
+- **Impact**: ✅ Eliminates "technical difficulties" errors when processing duplicate confirmations
+
+### 🔧 **TECHNICAL DETAILS**
+- **Data Storage**: Duplicate confirmations use `pending_duplicates` key, not `pending_operation`
+- **Operation Routing**: Duplicate confirmations now properly routed to CreateOperation handler
+- **Message Preservation**: Original event summary maintained during confirmation processing
+- **Error Prevention**: Eliminates root cause of "technical difficulties" errors in duplicate processing
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate event creation shows confirmation buttons
+- ✅ Event summary preserved when buttons pressed
+- ✅ "✅ Create Anyway" button processes without "technical difficulties"
+- ✅ "❌ Cancel" button processes without "technical difficulties"
+- 🔄 Awaiting user confirmation that all issues are resolved
+
+### 📊 **BACKEND ANALYSIS RESULTS**
+- **Total Files Analyzed**: 47 files
+- **Active Files**: 38 files (81%)
+- **Removed Files**: 9 files (19%)
+- **Active Prompts**: 5/7 prompts (71%)
+- **Architecture**: Well-structured operation-based system with proper separation of concerns
+
+## [0.1.230] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - CONVERSATION STATE CORRUPTION**
 

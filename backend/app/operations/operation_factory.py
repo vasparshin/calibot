@@ -75,7 +75,28 @@ class OperationFactory:
     async def handle_confirmation(self, chat_id: int, confirmation: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Handle confirmation responses for pending operations."""
         try:
-            # Get pending operation context
+            # Check for duplicate confirmation first (most common case)
+            if confirmation == "duplicates":
+                # Get pending duplicate operation from conversation state
+                pending_data = self.conversation_state.get_data(chat_id, "pending_duplicates")
+                
+                if not pending_data:
+                    return {
+                        "success": False,
+                        "message": "No pending duplicate operation found."
+                    }
+                
+                # Find the create operation to handle this confirmation
+                create_operation = self.operations.get("create")
+                if create_operation and hasattr(create_operation, 'handle_confirmation'):
+                    return await create_operation.handle_confirmation(chat_id, confirmation, pending_data)
+                else:
+                    return {
+                        "success": False,
+                        "message": "Cannot handle duplicate confirmation - create operation not available."
+                    }
+
+            # Handle other types of pending operations
             pending_op = self.get_pending_operation(chat_id)
 
             if not pending_op:
