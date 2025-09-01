@@ -83,8 +83,13 @@ async def handle_callback_query(callback_query):
         # Always answer to stop Telegram spinner
         await answer_callback_query(callback_query_id, "Processing...")
 
+        # Add detailed logging for callback debugging
+        logger.info(f"🔘 Processing callback: {callback_data}")
+
         # Handle different callback types
-        if callback_data.startswith("confirm_"):
+        if callback_data.startswith("confirm_all_") or callback_data.startswith("confirm_one_") or callback_data.startswith("cancel_"):
+            return await handle_multi_event_confirmation_callback(chat_id, message_id, callback_data)
+        elif callback_data.startswith("confirm_"):
             return await handle_confirmation_callback(chat_id, message_id, callback_data)
         elif callback_data.startswith("queue_"):
             return await handle_queue_callback(chat_id, message_id, callback_data)
@@ -101,6 +106,71 @@ async def handle_callback_query(callback_query):
     except Exception as e:
         logger.error(f"Callback query error: {e}")
         return {"status": "error", "message": str(e)}
+
+async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int, callback_data: str):
+    """Handle multi-event confirmation callbacks (confirm_all_*, confirm_one_*, cancel_*)."""
+    try:
+        logger.info(f"🔘 Multi-event callback: {callback_data}")
+        
+        # Parse callback data
+        if callback_data.startswith("confirm_all_"):
+            action = callback_data.replace("confirm_all_", "")
+            choice = "all"
+        elif callback_data.startswith("confirm_one_"):
+            action = callback_data.replace("confirm_one_", "")
+            choice = "one"
+        elif callback_data.startswith("cancel_"):
+            action = callback_data.replace("cancel_", "")
+            choice = "cancel"
+        else:
+            logger.warning(f"Unknown multi-event callback format: {callback_data}")
+            return {"status": "ok"}
+        
+        logger.info(f"🔘 Parsed: action={action}, choice={choice}")
+
+        # Remove the keyboard first
+        await edit_message_text(
+            chat_id, 
+            message_id, 
+            f"✅ Processing {choice} option for {action} operation...",
+            reply_markup={}
+        )
+
+        # Handle the choice using the appropriate service
+        if action in ["update", "delete"]:
+            # Use EventQueueHandler for multi-event operations
+            from app.services.event_queue_handler import EventQueueHandler
+            queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
+            
+            if choice == "all":
+                result = await queue_handler._process_all_events(str(chat_id))
+                message = result.get("message", f"Processed all {action} operations")
+            elif choice == "one":
+                # Start one-by-one processing
+                result = queue_handler.get_next_event_confirmation(str(chat_id))
+                if result.get("keyboard"):
+                    await send_telegram_message(chat_id, result["message"], reply_markup=result["keyboard"])
+                else:
+                    await send_telegram_message(chat_id, result["message"])
+                return {"status": "ok"}
+            elif choice == "cancel":
+                # Cancel operation
+                if queue_handler.has_pending_queue(str(chat_id)):
+                    queue = queue_handler.pending_queues[str(chat_id)]
+                    total_events = len(queue.get('events', []))
+                    del queue_handler.pending_queues[str(chat_id)]
+                    message = f"Operation cancelled. No events were {action}d."
+                else:
+                    message = "Operation cancelled."
+            
+            await send_telegram_message(chat_id, message)
+        
+        return {"status": "ok"}
+
+    except Exception as e:
+        logger.error(f"Multi-event callback error: {e}")
+        await send_telegram_message(chat_id, f"Error processing {callback_data}: {str(e)}")
+        return {"status": "error"}
 
 async def handle_confirmation_callback(chat_id: int, message_id: int, callback_data: str):
     """Handle confirmation callbacks."""

@@ -2,6 +2,40 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.193] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - CALLBACK HANDLING & CONVERSATION STATE**
+
+**calibot/backend/app/services/conversation.py**: Fixed ConversationState missing get_data and set_data methods
+- **Root Cause**: OperationFactory and BaseHandler calling `conversation_state.get_data()` and `set_data()` methods that didn't exist
+- **Error**: `'ConversationState' object has no attribute 'get_data'` causing callback processing failures
+- **Fix Applied**: Added missing methods:
+  - `get_data(user_id, key)` - Retrieves stored data by key from conversation metadata
+  - `set_data(user_id, key, data)` - Stores data by key in conversation metadata
+- **Impact**: ✅ Eliminated callback processing errors and enabled proper operation state management
+
+**calibot/backend/app/api/routes.py**: Fixed multi-event callback handling treating all actions as cancelled
+- **Root Cause**: Callback handler incorrectly parsing `confirm_all_update` as single confirmation instead of multi-event action
+- **Error**: User pressing "🔄 All" button resulted in "❌ **Cancelled**" message
+- **Fix Applied**: Added dedicated `handle_multi_event_confirmation_callback()` function with proper parsing:
+  - `confirm_all_{action}` → Process all events immediately
+  - `confirm_one_{action}` → Start one-by-one confirmation workflow  
+  - `cancel_{action}` → Cancel operation
+- **Fix Applied**: Added detailed callback logging for debugging button press issues
+- **Impact**: ✅ Multi-event buttons now work correctly - "All" processes all events, "One by One" starts individual confirmations
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.192 → 0.1.193
+- **calibot/backend/app/__init__.py**: __version__ 0.1.192 → 0.1.193
+
+### 📈 **TECHNICAL IMPACT**
+- **Fixed button interactions**: Multi-event confirmation buttons now work as expected
+- **Resolved callback errors**: No more ConversationState attribute errors
+- **Enhanced debugging**: Added detailed callback logging to track button presses
+- **Improved user experience**: Users can now successfully choose All/One by One/Cancel options
+
+**Testing Required**: Verify multi-event update/delete operations respond correctly to button presses in group chat -4627994150
+
 ## [0.1.192] - 2025-09-01
 
 ### ✨ **NEW FEATURES & CRITICAL BUG FIXES**

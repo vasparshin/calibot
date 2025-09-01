@@ -30,5 +30,35 @@ class ConversationState:
                 msg for msg in self.conversations[user_id]
                 if not (msg.get("role") == "system" and content_pattern in msg.get("content", ""))
             ]
+    
+    def get_data(self, user_id: int, key: str):
+        """Get data for a user by key."""
+        if user_id not in self.conversations:
+            return None
+        # Look for data in the conversation metadata
+        for msg in reversed(self.conversations[user_id]):
+            if msg.get("type") == "data" and msg.get("key") == key:
+                return msg.get("data")
+        return None
+    
+    def set_data(self, user_id: int, key: str, data):
+        """Set data for a user by key."""
+        if user_id not in self.conversations:
+            self.conversations[user_id] = []
+        
+        # Remove existing data with this key
+        self.conversations[user_id] = [
+            msg for msg in self.conversations[user_id]
+            if not (msg.get("type") == "data" and msg.get("key") == key)
+        ]
+        
+        # Add new data
+        self.conversations[user_id].append({
+            "role": "system",
+            "type": "data",
+            "key": key,
+            "data": data,
+            "timestamp": datetime.now().isoformat()
+        })
 
 conversation_state = ConversationState()
