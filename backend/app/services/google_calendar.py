@@ -46,19 +46,28 @@ class GoogleCalendarService:
             logger.info(f"Redirect URI: {flow.redirect_uri}")
             
             # Generate authorization URL with explicit parameters
-            # The authorization_url() method automatically includes response_type=code
+            # CRITICAL FIX: Explicitly include response_type=code to prevent recurring OAuth errors
             auth_url, state = flow.authorization_url(
                 access_type='offline',
                 include_granted_scopes='true',
-                prompt='consent'
+                prompt='consent',
+                response_type='code'  # Explicitly specify response_type
             )
+            
+            # Enhanced logging for OAuth debugging
+            logger.info(f"OAuth URL generated: {auth_url[:100]}...")
+            logger.info(f"OAuth URL contains response_type: {'response_type' in auth_url}")
+            logger.info(f"OAuth URL contains response_type=code: {'response_type=code' in auth_url}")
             
             # Double-check and ensure response_type=code is present
             if 'response_type=code' not in auth_url:
                 # This should never happen with google-auth-oauthlib, but adding as failsafe
                 separator = '&' if '?' in auth_url else '?'
                 auth_url += f'{separator}response_type=code'
-                logger.warning("Had to manually add missing response_type=code parameter to OAuth URL")
+                logger.warning("CRITICAL: Had to manually add missing response_type=code parameter to OAuth URL")
+                logger.warning(f"Original URL was: {auth_url[:100]}...")
+            else:
+                logger.info("✅ OAuth URL correctly contains response_type=code parameter")
             
             # Add cache-busting parameter if force_fresh is True
             if force_fresh:

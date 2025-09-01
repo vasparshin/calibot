@@ -2,6 +2,21 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.206] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - RECURRING OAUTH AUTHORIZATION ERROR**
+
+**calibot/backend/app/services/google_calendar.py**: Fixed recurring OAuth authorization error with missing response_type parameter
+- **Root Cause**: OAuth URL generation occasionally missing `response_type=code` parameter causing "Required parameter is missing: response_type" error
+- **Evidence**: User reported "Access blocked: authorisation error" with "Required parameter is missing: response_type" recurring from time to time
+- **Fix Applied**: Enhanced OAuth URL generation with explicit response_type parameter and failsafe validation
+- **Implementation**: Added explicit `response_type='code'` parameter to authorization_url() call and double-check validation
+- **Impact**: ✅ Eliminates recurring OAuth authorization errors that prevent Google Calendar authentication
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.205 → 0.1.206
+- **calibot/backend/app/__init__.py**: __version__ 0.1.205 → 0.1.206
+
 ## [0.1.205] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - ONE-BY-ONE PROCESSING & UNDO FUNCTIONALITY**
