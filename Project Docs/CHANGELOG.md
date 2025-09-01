@@ -2,6 +2,119 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.202] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - ONE-BY-ONE LOGIC & MESSAGE FLOW**
+
+**calibot/backend/app/api/routes.py**: Fixed one-by-one queue logic showing "Action: confirm_0" instead of proper event progression
+- **Root Cause**: `queue_confirm_0` callbacks being handled by wrong handler, showing generic "Action: confirm_0" message
+- **Evidence**: User clicking "Yes" on "UPDATE Event 1 of 3" resulted in strange "Action: confirm_0" message instead of event processing
+- **Fix Applied**: Fixed callback routing - `queue_` callbacks now handled by proper `handle_queue_callback()` using global EventQueueHandler
+- **Impact**: ✅ One-by-one processing should now show proper "UPDATE/DELETE Event X of Y" progression
+
+**calibot/backend/app/api/routes.py**: Fixed processing message flow to use separate messages instead of appending to summary
+- **Root Cause**: Processing status text being appended to summary message instead of being separate replaceable message
+- **User Report**: "processing all option text should be a new message while processing and success message should replace this processing message"
+- **Fix Applied**: Send separate processing message, replace with success message using `edit_message_text()`
+- **Impact**: ✅ Clean message flow - summary preserved, processing message replaced with final result
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.201 → 0.1.202
+- **calibot/backend/app/__init__.py**: __version__ 0.1.201 → 0.1.202
+
+## [0.1.201] - 2025-09-01
+
+### 🔍 **PERFORMANCE ANALYSIS & DEBUGGING ENHANCEMENTS**
+
+**calibot/backend/app/services/telegram.py**: Added Telegram API timing logging for performance analysis
+- **Feature**: Added millisecond-precision timing for all Telegram API calls
+- **Implementation**: `⏱️ TELEGRAM API: Message delivery took XXXms` logging
+- **Purpose**: Distinguish between application processing time vs Telegram delivery delays
+- **Discovery**: Telegram API calls complete in ~100ms, not 20-30 seconds as experienced
+- **Impact**: ✅ Identified that delays are not from Telegram API but elsewhere in the system
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.200 → 0.1.201
+- **calibot/backend/app/__init__.py**: __version__ 0.1.200 → 0.1.201
+
+## [0.1.200] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - EVENT SUMMARIES & CALENDAR DEBUGGING**
+
+**calibot/backend/app/operations/create_operation.py**: Fixed single event creation to show formatted event summary instead of generic success message
+- **Root Cause**: Single event creation returned "Event created successfully" instead of detailed event information
+- **Fix Applied**: Added event summary formatting using `MessageFormatter.format_single_event_display()`
+- **Example**: Now shows "Successfully created event: • [Lesson](link) on Monday, September 01, 2025 at 10:00 AM - 11:00 AM (Tonya)"
+- **Impact**: ✅ Single event creation now shows detailed event information like multi-event operations
+
+**calibot/backend/app/services/google_calendar.py**: Added calendar coverage debug logging to investigate multi-calendar queries
+- **Feature**: Added debug logging to track calendar discovery and search coverage
+- **Implementation**: `🔍 CALENDAR DEBUG: Searching X calendars: [list]` logging
+- **Discovery**: System searches 7 calendars, not just primary as suspected
+- **Impact**: ✅ Confirmed multi-calendar coverage is working correctly
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.199 → 0.1.200
+- **calibot/backend/app/__init__.py**: __version__ 0.1.199 → 0.1.200
+
+## [0.1.199] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - EVENT ID FIELD MAPPING**
+
+**calibot/backend/app/services/event_queue_handler.py**: Fixed event ID field mapping causing delete/update operation failures
+- **Root Cause**: Events have `'id'` field but code looked for `'event_id'` field, resulting in `None` event IDs
+- **Evidence**: Logs showed `{'id': '6199a84ht1r9o26o5kr6u2v3r0'}` but error `"Missing required parameter 'eventId'"`
+- **Fix Applied**: Changed both delete and update operations to use `event.get('id') or event.get('event_id')`
+- **Impact**: ✅ Delete and update operations now pass correct event IDs to Google Calendar API
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.198 → 0.1.199
+- **calibot/backend/app/__init__.py**: __version__ 0.1.198 → 0.1.199
+
+## [0.1.198] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - CHAT ID TYPE MISMATCH & BUG TRACKING SYSTEM**
+
+**calibot/Project Docs/BUG_LOG.md**: Established systematic bug tracking system with user confirmation workflow
+- **Feature**: Created comprehensive bug tracking system to prevent repeated failed fix attempts
+- **Implementation**: Bug status workflow - ACTIVE → IN PROGRESS → FIXED (only with user confirmation)
+- **Purpose**: Ensure bugs are only marked as fixed after explicit user verification
+- **Impact**: ✅ Systematic tracking prevents assumption-based bug marking
+
+**calibot/.cursorrules**: Enhanced development rules with mandatory bug tracking requirements
+- **Enhancement**: Added mandatory bug tracking rules to prevent bugs from being lost or incorrectly marked as fixed
+- **Requirements**: All user-reported issues must be logged in BUG_LOG.md immediately
+- **Impact**: ✅ Established disciplined approach to bug management
+
+**calibot/backend/app/services/event_queue_handler.py**: Fixed chat ID type mismatch causing queue data loss
+- **Root Cause**: Queue stored with integer chat_id, callbacks searched with string chat_id
+- **Evidence**: Debug logs showed queue keys `[-4627994150]` but callback looked for `"-4627994150"`
+- **Fix Applied**: Force consistent string chat_id usage in all queue operations
+- **Impact**: ✅ Queue data now persists correctly between operations and callbacks
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.197 → 0.1.198
+- **calibot/backend/app/__init__.py**: __version__ 0.1.197 → 0.1.198
+
+## [0.1.197] - 2025-09-01
+
+### 🔍 **DEBUG LOGGING ENHANCEMENTS**
+
+**calibot/backend/app/services/event_queue_handler.py**: Added comprehensive debug logging for queue data tracking
+- **Feature**: Extensive logging to track queue creation, storage, and retrieval processes
+- **Implementation**: Instance ID tracking, chat ID type logging, queue state monitoring
+- **Purpose**: Identify exact cause of queue data loss between operations and callbacks
+- **Impact**: ✅ Enabled precise debugging of queue persistence issues
+
+**calibot/backend/app/operations/delete_operation.py & update_operation.py**: Added debug logging for queue handler usage
+- **Feature**: Track which queue handler instances are used in operations
+- **Purpose**: Verify global queue handler is being used consistently
+- **Impact**: ✅ Enabled verification of queue handler instance consistency
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.196 → 0.1.197
+- **calibot/backend/app/__init__.py**: __version__ 0.1.196 → 0.1.197
+
 ## [0.1.203] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - ONE-BY-ONE PROCESSING & CALENDAR SEARCH**
