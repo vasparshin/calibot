@@ -39,6 +39,18 @@ async def get_small_talk_response(user_message: str, conversation_history: list)
     messages.append({"role": "user", "content": user_message})
     
     response = await acompletion(
-        api_key=OPENAI_API_KEY, model=LITELLM_MODEL, messages=messages, max_tokens=200
+        model=LITELLM_MODEL, messages=messages, max_tokens=200
     )
-    return response["choices"][0]["message"]["content"]
+    
+    # CRITICAL FIX: Handle LiteLLM ModelResponse objects properly
+    if hasattr(response, 'choices') and response.choices:
+        choice = response.choices[0]
+        if hasattr(choice, 'message') and choice.message:
+            if hasattr(choice.message, 'content'):
+                return choice.message.content
+    
+    # Fallback for dict-style response
+    if isinstance(response, dict) and 'choices' in response:
+        return response["choices"][0]["message"]["content"]
+    
+    return "I'm not sure how to respond to that."

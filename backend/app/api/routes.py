@@ -39,6 +39,40 @@ operation_factory = OperationFactory(telegram_service, conversation_state, calen
 
 logger = logging.getLogger(__name__)
 
+def _clean_message_for_conversation_state(message: str) -> str:
+    """Clean message content before adding to conversation state to prevent LLM corruption.
+    
+    Removes formatting that could corrupt LLM prompts:
+    - Multi-line content with complex formatting
+    - Bullet points and special characters
+    - Newlines and excessive whitespace
+    """
+    if not message:
+        return ""
+    
+    # For duplicate confirmation messages, extract just the core intent
+    if "Found" in message and "potential duplicate event" in message:
+        return "Found potential duplicate events - asking for confirmation"
+    
+    # For success messages with event details, extract just the summary
+    if "•" in message and "on" in message and "at" in message:
+        # Extract just the first line or a summary
+        lines = message.split('\n')
+        first_line = lines[0].strip()
+        if len(first_line) > 100:
+            return "Event operation completed successfully"
+        return first_line
+    
+    # For other messages, clean up formatting
+    cleaned = message.replace('\n\n', ' ').replace('\n', ' ')
+    cleaned = ' '.join(cleaned.split())  # Remove extra whitespace
+    
+    # Truncate very long messages to prevent prompt corruption
+    if len(cleaned) > 200:
+        cleaned = cleaned[:200] + "..."
+    
+    return cleaned
+
 @router.post("/webhook")
 async def telegram_webhook(request: Request):
     """Handle incoming Telegram messages and callback queries."""
@@ -448,8 +482,24 @@ async def _process_single_message(chat_id: str, user_message: str):
         # Add message to conversation
         conversation_state.add_message(chat_id_int, "user", user_message)
 
-        # Extract intent using NLP agent
+        # Check relevancy first for small talk handling
         history = conversation_state.get_conversation_history(chat_id_int)
+        relevancy_result = await ai_agent.check_relevancy(user_message, history)
+        
+        if not relevancy_result.get("relevant", True):
+            # Handle small talk or irrelevant messages
+            from app.services.ai_service import get_small_talk_response
+            small_talk_response = await get_small_talk_response(user_message, history)
+            if small_talk_response and small_talk_response.strip():
+                await send_telegram_message(chat_id_int, small_talk_response.strip())
+                clean_message = _clean_message_for_conversation_state(small_talk_response.strip())
+                conversation_state.add_message(chat_id_int, "assistant", clean_message)
+            else:
+                await send_telegram_message(chat_id_int, "Hi! I'm CaliBOT, your calendar assistant. How can I help you with your schedule today?")
+                conversation_state.add_message(chat_id_int, "assistant", "Hi! I'm CaliBOT, your calendar assistant. How can I help you with your schedule today?")
+            return {"status": "ok"}
+
+        # Extract intent using NLP agent for calendar-related messages
         intent_result = await ai_agent.extract_intent(user_message, history)
 
         if not intent_result or not isinstance(intent_result, dict):
@@ -475,17 +525,23 @@ async def _process_single_message(chat_id: str, user_message: str):
             message = result.get("message", "Please confirm your action:")
             keyboard = result.get("keyboard")
             await send_telegram_message(chat_id_int, message, reply_markup=keyboard)
-            conversation_state.add_message(chat_id_int, "assistant", message)
+            # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
+            clean_message = _clean_message_for_conversation_state(message)
+            conversation_state.add_message(chat_id_int, "assistant", clean_message)
         elif result.get("success"):
             # Send success message and add to conversation state for undo functionality
             message = result["message"]
             await send_telegram_message(chat_id_int, message)
-            conversation_state.add_message(chat_id_int, "assistant", message)  # CRITICAL: Store for undo
+            # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
+            clean_message = _clean_message_for_conversation_state(message)
+            conversation_state.add_message(chat_id_int, "assistant", clean_message)  # CRITICAL: Store for undo
         else:
             # Send error message and add to conversation state
             error_msg = result.get("message", "An error occurred while processing your request.")
             await send_telegram_message(chat_id_int, error_msg)
-            conversation_state.add_message(chat_id_int, "assistant", error_msg)
+            # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
+            clean_message = _clean_message_for_conversation_state(error_msg)
+            conversation_state.add_message(chat_id_int, "assistant", clean_message)
 
         return {"status": "ok"}
 
@@ -553,11 +609,14 @@ Return only the response message that should be sent to the user.
             if llm_response and llm_response.strip():
                 response_message = llm_response.strip()
                 await send_telegram_message(chat_id, response_message)
-                conversation_state.add_message(chat_id, "assistant", response_message)  # CRITICAL: Store for undo
+                # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
+                clean_message = _clean_message_for_conversation_state(response_message)
+                conversation_state.add_message(chat_id, "assistant", clean_message)  # CRITICAL: Store for undo
             else:
                 fallback_message = "I found some information but couldn't format it properly. Please try rephrasing your request."
                 await send_telegram_message(chat_id, fallback_message)
-                conversation_state.add_message(chat_id, "assistant", fallback_message)
+                clean_message = _clean_message_for_conversation_state(fallback_message)
+                conversation_state.add_message(chat_id, "assistant", clean_message)
         except Exception as llm_error:
             logger.error(f"LLM formatting error: {llm_error}")
             # Fallback: provide basic formatted response

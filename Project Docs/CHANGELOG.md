@@ -2,6 +2,50 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.234] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - CONVERSATION STATE CORRUPTION AFTER DUPLICATE CONFIRMATIONS**
+
+**calibot/backend/app/api/routes.py**: Fixed conversation state corruption causing LLM failures after duplicate confirmations
+- **Root Cause**: Multi-line assistant messages with formatting (duplicate confirmations, event details) were corrupting LLM prompts
+- **Evidence**: Logs showed `"[2] Assistant: Found 1 potential duplicate event(s):\n• Test Event..."` being passed to LLM, causing `'content'` errors
+- **Pattern**: First message works → duplicate confirmation → LLM prompt corruption → all subsequent messages fail with `'content'` error
+- **Fix Applied**: Added `_clean_message_for_conversation_state()` function to sanitize messages before storing in conversation history
+- **Implementation**: Clean multi-line messages, remove formatting, truncate long content, extract core intent
+- **Impact**: ✅ Eliminates conversation state corruption that was causing "technical difficulties" loop
+
+**calibot/backend/app/services/ai_service.py**: Fixed small talk response LLM handling for ModelResponse objects
+- **Root Cause**: Small talk responses using old dict-style LLM response access causing failures
+- **Evidence**: User reported CaliBOT not responding to "hey" or "what's ur name" messages
+- **Fix Applied**: Updated `get_small_talk_response()` to use proper ModelResponse object handling
+- **Implementation**: Added hasattr-based access pattern like other LLM functions
+- **Impact**: ✅ Small talk responses now work correctly with LiteLLM ModelResponse objects
+
+**calibot/backend/app/api/routes.py**: Integrated relevancy checking and small talk handling into message processing flow
+- **Root Cause**: Small talk functionality existed but was not integrated into main message processing pipeline
+- **Evidence**: Messages like "hey", "hello", "what's your name" were going through intent extraction instead of small talk
+- **Fix Applied**: Added relevancy checking before intent extraction, route irrelevant messages to small talk handler
+- **Implementation**: Check `ai_agent.check_relevancy()` first, use `get_small_talk_response()` for irrelevant messages
+- **Impact**: ✅ CaliBOT now responds naturally to greetings and small talk instead of trying to extract calendar intent
+
+### 🔧 **TECHNICAL DETAILS**
+- **Message Cleaning**: Removes multi-line formatting, bullet points, excessive whitespace from conversation history
+- **Relevancy Flow**: Check relevancy → small talk response OR intent extraction → operation execution
+- **LLM Compatibility**: All LLM calls now use consistent ModelResponse object handling
+- **Conversation Integrity**: Prevents prompt corruption from complex formatted messages
+
+### 🧪 **TESTING STATUS**
+- ✅ Conversation state corruption fix applied - messages cleaned before storage
+- ✅ Small talk responses integrated into message processing flow
+- ✅ Relevancy checking added before intent extraction
+- 🔄 Awaiting user confirmation that technical difficulties loop and small talk issues are resolved
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: Multi-line assistant messages corrupting LLM conversation prompts
+- **Secondary Issue**: Small talk functionality not integrated into main processing flow
+- **User Impact**: Complete system failure after duplicate confirmations + no personality responses
+- **Fix Priority**: CRITICAL - System was unusable after first duplicate confirmation
+
 ## [0.1.233] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - PROCESSING STATUS STUCK STATE RESOLVED**

@@ -36,6 +36,7 @@
 - **🚨 COMMIT IS INCOMPLETE**: Without changelog update - this is a HARD REQUIREMENT
 - **🚨 FORMAT REQUIRED**: [Version] - YYYY-MM-DD with detailed technical explanations
 - **🚨 UPDATE IMMEDIATELY**: Don't delay changelog updates - do them with the code changes
+- **PURPOSE**: Track ALL changes, fixes, features, and their technical implementation details
 
 ### Bug Tracking Rules (MANDATORY)
 - **MANDATORY**: Maintain `Project Docs/BUG_LOG.md` for all user-reported issues
@@ -44,6 +45,12 @@
 - **🚨 USER AUTHORITY ONLY**: Only user can say "this bug is fixed" or "mark BUG-XXX as fixed"
 - **PROCESS**: Log all bugs immediately when reported, track attempted fixes
 - **NEVER assume a bug is fixed without user confirmation**
+- **PURPOSE**: Track ONLY active/unresolved bugs - reference by number only, NO version history
+
+### Documentation Separation
+- **CHANGELOG.md**: Complete history of ALL changes, fixes, features with version details
+- **BUG_LOG.md**: ONLY active/unresolved bugs with current status - clean and focused
+- **RULE**: Once bug is resolved, REMOVE from BUG_LOG.md and add details to CHANGELOG.md
 
 ### Bug Status Workflow
 1. **User reports bug** → Add to BUG_LOG.md as 🔴 ACTIVE
