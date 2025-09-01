@@ -20,6 +20,9 @@ def strip_markdown(text: str) -> str:
 
 async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
         """Send message to Telegram chat with optional inline keyboard"""
+        import time
+        start_time = time.time()
+        
         # Check if text contains hyperlinks - if so, use Markdown mode
         if '[' in text and '](' in text and ')' in text:
             parse_mode = "Markdown"
@@ -50,7 +53,17 @@ async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None,
                 f"{TELEGRAM_API_BASE}/sendMessage",
                 json=payload
             )
-            return response.json()
+            
+            # Log timing information
+            end_time = time.time()
+            delivery_time = (end_time - start_time) * 1000  # Convert to milliseconds
+            logger.info(f"⏱️ TELEGRAM API: Message delivery took {delivery_time:.0f}ms")
+            
+            result = response.json()
+            if not result.get("ok"):
+                logger.warning(f"⚠️ TELEGRAM API: Message failed: {result}")
+            
+            return result
 
 
 def create_event_selection_keyboard(events: list) -> dict:
