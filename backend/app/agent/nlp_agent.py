@@ -151,33 +151,24 @@ class NLPAgent:
 
             response = await _call_llm()
 
-            # CRITICAL FIX: Handle different response structures with better error handling
+            # CRITICAL FIX: Handle LiteLLM ModelResponse object structure
             logger.info(f"🔍 RESPONSE STRUCTURE DEBUG - Type: {type(response)}")
-            logger.info(f"🔍 RESPONSE STRUCTURE DEBUG - Keys: {list(response.keys()) if isinstance(response, dict) else 'Not a dict'}")
             
-            if isinstance(response, dict):
-                if 'choices' in response:
-                    if response['choices'] and len(response['choices']) > 0:
-                        choice = response['choices'][0]
-                        if 'message' in choice:
-                            message = choice['message']
-                            if 'content' in message:
-                                result = message['content']
-                            else:
-                                logger.error(f"Message missing 'content' field: {message}")
-                                raise ValueError("Message missing content field")
-                        else:
-                            logger.error(f"Choice missing 'message' field: {choice}")
-                            raise ValueError("Choice missing message field")
+            # Handle LiteLLM ModelResponse object
+            if hasattr(response, 'choices') and response.choices:
+                choice = response.choices[0]
+                if hasattr(choice, 'message') and choice.message:
+                    if hasattr(choice.message, 'content'):
+                        result = choice.message.content
                     else:
-                        logger.error(f"Empty choices array: {response['choices']}")
-                        raise ValueError("Empty choices array")
+                        logger.error(f"Message missing 'content' field: {choice.message}")
+                        raise ValueError("Message missing content field")
                 else:
-                    logger.error(f"Response missing 'choices' field: {response}")
-                    raise ValueError("Response missing choices field")
+                    logger.error(f"Choice missing 'message' field: {choice}")
+                    raise ValueError("Choice missing message field")
             else:
-                logger.error(f"Response is not a dict: {type(response)} - {response}")
-                raise ValueError("Response is not a dict")
+                logger.error(f"Response missing 'choices' field: {response}")
+                raise ValueError("Response missing choices field")
 
             logger.info(f"🔍 COMPLETE LLM RESPONSE: '{result}'")
             logger.info(f"Response length: {len(result)}")
