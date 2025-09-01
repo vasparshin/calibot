@@ -62,38 +62,47 @@ class DeleteOperation(BaseOperation):
             }
 
     async def delete_single_event(self, chat_id: int, event: Dict[str, Any], event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Delete a single event."""
+        """Delete a single event with consistent formatting."""
         try:
             source_calendar_id = event.get('calendar_id', 'primary')
             from app.utils.message_formatter import MessageFormatter
-            event_name = MessageFormatter.format_event_title(
-                event.get('summary', event.get('event_name', 'Event'))
-            )
-
-            calendar_response = self.calendar_service.delete_event(event["id"], source_calendar_id)
-
-            if calendar_response.get("success"):
-                message = f"Successfully deleted: {event_name}"
-
-                return {
-                    "success": True,
-                    "message": message,
-                    "calendar_response": calendar_response,
-                    "deleted_event": event
-                }
-            else:
-                return {
-                    "success": False,
-                    "message": calendar_response.get("message", "Failed to delete event"),
-                    "error": calendar_response.get("message", "Unknown error")
-                }
+            
+            # Show confirmation message first using consistent format
+            event_display = MessageFormatter.format_single_event_display(event, include_hyperlink=True)
+            # Remove bullet point for confirmation format
+            if event_display.startswith('• '):
+                event_display = event_display[2:]
+            
+            confirmation_message = f"Are you sure you want to delete {event_display}?"
+            
+            # Create confirmation keyboard
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {"text": "✅ Yes", "callback_data": "confirm_delete"},
+                        {"text": "❌ No", "callback_data": "cancel_delete"}
+                    ]
+                ]
+            }
+            
+            # Send confirmation message and wait for user response
+            await self.send_message(chat_id, confirmation_message, keyboard)
+            
+            return {
+                "success": True,
+                "requires_user_action": True,
+                "message": confirmation_message,
+                "keyboard": keyboard,
+                "pending_event": event,
+                "pending_action": "delete_single"
+            }
 
         except Exception as e:
-            logger.error(f"Error deleting single event: {e}")
+            logger.error(f"Error in single event delete confirmation: {e}")
             return {
                 "success": False,
                 "error": str(e),
-                "message": "Failed to delete event."
+                "message": "Failed to process delete request."
             }
 
     async def handle_multi_event_delete(self, chat_id: int, events: List[Dict], event_data: Dict[str, Any]) -> Dict[str, Any]:

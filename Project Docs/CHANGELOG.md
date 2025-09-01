@@ -2,6 +2,45 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.203] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - ONE-BY-ONE PROCESSING & CALENDAR SEARCH**
+
+**calibot/backend/app/api/routes.py**: Fixed one-by-one message replacement logic
+- **Root Cause**: Line 295 was always editing message to "✅ Processed" instead of replacing with next event details
+- **Evidence**: Logs showed "Processing one option..." followed by "✅ Processed" and new messages instead of message replacement
+- **Fix Applied**: Replaced generic "✅ Processed" with proper message replacement logic
+- **Implementation**: 
+  - Queue complete: Replace message with final result
+  - More events: Replace message with next event confirmation including keyboard
+  - Errors: Replace message with error text and remove keyboard
+- **Impact**: ✅ One-by-one processing now correctly replaces message content instead of creating new messages
+
+**calibot/backend/app/services/google_calendar.py**: Fixed calendar search to query ALL calendars
+- **Root Cause**: Calendar cache was empty, causing search to only look in 'primary' calendar
+- **Evidence**: User reported "not finding events on all the calendars in query, only in edit/delete"
+- **Fix Applied**: Added direct `list_calendars()` call to get fresh calendar list when cache is empty
+- **Implementation**: Try fresh calendar list first, fallback to cache, final fallback to primary only
+- **Impact**: ✅ Event search now properly searches across ALL available calendars
+
+**calibot/backend/app/services/event_queue_handler.py**: Fixed duplicate "event created successfully" text
+- **Root Cause**: Line 769 was returning generic success message instead of using MessageFormatter
+- **Evidence**: User reported repetition of "event create successfully:" text in success messages
+- **Fix Applied**: Replaced generic message with proper MessageFormatter.format_single_event_display()
+- **Implementation**: Format event with hyperlink and proper calendar details
+- **Impact**: ✅ Success messages now show full event details with hyperlinks instead of generic text
+
+**calibot/backend/app/operations/delete_operation.py**: Implemented consistent single event deletion format
+- **Root Cause**: Single event deletion was using different format than one-by-one processing
+- **Evidence**: User reported "when deleting a single event we should have the same logic as if going one by one"
+- **Fix Applied**: Changed single event deletion to show full event confirmation with consistent formatting
+- **Implementation**: Use MessageFormatter for consistent event display, proper confirmation keyboard
+- **Impact**: ✅ Single event deletion now uses same format as one-by-one processing (without "event 1 of 1")
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.202 → 0.1.203
+- **calibot/backend/app/__init__.py**: __version__ 0.1.202 → 0.1.203
+
 ## [0.1.196] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - QUEUE DATA PERSISTENCE & CIRCULAR IMPORTS**

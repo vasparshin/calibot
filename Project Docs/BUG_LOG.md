@@ -55,15 +55,18 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 - **Expected**: Separate processing message that gets replaced with success message
 - **Actual**: Processing text appended to summary message
 - **Affects**: Both delete and update operations
-- **Status**: 🔴 ACTIVE
+- **Status**: 🟡 IN PROGRESS
+- **Current Fix**: v0.1.202 - Send separate processing message, replace with success message
 
 #### **BUG-009: One-by-One Logic Broken**
 - **Description**: One-by-one processing shows strange "Action: confirm_0" message instead of proper event confirmation
 - **User Report**: "one by one logic is broken, the first event comes up after the one by one button is pressed but after i click yes i get a strange 'Action: confirm_0' message instead of summary of event x being deleted and the next event in queue for deletion to process"
 - **Expected**: "DELETE Event X of Y" with proper event details and progression
 - **Actual**: Strange "Action: confirm_0" message
+- **Root Cause Found**: `queue_confirm_0` callbacks handled by wrong handler showing "Action: confirm_0" instead of proper queue processing
 - **Affects**: Both delete and update operations
-- **Status**: 🔴 ACTIVE
+- **Status**: 🟡 IN PROGRESS
+- **Current Fix**: v0.1.202 - Fixed queue callback routing to use proper EventQueueHandler
 
 #### **BUG-010: Update Operations Not Actually Executing**
 - **Description**: Update operations show success messages but don't actually modify events in Google Calendar

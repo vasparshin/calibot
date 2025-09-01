@@ -24,10 +24,12 @@
 
 ## 🚨 MANDATORY CHANGELOG & BUG TRACKING
 
-### Changelog Rules
-- **CRITICAL**: Every commit touching ANY code file MUST update CHANGELOG.md
-- **NO EXCEPTIONS**: Even smallest fixes require changelog entry
-- **Format**: [Version] - YYYY-MM-DD with detailed technical explanations
+### Changelog Rules (ABSOLUTE REQUIREMENT)
+- **🚨 CRITICAL**: Every commit touching ANY code file MUST update CHANGELOG.md BEFORE committing
+- **🚨 NO EXCEPTIONS**: Even single-line fixes require changelog entry
+- **🚨 COMMIT IS INCOMPLETE**: Without changelog update - this is a HARD REQUIREMENT
+- **🚨 FORMAT REQUIRED**: [Version] - YYYY-MM-DD with detailed technical explanations
+- **🚨 UPDATE IMMEDIATELY**: Don't delay changelog updates - do them with the code changes
 
 ### Bug Tracking Rules (MANDATORY)
 - **MANDATORY**: Maintain `Project Docs/BUG_LOG.md` for all user-reported issues

@@ -256,43 +256,42 @@ async def handle_queue_callback(chat_id: int, message_id: int, callback_data: st
                 result = await queue_handler.process_queue_response(str(chat_id), "yes")
                 if result.get("success"):
                     if result.get("queue_complete"):
-                        # All events processed
-                        await send_telegram_message(chat_id, result["message"])
+                        # All events processed - replace current message with final result
+                        await edit_message_text(chat_id, message_id, result["message"], reply_markup={})
                     else:
-                        # More events to process
+                        # More events to process - replace current message with next event confirmation
                         next_confirmation = result.get("next_confirmation")
                         if next_confirmation and next_confirmation.get("keyboard"):
-                            await send_telegram_message(chat_id, next_confirmation["message"], reply_markup=next_confirmation["keyboard"])
+                            await edit_message_text(chat_id, message_id, next_confirmation["message"], reply_markup=next_confirmation["keyboard"])
                         else:
-                            await send_telegram_message(chat_id, result["message"])
+                            await edit_message_text(chat_id, message_id, result["message"], reply_markup={})
                 else:
-                    await send_telegram_message(chat_id, result.get("message", "Error processing event"))
+                    await edit_message_text(chat_id, message_id, result.get("message", "Error processing event"), reply_markup={})
                     
         elif action.startswith("skip_"):
             # Handle skip event (e.g., "skip_0", "skip_1")
             result = await queue_handler.process_queue_response(str(chat_id), "skip")
             if result.get("success"):
                 if result.get("queue_complete"):
-                    await send_telegram_message(chat_id, result["message"])
+                    # All events processed - replace current message with final result
+                    await edit_message_text(chat_id, message_id, result["message"], reply_markup={})
                 else:
+                    # More events to process - replace current message with next event confirmation
                     next_confirmation = result.get("next_confirmation")
                     if next_confirmation and next_confirmation.get("keyboard"):
-                        await send_telegram_message(chat_id, next_confirmation["message"], reply_markup=next_confirmation["keyboard"])
+                        await edit_message_text(chat_id, message_id, next_confirmation["message"], reply_markup=next_confirmation["keyboard"])
                     else:
-                        await send_telegram_message(chat_id, result["message"])
+                        await edit_message_text(chat_id, message_id, result["message"], reply_markup={})
             else:
-                await send_telegram_message(chat_id, result.get("message", "Error skipping event"))
+                await edit_message_text(chat_id, message_id, result.get("message", "Error skipping event"), reply_markup={})
                 
         elif action == "stop_all":
             # Cancel remaining queue
             if queue_handler.has_pending_queue(str(chat_id)):
                 queue_handler.clear_queue(str(chat_id))
-                await send_telegram_message(chat_id, "Operation cancelled. Remaining events were not processed.")
+                await edit_message_text(chat_id, message_id, "Operation cancelled. Remaining events were not processed.", reply_markup={})
             else:
-                await send_telegram_message(chat_id, "No pending operations to cancel.")
-
-        # Remove the keyboard from the original message
-        await edit_message_text(chat_id, message_id, f"✅ Processed", reply_markup={})
+                await edit_message_text(chat_id, message_id, "No pending operations to cancel.", reply_markup={})
 
         return {"status": "ok"}
 

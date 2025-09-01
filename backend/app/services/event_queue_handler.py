@@ -764,9 +764,20 @@ Choose your action:"""
                     })
                     
                     if result.get('success'):
+                        # Use proper event formatting for success message
+                        event_name = event.get('event_name', 'Untitled Event')
+                        formatted_event = {
+                            'summary': event_name,
+                            'start': event.get('start_time', ''),
+                            'end': event.get('end_time', ''),
+                            'calendar_name': result.get('calendar_used', 'Calendar'),
+                            'id': result.get('event_id', ''),
+                            'htmlLink': result.get('event_link', '')
+                        }
+                        success_display = MessageFormatter.format_single_event_display(formatted_event, include_hyperlink=True)
                         return {
                             "success": True,
-                            "message": "Success: Event created successfully",
+                            "message": f"Successfully created:\n{success_display}",
                             "event_id": result.get('event_id', 'unknown')
                         }
                     else:

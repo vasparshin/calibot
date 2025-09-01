@@ -671,10 +671,25 @@ class GoogleCalendarService:
                 if calendar_id:
                     calendar_ids = [calendar_id]
             else:
-                # Search all calendars for better results
-                available_calendars = list(self.calendar_agent.calendar_cache.keys()) or ['primary']
-                calendar_ids = available_calendars
-                logger.info(f"🔍 CALENDAR DEBUG: Searching {len(calendar_ids)} calendars: {calendar_ids}")
+                # Search all calendars for better results - CRITICAL FIX
+                # First ensure calendars are loaded and get fresh list
+                try:
+                    available_calendars_list = self.list_calendars()
+                    if isinstance(available_calendars_list, list) and len(available_calendars_list) > 0:
+                        # Extract calendar IDs from the list
+                        calendar_ids = [cal.get('id', cal.get('calendar_id', 'primary')) for cal in available_calendars_list]
+                        logger.info(f"🔍 CALENDAR FIX: Found {len(calendar_ids)} calendars to search")
+                        logger.info(f"🔍 CALENDAR FIX: Calendar IDs: {calendar_ids}")
+                    else:
+                        # Fallback to cache if list_calendars fails
+                        available_calendars = list(self.calendar_agent.calendar_cache.keys()) or ['primary']
+                        calendar_ids = available_calendars
+                        logger.warning(f"🔍 CALENDAR FIX: Fallback to cache - {len(calendar_ids)} calendars")
+                except Exception as e:
+                    logger.error(f"🔍 CALENDAR FIX: Error getting calendars, using primary only: {e}")
+                    calendar_ids = ['primary']
+                
+                logger.info(f"🔍 CALENDAR DEBUG: Final search list - {len(calendar_ids)} calendars: {calendar_ids}")
                 logger.info(f"🔍 CALENDAR DEBUG: Calendar cache size: {len(self.calendar_agent.calendar_cache)}")
 
             all_events = []
