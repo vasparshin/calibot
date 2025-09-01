@@ -774,9 +774,16 @@ class EventQueueHandler:
             # Legacy implementation for mixed results or when formatter unavailable
             if failed == 0:
                 if intent == 'update' and successful_events:
-                    # For updates, show detailed changes made
+                    # CRITICAL FIX: Format success message to match "Found X events" format
+                    # Instead of "Successfully updated all X events", show numbered list with updated details
                     date_suffix = f" on {date_info}" if date_info else ""
-                    message = f"Successfully updated all {total_events} events{date_suffix}:\n\n" + "\n".join(successful_events)
+                    message = f"Successfully updated all {total_events} events{date_suffix}:\n\n"
+                    
+                    for i, event_text in enumerate(successful_events, 1):
+                        # Remove bullet point if present and add number
+                        if event_text.startswith('• '):
+                            event_text = event_text[2:]  # Remove bullet point
+                        message += f"{i}. {event_text}\n"
                 elif intent == 'delete':
                     date_suffix = f" on {date_info}" if date_info else ""
                     message = f"Successfully deleted all {total_events} events{date_suffix}!"
@@ -1043,7 +1050,7 @@ class EventQueueHandler:
                         logger.info(f"🔗 HYPERLINK MASTER: Created {formatted_event} from link: {event_link}")
                         
                         # CRITICAL FIX: Remove redundant "• Updated" prefix - just show the event
-                        success_message = f"• {formatted_event}"
+                        success_message = formatted_event
                         
                         return {
                             "success": True,

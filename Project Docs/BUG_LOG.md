@@ -11,180 +11,42 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.217 - Latest Version Testing
+## v0.1.218 - Current Version Testing
 
-### 🔴 **CURRENT ACTIVE BUGS** - User Testing v0.1.217
+### 🔴 **ACTIVE BUGS**
 
-#### **BUG-020: Double Bullet Point in Success Messages** - 🔴 **CRITICAL**
-- **Description**: Success messages showing double bullet points "• • [Event Name]"
-- **Evidence**: Logs show `• • [Test Meeting](https://calendar.google.com/calendar/event?eid=...)`
-- **Root Cause**: Master formatter adds bullet point, but success message already includes bullet point
-- **Impact**: Ugly formatting with double bullet points in all success messages
+#### **BUG-024: LLM Response Structure Error** - 🔴 **CRITICAL**
+- **Description**: LLM returning 'content' error instead of proper JSON structure
+- **Evidence**: `ERROR:app.agent.nlp_agent:Error extracting intent: 'content'`
+- **User Messages**: "hello", "add a 'test event' today at 7pm"
+- **Impact**: Complete system failure - no fallback functionality allowed
 - **Status**: 🔴 **ACTIVE** - Needs immediate fix
 
-#### **BUG-021: Duplicate Detection Syntax Error** - 🔴 **CRITICAL**
-- **Description**: Duplicate detection failing due to syntax error in ui_helpers.py
-- **Evidence**: `ERROR:app.operations.base_operation:Error in duplicate checking: expected an indented block after 'except' statement on line 56 (ui_helpers.py, line 61)`
-- **Impact**: Duplicate detection completely broken, no protection against duplicate events
-- **Status**: 🔴 **ACTIVE** - Syntax error needs immediate fix
+#### **BUG-025: Success Message Format Inconsistency** - 🔴 **CRITICAL**
+- **Description**: Success messages not matching "Found X events" format
+- **Evidence**: "Successfully updated all 4 events" vs "Found 4 events to update"
+- **Expected**: Numbered list format with updated event details
+- **Impact**: Inconsistent user experience
+- **Status**: 🔴 **ACTIVE** - Needs format standardization
 
-#### **BUG-022: One-by-One Editing Not Working** - 🔴 **CRITICAL**
-- **Description**: Editing multiple events one at a time not working
-- **User Report**: "editing multiple events one at a time not working"
-- **Status**: 🔴 **ACTIVE** - Previous fixes in v0.1.217 not working
+#### **BUG-026: Missing Hyperlinks in Event Lists** - 🔴 **CRITICAL**
+- **Description**: Event lists missing hyperlinks in "Found X events" messages
+- **Evidence**: Events show as plain text instead of `[Event Name](link)` format
+- **Impact**: Users can't click on events to view details
+- **Status**: 🔴 **ACTIVE** - Needs hyperlink formatting
 
-#### **BUG-023: Hyperlink Formatting Still Inconsistent** - 🔴 **CRITICAL**
-- **Description**: Hyperlinks still showing formatting issues despite v0.1.217 fixes
-- **User Report**: "hyperlinks still an issue, just like i described in my last message"
-- **Status**: 🔴 **ACTIVE** - v0.1.217 fixes not sufficient
+#### **BUG-027: Event Name Capitalization Issues** - 🔴 **CRITICAL**
+- **Description**: Event names not preserving Google Calendar format or auto-capitalizing properly
+- **Evidence**: Inconsistent capitalization between Google Calendar and CaliBOT
+- **Expected**: Preserve Google Calendar format, auto-capitalize user input appropriately
+- **Impact**: Inconsistent event naming
+- **Status**: 🔴 **ACTIVE** - Needs capitalization logic
 
----
-
-## v0.1.215 - Latest Version Testing\n\n### 🔴 **CURRENT ACTIVE BUGS** - User Testing v0.1.215\n\n#### **BUG-016: Hyperlink URL Inconsistency** - 🔴 **CRITICAL**\n- **Description**: Some hyperlinks use `www.google.com` while others use `calendar.google.com` causing broken hyperlinks\n- **Evidence**: `[lesson](https://www.google.com/calendar/event?eid=...)` vs `[Lesson](https://calendar.google.com/calendar/event?eid=...)`\n- **Impact**: Users see text+link instead of clickable hyperlinks in some messages\n- **Status**: 🔴 **ACTIVE** - Needs URL normalization fix\n\n#### **BUG-017: Useless Status Messages** - 🔴 **CRITICAL**\n- **Description**: System shows unnecessary messages that clutter user experience\n- **Evidence**: `\"✅ Processing one option...\"` and `\"Choose your action:\"` messages appear\n- **Impact**: Confusing user interface with unnecessary status updates\n- **Status**: 🔴 **ACTIVE** - Remove these messages\n\n#### **BUG-018: Date Format Inconsistency** - 🔴 **CRITICAL**\n- **Description**: Date format not using required dd.mm.yy format for user messages\n- **Evidence**: `\"(move to 2025-09-03):\"` should be `\"(move to 03.09.25):\"`\n- **Impact**: Inconsistent date display format across system\n- **Status**: 🔴 **ACTIVE** - Standardize to dd.mm.yy format\n\n#### **BUG-019: Calendar Editing Not Working** - 🔴 **CRITICAL**\n- **Description**: Cannot edit event details including calendar selection\n- **Evidence**: User reported \"changing calendars (editing event details) isnt working\"\n- **Impact**: Cannot move events between calendars or edit comprehensive event details\n- **Status**: 🔴 **ACTIVE** - Implement calendar changing functionality\n\n### ✅ **RESOLVED BUGS** - v0.1.215\n\n#### **BUG-015: Date Logic Bug** - ✅ **FIXED**\n- **Description**: Edit operations showing success but not actually changing dates\n- **Fix**: Added `new_date` field handling in event queue handler\n- **Status**: ✅ **RESOLVED** - Edit operations now actually modify Google Calendar\n\n## v0.1.214 - Previous Version Testing
-
-### 🔴 **CURRENT ACTIVE BUGS** - User Testing v0.1.213
-
-#### **BUG-013: Query Events Inconsistency** - 🟡 **IN PROGRESS**
-- **Description**: Query operations showing different results for same queries inconsistently
-- **User Report**: "query events now working - showing events from multiple calendars, but not consistently. might be worth refining the prompt, check the render logs via mcp to see whats happened but i asked for todays questions multiple times and got different answers"
-- **Status**: 🟡 **IN PROGRESS** - Analysis shows 7 calendars being searched correctly, inconsistency may be from API variations
-- **Fix Attempted**: v0.1.214 - Confirmed system working correctly, no code changes needed
-
-#### **BUG-014: One-by-One Editing Not Actually Working** - 🟡 **IN PROGRESS**
-- **Description**: One-by-one editing workflow appears to work but edits aren't being applied to calendar
-- **User Report**: "editing multiple events one by one isn't working, the edits aren't being applied, also in the single event edit confirmation message the event is marked as unknown date + event 2 has malfunctioning hyperlink (shown as link)"
-- **Evidence**: Events show success messages but calendar remains unchanged
-- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
-- **Fix Applied**: Enhanced event structure mapping and added comprehensive calendar update logging
-
-#### **BUG-015: Batch Editing Not Actually Working** - 🟡 **IN PROGRESS**
-- **Description**: Batch editing shows success but changes aren't applied, hyperlinks broken in success messages
-- **User Report**: "editing multiple events - all - also not actually working, the changes aren't being applied, and in the 'successfully updated...' msg the hyperlinks are broken"
-- **Evidence**: Success messages display but no actual calendar modifications
-- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
-- **Fix Applied**: Enhanced batch operation formatting with multiple hyperlink field sources
-
-#### **BUG-016: Unknown Date in Confirmations** - 🟡 **IN PROGRESS**
-- **Description**: One-by-one confirmations show "Unknown date" instead of proper event dates
-- **User Report**: "in the single event edit confirmation message the event is marked as unknown date"
-- **Previous Attempts**: v0.1.213 fixed this for event creation but not for confirmations
-- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
-- **Fix Applied**: Built proper event structure mapping for master formatter in confirmations
-
-#### **BUG-017: Hyperlinks Showing as Plain Links** - 🟡 **IN PROGRESS**
-- **Description**: Event hyperlinks displaying as plain text instead of clickable links
-- **User Report**: "event 2 has malfunctioning hyperlink (shown as link)" and "hyperlinks are broken"
-- **Previous Attempts**: Multiple hyperlink fixes in v0.1.211, v0.1.212, v0.1.213
-- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
-- **Fix Applied**: Enhanced hyperlink field resolution with multiple source fallbacks
-
----
-
-## v0.1.209 - Previous Version Testing
-
-### 📊 **BUG STATUS SUMMARY**
-
-- **🟢 FIXED**: 7 bugs (50%)
-- **🟡 IN PROGRESS**: 5 bugs (36%) 
-- **🔴 ACTIVE**: 3 bugs (21%)
-- **🔵 LOW PRIORITY**: 2 bugs (14%)
-
-### 🔴 **ACTIVE BUGS**
-
-#### **BUG-001: Multi-Event Button Functionality Broken** - 🔴 **ACTIVE**
-- **Description**: Pressing any button (All/One by One/Cancel) on multi-event operations has no effect
-- **Behavior**: Summary message disappears (shouldn't), no actual operations performed
-- **Affects**: Both delete and update multi-event operations
-- **User Report**: "pressing any of the buttons has no actual effect, the summary message dissapears (which it shouldnt) and nothing happens, regardless if pressing all or one by one"
-- **Status**: 🟡 **IN PROGRESS** - Fix deployed in v0.1.205, awaiting user verification
-- **Root Cause Found**: Chat ID type mismatch - queue stored as integer `-4627994150`, callback looks for string `"-4627994150"`
-- **Previous Attempts**: v0.1.195 (global queue handler), v0.1.196 (global instances), v0.1.198 (force consistent string chat_id)
-- **Current Fix**: v0.1.205 - Fixed one-by-one processing flow by properly setting queue mode
-- **Implementation**: Set `queue['one_by_one_mode'] = True` and reset `current_index = 0` when one-by-one is selected
-
-#### **BUG-009: One-by-One Logic Broken** - 🟡 **IN PROGRESS**
-- **Description**: One-by-one processing shows strange "Action: confirm_0" message instead of proper event confirmation
-- **User Report**: "one by one logic is broken, the first event comes up after the one by one button is pressed but after i click yes i get a strange 'Action: confirm_0' message instead of summary of event x being deleted and the next event in queue for deletion to process"
-- **Expected**: "UPDATE/DELETE Event X of Y" with proper event details and progression
-- **Actual**: Strange "Action: confirm_0" message
-- **Root Cause Found**: `queue_confirm_0` callbacks handled by wrong handler showing "Action: confirm_0" instead of proper queue processing
-- **Status**: 🟡 **IN PROGRESS** - Fix deployed in v0.1.205, awaiting user verification
-- **Previous Fix Attempt**: v0.1.202 - Fixed queue callback routing to use proper EventQueueHandler
-- **Current Fix**: v0.1.205 - Fixed one-by-one processing flow by properly setting queue mode
-- **Implementation**: Set `queue['one_by_one_mode'] = True` and reset `current_index = 0` when one-by-one is selected
-
-#### **BUG-012: Undo Functionality Not Working** - 🟡 **IN PROGRESS**
-- **Description**: Undo functionality implemented in v0.1.204 but not working in Telegram group chat
-- **User Report**: "undo functionality doesn't seem to be working either"
-- **Expected**: Users should be able to say "undo" to reverse recent calendar actions
-- **Actual**: Undo commands not working despite being implemented in backend
-- **Status**: 🟡 **IN PROGRESS** - Debug logging added in v0.1.205, awaiting user verification
-- **Implementation**: UndoOperation class exists, registered in factory, included in intent extraction prompt
-- **Current Fix**: v0.1.205 - Added comprehensive debug logging to track undo operation execution flow
-- **Implementation**: Log conversation history count, recent operations found, and operation type processing
-
-### 🔵 **LOW PRIORITY BUGS**
-
-#### **BUG-003: Response Delay Performance**
-- **Description**: 20-30 second delays between user message and bot response
-- **Logs Show**: 2-3 seconds processing time
-- **Hypothesis**: Telegram API delivery delays not reflected in logs
-- **Status**: 🔵 LOW PRIORITY (per user request)
-
-### 🔴 **ACTIVE BUGS**
-
-#### **BUG-007: Calendar Query Only Accessing Primary Calendar**
-- **Description**: Query operations only access 'primary' calendar instead of all available calendars in Google account
-- **User Report**: "there are multiple calendars attached to the google account calendar and primary is just the name of one of the. we've previously created code to check and edit all available calendars and we currently have working capability to write to any of them. for example a calendar called 'tonya' ofc each calendar typically has a backend id but anyway currently on query we only access the primary calendar"
-- **Evidence**: All events show `'calendar_name': 'primary'` instead of actual calendar names like "Tonya"
-- **Expected**: Should query all calendars by default unless specifically requested
-- **Status**: 🔴 ACTIVE
-
-#### **BUG-008: Processing Message Flow Issues**
-- **Description**: "Processing all option" text added to summary message instead of being a separate message
-- **User Report**: "the 'processing all option' text thats being added to the summary message should be a new message while its processing and after the 'successfully deleted x events on x' message should replace this 'processing.. message'"
-- **Expected**: Separate processing message that gets replaced with success message
-- **Actual**: Processing text appended to summary message
-- **Affects**: Both delete and update operations
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.202 - Send separate processing message, replace with success message
-
-#### **BUG-010: Update Operations Not Actually Executing**
-- **Description**: Update operations show success messages but don't actually modify events in Google Calendar
-- **User Report**: "update/edit multiple event - all functionality isn't working properly in the backend, the events aren't ACTUALLY being edited on my google calendar. this is a major bug"
-- **Expected**: Events should be modified in Google Calendar
-- **Actual**: Success message shown but no actual changes made
-- **Status**: 🔴 ACTIVE - MAJOR BUG
-
-#### **BUG-004: No Event Summary Message After Single Event Creation**
-- **Description**: Single event creation only shows "event created successfully" message instead of event summary
-- **User Report**: "no event summary message after a single event creation (likely also same on multiple) just an 'event created successfully' msg"
-- **Expected**: Should show formatted event details like multi-event operations
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.200 - Updated CreateOperation to format event summary like other operations
-
-#### **BUG-005: Calendar Query Not Checking All Available Calendars**
-- **Description**: When querying today's schedule, service fails to check all available calendars in connected Google account
-- **User Report**: "when querying todays schedule (likely any time range) the service fails to check all available calendars within google account that's connected even though there is access"
-- **Affects**: All schedule/query operations
-- **Status**: 🟡 IN PROGRESS
-- **Investigation**: v0.1.200 - Added debug logging to track calendar discovery and search coverage
-
-#### **BUG-006: Event ID Field Mapping Issue**
-- **Description**: Event deletion/update failing due to missing event ID parameter
-- **User Report**: "issue with eventid - check latest .198 logs from render mcp and fix"
-- **Root Cause Found**: Events have `'id'` field but code looks for `'event_id'` field
-- **Evidence**: Logs show `{'id': '6199a84ht1r9o26o5kr6u2v3r0'}` but error `"Missing required parameter 'eventId'"`
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.199 - Fix field mapping to use `event.get('id')` instead of `event.get('event_id')`
-
-### 🟡 **NEEDS VERIFICATION**
-
-#### **BUG-011: Delete Operations Large Message Issue**
-- **Description**: Delete operations don't appear in chat when there are massive amounts of events/text
-- **User Report**: "delete operations bug appears to only occur when there is a massive amount of events/text due to telegram msg limit or something. works fine on 10-20 events at a time"
-- **Status**: 🔵 LOW PRIORITY
-- **User Classification**: "lets mark as low priority"
+#### **BUG-028: Hyperlink Formatting Still Broken** - 🔴 **CRITICAL**
+- **Description**: Hyperlinks showing as visible text instead of clickable links
+- **Evidence**: `[Test Meeting](https://calendar.google.com/calendar/event?eid=...)` showing as text
+- **Impact**: Users see raw URLs instead of clickable links
+- **Status**: 🔴 **ACTIVE** - Needs hyperlink rendering fix
 
 ---
 

@@ -151,7 +151,17 @@ class NLPAgent:
 
             response = await _call_llm()
 
-            result = response['choices'][0]['message']['content']
+            # CRITICAL FIX: Handle different response structures
+            if isinstance(response, dict) and 'choices' in response:
+                if response['choices'] and 'message' in response['choices'][0]:
+                    result = response['choices'][0]['message']['content']
+                else:
+                    logger.error(f"Unexpected response structure: {response}")
+                    raise ValueError("Invalid response structure")
+            else:
+                logger.error(f"Response is not a dict or missing choices: {type(response)} - {response}")
+                raise ValueError("Invalid response format")
+
             logger.info(f"🔍 COMPLETE LLM RESPONSE: '{result}'")
             logger.info(f"Response length: {len(result)}")
             logger.info(f"Response type: {type(result)}")

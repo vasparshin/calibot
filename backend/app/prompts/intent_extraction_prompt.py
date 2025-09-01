@@ -74,6 +74,10 @@ EVENT NAME RULES:
 - When user says "meetings" → "event_name": "meeting"
 - When user says "calls" → "event_name": "call"
 - Extract from quotes: "add 'math lesson'" → "event_name": "math lesson"
+- CAPITALIZATION: Always capitalize first letter of event names appropriately
+- Examples: "test meeting" → "Test Meeting", "math lesson" → "Math Lesson", "team call" → "Team Call"
+- Preserve user's exact capitalization if they use quotes: "add 'test event'" → "test event"
+- For generic terms, use proper capitalization: "meeting" → "Meeting", "lesson" → "Lesson"
 
 CALENDAR SPECIFICATION:
 - "Tonya's calendar" or "to Tonya" → "calendar_name": "Tonya"
