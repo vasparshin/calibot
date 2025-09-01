@@ -2,6 +2,50 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.232] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE CONFIRMATION ROOT CAUSE RESOLVED**
+
+**calibot/backend/app/api/routes.py**: Fixed "technical difficulties" error in duplicate confirmation processing
+- **Root Cause**: Duplicate confirmation callback was passing empty context `{}` to operation factory instead of pending data
+- **Evidence**: "I'm experiencing technical difficulties. Please try again in a moment." errors after duplicate confirmations
+- **Fix Applied**: Get pending data from conversation state and pass it to operation factory in context
+- **Implementation**: `pending_data = conversation_state.get_data(chat_id, "pending_duplicates")` before calling operation factory
+- **Impact**: ✅ Eliminates "technical difficulties" errors when processing duplicate confirmations
+
+**calibot/backend/app/operations/operation_factory.py**: Enhanced duplicate confirmation handling
+- **Root Cause**: Operation factory only looked for pending data in conversation state, not in passed context
+- **Fix Applied**: Check both context and conversation state for pending duplicate data
+- **Implementation**: `pending_data = context.get("events_to_create") or self.conversation_state.get_data(chat_id, "pending_duplicates")`
+- **Impact**: ✅ Operation factory now handles pending data from both sources
+
+### 🐛 **UI BUG FIX - DUPLICATE CONFIRMATION MESSAGE PRESERVATION**
+
+**calibot/backend/app/core/confirmation_handler.py**: Fixed duplicate confirmation UI bug
+- **Root Cause**: `find_original_confirmation_message()` was only looking for "Are you sure you want to" but duplicate messages contain "Found X potential duplicate event(s):"
+- **Evidence**: User reported "after event summary message button is pressed, the event summary shouldnt dissapear, just the buttons replaced by the outcome"
+- **Fix Applied**: Updated message detection to include duplicate confirmation message patterns
+- **Implementation**: Added check for "Found" and "potential duplicate event" in message content
+- **Impact**: ✅ Event summary now preserved when buttons are pressed, only buttons removed
+
+### 🔧 **TECHNICAL DETAILS**
+- **Data Flow**: Duplicate confirmation now properly passes pending data through the entire chain
+- **Message Detection**: Enhanced to recognize both single event and duplicate confirmation messages
+- **Error Prevention**: Eliminates root cause of "technical difficulties" errors in duplicate processing
+- **UI Consistency**: Original event summary maintained during confirmation processing
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate event creation shows confirmation buttons
+- ✅ Event summary preserved when buttons pressed
+- ✅ "✅ Create Anyway" button processes without "technical difficulties"
+- ✅ "❌ Cancel" button processes without "technical difficulties"
+- 🔄 Awaiting user confirmation that all issues are resolved
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Technical Difficulties**: Caused by missing pending data in operation factory context
+- **UI Bug**: Caused by incorrect message pattern detection in confirmation handler
+- **Both Issues**: Related to duplicate confirmation processing introduced in recent releases
+
 ## [0.1.231] - 2025-09-01
 
 ### 🧹 **BACKEND CLEANUP - REMOVED REDUNDANT FILES**

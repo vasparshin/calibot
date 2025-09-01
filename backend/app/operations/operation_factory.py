@@ -77,8 +77,8 @@ class OperationFactory:
         try:
             # Check for duplicate confirmation first (most common case)
             if confirmation == "duplicates":
-                # Get pending duplicate operation from conversation state
-                pending_data = self.conversation_state.get_data(chat_id, "pending_duplicates")
+                # Get pending duplicate operation from conversation state OR from context
+                pending_data = context.get("events_to_create") or self.conversation_state.get_data(chat_id, "pending_duplicates")
                 
                 if not pending_data:
                     return {
@@ -89,7 +89,7 @@ class OperationFactory:
                 # Find the create operation to handle this confirmation
                 create_operation = self.operations.get("create")
                 if create_operation and hasattr(create_operation, 'handle_confirmation'):
-                    return await create_operation.handle_confirmation(chat_id, confirmation, pending_data)
+                    return await create_operation.handle_confirmation(chat_id, confirmation, context)
                 else:
                     return {
                         "success": False,

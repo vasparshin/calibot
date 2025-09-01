@@ -118,7 +118,8 @@ class ConfirmationHandler:
 
         for msg in recent_messages:
             if (msg.get("role") == "assistant" and
-                "Are you sure you want to" in msg.get("content", "")):
+                ("Are you sure you want to" in msg.get("content", "") or 
+                 "Found" in msg.get("content", "") and "potential duplicate event" in msg.get("content", ""))):
                 return msg.get("content", "")
 
         return None

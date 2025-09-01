@@ -276,7 +276,12 @@ async def handle_duplicate_confirmation_callback(chat_id: int, message_id: int, 
 
         # Process the confirmation through operation factory with correct action
         if is_confirmed:
-            result = await operation_factory.handle_confirmation(chat_id, confirmation, {})
+            # CRITICAL FIX: Get pending data and pass it to operation factory
+            pending_data = conversation_state.get_data(chat_id, "pending_duplicates")
+            if pending_data:
+                result = await operation_factory.handle_confirmation(chat_id, confirmation, pending_data)
+            else:
+                result = {"success": False, "message": "No pending duplicate operation found."}
         else:
             # Handle cancellation
             result = {"success": True, "message": "Operation cancelled.", "requires_user_action": False}
