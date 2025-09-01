@@ -151,24 +151,65 @@ class NLPAgent:
 
             response = await _call_llm()
 
-            # CRITICAL FIX: Handle LiteLLM ModelResponse object structure
+            # CRITICAL FIX: Handle ALL possible LiteLLM response structures
             logger.info(f"🔍 RESPONSE STRUCTURE DEBUG - Type: {type(response)}")
+            logger.info(f"🔍 RESPONSE STRUCTURE DEBUG - Dir: {dir(response) if hasattr(response, '__dict__') else 'No dir'}")
             
-            # Handle LiteLLM ModelResponse object
+            # Handle multiple possible response structures
+            result = None
+            
+            # Method 1: Direct attribute access (ModelResponse object)
             if hasattr(response, 'choices') and response.choices:
                 choice = response.choices[0]
                 if hasattr(choice, 'message') and choice.message:
                     if hasattr(choice.message, 'content'):
                         result = choice.message.content
-                    else:
-                        logger.error(f"Message missing 'content' field: {choice.message}")
-                        raise ValueError("Message missing content field")
-                else:
-                    logger.error(f"Choice missing 'message' field: {choice}")
-                    raise ValueError("Choice missing message field")
-            else:
-                logger.error(f"Response missing 'choices' field: {response}")
-                raise ValueError("Response missing choices field")
+                        logger.info(f"🔍 Method 1 success: Got content via attributes")
+            
+            # Method 2: Dict-like access (if response is dict-like)
+            if result is None and isinstance(response, dict):
+                if 'choices' in response and response['choices']:
+                    choice = response['choices'][0]
+                    if 'message' in choice and 'content' in choice['message']:
+                        result = choice['message']['content']
+                        logger.info(f"🔍 Method 2 success: Got content via dict access")
+            
+            # Method 3: Try to convert to dict and access
+            if result is None and hasattr(response, '__dict__'):
+                try:
+                    response_dict = response.__dict__
+                    if 'choices' in response_dict and response_dict['choices']:
+                        choice = response_dict['choices'][0]
+                        if hasattr(choice, '__dict__') and 'message' in choice.__dict__:
+                            message = choice.__dict__['message']
+                            if hasattr(message, '__dict__') and 'content' in message.__dict__:
+                                result = message.__dict__['content']
+                                logger.info(f"🔍 Method 3 success: Got content via __dict__ access")
+                except Exception as e:
+                    logger.error(f"🔍 Method 3 failed: {e}")
+            
+            # Method 4: Last resort - try to access any content-like field
+            if result is None:
+                try:
+                    # Try to find any field that might contain the response
+                    for attr in dir(response):
+                        if not attr.startswith('_'):
+                            try:
+                                value = getattr(response, attr)
+                                if isinstance(value, str) and value.strip().startswith('{'):
+                                    result = value
+                                    logger.info(f"🔍 Method 4 success: Found content in {attr}")
+                                    break
+                            except:
+                                continue
+                except Exception as e:
+                    logger.error(f"🔍 Method 4 failed: {e}")
+            
+            if result is None:
+                logger.error(f"🔍 ALL METHODS FAILED - Response structure: {response}")
+                logger.error(f"🔍 Response type: {type(response)}")
+                logger.error(f"🔍 Response dir: {dir(response) if hasattr(response, '__dict__') else 'No dir'}")
+                raise ValueError("Could not extract content from response")
 
             logger.info(f"🔍 COMPLETE LLM RESPONSE: '{result}'")
             logger.info(f"Response length: {len(result)}")
