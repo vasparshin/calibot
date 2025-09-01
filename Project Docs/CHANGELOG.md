@@ -2,20 +2,63 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.206] - 2025-09-01
+## [0.1.207] - 2025-09-01
 
-### 🚨 **CRITICAL BUG FIXES - RECURRING OAUTH AUTHORIZATION ERROR**
+### 🚨 **CRITICAL BUG FIXES - OAUTH AUTHENTICATION SYSTEM ERROR**
 
-**calibot/backend/app/services/google_calendar.py**: Fixed recurring OAuth authorization error with missing response_type parameter
-- **Root Cause**: OAuth URL generation occasionally missing `response_type=code` parameter causing "Required parameter is missing: response_type" error
-- **Evidence**: User reported "Access blocked: authorisation error" with "Required parameter is missing: response_type" recurring from time to time
-- **Fix Applied**: Enhanced OAuth URL generation with explicit response_type parameter and failsafe validation
-- **Implementation**: Added explicit `response_type='code'` parameter to authorization_url() call and double-check validation
-- **Impact**: ✅ Eliminates recurring OAuth authorization errors that prevent Google Calendar authentication
+**calibot/backend/app/services/google_calendar.py**: Fixed OAuth authentication system error caused by duplicate response_type parameter
+- **Root Cause**: Explicit `response_type='code'` parameter was conflicting with google-auth-oauthlib's automatic inclusion
+- **Evidence**: Auth status endpoint showed "prepare_grant_uri() got multiple values for argument 'response_type'" error
+- **User Impact**: "❌ Authentication system is temporarily unavailable" message in Telegram
+- **Fix Applied**: Removed explicit response_type parameter, let google-auth-oauthlib handle it automatically
+- **Implementation**: Kept validation logic to ensure response_type=code is present in generated URL
+- **Impact**: ✅ Restores OAuth authentication functionality while maintaining parameter validation
 
 ### 📝 **VERSION FILES UPDATED**
-- **calibot/pyproject.toml**: Version 0.1.205 → 0.1.206
-- **calibot/backend/app/__init__.py**: __version__ 0.1.205 → 0.1.206
+- **calibot/pyproject.toml**: Version 0.1.206 → 0.1.207
+- **calibot/backend/app/__init__.py**: __version__ 0.1.206 → 0.1.207
+
+## [0.1.206] - 2025-09-01
+
+### 🚀 **NEW FEATURE - UNDO FUNCTIONALITY**
+
+**calibot/backend/app/operations/undo_operation.py**: Implemented comprehensive undo functionality with LLM intent interpretation
+- **Feature**: Created new UndoOperation class that analyzes conversation history to determine what to undo
+- **Implementation**: 
+  - Extracts recent operations from conversation history (create, delete, update)
+  - Parses event information from success messages using regex to find event links and IDs
+  - Supports undoing event creation by deleting the created events
+  - Provides clear feedback on what cannot be undone (deletions, updates)
+- **LLM Integration**: Added undo examples to intent extraction prompt for natural language recognition
+- **Impact**: ✅ Users can now say "undo" or "revert" to undo recent calendar actions
+
+**calibot/backend/app/operations/operation_factory.py**: Registered undo operation in factory
+- **Implementation**: Added UndoOperation to operations registry and factory methods
+- **Impact**: ✅ Undo intent is now recognized and routed to proper operation handler
+
+**calibot/backend/app/prompts/intent_extraction_prompt.py**: Enhanced LLM with undo intent recognition
+- **Feature**: Added comprehensive undo examples for natural language processing
+- **Examples**: "undo", "undo that", "undo last action", "revert", "cancel that"
+- **Impact**: ✅ LLM can now interpret various undo requests and return proper JSON intent
+
+### 🐛 **BUG FIXES - MESSAGE FORMATTING & DATETIME HANDLING**
+
+**calibot/backend/app/utils/message_formatter.py**: Fixed datetime formatting warnings
+- **Root Cause**: `format_date_full()` was being called with time-only strings like "09:00" instead of dates
+- **Evidence**: Logs showed "Error formatting date 09:00: Invalid isoformat string: '09:00'"
+- **Fix Applied**: Added validation to skip time-only strings and avoid attempting to format them as dates
+- **Impact**: ✅ Eliminated datetime formatting warnings and improved error handling
+
+**calibot/backend/app/operations/create_operation.py**: Fixed duplicate "Event created successfully:" text in batch creation
+- **Root Cause**: Each event in batch creation was getting individual "Event created successfully:" prefix
+- **Evidence**: User reported "repetition of 'event create successfully:' - we dont need this text even once"
+- **Fix Applied**: Changed batch creation to use just event display without individual success prefixes
+- **Implementation**: Use MessageFormatter.format_single_event_display() directly for clean event listing
+- **Impact**: ✅ Batch creation now shows clean event list without duplicate success text
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.204 → 0.1.205
+- **calibot/backend/app/__init__.py**: __version__ 0.1.204 → 0.1.205
 
 ## [0.1.205] - 2025-09-01
 
