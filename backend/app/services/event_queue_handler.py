@@ -384,9 +384,25 @@ Choose your action:"""
     def _format_event_summary(self, event: Dict) -> str:
         """Format a single event for user confirmation using centralized formatter"""
         try:
+            # CRITICAL FIX: Ensure event structure is properly formatted for master formatter
+            logger.info(f"🎯 One-by-one formatting event: {event}")
+            
             # Use centralized formatter for consistency with multi-event displays
             if MessageFormatter:
-                event_display = MessageFormatter.format_single_event_display(event, include_hyperlink=True)
+                # CRITICAL: Build proper event structure for master formatter
+                formatted_event = {
+                    'summary': event.get('event_name', event.get('summary', 'Untitled')),
+                    'start': event.get('start_time', event.get('start', '')),
+                    'end': event.get('end_time', event.get('end', '')),
+                    'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                    'id': event.get('event_id', event.get('id', '')),
+                    'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
+                    'link': event.get('calendar_link', event.get('link', ''))
+                }
+                
+                logger.info(f"🎯 Formatted event structure for display: {formatted_event}")
+                
+                event_display = MessageFormatter.format_single_event_display(formatted_event, include_hyperlink=True)
                 # Remove the bullet point since we'll have our own header
                 if event_display.startswith('• '):
                     event_display = event_display[2:]
@@ -686,17 +702,45 @@ Choose your action:"""
         
         # Use centralized formatters if available
         if MessageFormatter and failed == 0:
-            # Convert events to proper format for success messages
+            # CRITICAL FIX: Convert events to proper format with enhanced debugging
             formatted_events = []
-            for event in events:
+            for i, event in enumerate(events):
+                logger.info(f"📋 Batch Formatting Event {i+1}: {event}")
+                
+                # CRITICAL: Use multiple field sources for datetime
+                start_time = (
+                    event.get('start_time') or 
+                    event.get('start') or 
+                    event.get('new_start_time') or 
+                    ''
+                )
+                end_time = (
+                    event.get('end_time') or 
+                    event.get('end') or 
+                    event.get('new_end_time') or 
+                    ''
+                )
+                
+                # CRITICAL: Use multiple field sources for hyperlink
+                hyperlink = (
+                    event.get('event_link') or 
+                    event.get('calendar_link') or 
+                    event.get('htmlLink') or 
+                    event.get('link') or 
+                    ''
+                )
+                
                 formatted_event = {
-                    'summary': event.get('event_name', 'Untitled'),
-                    'start': event.get('start_time', ''),
-                    'end': event.get('end_time', ''),
+                    'summary': event.get('event_name', event.get('summary', 'Untitled')),
+                    'start': start_time,
+                    'end': end_time,
                     'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
-                    'id': event.get('event_id', ''),
-                    'htmlLink': event.get('calendar_link', '')
+                    'id': event.get('event_id', event.get('id', '')),
+                    'htmlLink': hyperlink,
+                    'link': hyperlink  # Backup field
                 }
+                
+                logger.info(f"📋 Formatted Event Structure: {formatted_event}")
                 formatted_events.append(formatted_event)
             
             if intent == 'create':
@@ -883,8 +927,21 @@ Choose your action:"""
                             'location': event.get('location', '')
                         }
                     
-                    # Perform the update
-                    result = self.calendar_service.update_event(event_id, update_data, calendar_id)
+                    # CRITICAL FIX: Add comprehensive logging and error handling for calendar updates
+                    logger.info(f"📅 CALENDAR UPDATE: Calling update_event for {event_id}")
+                    logger.info(f"📅 UPDATE DATA: {update_data}")
+                    logger.info(f"📅 CALENDAR ID: {calendar_id}")
+                    
+                    try:
+                        result = self.calendar_service.update_event(event_id, update_data, calendar_id)
+                        logger.info(f"📅 CALENDAR RESPONSE: {result}")
+                    except Exception as update_error:
+                        logger.error(f"📅 CALENDAR UPDATE EXCEPTION: {update_error}")
+                        return {
+                            "success": False,
+                            "message": f"Update failed: {str(update_error)}",
+                            "error": str(update_error)
+                        }
                     
                     if result.get('success'):
                         # CRITICAL FIX: Build success message with ACTUAL updated times, not just operation description
