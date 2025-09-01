@@ -492,6 +492,31 @@ python tests/test_all_fixes.py  # Runs complete validation suite
 - **Impact measurement**: Quantify improvements where possible
 - **Testing notes**: Mention testing requirements or verification steps
 
+## Bug Tracking Rules (MANDATORY)
+
+### Bug Log Management
+- **MANDATORY**: Maintain `Project Docs/BUG_LOG.md` for all user-reported issues
+- **CRITICAL**: Only mark bugs as FIXED after explicit user confirmation
+- **REQUIRED**: Update bug status based on user feedback, not assumptions
+- **PROCESS**: Log all bugs immediately when reported, track attempted fixes
+
+### Bug Status Workflow
+1. **User reports bug** → Add to BUG_LOG.md as 🔴 ACTIVE
+2. **Attempt fix** → Update to 🟡 IN PROGRESS with fix details
+3. **User confirms fix** → Update to 🟢 FIXED
+4. **User reports still broken** → Return to 🔴 ACTIVE with new details
+
+### Bug Documentation Format
+```markdown
+#### **BUG-XXX: Brief Description**
+- **Description**: Detailed bug description
+- **User Report**: Exact user quote describing the issue
+- **Status**: 🔴 ACTIVE / 🟡 IN PROGRESS / 🟢 FIXED / 🔵 LOW PRIORITY
+- **Previous Attempts**: List of version attempts and what was tried
+```
+
+**NEVER assume a bug is fixed without user confirmation - this prevents repeated failed attempts**
+
 - Use reverse chronological order (most recent at top).
 - Summarize the change, affected files, and motivation/problem solved.
 - Reference any related summary or design doc if relevant.

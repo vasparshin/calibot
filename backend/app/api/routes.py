@@ -88,7 +88,7 @@ async def handle_callback_query(callback_query):
 
         # Handle different callback types
         if callback_data.startswith("confirm_all_") or callback_data.startswith("confirm_one_") or callback_data.startswith("cancel_"):
-            return await handle_multi_event_confirmation_callback(chat_id, message_id, callback_data)
+            return await handle_multi_event_confirmation_callback(chat_id, message_id, callback_data, callback_query)
         elif callback_data.startswith("confirm_"):
             return await handle_confirmation_callback(chat_id, message_id, callback_data)
         elif callback_data.startswith("queue_"):
@@ -107,7 +107,7 @@ async def handle_callback_query(callback_query):
         logger.error(f"Callback query error: {e}")
         return {"status": "error", "message": str(e)}
 
-async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int, callback_data: str):
+async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int, callback_data: str, callback_query: dict = None):
     """Handle multi-event confirmation callbacks (confirm_all_*, confirm_one_*, cancel_*)."""
     try:
         logger.info(f"🔘 Multi-event callback: {callback_data}")
@@ -128,14 +128,16 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
         
         logger.info(f"🔘 Parsed: action={action}, choice={choice}")
 
-        # Remove the keyboard but preserve the original message content
-        # Get the original message first, then edit to remove only buttons
-        await edit_message_text(
-            chat_id, 
-            message_id, 
-            f"✅ Processing {choice} option for {action} operation...",
-            reply_markup={}
-        )
+        # Remove buttons from the original message (preserve content)
+        # Get the original message from callback_query and edit to remove only keyboard
+        if callback_query:
+            original_message = callback_query.get("message", {}).get("text", f"Processing {action} operation...")
+            await edit_message_text(
+                chat_id, 
+                message_id, 
+                original_message,  # Keep original content
+                reply_markup={}   # Remove buttons only
+            )
 
         # Handle the choice using the appropriate service
         if action in ["update", "delete"]:
