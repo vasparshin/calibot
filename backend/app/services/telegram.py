@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 TELEGRAM_API_BASE = f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}"
 
 def strip_markdown(text: str) -> str:
-    """Remove Markdown formatting characters from text, but preserve hyperlinks"""
+    """Remove Markdown formatting characters from text, but preserve hyperlinks and URLs"""
     import re
     # Remove bold **text**
     text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
@@ -14,7 +14,14 @@ def strip_markdown(text: str) -> str:
     text = re.sub(r'(?<!\])\*(.*?)\*(?!\()', r'\1', text)
     # Remove other common markdown
     text = re.sub(r'`(.*?)`', r'\1', text)  # code
-    text = re.sub(r'_(.*?)_', r'\1', text)  # underline
+    
+    # CRITICAL FIX: Only remove underscores for markdown formatting (_text_), 
+    # NOT for URL parameters like response_type=code or client_id=xxx
+    # This regex only matches underscores that are used for markdown emphasis:
+    # - Must be surrounded by word boundaries or spaces
+    # - Must not be within URLs (containing = or &)
+    text = re.sub(r'(?<![=&\w])_([^_]+?)_(?![=&\w])', r'\1', text)  # underline markdown only
+    
     # Keep hyperlinks [text](url) intact
     return text
 

@@ -2,6 +2,22 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.210] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - OAUTH URL CORRUPTION (ROOT CAUSE IDENTIFIED)**
+
+**calibot/backend/app/services/telegram.py**: Fixed OAuth authentication failing due to underscore removal in URL parameters
+- **Root Cause**: `strip_markdown()` function regex `r'_(.*?)_', r'\1'` was removing ALL underscores from text, including URL parameters
+- **Evidence**: OAuth URLs corrupted from `response_type=code&client_id=774114268560` to `responsetype=code&clientid=774114268560`
+- **Google Error**: "Required parameter is missing: response_type" because `responsetype` is not recognized
+- **Fix Applied**: Modified regex to only remove underscores used for markdown emphasis `_text_`, not URL parameters
+- **Implementation**: New regex `(?<![=&\w])_([^_]+?)_(?![=&\w])` preserves underscores in URLs while still removing markdown
+- **Impact**: ✅ OAuth URLs now maintain proper parameter names, Google authentication should work correctly
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.209 → 0.1.210
+- **calibot/backend/app/__init__.py**: __version__ 0.1.209 → 0.1.210
+
 ## [0.1.209] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - OAUTH RESPONSE_TYPE PARAMETER (REAL FIX)**

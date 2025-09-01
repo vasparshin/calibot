@@ -11,11 +11,11 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.207 - Current Version Testing
+## v0.1.209 - Current Version Testing
 
 ### 📊 **BUG STATUS SUMMARY**
 
-- **🟢 FIXED**: 6 bugs (43%)
+- **🟢 FIXED**: 7 bugs (50%)
 - **🟡 IN PROGRESS**: 5 bugs (36%) 
 - **🔴 ACTIVE**: 3 bugs (21%)
 - **🔵 LOW PRIORITY**: 2 bugs (14%)
