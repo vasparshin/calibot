@@ -2,6 +2,43 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.189] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - DELETE OPERATIONS & QUERY FORMATTING**
+
+**calibot/backend/app/operations/delete_operation.py**: Fixed delete operation failing when LLM returns `event_name: "ANY"` for "delete all events" requests
+- **Root Cause**: DeleteOperation passed `event_name: "ANY"` to GoogleCalendarService, which searched for events containing "ANY" text, finding nothing
+- **Fix Applied**: Added logic to exclude "ANY" from query parameters - only pass event_name filter if not "ANY" or empty
+- **Impact**: ✅ Delete operations like "delete all events yesterday" now correctly find and list events for confirmation
+
+**calibot/backend/app/api/routes.py**: Enhanced LLM query formatting prompt with mandatory event format specification
+- **Root Cause**: LLM prompt was too vague ("Format appropriately for Telegram") causing inconsistent event formatting
+- **Fix Applied**: Added EXACT format specification with examples:
+  ```
+  CRITICAL: Format ALL events using this EXACT format (MANDATORY):
+  • [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+  ```
+- **Impact**: ✅ Query responses now consistently match the required format with calendar links and full event details
+
+**calibot/backend/app/services/telegram.py**: Fixed TelegramBotService missing method errors
+- **Root Cause**: `send_telegram_message` and `edit_message_text` were standalone functions, but code called them as class methods
+- **Fix Applied**: Added wrapper methods to TelegramBotService class:
+  - `async def send_telegram_message()` - wraps standalone function
+  - `async def edit_message_text()` - wraps standalone function
+- **Impact**: ✅ Eliminated "'TelegramBotService' object has no attribute 'send_telegram_message'" errors
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.188 → 0.1.189
+- **calibot/backend/app/__init__.py**: __version__ 0.1.188 → 0.1.189
+
+### 📈 **TECHNICAL IMPACT**
+- **Fixed delete operation search**: "delete all events yesterday" now finds events instead of returning "no events found"
+- **Standardized query formatting**: All event queries now use consistent format with hyperlinks and full date/time display
+- **Eliminated method attribution errors**: Fixed runtime crashes when sending messages or editing keyboards
+- **Enhanced user experience**: Multi-event confirmations now display properly formatted event lists
+
+**Testing Required**: Verify delete operations and query formatting in Telegram group chat -4627994150
+
 ## [0.1.187] - 2025-01-27
 
 ### 🚨 **CRITICAL BUG FIX - SCHEDULE RESPONSES NOT BEING SENT**

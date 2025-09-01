@@ -118,13 +118,12 @@ class TelegramBotService:
 
     def stop(self):
         print("Telegram bot stopped...")  # For debugging
-        
     
+    async def send_telegram_message(self, chat_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
+        """Send message to Telegram chat with optional inline keyboard"""
+        return await send_telegram_message(chat_id, text, parse_mode, reply_markup)
     
-
-        
-        
-
-        
-        
+    async def edit_message_text(self, chat_id: int, message_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
+        """Edit existing message text and keyboard"""
+        return await edit_message_text(chat_id, message_id, text, parse_mode, reply_markup)
 
