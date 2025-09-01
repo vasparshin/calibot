@@ -152,13 +152,23 @@ class MessageFormatter:
             if hyperlink and 'www.google.com' in hyperlink:
                 hyperlink = hyperlink.replace('www.google.com', 'calendar.google.com')
         
-        # Format date and time
+        # Format date and time with improved fallback logic
         date_str = "Unknown date"
         time_str = "Unknown time"
+        
+        # Get current date as fallback for display
+        from datetime import datetime
+        current_date = datetime.now().strftime("%A, %B %d, %Y")
         
         # Try different datetime formats
         start_time = event.get('start')
         end_time = event.get('end')
+        
+        # CRITICAL FIX: If no start time, fall back to current date for display
+        if not start_time:
+            logger.warning(f"No start time found in event {event.get('summary', 'Unknown')} - using current date")
+            date_str = current_date
+            # Keep time_str as "Unknown time" to indicate missing time info
         
         if start_time:
             try:

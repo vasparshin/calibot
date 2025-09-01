@@ -98,11 +98,32 @@ class CreateOperation(BaseOperation):
                 # CRITICAL FIX: Use master formatter with proper event structure
                 from app.utils.message_formatter import MessageFormatter
                 
-                # Build complete event structure with hyperlink from calendar response
+                # CRITICAL FIX: Build complete event structure with proper datetime handling
+                # Try to get datetime from multiple sources in order of preference
+                start_time = (
+                    calendar_response.get('start_time') or 
+                    prepared_event.get('start_time') or 
+                    prepared_event.get('start') or 
+                    prepared_event.get('date')
+                )
+                
+                end_time = (
+                    calendar_response.get('end_time') or 
+                    prepared_event.get('end_time') or 
+                    prepared_event.get('end') or 
+                    None
+                )
+                
+                # CRITICAL: If no start time found, use current date as fallback
+                if not start_time:
+                    from datetime import datetime
+                    logger.warning("No start time found in prepared event or calendar response - using today as fallback")
+                    start_time = datetime.now().strftime("%Y-%m-%d")
+                
                 event_for_display = {
                     'summary': prepared_event.get('event_name', 'Untitled'),
-                    'start': prepared_event.get('start_time', ''),
-                    'end': prepared_event.get('end_time', ''),
+                    'start': start_time,
+                    'end': end_time,
                     'calendar_name': calendar_response.get('calendar_used', prepared_event.get('calendar_name', 'Unknown Calendar')),
                     'id': calendar_response.get('event_id', ''),
                     'link': calendar_response.get('event_link', ''),  # CRITICAL: Include hyperlink

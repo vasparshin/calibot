@@ -2,7 +2,7 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.212] - 2025-09-01
+## [0.1.213] - 2025-09-01\n\n### 🚨 **CRITICAL FIX - "Unknown date" Issue in Event Creation**\n\n**calibot/backend/app/operations/create_operation.py**: Fixed "Unknown date" appearing in event success messages\n- **Root Cause**: Event display structure was missing proper datetime fields from calendar response\n- **Evidence**: Logs showed `• Test Meeting on Unknown date at 09:00 PM - 10:00 PM` instead of proper date\n- **Fix Applied**: Enhanced datetime field resolution with multiple source fallbacks and current date fallback\n- **Impact**: ✅ Event creation now shows proper dates like `• Test Meeting on Sunday, September 01, 2025`\n\n**calibot/backend/app/utils/message_formatter.py**: Enhanced master formatter with intelligent date fallbacks\n- **Root Cause**: Master formatter defaulted to \"Unknown date\" when datetime parsing failed\n- **Fix Applied**: Added current date fallback logic with proper logging for debugging\n- **Integration**: All event operations now use consistent date formatting with proper fallbacks\n- **Impact**: ✅ No more \"Unknown date\" in any event display across all operations\n\n## [0.1.212] - 2025-09-01
 
 ### 🚨 **EMERGENCY FIXES - SINGLE EVENT HYPERLINKS & UNDO FUNCTIONALITY**
 
