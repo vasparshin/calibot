@@ -147,7 +147,18 @@ Respond with only the calendar ID (e.g., "primary" or the specific calendar ID).
                 temperature=0.1
             )
             
-            suggested_id = response['choices'][0]['message']['content'].strip().strip('"\'')
+            # CRITICAL FIX: Use comprehensive response handling like extract_intent
+            if hasattr(response, 'choices') and response.choices:
+                choice = response.choices[0]
+                if hasattr(choice, 'message') and choice.message:
+                    if hasattr(choice.message, 'content'):
+                        suggested_id = choice.message.content.strip().strip('"\'')
+                    else:
+                        raise ValueError("Message missing content field")
+                else:
+                    raise ValueError("Choice missing message field")
+            else:
+                raise ValueError("Response missing choices field")
             
             # Validate the suggested ID exists
             if suggested_id in self.calendar_cache or suggested_id == 'primary':

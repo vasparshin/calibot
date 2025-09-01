@@ -37,7 +37,19 @@ class NLPAgent:
         )
 
         try:
-            relevancy_result = response["choices"][0]["message"]["content"]
+            # CRITICAL FIX: Use comprehensive response handling like extract_intent
+            if hasattr(response, 'choices') and response.choices:
+                choice = response.choices[0]
+                if hasattr(choice, 'message') and choice.message:
+                    if hasattr(choice.message, 'content'):
+                        relevancy_result = choice.message.content
+                    else:
+                        raise ValueError("Message missing content field")
+                else:
+                    raise ValueError("Choice missing message field")
+            else:
+                raise ValueError("Response missing choices field")
+            
             return json.loads(relevancy_result)
         except Exception as e:
             return {"relevant": False, "reason": "Failed to process response"}
@@ -55,7 +67,18 @@ class NLPAgent:
                 ],
             )
 
-            return response["choices"][0]["message"]["content"].strip()
+            # CRITICAL FIX: Use comprehensive response handling like extract_intent
+            if hasattr(response, 'choices') and response.choices:
+                choice = response.choices[0]
+                if hasattr(choice, 'message') and choice.message:
+                    if hasattr(choice.message, 'content'):
+                        return choice.message.content.strip()
+                    else:
+                        raise ValueError("Message missing content field")
+                else:
+                    raise ValueError("Choice missing message field")
+            else:
+                raise ValueError("Response missing choices field")
         except Exception as e:
             logger.error(f"Error generating response: {e}")
             return ""

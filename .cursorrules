@@ -39,15 +39,18 @@
 
 ### Bug Tracking Rules (MANDATORY)
 - **MANDATORY**: Maintain `Project Docs/BUG_LOG.md` for all user-reported issues
-- **CRITICAL**: Only mark bugs as FIXED after explicit user confirmation
+- **🚨 CRITICAL RULE**: ONLY USER CAN MARK BUGS AS FIXED - NEVER mark bugs as FIXED without explicit user confirmation
+- **🚨 ABSOLUTE PROHIBITION**: Assistant must NEVER change bug status from 🔴 ACTIVE or 🟡 IN PROGRESS to 🟢 FIXED
+- **🚨 USER AUTHORITY ONLY**: Only user can say "this bug is fixed" or "mark BUG-XXX as fixed"
 - **PROCESS**: Log all bugs immediately when reported, track attempted fixes
 - **NEVER assume a bug is fixed without user confirmation**
 
 ### Bug Status Workflow
 1. **User reports bug** → Add to BUG_LOG.md as 🔴 ACTIVE
 2. **Attempt fix** → Update to 🟡 IN PROGRESS with fix details
-3. **User confirms fix** → Update to 🟢 FIXED
+3. **🚨 USER confirms fix** → Update to 🟢 FIXED (ONLY after user says "mark as fixed")
 4. **User reports still broken** → Return to 🔴 ACTIVE with new details
+5. **🚨 NEVER self-promote**: Assistant cannot declare own fixes successful
 
 ## 🚨 DEVELOPMENT WORKFLOW
 
