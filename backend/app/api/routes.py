@@ -218,14 +218,28 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
 async def handle_confirmation_callback(chat_id: int, message_id: int, callback_data: str):
     """Handle confirmation callbacks."""
     try:
+        logger.info(f"🔘 Single confirmation callback: {callback_data}")
+        
         # Parse confirmation type
         confirmation = callback_data.replace("confirm_", "")
+        
+        # CRITICAL FIX: Check for actual confirmation vs cancellation
+        # For single event operations, "confirm_delete" means YES (confirm the deletion)
+        # For single event operations, "cancel_delete" means NO (cancel the deletion)
+        is_confirmed = callback_data.startswith("confirm_")  # This is YES
+        is_cancelled = callback_data.startswith("cancel_")   # This is NO
+        
+        logger.info(f"🔘 Parsed confirmation: '{confirmation}', confirmed: {is_confirmed}, cancelled: {is_cancelled}")
 
-        # Use confirmation handler
-        await confirmation_handler.handle_single_confirmation(chat_id, message_id, confirmation == "yes")
+        # Use confirmation handler with correct boolean
+        await confirmation_handler.handle_single_confirmation(chat_id, message_id, is_confirmed)
 
-        # Process the confirmation through operation factory
-        result = await operation_factory.handle_confirmation(chat_id, confirmation, {})
+        # Process the confirmation through operation factory with correct action
+        if is_confirmed:
+            result = await operation_factory.handle_confirmation(chat_id, confirmation, {})
+        else:
+            # Handle cancellation
+            result = {"success": True, "message": "Operation cancelled.", "requires_user_action": False}
 
         if result.get("requires_user_action"):
             # Send follow-up message if needed

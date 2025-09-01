@@ -669,7 +669,7 @@ class GoogleCalendarService:
                     return {'success': False, 'message': 'Invalid date format. Use YYYY-MM-DD'}
 
             # Determine which calendars to search
-            calendar_ids = ['primary']  # Default to primary
+            calendar_ids = []  # Start empty, will be populated
             
             # If user specified a calendar, search only that one
             if 'calendar' in query_params or 'calendar_name' in query_params:
@@ -677,27 +677,47 @@ class GoogleCalendarService:
                 calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
                 if calendar_id:
                     calendar_ids = [calendar_id]
-            else:
-                # Search all calendars for better results - CRITICAL FIX
-                # First ensure calendars are loaded and get fresh list
+                    logger.info(f"🔍 CALENDAR QUERY: User specified calendar '{specified_calendar}' -> '{calendar_id}'")
+                else:
+                    logger.warning(f"🔍 CALENDAR QUERY: User specified calendar '{specified_calendar}' not found, searching all")
+                    calendar_ids = []  # Will trigger search all below
+            
+            # If no specific calendar or specified calendar not found, search ALL calendars
+            if not calendar_ids:
+                logger.info("🔍 CALENDAR QUERY: Searching ALL available calendars")
                 try:
+                    # First try to get fresh calendar list from API
                     available_calendars_list = self.list_calendars()
                     if isinstance(available_calendars_list, list) and len(available_calendars_list) > 0:
                         # Extract calendar IDs from the list
                         calendar_ids = [cal.get('id', cal.get('calendar_id', 'primary')) for cal in available_calendars_list]
-                        logger.info(f"🔍 CALENDAR FIX: Found {len(calendar_ids)} calendars to search")
-                        logger.info(f"🔍 CALENDAR FIX: Calendar IDs: {calendar_ids}")
+                        logger.info(f"🔍 CALENDAR QUERY: Found {len(calendar_ids)} calendars from API")
+                        logger.info(f"🔍 CALENDAR QUERY: Calendar IDs: {calendar_ids}")
+                        
+                        # Also update calendar cache with fresh data
+                        self.calendar_agent.update_calendar_cache(available_calendars_list)
                     else:
-                        # Fallback to cache if list_calendars fails
-                        available_calendars = list(self.calendar_agent.calendar_cache.keys()) or ['primary']
-                        calendar_ids = available_calendars
-                        logger.warning(f"🔍 CALENDAR FIX: Fallback to cache - {len(calendar_ids)} calendars")
+                        # Fallback to calendar cache if API call fails
+                        if hasattr(self.calendar_agent, 'calendar_cache') and self.calendar_agent.calendar_cache:
+                            calendar_ids = list(self.calendar_agent.calendar_cache.keys())
+                            logger.warning(f"🔍 CALENDAR QUERY: API failed, using cache - {len(calendar_ids)} calendars")
+                        else:
+                            # Last resort - use primary only
+                            calendar_ids = ['primary']
+                            logger.error("🔍 CALENDAR QUERY: No cache available, using primary only")
                 except Exception as e:
-                    logger.error(f"🔍 CALENDAR FIX: Error getting calendars, using primary only: {e}")
+                    logger.error(f"🔍 CALENDAR QUERY: Error getting calendars: {e}")
+                    # Emergency fallback to primary
                     calendar_ids = ['primary']
                 
-                logger.info(f"🔍 CALENDAR DEBUG: Final search list - {len(calendar_ids)} calendars: {calendar_ids}")
-                logger.info(f"🔍 CALENDAR DEBUG: Calendar cache size: {len(self.calendar_agent.calendar_cache)}")
+                logger.info(f"🔍 CALENDAR QUERY: Final search scope - {len(calendar_ids)} calendars: {calendar_ids}")
+                if hasattr(self.calendar_agent, 'calendar_cache'):
+                    logger.info(f"🔍 CALENDAR QUERY: Calendar cache contains: {list(self.calendar_agent.calendar_cache.keys())}")
+            
+            # Ensure we have at least one calendar to search
+            if not calendar_ids:
+                calendar_ids = ['primary']
+                logger.warning("🔍 CALENDAR QUERY: No calendars found, defaulting to primary")
 
             all_events = []
             

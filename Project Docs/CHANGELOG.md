@@ -2,6 +2,41 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.211] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - COMPREHENSIVE EVENT PROCESSING OVERHAUL**
+
+**calibot/backend/app/utils/message_formatter.py**: Implemented Master Hyperlink Formatter for consistent event formatting
+- **Root Cause**: Multiple scattered formatting functions caused hyperlink inconsistencies across operations
+- **Master Solution**: Created `format_event_with_hyperlink()` as single source of truth for all event formatting
+- **Impact**: ✅ Hyperlinks now consistent across create/update/delete/query operations
+- **Integration**: Updated `format_single_event_display()` to use master formatter
+
+**calibot/backend/app/services/google_calendar.py**: Fixed calendar query scope to search ALL calendars by default
+- **Root Cause**: Query operations defaulted to 'primary' calendar only instead of all available calendars
+- **Evidence**: Events showing `'calendar_name': 'primary'` instead of actual calendar names like "Tonya"
+- **Fix Applied**: Modified calendar discovery logic to search ALL available calendars unless specifically requested
+- **Implementation**: Fresh API call to `list_calendars()` with cache update for comprehensive search
+- **Impact**: ✅ Queries now access all calendars in Google account by default
+
+**calibot/backend/app/api/routes.py**: Fixed single event deletion callback interpretation
+- **Root Cause**: `handle_confirmation_callback()` incorrectly parsing `"confirm_delete"` as cancellation
+- **Evidence**: "Yes" button treated as "Cancel" due to faulty `confirmation == "yes"` logic
+- **Fix Applied**: Proper callback parsing with `callback_data.startswith("confirm_")` for YES confirmation
+- **Implementation**: Added detailed logging and explicit confirmation vs cancellation handling
+- **Impact**: ✅ Single event deletions now correctly respond to Yes/No buttons
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.210 → 0.1.211
+- **calibot/backend/app/__init__.py**: __version__ 0.1.210 → 0.1.211
+
+### 🔄 **DEPLOYMENT STATUS**
+- **Deployment Method**: Git push to main branch (auto-deploys to Render)
+- **Backend URL**: https://calibot-utq6.onrender.com
+- **Testing Group**: -4627994150 (ready for B2B testing)
+
+---
+
 ## [0.1.210] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - OAUTH URL CORRUPTION (ROOT CAUSE IDENTIFIED)**

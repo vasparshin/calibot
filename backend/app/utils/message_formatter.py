@@ -121,34 +121,123 @@ class MessageFormatter:
             return formatted_name
     
     @staticmethod
+    def format_event_with_hyperlink(event: Dict, include_hyperlink: bool = True) -> str:
+        """MASTER HYPERLINK FORMATTER - Use this for ALL event formatting across all operations
+        
+        Ensures consistent hyperlink formatting regardless of operation type (create/update/delete/query).
+        This replaces all scattered formatting functions to fix hyperlink inconsistencies.
+        """
+        from datetime import datetime
+        
+        # Get event name/title
+        event_name = event.get('summary', event.get('event_name', event.get('title', 'Untitled Event')))
+        formatted_name = MessageFormatter.format_event_title(event_name)
+        
+        # Get hyperlink if available and requested
+        hyperlink = None
+        if include_hyperlink:
+            # Try multiple link fields in order of preference
+            hyperlink = (
+                event.get('link') or 
+                event.get('event_link') or 
+                event.get('htmlLink') or 
+                event.get('calendar_link')
+            )
+            
+            # If no link but we have an event ID, generate one
+            if not hyperlink and event.get('id'):
+                hyperlink = f"https://calendar.google.com/calendar/event?eid={event['id']}"
+            
+            # Ensure consistent calendar.google.com format
+            if hyperlink and 'www.google.com' in hyperlink:
+                hyperlink = hyperlink.replace('www.google.com', 'calendar.google.com')
+        
+        # Format date and time
+        date_str = "Unknown date"
+        time_str = "Unknown time"
+        
+        # Try different datetime formats
+        start_time = event.get('start')
+        end_time = event.get('end')
+        
+        if start_time:
+            try:
+                # Handle ISO format with timezone
+                if isinstance(start_time, str):
+                    if 'T' in start_time:
+                        # ISO datetime format
+                        start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                        date_str = start_dt.strftime("%A, %B %d, %Y")
+                        
+                        if end_time and isinstance(end_time, str) and 'T' in end_time:
+                            end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                            start_formatted = start_dt.strftime('%I:%M %p').lstrip('0')
+                            end_formatted = end_dt.strftime('%I:%M %p').lstrip('0')
+                            time_str = f"{start_formatted} - {end_formatted}"
+                        else:
+                            time_str = start_dt.strftime('%I:%M %p').lstrip('0')
+                    else:
+                        # Just date format
+                        date_str = start_time
+                elif isinstance(start_time, dict):
+                    # Google Calendar API format
+                    if start_time.get('dateTime'):
+                        start_dt = datetime.fromisoformat(start_time['dateTime'].replace('Z', '+00:00'))
+                        date_str = start_dt.strftime("%A, %B %d, %Y")
+                        
+                        if end_time and end_time.get('dateTime'):
+                            end_dt = datetime.fromisoformat(end_time['dateTime'].replace('Z', '+00:00'))
+                            start_formatted = start_dt.strftime('%I:%M %p').lstrip('0')
+                            end_formatted = end_dt.strftime('%I:%M %p').lstrip('0')
+                            time_str = f"{start_formatted} - {end_formatted}"
+                        else:
+                            time_str = start_dt.strftime('%I:%M %p').lstrip('0')
+                    elif start_time.get('date'):
+                        # All-day event
+                        date_dt = datetime.fromisoformat(start_time['date'])
+                        date_str = date_dt.strftime("%A, %B %d, %Y")
+                        time_str = "All day"
+            except Exception as e:
+                # Fallback to simple string representation
+                date_str = str(start_time)
+        
+        # Handle manual time fields if datetime parsing failed
+        if time_str == "Unknown time":
+            start_time_manual = event.get('start_time')
+            end_time_manual = event.get('end_time')
+            if start_time_manual:
+                time_str = MessageFormatter.format_time_24hour(start_time_manual)
+                if end_time_manual:
+                    end_formatted = MessageFormatter.format_time_24hour(end_time_manual)
+                    time_str = f"{time_str} - {end_formatted}"
+        
+        # Get calendar name
+        calendar_name = MessageFormatter.format_calendar_name(
+            event.get('calendar_name', 
+                     event.get('calendar_id', 
+                              event.get('organizer', {}).get('displayName', 'Unknown Calendar')))
+        )
+        
+        # Build the formatted string
+        if hyperlink and include_hyperlink:
+            clickable_title = f"[{formatted_name}]({hyperlink})"
+        else:
+            clickable_title = formatted_name
+            
+        return f"{clickable_title} on {date_str} at {time_str} ({calendar_name})"
+    
+    @staticmethod
     def format_single_event_display(event: Dict, include_hyperlink: bool = True) -> str:
         """
         Format single event for display following BOT_RULES.md specification.
         Format: • [Event Name](link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+        
+        UPDATED: Now uses the master hyperlink formatter for consistency across all operations.
         """
         try:
-            # Extract event details
-            event_name = event.get('summary', event.get('event_name', 'Untitled'))
-            start_time = event.get('start', event.get('start_time', ''))
-            end_time = event.get('end', event.get('end_time', ''))
-            calendar_name = event.get('calendar_name', 'Unknown Calendar')
-            event_id = event.get('id', event.get('event_id', ''))
-            calendar_link = event.get('htmlLink', event.get('calendar_link', ''))
-            
-            # Format components
-            if include_hyperlink:
-                formatted_name = MessageFormatter.create_event_hyperlink(event_name, event_id, calendar_link)
-            else:
-                formatted_name = MessageFormatter.format_event_title(event_name)
-            
-            # Extract date from start_time
-            date_str = MessageFormatter.format_date_full(start_time)
-            start_time_str = MessageFormatter.format_time_12hour(start_time)
-            end_time_str = MessageFormatter.format_time_12hour(end_time)
-            calendar_formatted = MessageFormatter.format_calendar_name(calendar_name)
-            
-            # Build the formatted string
-            return f"• {formatted_name} on {date_str} at {start_time_str} - {end_time_str} ({calendar_formatted})"
+            # Use the master formatter to ensure consistency
+            formatted_event = MessageFormatter.format_event_with_hyperlink(event, include_hyperlink)
+            return f"• {formatted_event}"
             
         except Exception as e:
             logger.error(f"Error formatting event display: {e}")
