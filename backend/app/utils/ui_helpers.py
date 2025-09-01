@@ -399,8 +399,24 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
             time_display = "at Unknown time"
             formatted_date = format_date_full(date) if date else "Unknown date"
         
-        # Use consistent format: Event on Date at Time (Calendar)
-        message += f"• {event_name} on {formatted_date} {time_display} ({calendar_name})\n"
+        # CRITICAL FIX: Use master formatter for consistent hyperlink formatting
+        from app.utils.message_formatter import MessageFormatter
+        
+        # Build event structure for master formatter
+        display_event = {
+            'summary': event_name,
+            'start': start_time,
+            'end': end_time,
+            'id': event.get('id', event.get('event_id', '')),
+            'htmlLink': event.get('htmlLink', event.get('event_link', event.get('link', ''))),
+            'calendar_name': calendar_name
+        }
+        
+        # Use master formatter for consistent hyperlink formatting
+        formatted_event = MessageFormatter.format_event_with_hyperlink(display_event, include_hyperlink=True)
+        
+        # Add to message
+        message += f"• {formatted_event}\n"
     
     message += f"\nDo you want to {action} these events anyway?"
     

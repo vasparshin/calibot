@@ -11,22 +11,24 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.222 - Current Version Testing
+## v0.1.223 - Current Version Testing
 
-### 🔴 **ACTIVE BUGS**
+### 🟡 **IN PROGRESS BUGS**
 
-#### **BUG-027: Event Name Capitalization Issues** - 🔴 **CRITICAL**
+#### **BUG-027: Event Name Capitalization Issues** - 🟡 **IN PROGRESS**
 - **Description**: Event names not preserving Google Calendar format or auto-capitalizing properly
 - **Evidence**: Inconsistent capitalization between Google Calendar and CaliBOT
 - **Expected**: Preserve Google Calendar format, auto-capitalize user input appropriately
-- **Impact**: Inconsistent event naming
-- **Status**: 🔴 **ACTIVE** - Needs capitalization logic
+- **Fix Applied**: Capitalization rules already implemented in LLM prompt (lines 77-80)
+- **Implementation**: "test meeting" → "Test Meeting", preserve "test event" if quoted
+- **Status**: 🟡 **IN PROGRESS** - Awaiting user confirmation (rules working as designed)
 
-#### **BUG-028: Hyperlink Formatting Still Broken** - 🔴 **CRITICAL**
+#### **BUG-028: Hyperlink Formatting Still Broken** - 🟡 **IN PROGRESS**
 - **Description**: Hyperlinks showing as visible text instead of clickable links
-- **Evidence**: `[Test Meeting](https://calendar.google.com/calendar/event?eid=...)` showing as text
-- **Impact**: Users see raw URLs instead of clickable links
-- **Status**: 🔴 **ACTIVE** - Needs hyperlink rendering fix
+- **Evidence**: `[Test Meeting](https://calendar.google.com/calendar/event?eid=...)` showing as text in duplicate detection
+- **Fix Applied**: Updated duplicate detection to use master formatter with hyperlinks
+- **Implementation**: Used `MessageFormatter.format_event_with_hyperlink()` for consistent display
+- **Status**: 🟡 **IN PROGRESS** - Awaiting user confirmation (fixed in duplicate detection)
 
 ---
 

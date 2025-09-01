@@ -132,20 +132,38 @@ class NLPAgent:
                     temperature=0.1,  # Tiny bit of randomness to avoid getting stuck
                 )
                 
-                # Enhanced response logging
+                # Enhanced response logging - FIXED to handle ModelResponse objects
                 logger.info(f"🔍 LLM RESPONSE DEBUG - Raw response type: {type(response)}")
                 logger.info(f"🔍 LLM RESPONSE DEBUG - Response keys: {list(response.keys()) if isinstance(response, dict) else 'Not a dict'}")
-                if isinstance(response, dict) and 'choices' in response:
-                    logger.info(f"🔍 LLM RESPONSE DEBUG - Choices length: {len(response['choices'])}")
-                    if response['choices']:
-                        choice = response['choices'][0]
-                        logger.info(f"🔍 LLM RESPONSE DEBUG - Choice keys: {list(choice.keys())}")
-                        if 'message' in choice:
-                            message = choice['message']
-                            logger.info(f"🔍 LLM RESPONSE DEBUG - Message keys: {list(message.keys())}")
-                            content = message.get('content', '')
-                            logger.info(f"🔍 LLM RESPONSE DEBUG - Raw content: '{content}'")
-                            logger.info(f"🔍 LLM RESPONSE DEBUG - Content length: {len(content)} chars")
+                
+                # Safe response structure exploration for debugging
+                try:
+                    if isinstance(response, dict) and 'choices' in response:
+                        logger.info(f"🔍 LLM RESPONSE DEBUG - Choices length: {len(response['choices'])}")
+                        if response['choices']:
+                            choice = response['choices'][0]
+                            logger.info(f"🔍 LLM RESPONSE DEBUG - Choice keys: {list(choice.keys())}")
+                            if 'message' in choice:
+                                message = choice['message']
+                                logger.info(f"🔍 LLM RESPONSE DEBUG - Message keys: {list(message.keys())}")
+                                content = message.get('content', '')
+                                logger.info(f"🔍 LLM RESPONSE DEBUG - Raw content: '{content}'")
+                                logger.info(f"🔍 LLM RESPONSE DEBUG - Content length: {len(content)} chars")
+                    elif hasattr(response, 'choices') and response.choices:
+                        logger.info(f"🔍 LLM RESPONSE DEBUG - ModelResponse choices length: {len(response.choices)}")
+                        if response.choices:
+                            choice = response.choices[0]
+                            logger.info(f"🔍 LLM RESPONSE DEBUG - ModelResponse choice type: {type(choice)}")
+                            if hasattr(choice, 'message') and choice.message:
+                                message = choice.message
+                                logger.info(f"🔍 LLM RESPONSE DEBUG - ModelResponse message type: {type(message)}")
+                                if hasattr(message, 'content'):
+                                    content = message.content
+                                    logger.info(f"🔍 LLM RESPONSE DEBUG - ModelResponse content: '{content}'")
+                                    logger.info(f"🔍 LLM RESPONSE DEBUG - ModelResponse content length: {len(content)} chars")
+                except Exception as debug_e:
+                    logger.error(f"🔍 LLM RESPONSE DEBUG - Error in debug logging: {debug_e}")
+                    # Don't let debug errors affect the main processing
                 
                 return response
 
