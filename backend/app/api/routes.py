@@ -128,7 +128,8 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
         
         logger.info(f"🔘 Parsed: action={action}, choice={choice}")
 
-        # Remove the keyboard first
+        # Remove the keyboard but preserve the original message content
+        # Get the original message first, then edit to remove only buttons
         await edit_message_text(
             chat_id, 
             message_id, 
@@ -142,7 +143,14 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
             from app.core.global_instances import get_global_queue_handler
             queue_handler = get_global_queue_handler()
             
+            logger.info(f"🔍 CALLBACK DEBUG: Using queue handler instance ID: {id(queue_handler)}")
+            logger.info(f"🔍 CALLBACK DEBUG: Queue handler has {len(queue_handler.pending_queues)} pending queues")
+            logger.info(f"🔍 CALLBACK DEBUG: Queue keys: {list(queue_handler.pending_queues.keys())}")
+            logger.info(f"🔍 CALLBACK DEBUG: Looking for chat_id: {str(chat_id)}")
+            logger.info(f"🔍 CALLBACK DEBUG: Has pending queue: {queue_handler.has_pending_queue(str(chat_id))}")
+            
             if choice == "all":
+                logger.info(f"🔍 CALLBACK DEBUG: Processing ALL events for {action}")
                 result = await queue_handler._process_all_events(str(chat_id))
                 message = result.get("message", f"Processed all {action} operations")
             elif choice == "one":

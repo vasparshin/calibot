@@ -134,6 +134,9 @@ class EventQueueHandler:
     
     def create_event_queue_from_list(self, chat_id: str, events_list: List[Dict]) -> Dict:
         """Create event queue directly from a list of events (for delete/update operations)"""
+        logger.info(f"🔍 QUEUE DEBUG: Creating queue for chat {chat_id} with {len(events_list) if isinstance(events_list, list) else 'invalid'} events")
+        logger.info(f"🔍 QUEUE DEBUG: EventQueueHandler instance ID: {id(self)}")
+        
         if not isinstance(events_list, list):
             logger.error(f"CRITICAL: events_list is not a list! Type: {type(events_list)}")
             return {"success": False, "message": "Invalid events data provided."}
@@ -147,15 +150,22 @@ class EventQueueHandler:
             validated_events.append(event)
         
         if not validated_events:
+            logger.error(f"🔍 QUEUE DEBUG: No valid events after validation")
             return {"success": False, "message": "No valid events to process."}
         
         # Store queue
-        self.pending_queues[chat_id] = {
+        queue_data = {
             'events': validated_events,
             'current_index': 0,
             'created_at': datetime.now(),
             'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
         }
+        
+        self.pending_queues[chat_id] = queue_data
+        logger.info(f"🔍 QUEUE DEBUG: Queue stored for chat {chat_id}")
+        logger.info(f"🔍 QUEUE DEBUG: Queue data: {len(validated_events)} events, current_index: 0")
+        logger.info(f"🔍 QUEUE DEBUG: Total pending queues: {len(self.pending_queues)}")
+        logger.info(f"🔍 QUEUE DEBUG: Queue keys: {list(self.pending_queues.keys())}")
 
         # Return initial message with options
         return self._get_initial_batch_message(chat_id)

@@ -133,6 +133,9 @@ class UpdateOperation(BaseOperation):
             # Use global queue handler to maintain state across operations
             from app.core.global_instances import get_global_queue_handler
             global_queue_handler = get_global_queue_handler()
+            
+            logger.info(f"🔍 UPDATE DEBUG: Using queue handler instance ID: {id(global_queue_handler)}")
+            logger.info(f"🔍 UPDATE DEBUG: Chat ID: {chat_id}, Events count: {len(events)}")
 
             # Prepare events for queue - fix data structure mapping
             events_for_queue = []
