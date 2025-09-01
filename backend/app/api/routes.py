@@ -491,6 +491,13 @@ async def _process_single_message(chat_id: str, user_message: str):
 
     except Exception as e:
         logger.error(f"Single message processing error: {e}")
+        # CRITICAL FIX: Ensure processing status is reset even when exceptions occur
+        try:
+            message_queue_handler.set_processing(chat_id, False)
+            logger.info(f"🔒 CRITICAL FIX: Reset processing status for chat {chat_id} after exception")
+        except Exception as reset_error:
+            logger.error(f"🔒 CRITICAL ERROR: Failed to reset processing status for chat {chat_id}: {reset_error}")
+        
         await send_telegram_message(chat_id_int, "I'm experiencing technical difficulties. Please try again in a moment.")
         return {"status": "error"}
 

@@ -133,5 +133,13 @@ class MessageQueueHandler:
         # Clear the queue after processing
         self.clear_queue(chat_id)
 
+    def force_reset_processing(self, chat_id: str) -> None:
+        """Force reset processing status for a chat (recovery mechanism)."""
+        try:
+            self.processing_status[chat_id] = False
+            logger.info(f"🔒 FORCE RESET: Processing status reset for chat {chat_id}")
+        except Exception as e:
+            logger.error(f"🔒 FORCE RESET ERROR: Failed to reset processing status for chat {chat_id}: {e}")
+
 # Global instance
 message_queue_handler = MessageQueueHandler()

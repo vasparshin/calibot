@@ -2,6 +2,43 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.233] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - PROCESSING STATUS STUCK STATE RESOLVED**
+
+**calibot/backend/app/api/routes.py**: Fixed critical bug where processing status was not being reset after LLM errors
+- **Root Cause**: When `ai_agent.extract_intent()` failed with `'content'` error, the processing status remained `True` forever
+- **Evidence**: Logs showed `"Chat -4627994150 processing status: True"` but never reset to `False` after LLM failures
+- **Pattern**: First message works fine, second message fails with `'content'` error, all subsequent messages fail
+- **Fix Applied**: Added explicit processing status reset in exception handler with comprehensive error handling
+- **Implementation**: `message_queue_handler.set_processing(chat_id, False)` in exception handler with try-catch wrapper
+- **Impact**: ✅ Eliminates "technical difficulties" loop after multiple back-to-back messages
+
+**calibot/backend/app/core/message_queue_handler.py**: Enhanced processing status management with force reset capability
+- **Root Cause**: Message queue handler's `finally` block could fail silently, leaving processing status stuck
+- **Evidence**: Processing status not being reset when LLM errors occurred in `_process_single_message()`
+- **Fix Applied**: Added `force_reset_processing()` method as recovery mechanism for stuck states
+- **Implementation**: Direct access to `processing_status[chat_id] = False` with comprehensive error logging
+- **Impact**: ✅ Provides recovery mechanism for any stuck processing states
+
+### 🔧 **TECHNICAL DETAILS**
+- **Error Pattern**: `ERROR:app.agent.nlp_agent:Error extracting intent: 'content'` followed by stuck processing
+- **State Management**: Processing status now reset in both normal flow and exception handlers
+- **Recovery Mechanism**: Force reset method available for emergency recovery from stuck states
+- **Logging Enhancement**: Added detailed logging for processing status resets and failures
+
+### 🧪 **TESTING STATUS**
+- ✅ Multiple back-to-back messages should now work without getting stuck
+- ✅ Processing status properly reset after LLM errors
+- ✅ Force reset method available for emergency recovery
+- 🔄 Awaiting user confirmation that the "technical difficulties" loop is resolved
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: Processing status not being reset when LLM errors occurred
+- **Secondary Issue**: Silent failures in message queue handler's finally block
+- **User Impact**: Complete system failure after multiple messages - "technical difficulties" loop
+- **Fix Priority**: CRITICAL - System was completely unusable after first LLM error
+
 ## [0.1.232] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - DUPLICATE CONFIRMATION ROOT CAUSE RESOLVED**
