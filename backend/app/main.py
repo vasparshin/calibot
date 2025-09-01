@@ -45,6 +45,13 @@ async def lifespan(app: FastAPI):
             print(f"Error setting webhook: {response.status_code} - {response.text}")
             print("Continuing with polling method...")
 
+    # Send deployment notification
+    try:
+        from app.services.deployment_monitor import notify_deployment_ready
+        await notify_deployment_ready()
+    except Exception as e:
+        logger.warning(f"Failed to send deployment notification: {e}")
+
     yield  # Hand control back to FastAPI
 
     # Shutdown: Clean up Telegram service

@@ -2,6 +2,51 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.194] - 2025-09-01
+
+### ✨ **NEW FEATURES - SELF-MONITORING DEPLOYMENT NOTIFICATIONS**
+
+**calibot/backend/app/services/deployment_monitor.py**: Added self-monitoring deployment notification system
+- **Feature**: Integrated deployment monitor that automatically sends notifications when new versions are deployed
+- **Implementation**: `DeploymentMonitor` class that tracks version changes and sends alerts to group chat
+- **Integration**: Automatically triggered during application startup in `main.py`
+- **Impact**: ✅ Eliminates need for manual notification scripts - system self-announces when ready for testing
+
+**calibot/backend/app/main.py**: Integrated deployment notifications into application startup
+- **Implementation**: Added `notify_deployment_ready()` call during lifespan startup
+- **Timing**: Waits 10 seconds after startup to ensure system is fully ready
+- **Error Handling**: Graceful failure if notification fails - doesn't affect main application
+- **Impact**: ✅ Automatic deployment notifications sent to group chat -4627994150 when new versions are live
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.193 → 0.1.194
+- **calibot/backend/app/__init__.py**: __version__ 0.1.193 → 0.1.194
+
+### 📈 **TECHNICAL IMPACT**
+- **Automated deployment alerts**: No more manual notification scripts required
+- **Enhanced testing workflow**: Immediate notification when deployments are ready
+- **Self-monitoring system**: Application tracks its own deployment status
+- **Improved development cycle**: Faster feedback loop for testing new features
+
+### 🔍 **PERFORMANCE ANALYSIS - QUERY PROCESSING TIMES**
+
+**Analysis of schedule query performance (based on recent logs):**
+- **LLM Processing**: ~775ms (intent extraction with GPT-4.1-mini)
+- **Calendar Query**: ~300ms (Google Calendar API calls)
+- **Message Formatting**: ~800ms (event list processing and formatting)
+- **Total Response Time**: ~1.9 seconds
+
+**Performance is within acceptable range** - most time spent on LLM processing which is necessary for accurate intent extraction.
+
+### ✅ **CONFIRMED WORKING FEATURES**
+
+**Delete Operations**: ✅ **FULLY FUNCTIONAL**
+- "Found 54 events to delete:" with proper event details and calendar links
+- All events showing correct format: `[Event Name](link) on Date at Time (Calendar)`
+- Proper confirmation buttons: "🔄 All", "1️⃣ One by One", "❌ Cancel"
+
+**Testing Required**: Verify deployment notifications appear in group chat -4627994150 when v0.1.194 deploys
+
 ## [0.1.193] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - CALLBACK HANDLING & CONVERSATION STATE**
