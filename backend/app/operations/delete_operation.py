@@ -100,7 +100,8 @@ class DeleteOperation(BaseOperation):
         """Handle deletion of multiple events using queue system."""
         try:
             # Use global queue handler to maintain state across operations
-            from app.api.routes import global_queue_handler
+            from app.core.global_instances import get_global_queue_handler
+            global_queue_handler = get_global_queue_handler()
 
             # Prepare events for queue - fix data structure mapping
             events_for_queue = []

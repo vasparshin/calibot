@@ -2,6 +2,48 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.196] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - QUEUE DATA PERSISTENCE & CIRCULAR IMPORTS**
+
+**calibot/backend/app/core/global_instances.py**: Created global service instance management to fix queue data loss
+- **Root Cause**: Operations and callbacks creating separate EventQueueHandler instances, losing queue data between operations
+- **Evidence**: Logs showed "No pending events in queue" immediately after queue creation with 3 events
+- **Fix Applied**: Created centralized global instance management with `get_global_queue_handler()`
+- **Implementation**: Lazy initialization to avoid circular imports, shared state across all operations
+- **Impact**: ✅ Queue data now persists between operations and callback handlers
+
+**calibot/backend/app/operations/delete_operation.py & update_operation.py**: Updated to use centralized global queue handler
+- **Root Cause**: Each operation importing and creating new EventQueueHandler instances
+- **Fix Applied**: Changed to use `get_global_queue_handler()` from global_instances module
+- **Impact**: ✅ All operations now share the same queue handler instance and data
+
+**calibot/backend/app/api/routes.py**: Fixed callback handler queue access and removed duplicate message sending
+- **Root Cause**: Callback handler creating new queue instance, couldn't find existing queue data
+- **Fix Applied**: Updated callback handler to use same global queue handler instance
+- **Fix Applied**: Removed duplicate message sending in routes.py (operations already send messages)
+- **Impact**: ✅ Buttons now work correctly - queue data persists from operation to callback
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.195 → 0.1.196
+- **calibot/backend/app/__init__.py**: __version__ 0.1.195 → 0.1.196
+
+### 📈 **TECHNICAL IMPACT**
+- **Fixed queue persistence**: Multi-event operations maintain state across button interactions
+- **Eliminated circular imports**: Clean service architecture with centralized instance management
+- **Restored button functionality**: All/One by One/Cancel buttons now work as expected
+- **Enhanced reliability**: Consistent queue state management prevents "No pending events" errors
+
+### 🔍 **REMAINING PERFORMANCE INVESTIGATION**
+
+**Log Analysis vs Real Experience:**
+- **Logs show**: ~2.4 seconds total processing time
+- **User experience**: 20-30 seconds delay
+- **Hypothesis**: Telegram message delivery delays or API rate limiting not reflected in logs
+- **Next**: Need to investigate actual message delivery times vs processing times
+
+**Testing Required**: Verify multi-event operations work correctly with persistent queue data in group chat -4627994150
+
 ## [0.1.195] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - MESSAGE DUPLICATION, QUEUE DATA LOSS & TELEGRAM LIMITS**

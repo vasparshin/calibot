@@ -20,7 +20,6 @@ from app.services.telegram import (
 )
 from app.services.google_calendar import GoogleCalendarService
 from app.services.conversation import conversation_state
-from app.services.event_queue_handler import EventQueueHandler
 from app.agent.nlp_agent import NLPAgent
 from app.agent.calendar_agent import CalendarAgent
 from app.core.confirmation_handler import ConfirmationHandler
@@ -36,8 +35,6 @@ ai_agent = NLPAgent()
 confirmation_handler = ConfirmationHandler(telegram_service, conversation_state, calendar_service)
 response_manager = ResponseManager()
 operation_factory = OperationFactory(telegram_service, conversation_state, calendar_service, calendar_agent)
-# Global queue handler to maintain queue state across operations
-global_queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
 
 logger = logging.getLogger(__name__)
 
@@ -142,13 +139,15 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
         # Handle the choice using the appropriate service
         if action in ["update", "delete"]:
             # Use global queue handler to maintain queue state
+            from app.core.global_instances import get_global_queue_handler
+            queue_handler = get_global_queue_handler()
             
             if choice == "all":
-                result = await global_queue_handler._process_all_events(str(chat_id))
+                result = await queue_handler._process_all_events(str(chat_id))
                 message = result.get("message", f"Processed all {action} operations")
             elif choice == "one":
                 # Start one-by-one processing
-                result = global_queue_handler.get_next_event_confirmation(str(chat_id))
+                result = queue_handler.get_next_event_confirmation(str(chat_id))
                 if result.get("keyboard"):
                     await send_telegram_message(chat_id, result["message"], reply_markup=result["keyboard"])
                 else:
@@ -156,10 +155,10 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                 return {"status": "ok"}
             elif choice == "cancel":
                 # Cancel operation
-                if global_queue_handler.has_pending_queue(str(chat_id)):
-                    queue = global_queue_handler.pending_queues[str(chat_id)]
+                if queue_handler.has_pending_queue(str(chat_id)):
+                    queue = queue_handler.pending_queues[str(chat_id)]
                     total_events = len(queue.get('events', []))
-                    del global_queue_handler.pending_queues[str(chat_id)]
+                    del queue_handler.pending_queues[str(chat_id)]
                     message = f"Operation cancelled. No events were {action}d."
                 else:
                     message = "Operation cancelled."
