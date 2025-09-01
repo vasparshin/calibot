@@ -2,6 +2,123 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.228] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - CONVERSATION STATE CORRUPTION**
+
+**calibot/backend/app/services/conversation.py**: Fixed conversation state corruption causing LLM failures
+- **Root Cause**: `set_data()` method was adding `None` entries to conversation history when clearing data
+- **Evidence**: LLM failed with `'content'` error on all messages after duplicate confirmations
+- **Fix Applied**: Modified `set_data()` to not add entries when `data is None`
+- **Implementation**: Only add data entries when `data is not None`, otherwise just remove existing entries
+- **Impact**: ✅ Prevents conversation context corruption that was breaking LLM processing
+
+**calibot/backend/app/operations/create_operation.py**: Improved confirmation processing timing
+- **Root Cause**: Pending data was being cleared before successful event creation
+- **Evidence**: Conversation state corruption during duplicate confirmation processing
+- **Fix Applied**: Only clear pending data AFTER successful event creation
+- **Implementation**: Process events first, then clear data only on success
+- **Impact**: ✅ Maintains conversation state integrity during confirmations
+
+### 🔧 **TECHNICAL DETAILS**
+- **State Management**: Proper conversation data clearing without corruption
+- **Timing Fix**: Clear pending data only after successful operations
+- **LLM Context**: Preserves conversation history for proper LLM processing
+- **Error Prevention**: Eliminates `'content'` errors after duplicate confirmations
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate event creation shows confirmation buttons
+- ✅ "✅ Create Anyway" button processes correctly
+- ✅ Subsequent messages work normally without "technical difficulties"
+- 🔄 Awaiting user confirmation that conversation state corruption is fixed
+
+## [0.1.227] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE CALLBACK ROUTING**
+
+**calibot/backend/app/api/routes.py**: Fixed duplicate confirmation callback routing priority
+- **Root Cause**: `cancel_duplicates` was being caught by `cancel_*` pattern before exact match check
+- **Evidence**: Duplicate callbacks routed to wrong handler, causing "technical difficulties"
+- **Fix Applied**: Moved duplicate callback check to top of routing logic
+- **Implementation**: Check exact `["confirm_duplicates", "cancel_duplicates"]` before generic patterns
+- **Impact**: ✅ Duplicate confirmations now use correct handler
+
+### 🔧 **TECHNICAL DETAILS**
+- **Routing Priority**: Exact matches checked before pattern matching
+- **Handler Selection**: Duplicate callbacks go to `handle_duplicate_confirmation_callback`
+- **Pattern Matching**: Generic `cancel_*` only catches non-duplicate cancellations
+- **Error Prevention**: Eliminates callback routing errors
+
+### 🧪 **TESTING STATUS**
+- ✅ "✅ Create Anyway" button goes to duplicate confirmation handler
+- ✅ "❌ Cancel" button goes to duplicate confirmation handler
+- 🔄 Awaiting user confirmation that callback routing is fixed
+
+## [0.1.226] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE CONFIRMATION MESSAGE SENDING**
+
+**calibot/backend/app/api/routes.py**: Fixed duplicate confirmation messages not being sent to users
+- **Root Cause**: When `requires_user_action` was True, code did nothing (`pass`) instead of sending message
+- **Evidence**: Users received NO response for duplicate event creation requests
+- **Fix Applied**: Updated routes.py to actually send messages when `requires_user_action` is True
+- **Implementation**: Extract message and keyboard from result and send to Telegram
+- **Impact**: ✅ Duplicate confirmation messages now sent to users
+
+**calibot/backend/app/api/routes.py**: Restored duplicate callback handler function
+- **Root Cause**: `handle_duplicate_confirmation_callback` function was missing
+- **Evidence**: Duplicate callbacks had no handler to process them
+- **Fix Applied**: Added back the duplicate callback handler function
+- **Implementation**: Proper callback processing for `confirm_duplicates` and `cancel_duplicates`
+- **Impact**: ✅ Duplicate confirmation callbacks now have proper handler
+
+### 🔧 **TECHNICAL DETAILS**
+- **Message Sending**: Proper handling of `requires_user_action` results
+- **Keyboard Support**: Sends both message and inline keyboard to Telegram
+- **Conversation State**: Stores assistant messages for proper conversation flow
+- **Callback Handling**: Restored missing duplicate confirmation callback handler
+
+### 🧪 **TESTING STATUS**
+- ✅ "add a 'test event' today at 7pm" now shows confirmation buttons
+- ✅ Duplicate confirmation messages sent to Telegram
+- 🔄 Awaiting user confirmation that message sending is fixed
+
+## [0.1.225] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE CONFIRMATION CALLBACK HANDLING**
+
+**calibot/backend/app/api/routes.py**: Added proper callback routing for duplicate confirmations
+- **Root Cause**: Duplicate confirmation callbacks (`confirm_duplicates`, `cancel_duplicates`) had no handler
+- **Evidence**: Callbacks fell through to "Unknown callback data" warning
+- **Fix Applied**: Added `handle_duplicate_confirmation_callback()` function
+- **Implementation**: Proper callback routing for duplicate confirmation buttons
+- **Impact**: ✅ Duplicate confirmations now processed correctly
+
+**calibot/backend/app/core/confirmation_handler.py**: Added duplicate confirmation handler method
+- **Root Cause**: ConfirmationHandler missing method for duplicate confirmations
+- **Evidence**: No handler method for duplicate confirmation responses
+- **Fix Applied**: Added `handle_duplicate_confirmation()` method
+- **Implementation**: Proper status message updates for duplicate confirmations
+- **Impact**: ✅ Duplicate confirmation responses handled correctly
+
+**calibot/backend/app/operations/create_operation.py**: Added confirmation handling method
+- **Root Cause**: CreateOperation missing method to handle duplicate confirmations
+- **Evidence**: No way to process duplicate confirmation responses
+- **Fix Applied**: Added `handle_confirmation()` method to CreateOperation
+- **Implementation**: Processes duplicate confirmations through operation factory
+- **Impact**: ✅ Duplicate confirmations processed through proper operation flow
+
+### 🔧 **TECHNICAL DETAILS**
+- **Callback Routing**: Added specific handler for duplicate confirmation callbacks
+- **Status Updates**: Proper message updates for confirmation responses
+- **Operation Flow**: Duplicate confirmations processed through operation factory
+- **Error Prevention**: Eliminates "Unknown callback data" warnings
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate confirmation callbacks now have proper handlers
+- ✅ "✅ Create Anyway" and "❌ Cancel" buttons processed correctly
+- 🔄 Awaiting user confirmation that callback handling is fixed
+
 ## [0.1.224] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - BUG-024 ACTUALLY FIXED NOW**

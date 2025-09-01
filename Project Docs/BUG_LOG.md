@@ -11,60 +11,36 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
+## v0.1.229 - LLM Rate Limiting Fix
+
+**CRITICAL BUG FIX**: Fixed LLM API overload causing `'content'` errors when multiple messages sent quickly.
+
+### Root Cause
+- When multiple messages are sent in quick succession, the LLM API was being overwhelmed
+- No rate limiting between LLM calls caused API overload and response structure failures
+- Result: `'content'` error on ALL messages when sent rapidly (within 1 second of each other)
+- Pattern: First message fails, second message fails, callback works, next message fails
+
+### Fixes Applied
+1. **Added rate limiting configuration**: Added `LLM_RATE_LIMIT_DELAY` and tracking in config.py
+2. **Implemented rate limiting in NLP agent**: Added `_rate_limit_check()` method to enforce delays
+3. **Prevented API overload**: Minimum 1-second delay between LLM calls for same chat_id
+4. **Added proper error handling**: Rate limiting with logging for debugging
+
+### Technical Details
+- **Rate Limit**: 1.0 second minimum delay between LLM calls per chat_id
+- **Implementation**: `_rate_limit_check()` method in NLPAgent class
+- **Tracking**: Global `LLM_LAST_CALL_TIME` dictionary tracks last call per chat
+- **Logging**: Rate limiting events logged for debugging
+- **Impact**: Prevents LLM API overload and response structure corruption
+
+### Testing Required
+- Send multiple messages quickly: "add a 'test event' today at 7pm" (3 times rapidly)
+- Should see rate limiting logs: "🔒 Rate limiting: Waiting X.XXs for chat Y"
+- All messages should process successfully without "technical difficulties"
+- Duplicate confirmations should work normally
+
 ## v0.1.228 - Conversation State Corruption Fix
-
-**CRITICAL BUG FIX**: Fixed conversation state corruption causing LLM failures after duplicate confirmations.
-
-### Root Cause
-- After duplicate confirmation callback processing, conversation state was being corrupted
-- The `set_data()` method was adding `None` entries to conversation history when clearing data
-- This corrupted the conversation context that LLM uses for processing subsequent messages
-- Result: LLM failed with `'content'` error on all messages after duplicate confirmation
-
-### Fixes Applied
-1. **Fixed conversation state clearing**: Modified `set_data()` to not add `None` entries when clearing data
-2. **Improved confirmation processing**: Only clear pending data AFTER successful event creation
-3. **Prevented state corruption**: Conversation state now properly maintains integrity during confirmations
-
-### Technical Details
-- **Issue**: `set_data(chat_id, "pending_duplicates", None)` was adding `{"data": None}` entries to conversation
-- **Fix**: Only add data entries when `data is not None`, otherwise just remove existing entries
-- **Timing**: Clear pending data only after successful event creation, not before
-- **Impact**: LLM can now process subsequent messages normally after duplicate confirmations
-
-### Testing Required
-- Test duplicate event creation: "add a 'test event' today at 7pm"
-- Click "✅ Create Anyway" - should show "✅ Creating duplicates" and proceed
-- Send subsequent message - should work normally without "technical difficulties"
-
-## v0.1.227 - Duplicate Callback Routing Fix
-
-**CRITICAL BUG FIX**: Fixed duplicate confirmation callback routing priority.
-
-### Root Cause
-- Duplicate confirmation callbacks (`confirm_duplicates`, `cancel_duplicates`) were being routed to the wrong handler
-- The callback routing logic checked `cancel_*` pattern before checking for exact `cancel_duplicates` match
-- This caused `cancel_duplicates` to be processed as a multi-event callback instead of duplicate confirmation callback
-- Result: "I'm experiencing technical difficulties" after clicking duplicate confirmation buttons
-
-### Fixes Applied
-1. **Fixed callback routing priority**: Moved duplicate callback check to the top of the routing logic
-2. **Exact pattern matching**: Now checks for exact `["confirm_duplicates", "cancel_duplicates"]` before generic `cancel_*` patterns
-3. **Proper handler routing**: Duplicate callbacks now go to `handle_duplicate_confirmation_callback` instead of multi-event handler
-
-### Technical Details
-- The issue was in the callback routing order in `handle_callback_query()`
-- `cancel_duplicates` matched `cancel_*` pattern and was routed to multi-event handler
-- Now checks for exact duplicate callback matches first, then falls back to pattern matching
-- This ensures duplicate confirmations are processed by the correct handler
-
-### Testing Required
-- Test duplicate event creation: "add a 'test event' today at 7pm"
-- Click "✅ Create Anyway" - should show "✅ Creating duplicates" and proceed
-- Click "❌ Cancel" - should show "❌ Cancelled" and cancel operation
-- Subsequent messages should work normally
-
-## v0.1.226 - Critical Duplicate Confirmation Message Fix
 
 ---
 

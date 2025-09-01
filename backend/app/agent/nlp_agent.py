@@ -1,11 +1,13 @@
 from datetime import datetime
 from litellm import acompletion
 from app.utils.helpers import format_conversation_history
-from app.config import LITELLM_MODEL
+from app.config import LITELLM_MODEL, LLM_RATE_LIMIT_DELAY, LLM_LAST_CALL_TIME
 from app.prompts.intent_extraction_prompt import INTENT_EXTRACTION_PROMPT
 from app.prompts.relevancy_classifier_prompt import RELEVANCY_CLASSIFIER_PROMPT
 import json
 import logging
+import asyncio
+import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,6 +17,19 @@ class NLPAgent:
     def __init__(self):
         self.system_prompt = INTENT_EXTRACTION_PROMPT
         self.model = LITELLM_MODEL
+
+    async def _rate_limit_check(self, chat_id: str) -> None:
+        """Ensure minimum delay between LLM calls for the same chat."""
+        current_time = time.time()
+        last_call_time = LLM_LAST_CALL_TIME.get(chat_id, 0)
+        
+        time_since_last_call = current_time - last_call_time
+        if time_since_last_call < LLM_RATE_LIMIT_DELAY:
+            delay_needed = LLM_RATE_LIMIT_DELAY - time_since_last_call
+            logger.info(f"🔒 Rate limiting: Waiting {delay_needed:.2f}s for chat {chat_id}")
+            await asyncio.sleep(delay_needed)
+        
+        LLM_LAST_CALL_TIME[chat_id] = time.time()
 
 
 
@@ -86,6 +101,19 @@ class NLPAgent:
     async def extract_intent(self, user_message, conversation_history):
         """Process user message and extract calendar intent and details"""
         try:
+            # CRITICAL FIX: Add rate limiting to prevent LLM API overload
+            # Use a default chat_id if not available from conversation history
+            chat_id = "default"
+            if conversation_history and len(conversation_history) > 0:
+                # Try to extract chat_id from the first message if available
+                first_msg = conversation_history[0]
+                if isinstance(first_msg, dict) and 'chat_id' in first_msg:
+                    chat_id = str(first_msg['chat_id'])
+                elif hasattr(first_msg, 'chat_id'):
+                    chat_id = str(first_msg.chat_id)
+            
+            await self._rate_limit_check(chat_id)
+            
             formatted_history = format_conversation_history(conversation_history)
             current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
             
