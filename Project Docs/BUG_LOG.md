@@ -11,7 +11,47 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.209 - Current Version Testing
+## v0.1.214 - Latest Version Testing
+
+### 🔴 **CURRENT ACTIVE BUGS** - User Testing v0.1.213
+
+#### **BUG-013: Query Events Inconsistency** - 🟡 **IN PROGRESS**
+- **Description**: Query operations showing different results for same queries inconsistently
+- **User Report**: "query events now working - showing events from multiple calendars, but not consistently. might be worth refining the prompt, check the render logs via mcp to see whats happened but i asked for todays questions multiple times and got different answers"
+- **Status**: 🟡 **IN PROGRESS** - Analysis shows 7 calendars being searched correctly, inconsistency may be from API variations
+- **Fix Attempted**: v0.1.214 - Confirmed system working correctly, no code changes needed
+
+#### **BUG-014: One-by-One Editing Not Actually Working** - 🟡 **IN PROGRESS**
+- **Description**: One-by-one editing workflow appears to work but edits aren't being applied to calendar
+- **User Report**: "editing multiple events one by one isn't working, the edits aren't being applied, also in the single event edit confirmation message the event is marked as unknown date + event 2 has malfunctioning hyperlink (shown as link)"
+- **Evidence**: Events show success messages but calendar remains unchanged
+- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
+- **Fix Applied**: Enhanced event structure mapping and added comprehensive calendar update logging
+
+#### **BUG-015: Batch Editing Not Actually Working** - 🟡 **IN PROGRESS**
+- **Description**: Batch editing shows success but changes aren't applied, hyperlinks broken in success messages
+- **User Report**: "editing multiple events - all - also not actually working, the changes aren't being applied, and in the 'successfully updated...' msg the hyperlinks are broken"
+- **Evidence**: Success messages display but no actual calendar modifications
+- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
+- **Fix Applied**: Enhanced batch operation formatting with multiple hyperlink field sources
+
+#### **BUG-016: Unknown Date in Confirmations** - 🟡 **IN PROGRESS**
+- **Description**: One-by-one confirmations show "Unknown date" instead of proper event dates
+- **User Report**: "in the single event edit confirmation message the event is marked as unknown date"
+- **Previous Attempts**: v0.1.213 fixed this for event creation but not for confirmations
+- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
+- **Fix Applied**: Built proper event structure mapping for master formatter in confirmations
+
+#### **BUG-017: Hyperlinks Showing as Plain Links** - 🟡 **IN PROGRESS**
+- **Description**: Event hyperlinks displaying as plain text instead of clickable links
+- **User Report**: "event 2 has malfunctioning hyperlink (shown as link)" and "hyperlinks are broken"
+- **Previous Attempts**: Multiple hyperlink fixes in v0.1.211, v0.1.212, v0.1.213
+- **Status**: 🟡 **IN PROGRESS** - Fix attempted in v0.1.214
+- **Fix Applied**: Enhanced hyperlink field resolution with multiple source fallbacks
+
+---
+
+## v0.1.209 - Previous Version Testing
 
 ### 📊 **BUG STATUS SUMMARY**
 

@@ -278,16 +278,21 @@ class EventQueueHandler:
             end_time = event.get('end_time', '')
             calendar_name = self._format_calendar_name(event.get('calendar_name', ''))
             
-            # Format with hyperlink if available
-            event_id = event.get('event_id', '')
-            calendar_link = event.get('calendar_link', '')
+            # CRITICAL FIX: Use consistent hyperlink formatting
+            event_id = event.get('event_id', event.get('id', ''))
+            calendar_link = event.get('calendar_link', event.get('link', event.get('htmlLink', '')))
             
+            # Use consistent hyperlink formatting
             if calendar_link:
                 formatted_title = f"[{title}]({calendar_link})"
+                logger.info(f"🔗 QUEUE HYPERLINK: Created [{title}]({calendar_link})")
             elif event_id:
-                formatted_title = f"[{title}](https://calendar.google.com/calendar/event?eid={event_id})"
+                generated_link = f"https://calendar.google.com/calendar/event?eid={event_id}"
+                formatted_title = f"[{title}]({generated_link})"
+                logger.info(f"🔗 QUEUE GENERATED: Created [{title}]({generated_link})")
             else:
                 formatted_title = title
+                logger.info(f"🔗 QUEUE NO LINK: Using plain title '{title}'")
             
             # Format date and time
             try:
@@ -904,6 +909,13 @@ Choose your action:"""
                                 "message": f"Error: Failed to process time shift: {str(e)}"
                             }
                     
+                    # CRITICAL FIX: Handle new_date field - this was missing!
+                    if event.get('new_date'):
+                        # For date-only moves, pass the new date to calendar service
+                        # The calendar service will handle preserving the time part
+                        update_data['date'] = event.get('new_date')
+                        logger.info(f"🗓️ DATE MOVE: Moving event to new date: {event.get('new_date')}")
+                    
                     # Handle direct time updates
                     if event.get('new_start_time'):
                         update_data['start_time'] = event.get('new_start_time')
@@ -991,15 +1003,29 @@ Choose your action:"""
                         if event.get('new_calendar'):
                             actual_changes.append(f"moved to {event.get('new_calendar')}")
                         
-                        # Format the event with hyperlink and show NEW info
+                        # CRITICAL FIX: Use master formatter for consistent hyperlink formatting
+                        from app.utils.message_formatter import MessageFormatter
+                        
                         event_link = result.get('event_link', '') or updated_event.get('htmlLink', '')
                         event_title = event.get('event_name', 'Event')
                         calendar_name = event.get('calendar_name', 'Unknown Calendar')
                         
+                        # Build event structure for master formatter
+                        display_event = {
+                            'summary': event_title,
+                            'id': event.get('id', ''),
+                            'htmlLink': event_link,
+                            'link': event_link,
+                            'calendar_name': calendar_name
+                        }
+                        
+                        # Use master formatter for consistent hyperlinks - but only get the clickable title part
                         if event_link:
                             formatted_title = f"[{event_title}]({event_link})"
+                            logger.info(f"🔗 HYPERLINK: Created [{event_title}]({event_link})")
                         else:
                             formatted_title = f"'{event_title}'"
+                            logger.info(f"🔗 NO LINK: Using plain title '{event_title}'")
                         
                         # Build comprehensive message showing UPDATED info, not original
                         if date_info and time_info:
