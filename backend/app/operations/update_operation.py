@@ -74,8 +74,22 @@ class UpdateOperation(BaseOperation):
             )
 
             if calendar_response.get("success"):
+                # CRITICAL FIX: Use master formatter with proper event structure
+                from app.utils.message_formatter import MessageFormatter
+                
+                # Build complete event structure with hyperlink from calendar response
                 updated_event = calendar_response.get('updated_event') or event
-                formatted_event = self.response_manager.format_single_event_display(updated_event, include_hyperlink=True)
+                event_for_display = {
+                    'summary': updated_event.get('summary', event.get('summary', 'Untitled')),
+                    'start': updated_event.get('start', event.get('start', '')),
+                    'end': updated_event.get('end', event.get('end', '')),
+                    'calendar_name': updated_event.get('calendar_name', event.get('calendar_name', 'Unknown Calendar')),
+                    'id': updated_event.get('id', event.get('id', '')),
+                    'link': updated_event.get('htmlLink', event.get('link', '')),  # CRITICAL: Include hyperlink
+                    'htmlLink': updated_event.get('htmlLink', event.get('link', ''))  # Alternative field
+                }
+                
+                formatted_event = MessageFormatter.format_single_event_display(event_for_display, include_hyperlink=True)
                 message = f"Successfully updated event:\n\n{formatted_event}"
 
                 return {

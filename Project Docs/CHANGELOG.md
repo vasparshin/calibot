@@ -2,6 +2,43 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.212] - 2025-09-01
+
+### 🚨 **EMERGENCY FIXES - SINGLE EVENT HYPERLINKS & UNDO FUNCTIONALITY**
+
+**calibot/backend/app/operations/create_operation.py**: Fixed single event creation missing hyperlinks
+- **Root Cause**: Single event success messages were not using proper event structure for master formatter
+- **Evidence**: Logs showed `• Test Meeting on Unknown date at 09:00 PM - 10:00 PM (Primary Calendar)` - NO hyperlink
+- **Fix Applied**: Built complete event structure with hyperlink from calendar response before formatting
+- **Impact**: ✅ Single event creation now shows proper hyperlinks in success messages
+
+**calibot/backend/app/operations/update_operation.py**: Fixed single event updates using master formatter
+- **Integration**: Updated to use master `format_event_with_hyperlink()` for consistency
+- **Impact**: ✅ All single event updates now have consistent hyperlink formatting
+
+**calibot/backend/app/api/routes.py**: Fixed undo functionality not finding recent operations
+- **Root Cause**: Assistant messages were not being stored in conversation state for undo analysis
+- **Evidence**: Logs showed `Found 0 recent operations: []` despite recent event creation
+- **Fix Applied**: Added `conversation_state.add_message(chat_id, "assistant", message)` after all bot responses
+- **Implementation**: Fixed both regular operations and LLM-formatted query responses
+- **Impact**: ✅ Undo functionality can now find and reverse recent calendar operations
+
+**calibot/backend/app/operations/undo_operation.py**: Enhanced operation detection patterns
+- **Enhancement**: Expanded detection patterns to catch all message formats for operation identification
+- **Pattern Coverage**: Added multiple phrase variations for create/update/delete detection
+- **Impact**: ✅ More robust undo operation detection across different message formats
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.211 → 0.1.212
+- **calibot/backend/app/__init__.py**: __version__ 0.1.211 → 0.1.212
+
+### 🔄 **DEPLOYMENT STATUS**
+- **Deployment Method**: Git push to main branch (auto-deploys to Render)
+- **Backend URL**: https://calibot-utq6.onrender.com
+- **Testing Group**: -4627994150 (ready for comprehensive testing)
+
+---
+
 ## [0.1.211] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - COMPREHENSIVE EVENT PROCESSING OVERHAUL**

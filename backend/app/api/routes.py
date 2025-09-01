@@ -408,12 +408,15 @@ async def process_user_message(chat_id: int, user_message: str):
             # Operations like DeleteOperation and UpdateOperation handle their own messaging
             pass
         elif result.get("success"):
-            # Send success message
-            await send_telegram_message(chat_id, result["message"])
+            # Send success message and add to conversation state for undo functionality
+            message = result["message"]
+            await send_telegram_message(chat_id, message)
+            conversation_state.add_message(chat_id, "assistant", message)  # CRITICAL: Store for undo
         else:
-            # Send error message
+            # Send error message and add to conversation state
             error_msg = result.get("message", "An error occurred while processing your request.")
             await send_telegram_message(chat_id, error_msg)
+            conversation_state.add_message(chat_id, "assistant", error_msg)
 
         return {"status": "ok"}
 
@@ -472,9 +475,13 @@ Return only the response message that should be sent to the user.
         try:
             llm_response = await ai_agent.generate_response(formatting_prompt, conversation_history)
             if llm_response and llm_response.strip():
-                await send_telegram_message(chat_id, llm_response.strip())
+                response_message = llm_response.strip()
+                await send_telegram_message(chat_id, response_message)
+                conversation_state.add_message(chat_id, "assistant", response_message)  # CRITICAL: Store for undo
             else:
-                await send_telegram_message(chat_id, "I found some information but couldn't format it properly. Please try rephrasing your request.")
+                fallback_message = "I found some information but couldn't format it properly. Please try rephrasing your request."
+                await send_telegram_message(chat_id, fallback_message)
+                conversation_state.add_message(chat_id, "assistant", fallback_message)
         except Exception as llm_error:
             logger.error(f"LLM formatting error: {llm_error}")
             # Fallback: provide basic formatted response

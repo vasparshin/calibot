@@ -76,22 +76,23 @@ class UndoOperation(BaseOperation):
             if message.get("role") == "assistant":
                 content = message.get("content", "")
                 
-                # Look for operation indicators
-                if "Successfully created" in content:
+                # CRITICAL FIX: More comprehensive operation detection patterns
+                # Look for operation indicators - expand patterns to catch all formats
+                if any(phrase in content for phrase in ["Successfully created", "created event", "event created", "Successfully created event"]):
                     operations.append({
                         "type": "create",
                         "timestamp": message.get("timestamp", datetime.now()),
                         "content": content,
                         "events": self._extract_events_from_message(content)
                     })
-                elif "Successfully deleted" in content:
+                elif any(phrase in content for phrase in ["Successfully deleted", "deleted event", "event deleted", "Successfully deleted event"]):
                     operations.append({
                         "type": "delete", 
                         "timestamp": message.get("timestamp", datetime.now()),
                         "content": content,
                         "events": self._extract_events_from_message(content)
                     })
-                elif "Successfully updated" in content:
+                elif any(phrase in content for phrase in ["Successfully updated", "updated event", "event updated", "Successfully updated event"]):
                     operations.append({
                         "type": "update",
                         "timestamp": message.get("timestamp", datetime.now()), 
