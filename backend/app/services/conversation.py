@@ -52,13 +52,15 @@ class ConversationState:
             if not (msg.get("type") == "data" and msg.get("key") == key)
         ]
         
-        # Add new data
-        self.conversations[user_id].append({
-            "role": "system",
-            "type": "data",
-            "key": key,
-            "data": data,
-            "timestamp": datetime.now().isoformat()
-        })
+        # CRITICAL FIX: Only add new data if it's not None
+        # If data is None, we just remove the existing data (clear it)
+        if data is not None:
+            self.conversations[user_id].append({
+                "role": "system",
+                "type": "data",
+                "key": key,
+                "data": data,
+                "timestamp": datetime.now().isoformat()
+            })
 
 conversation_state = ConversationState()

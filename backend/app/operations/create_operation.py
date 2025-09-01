@@ -278,16 +278,21 @@ class CreateOperation(BaseOperation):
                         "message": "No pending duplicate operation found."
                     }
                 
-                # Clear pending data
-                self.set_conversation_data(chat_id, "pending_duplicates", None)
-                
+                # CRITICAL FIX: Don't clear conversation data immediately - process first
                 # Process the events that were waiting for confirmation
                 events_to_create = pending_data.get("events_to_create", [])
                 
+                # Process the events
                 if len(events_to_create) == 1:
-                    return await self.create_single_event(chat_id, events_to_create[0])
+                    result = await self.create_single_event(chat_id, events_to_create[0])
                 else:
-                    return await self.create_batch_events(chat_id, events_to_create)
+                    result = await self.create_batch_events(chat_id, events_to_create)
+                
+                # Only clear pending data AFTER successful processing
+                if result.get("success"):
+                    self.set_conversation_data(chat_id, "pending_duplicates", None)
+                
+                return result
             
             else:
                 return {
