@@ -2,6 +2,55 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.192] - 2025-09-01
+
+### ✨ **NEW FEATURES & CRITICAL BUG FIXES**
+
+**calibot/scripts/deployment_notifier.py**: Added deployment notification system for automated testing alerts
+- **Feature**: Standalone Python script that sends Telegram notifications when new versions are deployed
+- **Implementation**: Reads version from `__init__.py`, sends formatted message to group chat `-4627994150`
+- **Usage**: `python scripts/deployment_notifier.py` (requires TELEGRAM_API_TOKEN env var)
+- **Impact**: ✅ Enables immediate notification when deployments are ready for testing
+
+**calibot/backend/app/operations/update_operation.py**: Fixed update operations showing "Unknown" event details and missing multi-event summary
+- **Root Cause**: Same data structure mapping issue as DeleteOperation - GoogleCalendarService format vs EventQueueHandler format mismatch
+- **Fix Applied**: Added proper data structure mapping in `handle_multi_event_update()`:
+  - `summary` → `event_name`
+  - `start` → `start_time`
+  - `end` → `end_time` 
+  - `link` → `calendar_link`
+- **Fix Applied**: Changed from `create_event_queue()` to `create_event_queue_from_list()` for proper multi-event summary display
+- **Fix Applied**: Added "ANY" event name handling to exclude from calendar service queries
+- **Impact**: ✅ Update operations now show "Found X events to update" with proper event details and All/One by One/Cancel buttons
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.191 → 0.1.192
+- **calibot/backend/app/__init__.py**: __version__ 0.1.191 → 0.1.192
+
+### 📈 **TECHNICAL IMPACT**
+- **Deployment notifications**: Automated alerts for testing readiness
+- **Fixed update operation workflow**: No more "Unknown" event details in update confirmations
+- **Consistent multi-event handling**: Both delete and update operations now use proper summary workflow
+- **Enhanced testing process**: Immediate notification when new features are ready for validation
+
+### 🔍 **PROMPT ARCHITECTURE CLARIFICATION**
+
+**Current System Uses Multi-Prompt Architecture (NOT single master prompt):**
+- `intent_extraction_prompt.py` - Primary LLM intent extraction (125 lines)
+- `multi_event_operation_prompt.py` - Multi-event operations (86 lines)
+- `agent_system_prompt.py` - Conversation guidance (36 lines)
+- `small_talk_system_prompt.py` - Non-calendar messages (19 lines)
+- `calendar_selection_prompt.py` - Calendar selection (26 lines)
+- `relevancy_classifier_prompt.py` - Message classification (27 lines)
+
+**Why Multi-Prompt Is Superior:**
+- ✅ **Specialized Performance**: Each prompt optimized for specific tasks
+- ✅ **Better Accuracy**: Intent extraction focuses purely on JSON parsing
+- ✅ **Maintainability**: Easy to debug and update individual functionality
+- ✅ **Clear Separation**: Each prompt handles distinct responsibilities
+
+**Testing Required**: Verify update operations show proper event summaries and deployment notifications work in group chat -4627994150
+
 ## [0.1.191] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - DELETE OPERATIONS, EVENT CREATION & FALLBACK REMOVAL**

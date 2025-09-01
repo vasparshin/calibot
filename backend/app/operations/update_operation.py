@@ -27,10 +27,15 @@ class UpdateOperation(BaseOperation):
                 tomorrow = datetime.now() + timedelta(days=1)
                 event_date = tomorrow.strftime("%Y-%m-%d")
 
+            # Handle "ANY" event name for "update all events" requests
+            # Don't pass "ANY" to calendar service as it will search for events containing "ANY"
             query_params = {
-                "event_name": event_name,
                 "date": event_date
             }
+            
+            # Only add event_name filter if it's not "ANY" or empty
+            if event_name and event_name.upper() != "ANY":
+                query_params["event_name"] = event_name
 
             matched_events = await self.calendar_service.query_events(query_params)
 
@@ -134,20 +139,27 @@ class UpdateOperation(BaseOperation):
                 self.calendar_agent
             )
 
-            # Prepare events for queue
+            # Prepare events for queue - fix data structure mapping
             events_for_queue = []
             for event in events:
-                event_copy = event.copy()
-                event_copy.update(event_data)
-                event_copy['intent'] = 'update'
-                events_for_queue.append(event_copy)
+                # Map GoogleCalendarService format to EventQueueHandler format
+                queue_event = {
+                    'id': event.get('id'),
+                    'event_name': event.get('summary', 'Untitled'),  # summary -> event_name
+                    'start_time': event.get('start', ''),            # start -> start_time
+                    'end_time': event.get('end', ''),                # end -> end_time
+                    'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                    'calendar_id': event.get('calendar_id', 'primary'),
+                    'calendar_link': event.get('link', ''),          # link -> calendar_link
+                    'intent': 'update'
+                }
+                # Add update-specific data from event_data
+                queue_event.update({k: v for k, v in event_data.items() 
+                                  if k in ['time_shift', 'new_start_time', 'new_end_time', 'new_date', 'new_event_name']})
+                events_for_queue.append(queue_event)
 
-            # Create queue
-            queue_result = queue_handler.create_event_queue(chat_id, {
-                "intent": "update",
-                "events": events_for_queue,
-                "original_request": event_data
-            })
+            # Create queue using the proper method for multi-event operations
+            queue_result = queue_handler.create_event_queue_from_list(chat_id, events_for_queue)
 
             if queue_result.get("keyboard"):
                 await self.send_message(chat_id, queue_result["message"], queue_result["keyboard"])
