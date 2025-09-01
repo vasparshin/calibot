@@ -237,9 +237,9 @@ class MessageFormatter:
         
         # Format final string
         if end_time_str and end_time_str != "Unknown time":
-            return f"• {formatted_title} on {date_str} at {time_str} - {end_time_str} ({calendar_name})"
+            return f"{formatted_title} on {date_str} at {time_str} - {end_time_str} ({calendar_name})"
         else:
-            return f"• {formatted_title} on {date_str} at {time_str} ({calendar_name})"
+            return f"{formatted_title} on {date_str} at {time_str} ({calendar_name})"
     
     @staticmethod
     def format_single_event_display(event: Dict, include_hyperlink: bool = True) -> str:

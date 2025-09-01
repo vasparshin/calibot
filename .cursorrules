@@ -59,6 +59,14 @@
 ### Log Monitoring
 Use Render MCP server tools: `mcp_render_list_logs`, `mcp_render_get_metrics`, `mcp_render_list_deploys`
 
+### 🚨 MANDATORY MCP LOG MONITORING
+**CRITICAL RULE**: ALWAYS poll Render logs via MCP before attempting any fixes
+- **Workspace**: CaliBOT workspace is automatically selected
+- **Service ID**: `srv-d1vqbkp5pdvs73echbeg`
+- **MANDATORY**: Use `mcp_render_list_logs` to verify user-reported issues
+- **FAILURE NOTIFICATION**: If MCP log access fails, immediately notify user and document in changelog
+- **EVIDENCE-BASED FIXES**: All fixes must be based on actual log evidence, not assumptions
+
 ## 🚨 ANTI-STUCK RULES
 
 1. **NO ENDLESS DEBUGGING**: Max 2 debug iterations before fixing root cause

@@ -11,6 +11,35 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
+## v0.1.217 - Latest Version Testing
+
+### 🔴 **CURRENT ACTIVE BUGS** - User Testing v0.1.217
+
+#### **BUG-020: Double Bullet Point in Success Messages** - 🔴 **CRITICAL**
+- **Description**: Success messages showing double bullet points "• • [Event Name]"
+- **Evidence**: Logs show `• • [Test Meeting](https://calendar.google.com/calendar/event?eid=...)`
+- **Root Cause**: Master formatter adds bullet point, but success message already includes bullet point
+- **Impact**: Ugly formatting with double bullet points in all success messages
+- **Status**: 🔴 **ACTIVE** - Needs immediate fix
+
+#### **BUG-021: Duplicate Detection Syntax Error** - 🔴 **CRITICAL**
+- **Description**: Duplicate detection failing due to syntax error in ui_helpers.py
+- **Evidence**: `ERROR:app.operations.base_operation:Error in duplicate checking: expected an indented block after 'except' statement on line 56 (ui_helpers.py, line 61)`
+- **Impact**: Duplicate detection completely broken, no protection against duplicate events
+- **Status**: 🔴 **ACTIVE** - Syntax error needs immediate fix
+
+#### **BUG-022: One-by-One Editing Not Working** - 🔴 **CRITICAL**
+- **Description**: Editing multiple events one at a time not working
+- **User Report**: "editing multiple events one at a time not working"
+- **Status**: 🔴 **ACTIVE** - Previous fixes in v0.1.217 not working
+
+#### **BUG-023: Hyperlink Formatting Still Inconsistent** - 🔴 **CRITICAL**
+- **Description**: Hyperlinks still showing formatting issues despite v0.1.217 fixes
+- **User Report**: "hyperlinks still an issue, just like i described in my last message"
+- **Status**: 🔴 **ACTIVE** - v0.1.217 fixes not sufficient
+
+---
+
 ## v0.1.215 - Latest Version Testing\n\n### 🔴 **CURRENT ACTIVE BUGS** - User Testing v0.1.215\n\n#### **BUG-016: Hyperlink URL Inconsistency** - 🔴 **CRITICAL**\n- **Description**: Some hyperlinks use `www.google.com` while others use `calendar.google.com` causing broken hyperlinks\n- **Evidence**: `[lesson](https://www.google.com/calendar/event?eid=...)` vs `[Lesson](https://calendar.google.com/calendar/event?eid=...)`\n- **Impact**: Users see text+link instead of clickable hyperlinks in some messages\n- **Status**: 🔴 **ACTIVE** - Needs URL normalization fix\n\n#### **BUG-017: Useless Status Messages** - 🔴 **CRITICAL**\n- **Description**: System shows unnecessary messages that clutter user experience\n- **Evidence**: `\"✅ Processing one option...\"` and `\"Choose your action:\"` messages appear\n- **Impact**: Confusing user interface with unnecessary status updates\n- **Status**: 🔴 **ACTIVE** - Remove these messages\n\n#### **BUG-018: Date Format Inconsistency** - 🔴 **CRITICAL**\n- **Description**: Date format not using required dd.mm.yy format for user messages\n- **Evidence**: `\"(move to 2025-09-03):\"` should be `\"(move to 03.09.25):\"`\n- **Impact**: Inconsistent date display format across system\n- **Status**: 🔴 **ACTIVE** - Standardize to dd.mm.yy format\n\n#### **BUG-019: Calendar Editing Not Working** - 🔴 **CRITICAL**\n- **Description**: Cannot edit event details including calendar selection\n- **Evidence**: User reported \"changing calendars (editing event details) isnt working\"\n- **Impact**: Cannot move events between calendars or edit comprehensive event details\n- **Status**: 🔴 **ACTIVE** - Implement calendar changing functionality\n\n### ✅ **RESOLVED BUGS** - v0.1.215\n\n#### **BUG-015: Date Logic Bug** - ✅ **FIXED**\n- **Description**: Edit operations showing success but not actually changing dates\n- **Fix**: Added `new_date` field handling in event queue handler\n- **Status**: ✅ **RESOLVED** - Edit operations now actually modify Google Calendar\n\n## v0.1.214 - Previous Version Testing
 
 ### 🔴 **CURRENT ACTIVE BUGS** - User Testing v0.1.213

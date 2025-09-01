@@ -489,6 +489,49 @@ class GoogleCalendarService:
                 event['description'] = event_data['description']
             
             # Handle datetime updates - support both ISO format and date+time format
+            # CRITICAL FIX: Handle time_shift for moving events by hours/minutes
+            if 'time_shift' in event_data:
+                time_shift = event_data['time_shift']
+                logger.info(f"CALENDAR SERVICE: Processing time shift: {time_shift}")
+                
+                from datetime import datetime, timedelta
+                import re
+                
+                # Parse current times
+                existing_start = event.get('start', {}).get('dateTime', '')
+                existing_end = event.get('end', {}).get('dateTime', '')
+                
+                if existing_start and 'T' in existing_start:
+                    start_dt = datetime.fromisoformat(existing_start.replace('Z', '+00:00'))
+                    end_dt = datetime.fromisoformat(existing_end.replace('Z', '+00:00')) if existing_end and 'T' in existing_end else None
+                    
+                    # Parse time shift (e.g., "2 hours", "30 minutes", "-1 hour")
+                    shift_match = re.match(r'(-?\d+)\s*(hour|minute|hr|min)s?', time_shift.lower())
+                    if shift_match:
+                        amount = int(shift_match.group(1))
+                        unit = shift_match.group(2)
+                        
+                        # Convert to timedelta
+                        if unit in ['hour', 'hr']:
+                            delta = timedelta(hours=amount)
+                        elif unit in ['minute', 'min']:
+                            delta = timedelta(minutes=amount)
+                        else:
+                            delta = timedelta(hours=amount)  # Default to hours
+                        
+                        # Apply shift
+                        new_start = start_dt + delta
+                        new_end = end_dt + delta if end_dt else None
+                        
+                        # Update event times
+                        event['start']['dateTime'] = new_start.isoformat()
+                        if new_end:
+                            event['end']['dateTime'] = new_end.isoformat()
+                        
+                        logger.info(f"CALENDAR SERVICE: Applied time shift {time_shift}: {start_dt} → {new_start}")
+                    else:
+                        logger.warning(f"CALENDAR SERVICE: Could not parse time shift: {time_shift}")
+            
             # CRITICAL FIX: Handle date-only updates (moving event to different date)
             if 'date' in event_data and 'start_time' not in event_data and 'end_time' not in event_data:
                 new_date = event_data['date']

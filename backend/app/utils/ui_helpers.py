@@ -56,6 +56,7 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
         except Exception:
             # NO MANUAL PARSING - per PROJECT_RULES.md
             # Return calendar ID if name lookup fails
+            pass
     
     # Try calendar agent method
     if calendar_service and hasattr(calendar_service, 'calendar_agent'):

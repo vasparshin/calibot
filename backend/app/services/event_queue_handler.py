@@ -1043,7 +1043,7 @@ class EventQueueHandler:
                         logger.info(f"🔗 HYPERLINK MASTER: Created {formatted_event} from link: {event_link}")
                         
                         # CRITICAL FIX: Remove redundant "• Updated" prefix - just show the event
-                        success_message = formatted_event
+                        success_message = f"• {formatted_event}"
                         
                         return {
                             "success": True,
