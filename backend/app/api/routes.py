@@ -180,6 +180,12 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                 return {"status": "ok"}
             elif choice == "one":
                 # Start one-by-one processing
+                # CRITICAL FIX: Set the queue to one-by-one mode before getting confirmation
+                if queue_handler.has_pending_queue(str(chat_id)):
+                    queue = queue_handler.pending_queues[str(chat_id)]
+                    queue['one_by_one_mode'] = True
+                    queue['current_index'] = 0  # Reset to first event
+                
                 result = queue_handler.get_next_event_confirmation(str(chat_id))
                 if result.get("keyboard"):
                     await send_telegram_message(chat_id, result["message"], reply_markup=result["keyboard"])

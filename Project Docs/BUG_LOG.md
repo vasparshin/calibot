@@ -11,99 +11,119 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.201 - Current Version Testing
+## v0.1.204 - Current Version Testing
 
 ### 🔴 **ACTIVE BUGS**
 
-#### **BUG-001: Multi-Event Button Functionality Broken**
+#### **BUG-001: Multi-Event Button Functionality Broken** - 🔴 **ACTIVE**
 - **Description**: Pressing any button (All/One by One/Cancel) on multi-event operations has no effect
 - **Behavior**: Summary message disappears (shouldn't), no actual operations performed
 - **Affects**: Both delete and update multi-event operations
 - **User Report**: "pressing any of the buttons has no actual effect, the summary message dissapears (which it shouldnt) and nothing happens, regardless if pressing all or one by one"
-- **Status**: 🟡 IN PROGRESS
+- **Status**: 🔴 **ACTIVE** - User confirms still not working in Telegram group chat
 - **Root Cause Found**: Chat ID type mismatch - queue stored as integer `-4627994150`, callback looks for string `"-4627994150"`
-- **Previous Attempts**: v0.1.195 (global queue handler), v0.1.196 (global instances)
-- **Current Fix**: v0.1.198 - Force consistent string chat_id in all queue operations
+- **Previous Attempts**: v0.1.195 (global queue handler), v0.1.196 (global instances), v0.1.198 (force consistent string chat_id)
+- **Current Status**: Still broken despite multiple fix attempts
 
-#### **BUG-002: Summary Message Disappearing**
-- **Description**: When buttons are pressed, the entire summary message is replaced with "Processing..." instead of just removing buttons
-- **Expected**: Summary should remain, only buttons should be removed
-- **Actual**: Entire message content replaced
-- **Status**: 🟢 FIXED
-- **User Confirmation**: "the summary message disappearing bug seems to have been fixed"
+#### **BUG-009: One-by-One Logic Broken** - 🔴 **ACTIVE**
+- **Description**: One-by-one processing shows strange "Action: confirm_0" message instead of proper event confirmation
+- **User Report**: "one by one logic is broken, the first event comes up after the one by one button is pressed but after i click yes i get a strange 'Action: confirm_0' message instead of summary of event x being deleted and the next event in queue for deletion to process"
+- **Expected**: "UPDATE/DELETE Event X of Y" with proper event details and progression
+- **Actual**: Strange "Action: confirm_0" message
+- **Root Cause Found**: `queue_confirm_0` callbacks handled by wrong handler showing "Action: confirm_0" instead of proper queue processing
+- **Status**: 🔴 **ACTIVE** - User confirms still not working in Telegram group chat
+- **Previous Fix Attempt**: v0.1.202 - Fixed queue callback routing to use proper EventQueueHandler
+- **Current Status**: Still broken despite fix attempt
 
-### 🔵 **LOW PRIORITY BUGS**
+#### **BUG-010: Update Operations Not Actually Executing** - 🔴 **ACTIVE - MAJOR BUG**
+- **Description**: Update operations show success messages but don't actually modify events in Google Calendar
+- **User Report**: "update/edit multiple event - all functionality isn't working properly in the backend, the events aren't ACTUALLY being edited on my google calendar. this is a major bug"
+- **Expected**: Events should be modified in Google Calendar
+- **Actual**: Success message shown but no actual changes made
+- **Status**: 🔴 **ACTIVE - MAJOR BUG**
 
-#### **BUG-003: Response Delay Performance**
-- **Description**: 20-30 second delays between user message and bot response
-- **Logs Show**: 2-3 seconds processing time
-- **Hypothesis**: Telegram API delivery delays not reflected in logs
-- **Status**: 🔵 LOW PRIORITY (per user request)
-
-### 🔴 **ACTIVE BUGS**
-
-#### **BUG-007: Calendar Query Only Accessing Primary Calendar**
+#### **BUG-007: Calendar Query Only Accessing Primary Calendar** - 🔴 **ACTIVE**
 - **Description**: Query operations only access 'primary' calendar instead of all available calendars in Google account
 - **User Report**: "there are multiple calendars attached to the google account calendar and primary is just the name of one of the. we've previously created code to check and edit all available calendars and we currently have working capability to write to any of them. for example a calendar called 'tonya' ofc each calendar typically has a backend id but anyway currently on query we only access the primary calendar"
 - **Evidence**: All events show `'calendar_name': 'primary'` instead of actual calendar names like "Tonya"
 - **Expected**: Should query all calendars by default unless specifically requested
-- **Status**: 🔴 ACTIVE
+- **Status**: 🔴 **ACTIVE**
 
-#### **BUG-008: Processing Message Flow Issues**
+#### **BUG-008: Processing Message Flow Issues** - 🔴 **ACTIVE**
 - **Description**: "Processing all option" text added to summary message instead of being a separate message
 - **User Report**: "the 'processing all option' text thats being added to the summary message should be a new message while its processing and after the 'successfully deleted x events on x' message should replace this 'processing.. message'"
 - **Expected**: Separate processing message that gets replaced with success message
 - **Actual**: Processing text appended to summary message
 - **Affects**: Both delete and update operations
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.202 - Send separate processing message, replace with success message
+- **Status**: 🔴 **ACTIVE** - User confirms still not working in Telegram group chat
+- **Previous Fix Attempt**: v0.1.202 - Send separate processing message, replace with success message
+- **Current Status**: Still broken despite fix attempt
 
-#### **BUG-009: One-by-One Logic Broken**
-- **Description**: One-by-one processing shows strange "Action: confirm_0" message instead of proper event confirmation
-- **User Report**: "one by one logic is broken, the first event comes up after the one by one button is pressed but after i click yes i get a strange 'Action: confirm_0' message instead of summary of event x being deleted and the next event in queue for deletion to process"
-- **Expected**: "DELETE Event X of Y" with proper event details and progression
-- **Actual**: Strange "Action: confirm_0" message
-- **Root Cause Found**: `queue_confirm_0` callbacks handled by wrong handler showing "Action: confirm_0" instead of proper queue processing
-- **Affects**: Both delete and update operations
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.202 - Fixed queue callback routing to use proper EventQueueHandler
+#### **BUG-012: Undo Functionality Not Working** - 🔴 **ACTIVE - NEW BUG**
+- **Description**: Undo functionality implemented in v0.1.204 but not working in Telegram group chat
+- **User Report**: "undo functionality doesn't seem to be working either"
+- **Expected**: Users should be able to say "undo" to reverse recent calendar actions
+- **Actual**: Undo commands not working despite being implemented in backend
+- **Status**: 🔴 **ACTIVE - NEW BUG**
+- **Implementation**: UndoOperation class exists, registered in factory, included in intent extraction prompt
+- **Root Cause**: Unknown - needs investigation
 
-#### **BUG-010: Update Operations Not Actually Executing**
-- **Description**: Update operations show success messages but don't actually modify events in Google Calendar
-- **User Report**: "update/edit multiple event - all functionality isn't working properly in the backend, the events aren't ACTUALLY being edited on my google calendar. this is a major bug"
-- **Expected**: Events should be modified in Google Calendar
-- **Actual**: Success message shown but no actual changes made
-- **Status**: 🔴 ACTIVE - MAJOR BUG
-
-#### **BUG-004: No Event Summary Message After Single Event Creation**
+#### **BUG-004: No Event Summary Message After Single Event Creation** - 🔴 **ACTIVE**
 - **Description**: Single event creation only shows "event created successfully" message instead of event summary
 - **User Report**: "no event summary message after a single event creation (likely also same on multiple) just an 'event created successfully' msg"
 - **Expected**: Should show formatted event details like multi-event operations
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.200 - Updated CreateOperation to format event summary like other operations
+- **Status**: 🔴 **ACTIVE** - User confirms still not working in Telegram group chat
+- **Previous Fix Attempt**: v0.1.200 - Updated CreateOperation to format event summary like other operations
+- **Current Status**: Still broken despite fix attempt
 
-#### **BUG-005: Calendar Query Not Checking All Available Calendars**
+#### **BUG-005: Calendar Query Not Checking All Available Calendars** - 🔴 **ACTIVE**
 - **Description**: When querying today's schedule, service fails to check all available calendars in connected Google account
 - **User Report**: "when querying todays schedule (likely any time range) the service fails to check all available calendars within google account that's connected even though there is access"
 - **Affects**: All schedule/query operations
-- **Status**: 🟡 IN PROGRESS
-- **Investigation**: v0.1.200 - Added debug logging to track calendar discovery and search coverage
+- **Status**: 🔴 **ACTIVE** - User confirms still not working in Telegram group chat
+- **Previous Investigation**: v0.1.200 - Added debug logging to track calendar discovery and search coverage
+- **Current Status**: Still broken despite investigation
 
-#### **BUG-006: Event ID Field Mapping Issue**
+#### **BUG-006: Event ID Field Mapping Issue** - 🔴 **ACTIVE**
 - **Description**: Event deletion/update failing due to missing event ID parameter
 - **User Report**: "issue with eventid - check latest .198 logs from render mcp and fix"
 - **Root Cause Found**: Events have `'id'` field but code looks for `'event_id'` field
 - **Evidence**: Logs show `{'id': '6199a84ht1r9o26o5kr6u2v3r0'}` but error `"Missing required parameter 'eventId'"`
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.199 - Fix field mapping to use `event.get('id')` instead of `event.get('event_id')`
+- **Status**: 🔴 **ACTIVE** - User confirms still not working in Telegram group chat
+- **Previous Fix Attempt**: v0.1.199 - Fix field mapping to use `event.get('id')` instead of `event.get('event_id')`
+- **Current Status**: Still broken despite fix attempt
 
-### 🟡 **NEEDS VERIFICATION**
+### 🔵 **LOW PRIORITY BUGS**
 
-#### **BUG-011: Delete Operations Large Message Issue**
+#### **BUG-003: Response Delay Performance** - 🔵 **LOW PRIORITY**
+- **Description**: 20-30 second delays between user message and bot response
+- **Logs Show**: 2-3 seconds processing time
+- **Hypothesis**: Telegram API delivery delays not reflected in logs
+- **Status**: 🔵 **LOW PRIORITY** (per user request)
+
+#### **BUG-011: Delete Operations Large Message Issue** - 🔵 **LOW PRIORITY**
 - **Description**: Delete operations don't appear in chat when there are massive amounts of events/text
 - **User Report**: "delete operations bug appears to only occur when there is a massive amount of events/text due to telegram msg limit or something. works fine on 10-20 events at a time"
-- **Status**: 🔵 LOW PRIORITY
+- **Status**: 🔵 **LOW PRIORITY**
 - **User Classification**: "lets mark as low priority"
+
+---
+
+## 🚨 **CRITICAL FINDING: BACKEND FIXES NOT WORKING IN PRODUCTION**
+
+### **Root Cause Analysis**
+Multiple bugs that were marked as "FIXED" in the changelog are still active according to user testing in the Telegram group chat. This indicates:
+
+1. **Deployment Issues**: Fixes may not have been properly deployed to production
+2. **Fix Incomplete**: Backend changes may not address the actual root cause
+3. **Frontend-Backend Mismatch**: Telegram bot responses may not be using the updated code
+4. **Testing Gap**: Backend code changes were not properly tested in actual Telegram environment
+
+### **Immediate Action Required**
+1. **Verify Deployment**: Check if v0.1.204 is actually running in production
+2. **Test in Telegram**: All fixes must be verified in actual Telegram group chat, not just backend
+3. **Fix Validation**: Implement proper testing to ensure fixes work in production environment
+4. **Rollback if Needed**: If fixes are broken, rollback to last working version
 
 ---
 
@@ -114,3 +134,4 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 3. **Include user's exact description of the bug**
 4. **Update status based on user feedback only**
 5. **Maintain historical record of all attempts**
+6. **NEW RULE: All fixes must be verified in Telegram group chat before marking as resolved**

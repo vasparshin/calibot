@@ -17,10 +17,14 @@ class UndoOperation(BaseOperation):
     async def execute(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
         """Execute undo operation based on recent conversation context."""
         try:
+            logger.info(f"🔧 UndoOperation: Starting undo for chat_id {chat_id}")
+            
             # Get recent conversation history to determine what to undo
             conversation_history = self.conversation_state.get_conversation_history(chat_id)
+            logger.info(f"🔧 UndoOperation: Found {len(conversation_history)} messages in conversation history")
             
             if not conversation_history:
+                logger.warning(f"🔧 UndoOperation: No conversation history found for chat_id {chat_id}")
                 return {
                     "success": False,
                     "message": "No recent actions found to undo."
@@ -28,8 +32,10 @@ class UndoOperation(BaseOperation):
 
             # Analyze recent messages to find the last operation
             recent_operations = self._extract_recent_operations(conversation_history)
+            logger.info(f"🔧 UndoOperation: Found {len(recent_operations)} recent operations: {[op.get('type') for op in recent_operations]}")
             
             if not recent_operations:
+                logger.warning(f"🔧 UndoOperation: No recent calendar operations found in conversation history")
                 return {
                     "success": False,
                     "message": "No recent calendar operations found to undo."
@@ -38,6 +44,7 @@ class UndoOperation(BaseOperation):
             # Get the most recent operation
             last_operation = recent_operations[0]
             operation_type = last_operation.get("type")
+            logger.info(f"🔧 UndoOperation: Processing undo for operation type: {operation_type}")
             
             if operation_type == "create":
                 return await self._undo_creation(chat_id, last_operation)
@@ -46,13 +53,14 @@ class UndoOperation(BaseOperation):
             elif operation_type == "update":
                 return await self._undo_update(chat_id, last_operation)
             else:
+                logger.warning(f"🔧 UndoOperation: Unknown operation type: {operation_type}")
                 return {
                     "success": False,
                     "message": f"Cannot undo operation of type: {operation_type}"
                 }
 
         except Exception as e:
-            logger.error(f"Error in undo operation: {e}")
+            logger.error(f"🔧 UndoOperation: Error in undo operation: {e}")
             return {
                 "success": False,
                 "error": str(e),

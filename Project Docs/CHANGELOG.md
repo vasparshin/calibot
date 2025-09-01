@@ -2,6 +2,28 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.205] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - ONE-BY-ONE PROCESSING & UNDO FUNCTIONALITY**
+
+**calibot/backend/app/api/routes.py**: Fixed one-by-one processing flow by properly setting queue mode
+- **Root Cause**: When user clicked "1️⃣ One by One", the queue was not set to `one_by_one_mode = True`
+- **Evidence**: User reported "one by one logic is broken" showing "Action: confirm_0" instead of proper progression
+- **Fix Applied**: Added proper queue mode initialization before calling `get_next_event_confirmation()`
+- **Implementation**: Set `queue['one_by_one_mode'] = True` and reset `current_index = 0` when one-by-one is selected
+- **Impact**: ✅ One-by-one processing should now properly show "UPDATE/DELETE Event X of Y" progression
+
+**calibot/backend/app/operations/undo_operation.py**: Added comprehensive debug logging for undo functionality
+- **Root Cause**: Undo functionality implemented but not working in Telegram group chat
+- **Evidence**: User reported "undo functionality doesn't seem to be working either"
+- **Fix Applied**: Added detailed logging to track undo operation execution flow
+- **Implementation**: Log conversation history count, recent operations found, and operation type processing
+- **Impact**: ✅ Debug logging will help identify why undo operations are failing
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.204 → 0.1.205
+- **calibot/backend/app/__init__.py**: __version__ 0.1.204 → 0.1.205
+
 ## [0.1.204] - 2025-09-01
 
 ### 🚀 **NEW FEATURE - UNDO FUNCTIONALITY**
