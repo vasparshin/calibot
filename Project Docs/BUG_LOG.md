@@ -11,36 +11,34 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.226 - Critical Duplicate Confirmation Message Fix
+## v0.1.227 - Duplicate Callback Routing Fix
 
-**CRITICAL BUG FIX**: Fixed duplicate confirmation messages not being sent to users.
+**CRITICAL BUG FIX**: Fixed duplicate confirmation callback routing priority.
 
 ### Root Cause
-- CreateOperation correctly returned `requires_user_action: True` with message and keyboard
-- Routes.py had incorrect logic: when `requires_user_action` was True, it did nothing (`pass`)
-- This caused duplicate confirmation messages to never be sent to Telegram
-- Users received NO response for duplicate event creation requests
-- Subsequent messages then failed with "I'm experiencing technical difficulties"
+- Duplicate confirmation callbacks (`confirm_duplicates`, `cancel_duplicates`) were being routed to the wrong handler
+- The callback routing logic checked `cancel_*` pattern before checking for exact `cancel_duplicates` match
+- This caused `cancel_duplicates` to be processed as a multi-event callback instead of duplicate confirmation callback
+- Result: "I'm experiencing technical difficulties" after clicking duplicate confirmation buttons
 
 ### Fixes Applied
-1. **Fixed requires_user_action handling**: Updated routes.py to actually send messages when `requires_user_action` is True
-2. **Added proper message sending**: Now sends both message and keyboard to Telegram
-3. **Added conversation state tracking**: Stores assistant messages for proper conversation flow
-4. **Restored duplicate callback handler**: Added back the `handle_duplicate_confirmation_callback` function
+1. **Fixed callback routing priority**: Moved duplicate callback check to the top of the routing logic
+2. **Exact pattern matching**: Now checks for exact `["confirm_duplicates", "cancel_duplicates"]` before generic `cancel_*` patterns
+3. **Proper handler routing**: Duplicate callbacks now go to `handle_duplicate_confirmation_callback` instead of multi-event handler
 
 ### Technical Details
-- The issue was in `process_user_message()` function in routes.py
-- When CreateOperation returned `requires_user_action: True`, the code did `pass` instead of sending the message
-- Now properly extracts message and keyboard from result and sends to Telegram
-- This fixes the exact issue: "add a 'test event' today at 7pm" now shows duplicate confirmation buttons
+- The issue was in the callback routing order in `handle_callback_query()`
+- `cancel_duplicates` matched `cancel_*` pattern and was routed to multi-event handler
+- Now checks for exact duplicate callback matches first, then falls back to pattern matching
+- This ensures duplicate confirmations are processed by the correct handler
 
 ### Testing Required
 - Test duplicate event creation: "add a 'test event' today at 7pm"
-- Should now show: "Found 1 potential duplicate event(s): ... Do you want to create these events anyway?"
-- With buttons: "✅ Create Anyway" and "❌ Cancel"
+- Click "✅ Create Anyway" - should show "✅ Creating duplicates" and proceed
+- Click "❌ Cancel" - should show "❌ Cancelled" and cancel operation
 - Subsequent messages should work normally
 
-## v0.1.225 - Duplicate Confirmation Callback Fix
+## v0.1.226 - Critical Duplicate Confirmation Message Fix
 
 ---
 

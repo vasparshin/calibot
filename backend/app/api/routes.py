@@ -87,7 +87,9 @@ async def handle_callback_query(callback_query):
         logger.info(f"🔘 Processing callback: {callback_data}")
 
         # Handle different callback types
-        if callback_data.startswith("confirm_all_") or callback_data.startswith("confirm_one_") or callback_data.startswith("cancel_"):
+        if callback_data in ["confirm_duplicates", "cancel_duplicates"]:
+            return await handle_duplicate_confirmation_callback(chat_id, message_id, callback_data, callback_query)
+        elif callback_data.startswith("confirm_all_") or callback_data.startswith("confirm_one_") or callback_data.startswith("cancel_"):
             return await handle_multi_event_confirmation_callback(chat_id, message_id, callback_data, callback_query)
         elif callback_data.startswith("queue_"):
             return await handle_queue_callback(chat_id, message_id, callback_data)
@@ -99,8 +101,6 @@ async def handle_callback_query(callback_query):
             return await handle_multi_event_callback(chat_id, message_id, callback_data)
         elif callback_data.startswith("confirm_update_"):
             return await handle_multi_event_callback(chat_id, message_id, callback_data)
-        elif callback_data in ["confirm_duplicates", "cancel_duplicates"]:
-            return await handle_duplicate_confirmation_callback(chat_id, message_id, callback_data, callback_query)
         else:
             logger.warning(f"Unknown callback data: {callback_data}")
             return {"status": "ok"}
