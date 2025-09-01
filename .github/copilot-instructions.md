@@ -453,7 +453,45 @@ python tests/test_all_fixes.py  # Runs complete validation suite
 **Pattern:** Each test validates specific components AND their integration. Test files include detailed validation with success/failure reporting.
 ## Changelog Rules
 
-- **Every commit or PR must update `CHANGELOG.md`.**
+**🚨 MANDATORY CHANGELOG UPDATE FOR EVERY COMMIT 🚨**
+
+- **CRITICAL: Every single commit that touches ANY code file MUST update CHANGELOG.md**
+- **NO EXCEPTIONS: Even smallest bug fixes, formatting changes, or single-line edits require changelog entry**
+- **COMMIT IS INCOMPLETE without changelog update - this is a hard requirement**
+- **Format: [Version] - YYYY-MM-DD with detailed technical explanations**
+
+### Required Changelog Format:
+```markdown
+## [X.Y.Z] - YYYY-MM-DD
+
+### 🚨 **CATEGORY - BRIEF DESCRIPTION**
+
+**file/path/changed.py**: Detailed technical explanation of what changed
+- **Root Cause**: Why the change was needed (for fixes)
+- **Fix Applied**: Exact technical change made
+- **Impact**: ✅ Specific improvement or fix achieved
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version X.Y.Z-1 → X.Y.Z
+- **calibot/backend/app/__init__.py**: __version__ X.Y.Z-1 → X.Y.Z
+```
+
+### Changelog Categories:
+- **🚨 CRITICAL BUG FIXES**: Runtime errors, crashes, data loss
+- **🔧 BUG FIXES**: Non-critical issues, unexpected behavior
+- **✨ NEW FEATURES**: New functionality added
+- **📈 ENHANCEMENTS**: Improvements to existing features
+- **🛠️ TECHNICAL IMPROVEMENTS**: Code quality, performance, architecture
+- **📝 DOCUMENTATION**: README, comments, docs updates
+- **🔄 REFACTORING**: Code restructuring without behavior change
+
+### Technical Detail Requirements:
+- **File paths**: Always include specific files changed
+- **Method/function names**: Reference exact functions modified
+- **Root cause analysis**: For fixes, explain what was broken
+- **Impact measurement**: Quantify improvements where possible
+- **Testing notes**: Mention testing requirements or verification steps
+
 - Use reverse chronological order (most recent at top).
 - Summarize the change, affected files, and motivation/problem solved.
 - Reference any related summary or design doc if relevant.

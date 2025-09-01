@@ -2,6 +2,32 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.190] - 2025-09-01
+
+### 🛠️ **TECHNICAL IMPROVEMENTS - ENHANCED CHANGELOG RULES**
+
+**calibot/.github/copilot-instructions.md**: Enhanced changelog rules with mandatory update requirements for every commit
+- **Root Cause**: Previous rules were not strict enough, leading to commits without changelog updates
+- **Fix Applied**: Added mandatory changelog update requirement with detailed format specifications:
+  - **CRITICAL**: Every commit touching ANY code file MUST update CHANGELOG.md
+  - **NO EXCEPTIONS**: Even smallest fixes require changelog entry
+  - Added required format template with technical detail requirements
+  - Added changelog categories for better organization
+- **Impact**: ✅ Established robust changelog discipline for all future development
+
+**calibot/backend/app/services/telegram.py**: Code cleanup - removed trailing whitespace and formatting inconsistencies
+- **Fix Applied**: Cleaned up method definitions and removed extra newlines
+- **Impact**: ✅ Improved code readability and consistency
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.189 → 0.1.190
+- **calibot/backend/app/__init__.py**: __version__ 0.1.189 → 0.1.190
+
+### 📈 **TECHNICAL IMPACT**
+- **Established changelog discipline**: All future commits will include detailed technical documentation
+- **Improved code quality**: Consistent formatting and documentation standards
+- **Enhanced maintainability**: Better tracking of changes and their technical impact
+
 ## [0.1.189] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - DELETE OPERATIONS & QUERY FORMATTING**
