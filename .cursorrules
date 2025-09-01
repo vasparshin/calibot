@@ -17,6 +17,12 @@
 • [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
 ```
 
+### Success Message Rules (MANDATORY)
+- **NO REDUNDANT TEXT**: Never show "• Updated [Event] - updated" or "Success: Event deleted successfully"
+- **SHOW ACTUAL CHANGES**: Success messages must display the event with its updated details (new time, date, name, etc.)
+- **CLEAN FORMAT**: Just show the formatted event without redundant prefixes or suffixes
+- **EMPTY FIELDS**: If location/description are empty, do not show them in success messages
+
 ### Button Behavior (ABSOLUTE RULE)
 - **ALL inline keyboards MUST be temporary** and removed immediately after interaction
 - Use `edit_message_text()` with `reply_markup={}` to remove keyboards

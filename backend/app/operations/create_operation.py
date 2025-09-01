@@ -27,18 +27,17 @@ class CreateOperation(BaseOperation):
                     "error": "No events extracted from request"
                 }
 
-            # Check for duplicates if creating multiple events
-            if len(events_to_create) > 1:
-                duplicate_check = await self.check_duplicates(chat_id, events_to_create)
-                if duplicate_check and duplicate_check.get("requires_confirmation"):
-                    # Store pending operation and return confirmation request
-                    await self.store_pending_duplicate_operation(chat_id, duplicate_check, events_to_create, event_data)
-                    return {
-                        "success": True,
-                        "requires_user_action": True,
-                        "message": duplicate_check["message"],
-                        "keyboard": duplicate_check["keyboard"]
-                    }
+            # CRITICAL FIX: Check for duplicates for ALL events (single and batch)
+            duplicate_check = await self.check_duplicates(chat_id, events_to_create)
+            if duplicate_check and duplicate_check.get("requires_confirmation"):
+                # Store pending operation and return confirmation request
+                await self.store_pending_duplicate_operation(chat_id, duplicate_check, events_to_create, event_data)
+                return {
+                    "success": True,
+                    "requires_user_action": True,
+                    "message": duplicate_check["message"],
+                    "keyboard": duplicate_check["keyboard"]
+                }
 
             # Process creation
             if len(events_to_create) == 1:
@@ -51,7 +50,7 @@ class CreateOperation(BaseOperation):
             return {
                 "success": False,
                 "error": str(e),
-                "message": "Failed to create event(s)."
+                "message": "Failed to create events."
             }
 
     def extract_events_to_create(self, event_data: Dict[str, Any]) -> List[Dict[str, Any]]:

@@ -148,7 +148,7 @@ class MessageFormatter:
             if not hyperlink and event.get('id'):
                 hyperlink = f"https://calendar.google.com/calendar/event?eid={event['id']}"
             
-            # Ensure consistent calendar.google.com format
+            # CRITICAL FIX: Ensure consistent calendar.google.com format
             if hyperlink and 'www.google.com' in hyperlink:
                 hyperlink = hyperlink.replace('www.google.com', 'calendar.google.com')
         
@@ -166,75 +166,80 @@ class MessageFormatter:
         
         # CRITICAL FIX: If no start time, fall back to current date for display
         if not start_time:
-            logger.warning(f"No start time found in event {event.get('summary', 'Unknown')} - using current date")
-            date_str = current_date
-            # Keep time_str as "Unknown time" to indicate missing time info
+            start_time = f"{datetime.now().strftime('%Y-%m-%d')}T00:00:00"
+            logger.info(f"🔗 HYPERLINK MASTER: Using current date fallback for event: {event_name}")
         
-        if start_time:
-            try:
-                # Handle ISO format with timezone
-                if isinstance(start_time, str):
-                    if 'T' in start_time:
-                        # ISO datetime format
-                        start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                        date_str = start_dt.strftime("%A, %B %d, %Y")
-                        
-                        if end_time and isinstance(end_time, str) and 'T' in end_time:
-                            end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                            start_formatted = start_dt.strftime('%I:%M %p').lstrip('0')
-                            end_formatted = end_dt.strftime('%I:%M %p').lstrip('0')
-                            time_str = f"{start_formatted} - {end_formatted}"
-                        else:
-                            time_str = start_dt.strftime('%I:%M %p').lstrip('0')
-                    else:
-                        # Just date format
-                        date_str = start_time
-                elif isinstance(start_time, dict):
-                    # Google Calendar API format
-                    if start_time.get('dateTime'):
-                        start_dt = datetime.fromisoformat(start_time['dateTime'].replace('Z', '+00:00'))
-                        date_str = start_dt.strftime("%A, %B %d, %Y")
-                        
-                        if end_time and end_time.get('dateTime'):
-                            end_dt = datetime.fromisoformat(end_time['dateTime'].replace('Z', '+00:00'))
-                            start_formatted = start_dt.strftime('%I:%M %p').lstrip('0')
-                            end_formatted = end_dt.strftime('%I:%M %p').lstrip('0')
-                            time_str = f"{start_formatted} - {end_formatted}"
-                        else:
-                            time_str = start_dt.strftime('%I:%M %p').lstrip('0')
-                    elif start_time.get('date'):
-                        # All-day event
-                        date_dt = datetime.fromisoformat(start_time['date'])
-                        date_str = date_dt.strftime("%A, %B %d, %Y")
-                        time_str = "All day"
-            except Exception as e:
-                # Fallback to simple string representation
-                date_str = str(start_time)
+        # Parse start time
+        if isinstance(start_time, str):
+            if 'T' in start_time:
+                try:
+                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    date_str = start_dt.strftime("%A, %B %d, %Y")
+                    time_str = start_dt.strftime("%I:%M %p")
+                except ValueError:
+                    logger.warning(f"🔗 HYPERLINK MASTER: Could not parse start time: {start_time}")
+                    date_str = current_date
+                    time_str = "Unknown time"
+            else:
+                # Time-only string, use current date
+                date_str = current_date
+                time_str = start_time
+        elif isinstance(start_time, dict):
+            # Google Calendar API format
+            if 'dateTime' in start_time:
+                try:
+                    start_dt = datetime.fromisoformat(start_time['dateTime'].replace('Z', '+00:00'))
+                    date_str = start_dt.strftime("%A, %B %d, %Y")
+                    time_str = start_dt.strftime("%I:%M %p")
+                except ValueError:
+                    logger.warning(f"🔗 HYPERLINK MASTER: Could not parse start time dict: {start_time}")
+                    date_str = current_date
+                    time_str = "Unknown time"
+            elif 'date' in start_time:
+                try:
+                    start_dt = datetime.fromisoformat(start_time['date'])
+                    date_str = start_dt.strftime("%A, %B %d, %Y")
+                    time_str = "All day"
+                except ValueError:
+                    logger.warning(f"🔗 HYPERLINK MASTER: Could not parse start date: {start_time}")
+                    date_str = current_date
+                    time_str = "Unknown time"
         
-        # Handle manual time fields if datetime parsing failed
-        if time_str == "Unknown time":
-            start_time_manual = event.get('start_time')
-            end_time_manual = event.get('end_time')
-            if start_time_manual:
-                time_str = MessageFormatter.format_time_24hour(start_time_manual)
-                if end_time_manual:
-                    end_formatted = MessageFormatter.format_time_24hour(end_time_manual)
-                    time_str = f"{time_str} - {end_formatted}"
+        # Parse end time
+        end_time_str = ""
+        if end_time:
+            if isinstance(end_time, str) and 'T' in end_time:
+                try:
+                    end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                    end_time_str = end_dt.strftime("%I:%M %p")
+                except ValueError:
+                    logger.warning(f"🔗 HYPERLINK MASTER: Could not parse end time: {end_time}")
+                    end_time_str = "Unknown time"
+            elif isinstance(end_time, dict):
+                if 'dateTime' in end_time:
+                    try:
+                        end_dt = datetime.fromisoformat(end_time['dateTime'].replace('Z', '+00:00'))
+                        end_time_str = end_dt.strftime("%I:%M %p")
+                    except ValueError:
+                        logger.warning(f"🔗 HYPERLINK MASTER: Could not parse end time dict: {end_time}")
+                        end_time_str = "Unknown time"
         
         # Get calendar name
-        calendar_name = MessageFormatter.format_calendar_name(
-            event.get('calendar_name', 
-                     event.get('calendar_id', 
-                              event.get('organizer', {}).get('displayName', 'Unknown Calendar')))
-        )
+        calendar_name = event.get('calendar_name', 'Unknown Calendar')
         
-        # Build the formatted string
+        # CRITICAL FIX: Create hyperlink if we have the data
         if hyperlink and include_hyperlink:
-            clickable_title = f"[{formatted_name}]({hyperlink})"
+            formatted_title = f"[{formatted_name}]({hyperlink})"
+            logger.info(f"🔗 HYPERLINK MASTER: Created hyperlink: {formatted_title}")
         else:
-            clickable_title = formatted_name
-            
-        return f"{clickable_title} on {date_str} at {time_str} ({calendar_name})"
+            formatted_title = formatted_name
+            logger.info(f"🔗 HYPERLINK MASTER: No hyperlink available for: {formatted_name}")
+        
+        # Format final string
+        if end_time_str and end_time_str != "Unknown time":
+            return f"• {formatted_title} on {date_str} at {time_str} - {end_time_str} ({calendar_name})"
+        else:
+            return f"• {formatted_title} on {date_str} at {time_str} ({calendar_name})"
     
     @staticmethod
     def format_single_event_display(event: Dict, include_hyperlink: bool = True) -> str:

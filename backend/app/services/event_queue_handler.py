@@ -1039,19 +1039,11 @@ class EventQueueHandler:
                         }
                         
                         # CRITICAL FIX: Use master formatter which handles URL normalization
-                        formatted_title = MessageFormatter.create_event_hyperlink(
-                            event_title, 
-                            event.get('id', ''),
-                            event_link
-                        )
-                        logger.info(f"🔗 HYPERLINK MASTER: Created {formatted_title} from link: {event_link}")
+                        formatted_event = MessageFormatter.format_event_with_hyperlink(display_event, include_hyperlink=True)
+                        logger.info(f"🔗 HYPERLINK MASTER: Created {formatted_event} from link: {event_link}")
                         
-                        # Build comprehensive message showing UPDATED info, not original
-                        if date_info and time_info:
-                            success_message = f"• Updated {formatted_title} on {date_info} {time_info} ({calendar_name})"
-                        else:
-                            change_desc = ", ".join(actual_changes) if actual_changes else "updated"
-                            success_message = f"• Updated {formatted_title} - {change_desc} ({calendar_name})"
+                        # CRITICAL FIX: Remove redundant "• Updated" prefix - just show the event
+                        success_message = formatted_event
                         
                         return {
                             "success": True,
