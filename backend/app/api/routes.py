@@ -99,6 +99,8 @@ async def handle_callback_query(callback_query):
             return await handle_multi_event_callback(chat_id, message_id, callback_data)
         elif callback_data.startswith("confirm_update_"):
             return await handle_multi_event_callback(chat_id, message_id, callback_data)
+        elif callback_data in ["confirm_duplicates", "cancel_duplicates"]:
+            return await handle_duplicate_confirmation_callback(chat_id, message_id, callback_data, callback_query)
         else:
             logger.warning(f"Unknown callback data: {callback_data}")
             return {"status": "ok"}
@@ -364,6 +366,44 @@ async def handle_multi_event_callback(chat_id: int, message_id: int, callback_da
 
     except Exception as e:
         logger.error(f"Multi-event callback error: {e}")
+        return {"status": "error"}
+
+async def handle_duplicate_confirmation_callback(chat_id: int, message_id: int, callback_data: str, callback_query: dict = None):
+    """Handle duplicate event confirmation callbacks (confirm_duplicates, cancel_duplicates)."""
+    try:
+        logger.info(f"🔘 Duplicate event callback: {callback_data}")
+        
+        # Parse confirmation type
+        confirmation = callback_data.replace("confirm_", "").replace("cancel_", "")
+        
+        # CRITICAL FIX: Check for actual confirmation vs cancellation
+        is_confirmed = callback_data.startswith("confirm_")  # This is YES
+        is_cancelled = callback_data.startswith("cancel_")   # This is NO
+        
+        logger.info(f"🔘 Parsed confirmation: '{confirmation}', confirmed: {is_confirmed}, cancelled: {is_cancelled}")
+
+        # Use confirmation handler with correct boolean
+        await confirmation_handler.handle_duplicate_confirmation(chat_id, message_id, is_confirmed)
+
+        # Process the confirmation through operation factory with correct action
+        if is_confirmed:
+            result = await operation_factory.handle_confirmation(chat_id, confirmation, {})
+        else:
+            # Handle cancellation
+            result = {"success": True, "message": "Operation cancelled.", "requires_user_action": False}
+
+        if result.get("requires_user_action"):
+            # Send follow-up message if needed
+            await confirmation_handler.send_follow_up_message(
+                chat_id,
+                result.get("message", "Processing..."),
+                result.get("keyboard")
+            )
+
+        return {"status": "ok"}
+
+    except Exception as e:
+        logger.error(f"Duplicate event confirmation callback error: {e}")
         return {"status": "error"}
 
 async def process_user_message(chat_id: int, user_message: str):

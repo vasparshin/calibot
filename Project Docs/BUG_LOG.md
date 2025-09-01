@@ -11,6 +11,34 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
+## v0.1.225 - Duplicate Confirmation Callback Fix
+
+**CRITICAL BUG FIX**: Fixed duplicate event confirmation callbacks not being processed.
+
+### Root Cause
+- Duplicate confirmation keyboards were created with `confirm_duplicates` and `cancel_duplicates` callback data
+- The callback handling code in `routes.py` only handled specific patterns but missed these exact callback types
+- When users clicked duplicate confirmation buttons, the callbacks fell through to "Unknown callback data" warning
+- This caused the bot to break after duplicate detection, showing "technical difficulties" for subsequent messages
+
+### Fixes Applied
+1. **Added duplicate callback handler**: Added `handle_duplicate_confirmation_callback()` function in `routes.py`
+2. **Added callback routing**: Updated `handle_callback_query()` to route `confirm_duplicates` and `cancel_duplicates` to the new handler
+3. **Added confirmation handler method**: Added `handle_duplicate_confirmation()` method to `ConfirmationHandler`
+4. **Added operation confirmation handling**: Added `handle_confirmation()` method to `CreateOperation` to process duplicate confirmations
+5. **Proper status updates**: Added status text updates when buttons are clicked ("✅ Creating duplicates" / "❌ Cancelled")
+
+### Technical Details
+- Callbacks now properly remove inline keyboards and show status text
+- Confirmed duplicates proceed with event creation using stored pending operation data
+- Cancelled duplicates clear pending data and show cancellation message
+- All subsequent messages work normally after duplicate handling
+
+### Testing Required
+- Test duplicate event creation in group chat -4627994150
+- Verify "✅ Create Anyway" and "❌ Cancel" buttons work correctly
+- Confirm subsequent messages process normally after duplicate interaction
+
 ## v0.1.224 - Current Version Testing
 
 ### 🟡 **IN PROGRESS BUGS**

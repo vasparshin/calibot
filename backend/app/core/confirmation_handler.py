@@ -64,6 +64,15 @@ class ConfirmationHandler:
         status_text = action_texts.get(action, f"Action: {action}")
         await self.edit_message(chat_id, message_id, status_text)
 
+    async def handle_duplicate_confirmation(self, chat_id: int, message_id: int, confirmed: bool) -> None:
+        """Handle duplicate event confirmation response."""
+        if confirmed:
+            status_text = "✅ **Creating duplicates** - Processing event creation..."
+            await self.edit_message(chat_id, message_id, status_text)
+        else:
+            status_text = "❌ **Cancelled** - Duplicate creation cancelled"
+            await self.edit_message(chat_id, message_id, status_text)
+
     async def send_confirmation_request(self, chat_id: int, message: str, keyboard: Dict) -> None:
         """Send confirmation request with keyboard."""
         await self.send_message(chat_id, message, keyboard)

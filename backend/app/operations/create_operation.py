@@ -263,3 +263,42 @@ class CreateOperation(BaseOperation):
             return self.response_manager.format_success_message("create", event_data, result["calendar_response"])
         else:
             return result.get("message", "Operation completed successfully")
+
+    async def handle_confirmation(self, chat_id: int, confirmation: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle confirmation responses for pending operations."""
+        try:
+            # Check if this is a duplicate confirmation
+            if confirmation == "duplicates":
+                # Get pending duplicate operation
+                pending_data = self.get_conversation_data(chat_id, "pending_duplicates")
+                
+                if not pending_data:
+                    return {
+                        "success": False,
+                        "message": "No pending duplicate operation found."
+                    }
+                
+                # Clear pending data
+                self.set_conversation_data(chat_id, "pending_duplicates", None)
+                
+                # Process the events that were waiting for confirmation
+                events_to_create = pending_data.get("events_to_create", [])
+                
+                if len(events_to_create) == 1:
+                    return await self.create_single_event(chat_id, events_to_create[0])
+                else:
+                    return await self.create_batch_events(chat_id, events_to_create)
+            
+            else:
+                return {
+                    "success": False,
+                    "message": f"Unknown confirmation type: {confirmation}"
+                }
+
+        except Exception as e:
+            logger.error(f"Error handling confirmation: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "message": "Error processing confirmation."
+            }
