@@ -46,13 +46,15 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 - **Description**: Single event creation only shows "event created successfully" message instead of event summary
 - **User Report**: "no event summary message after a single event creation (likely also same on multiple) just an 'event created successfully' msg"
 - **Expected**: Should show formatted event details like multi-event operations
-- **Status**: 🔴 ACTIVE
+- **Status**: 🟡 IN PROGRESS
+- **Current Fix**: v0.1.200 - Updated CreateOperation to format event summary like other operations
 
 #### **BUG-005: Calendar Query Not Checking All Available Calendars**
 - **Description**: When querying today's schedule, service fails to check all available calendars in connected Google account
 - **User Report**: "when querying todays schedule (likely any time range) the service fails to check all available calendars within google account that's connected even though there is access"
 - **Affects**: All schedule/query operations
-- **Status**: 🔴 ACTIVE
+- **Status**: 🟡 IN PROGRESS
+- **Investigation**: v0.1.200 - Added debug logging to track calendar discovery and search coverage
 
 #### **BUG-006: Event ID Field Mapping Issue**
 - **Description**: Event deletion/update failing due to missing event ID parameter

@@ -672,7 +672,10 @@ class GoogleCalendarService:
                     calendar_ids = [calendar_id]
             else:
                 # Search all calendars for better results
-                calendar_ids = list(self.calendar_agent.calendar_cache.keys()) or ['primary']
+                available_calendars = list(self.calendar_agent.calendar_cache.keys()) or ['primary']
+                calendar_ids = available_calendars
+                logger.info(f"🔍 CALENDAR DEBUG: Searching {len(calendar_ids)} calendars: {calendar_ids}")
+                logger.info(f"🔍 CALENDAR DEBUG: Calendar cache size: {len(self.calendar_agent.calendar_cache)}")
 
             all_events = []
             

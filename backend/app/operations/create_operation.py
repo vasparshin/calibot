@@ -95,9 +95,15 @@ class CreateOperation(BaseOperation):
             calendar_response = await self.calendar_service.create_event(prepared_event)
 
             if calendar_response.get("success"):
+                # Format event summary like other operations
+                created_event = calendar_response.get('created_event') or prepared_event
+                from app.utils.message_formatter import MessageFormatter
+                formatted_event = MessageFormatter.format_single_event_display(created_event, include_hyperlink=True)
+                message = f"Successfully created event:\n\n{formatted_event}"
+                
                 return {
                     "success": True,
-                    "message": "Event created successfully",
+                    "message": message,
                     "calendar_response": calendar_response,
                     "event_data": prepared_event
                 }

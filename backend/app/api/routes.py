@@ -130,13 +130,23 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
 
         # Remove buttons from the original message (preserve content)
         # Get the original message from callback_query and edit to remove only keyboard
-        if callback_query:
-            original_message = callback_query.get("message", {}).get("text", f"Processing {action} operation...")
+        if callback_query and callback_query.get("message", {}).get("text"):
+            original_message = callback_query["message"]["text"]
+            # Add processing status to the end
+            status_message = f"{original_message}\n\n✅ Processing {choice} option..."
             await edit_message_text(
                 chat_id, 
                 message_id, 
-                original_message,  # Keep original content
+                status_message,  # Keep original content + add status
                 reply_markup={}   # Remove buttons only
+            )
+        else:
+            # Fallback if we can't get original message
+            await edit_message_text(
+                chat_id, 
+                message_id, 
+                f"✅ Processing {choice} option for {action} operation...",
+                reply_markup={}
             )
 
         # Handle the choice using the appropriate service
