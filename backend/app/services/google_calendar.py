@@ -46,7 +46,7 @@ class GoogleCalendarService:
             logger.info(f"Redirect URI: {flow.redirect_uri}")
             
             # Generate authorization URL with explicit parameters
-            # CRITICAL FIX: Let google-auth-oauthlib handle response_type automatically, then validate
+            # CRITICAL FIX: Based on previous successful fix in v0.1.78 - explicitly ensure response_type=code is present
             auth_url, state = flow.authorization_url(
                 access_type='offline',
                 include_granted_scopes='true',
@@ -58,25 +58,14 @@ class GoogleCalendarService:
             logger.info(f"🔍 OAuth URL contains response_type: {'response_type' in auth_url}")
             logger.info(f"🔍 OAuth URL contains response_type=code: {'response_type=code' in auth_url}")
             
-            # Check if response_type is missing entirely
-            if 'response_type' not in auth_url:
-                logger.error("🚨 CRITICAL: response_type parameter is completely missing from OAuth URL!")
-                logger.error(f"🚨 This explains the 'Required parameter is missing: response_type' error")
-                logger.error(f"🚨 Full OAuth URL: {auth_url}")
-                
-                # Force add response_type=code as this is required for OAuth 2.0 authorization code flow
-                separator = '&' if '?' in auth_url else '?'
-                auth_url += f'{separator}response_type=code'
-                logger.warning("🔧 Manually added response_type=code parameter to fix missing parameter error")
-            else:
-                logger.info("✅ OAuth URL contains response_type parameter")
-            
-            # Double-check and ensure response_type=code is present
+            # CRITICAL FIX: Always ensure response_type=code is present (this is what worked in v0.1.78)
             if 'response_type=code' not in auth_url:
-                # This should never happen with google-auth-oauthlib, but adding as failsafe
+                logger.warning("🔧 response_type=code not found in OAuth URL - adding it explicitly (fix from v0.1.78)")
                 separator = '&' if '?' in auth_url else '?'
                 auth_url += f'{separator}response_type=code'
-                logger.warning("Had to manually add missing response_type=code parameter to OAuth URL")
+                logger.info(f"🔧 OAuth URL after fix: {auth_url}")
+            else:
+                logger.info("✅ OAuth URL correctly contains response_type=code parameter")
             
             # Add cache-busting parameter if force_fresh is True
             if force_fresh:

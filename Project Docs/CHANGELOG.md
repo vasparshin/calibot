@@ -2,7 +2,23 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.207] - 2025-09-01
+## [0.1.209] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIXES - OAUTH RESPONSE_TYPE PARAMETER (REAL FIX)**
+
+**calibot/backend/app/services/google_calendar.py**: Fixed OAuth "Required parameter is missing: response_type" error using proven solution from v0.1.78
+- **Root Cause**: OAuth URL generation missing `response_type=code` parameter causing Google authorization failures
+- **Evidence**: User reported "Access blocked: authorisation error" with "Required parameter is missing: response_type" and "flowName=GeneralOAuthFlow"
+- **Previous Fix**: This exact issue was successfully resolved in v0.1.78 with "Enhanced OAuth URL generation with explicit response_type parameter handling"
+- **Fix Applied**: Implemented the same proven solution - explicitly ensure `response_type=code` is always present in OAuth URL
+- **Implementation**: Check if `response_type=code` exists in generated URL, if not, manually add it as a failsafe
+- **Impact**: ✅ Restores OAuth authentication functionality using the solution that worked before
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.208 → 0.1.209
+- **calibot/backend/app/__init__.py**: __version__ 0.1.208 → 0.1.209
+
+## [0.1.208] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIXES - OAUTH AUTHENTICATION SYSTEM ERROR**
 
@@ -17,6 +33,48 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 ### 📝 **VERSION FILES UPDATED**
 - **calibot/pyproject.toml**: Version 0.1.206 → 0.1.207
 - **calibot/backend/app/__init__.py**: __version__ 0.1.206 → 0.1.207
+
+## [0.1.207] - 2025-09-01
+
+### 🚀 **NEW FEATURE - UNDO FUNCTIONALITY**
+
+**calibot/backend/app/operations/undo_operation.py**: Implemented comprehensive undo functionality with LLM intent interpretation
+- **Feature**: Created new UndoOperation class that analyzes conversation history to determine what to undo
+- **Implementation**: 
+  - Extracts recent operations from conversation history (create, delete, update)
+  - Parses event information from success messages using regex to find event links and IDs
+  - Supports undoing event creation by deleting the created events
+  - Provides clear feedback on what cannot be undone (deletions, updates)
+- **LLM Integration**: Added undo examples to intent extraction prompt for natural language recognition
+- **Impact**: ✅ Users can now say "undo" or "revert" to undo recent calendar actions
+
+**calibot/backend/app/operations/operation_factory.py**: Registered undo operation in factory
+- **Implementation**: Added UndoOperation to operations registry and factory methods
+- **Impact**: ✅ Undo intent is now recognized and routed to proper operation handler
+
+**calibot/backend/app/prompts/intent_extraction_prompt.py**: Enhanced LLM with undo intent recognition
+- **Feature**: Added comprehensive undo examples for natural language processing
+- **Examples**: "undo", "undo that", "undo last action", "revert", "cancel that"
+- **Impact**: ✅ LLM can now interpret various undo requests and return proper JSON intent
+
+### 🐛 **BUG FIXES - MESSAGE FORMATTING & DATETIME HANDLING**
+
+**calibot/backend/app/utils/message_formatter.py**: Fixed datetime formatting warnings
+- **Root Cause**: `format_date_full()` was being called with time-only strings like "09:00" instead of dates
+- **Evidence**: Logs showed "Error formatting date 09:00: Invalid isoformat string: '09:00'"
+- **Fix Applied**: Added validation to skip time-only strings and avoid attempting to format them as dates
+- **Impact**: ✅ Eliminated datetime formatting warnings and improved error handling
+
+**calibot/backend/app/operations/create_operation.py**: Fixed duplicate "Event created successfully:" text in batch creation
+- **Root Cause**: Each event in batch creation was getting individual "Event created successfully:" prefix
+- **Evidence**: User reported "repetition of 'event create successfully:' - we dont need this text even once"
+- **Fix Applied**: Changed batch creation to use just event display without individual success prefixes
+- **Implementation**: Use MessageFormatter.format_single_event_display() directly for clean event listing
+- **Impact**: ✅ Batch creation now shows clean event list without duplicate success text
+
+### 📝 **VERSION FILES UPDATED**
+- **calibot/pyproject.toml**: Version 0.1.204 → 0.1.205
+- **calibot/backend/app/__init__.py**: __version__ 0.1.204 → 0.1.205
 
 ## [0.1.206] - 2025-09-01
 
