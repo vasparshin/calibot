@@ -1,0 +1,61 @@
+# CaliBOT Backend Development Rules
+
+## 🚨 CRITICAL PROJECT INFORMATION
+
+### Essential References
+- **Group Chat ID**: `-4627994150` (NEVER LOSE - used for testing)
+- **Backend URL**: `https://calibot-utq6.onrender.com`
+- **Version Source**: `pyproject.toml` and `backend/app/__init__.py` (BOTH required)
+
+### 🚨 CRITICAL: NO FALLBACK FUNCTIONALITY
+**MANDATORY RULE**: User messages are ALWAYS processed by the LLM. There is NO fallback functionality, keyword-based parsing, or manual intent extraction. All responses must be formatted by the LLM prompt only.
+
+## 🤖 BOT BEHAVIOR RULES (MANDATORY)
+
+### Message Formatting (EXACT FORMAT REQUIRED)
+```
+• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+```
+
+### Button Behavior (ABSOLUTE RULE)
+- **ALL inline keyboards MUST be temporary** and removed immediately after interaction
+- Use `edit_message_text()` with `reply_markup={}` to remove keyboards
+- Multi-event operations: "🔄 All", "1️⃣ One by One", "❌ Cancel" buttons
+
+## 🚨 MANDATORY CHANGELOG & BUG TRACKING
+
+### Changelog Rules
+- **CRITICAL**: Every commit touching ANY code file MUST update CHANGELOG.md
+- **NO EXCEPTIONS**: Even smallest fixes require changelog entry
+- **Format**: [Version] - YYYY-MM-DD with detailed technical explanations
+
+### Bug Tracking Rules (MANDATORY)
+- **MANDATORY**: Maintain `Project Docs/BUG_LOG.md` for all user-reported issues
+- **CRITICAL**: Only mark bugs as FIXED after explicit user confirmation
+- **PROCESS**: Log all bugs immediately when reported, track attempted fixes
+- **NEVER assume a bug is fixed without user confirmation**
+
+### Bug Status Workflow
+1. **User reports bug** → Add to BUG_LOG.md as 🔴 ACTIVE
+2. **Attempt fix** → Update to 🟡 IN PROGRESS with fix details
+3. **User confirms fix** → Update to 🟢 FIXED
+4. **User reports still broken** → Return to 🔴 ACTIVE with new details
+
+## 🚨 DEVELOPMENT WORKFLOW
+
+### Version Management
+1. **Update BOTH `pyproject.toml` AND `backend/app/__init__.py`** with SAME version
+2. **Commit with version**: `git commit -m "v0.1.XXX: Description"`
+3. **Deploy to Render**: `git push origin main` (auto-deploys)
+
+### Log Monitoring
+Use Render MCP server tools: `mcp_render_list_logs`, `mcp_render_get_metrics`, `mcp_render_list_deploys`
+
+## 🚨 ANTI-STUCK RULES
+
+1. **NO ENDLESS DEBUGGING**: Max 2 debug iterations before fixing root cause
+2. **FIX ACTUAL PROBLEMS**: Analyze code and fix logic, don't just add logging
+3. **SYSTEMATIC APPROACH**: Identify root cause first, then targeted fix
+4. **COMPLETE TASKS**: Finish work, update todos, report results
+
+**REMEMBER**: Always test thoroughly, update CHANGELOG.md and BUG_LOG.md, and maintain high quality standards.

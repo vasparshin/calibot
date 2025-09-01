@@ -776,9 +776,11 @@ Choose your action:"""
                         }
                 
                 elif intent == 'delete':
-                    # Delete the event
-                    event_id = event.get('event_id')
+                    # Delete the event - fix field mapping
+                    event_id = event.get('id') or event.get('event_id')  # Try 'id' first, fallback to 'event_id'
                     calendar_id = event.get('calendar_id', 'primary')
+                    
+                    logger.info(f"🔍 DELETE DEBUG: Event ID: {event_id}, Calendar ID: {calendar_id}")
                     
                     result = self.calendar_service.delete_event(event_id, calendar_id)
                     
@@ -794,9 +796,11 @@ Choose your action:"""
                         }
                 
                 elif intent == 'update':
-                    # Update the event
-                    event_id = event.get('event_id')
+                    # Update the event - fix field mapping
+                    event_id = event.get('id') or event.get('event_id')  # Try 'id' first, fallback to 'event_id'
                     calendar_id = event.get('calendar_id', 'primary')
+                    
+                    logger.info(f"🔍 UPDATE DEBUG: Event ID: {event_id}, Calendar ID: {calendar_id}")
                     
                     if not event_id:
                         return {

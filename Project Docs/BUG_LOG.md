@@ -40,17 +40,34 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 - **Hypothesis**: Telegram API delivery delays not reflected in logs
 - **Status**: 🔵 LOW PRIORITY (per user request)
 
+### 🔴 **ACTIVE BUGS**
+
+#### **BUG-004: No Event Summary Message After Single Event Creation**
+- **Description**: Single event creation only shows "event created successfully" message instead of event summary
+- **User Report**: "no event summary message after a single event creation (likely also same on multiple) just an 'event created successfully' msg"
+- **Expected**: Should show formatted event details like multi-event operations
+- **Status**: 🔴 ACTIVE
+
+#### **BUG-005: Calendar Query Not Checking All Available Calendars**
+- **Description**: When querying today's schedule, service fails to check all available calendars in connected Google account
+- **User Report**: "when querying todays schedule (likely any time range) the service fails to check all available calendars within google account that's connected even though there is access"
+- **Affects**: All schedule/query operations
+- **Status**: 🔴 ACTIVE
+
+#### **BUG-006: Event ID Field Mapping Issue**
+- **Description**: Event deletion/update failing due to missing event ID parameter
+- **User Report**: "issue with eventid - check latest .198 logs from render mcp and fix"
+- **Root Cause Found**: Events have `'id'` field but code looks for `'event_id'` field
+- **Evidence**: Logs show `{'id': '6199a84ht1r9o26o5kr6u2v3r0'}` but error `"Missing required parameter 'eventId'"`
+- **Status**: 🟡 IN PROGRESS
+- **Current Fix**: v0.1.199 - Fix field mapping to use `event.get('id')` instead of `event.get('event_id')`
+
 ### 🟡 **NEEDS VERIFICATION**
 
-#### **BUG-004: Delete Operations Not Appearing in Chat**
+#### **BUG-007: Delete Operations Not Appearing in Chat**
 - **Description**: Delete operations show in logs but messages don't appear in Telegram
 - **Last Status**: Possibly fixed with message length truncation in v0.1.195
 - **Status**: 🟡 NEEDS TESTING
-
-#### **BUG-005: Today's Calendar Query Missing Events**
-- **Description**: Query for "today" not showing "lesson" events
-- **Hypothesis**: Not checking all available calendars
-- **Status**: 🟡 NEEDS INVESTIGATION
 
 ---
 
