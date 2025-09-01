@@ -20,6 +20,7 @@ from app.services.telegram import (
 )
 from app.services.google_calendar import GoogleCalendarService
 from app.services.conversation import conversation_state
+from app.services.event_queue_handler import EventQueueHandler
 from app.agent.nlp_agent import NLPAgent
 from app.agent.calendar_agent import CalendarAgent
 from app.core.confirmation_handler import ConfirmationHandler
@@ -35,6 +36,8 @@ ai_agent = NLPAgent()
 confirmation_handler = ConfirmationHandler(telegram_service, conversation_state, calendar_service)
 response_manager = ResponseManager()
 operation_factory = OperationFactory(telegram_service, conversation_state, calendar_service, calendar_agent)
+# Global queue handler to maintain queue state across operations
+global_queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
 
 logger = logging.getLogger(__name__)
 
@@ -138,16 +141,14 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
 
         # Handle the choice using the appropriate service
         if action in ["update", "delete"]:
-            # Use EventQueueHandler for multi-event operations
-            from app.services.event_queue_handler import EventQueueHandler
-            queue_handler = EventQueueHandler(telegram_service, conversation_state, calendar_service, calendar_agent)
+            # Use global queue handler to maintain queue state
             
             if choice == "all":
-                result = await queue_handler._process_all_events(str(chat_id))
+                result = await global_queue_handler._process_all_events(str(chat_id))
                 message = result.get("message", f"Processed all {action} operations")
             elif choice == "one":
                 # Start one-by-one processing
-                result = queue_handler.get_next_event_confirmation(str(chat_id))
+                result = global_queue_handler.get_next_event_confirmation(str(chat_id))
                 if result.get("keyboard"):
                     await send_telegram_message(chat_id, result["message"], reply_markup=result["keyboard"])
                 else:
@@ -155,10 +156,10 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                 return {"status": "ok"}
             elif choice == "cancel":
                 # Cancel operation
-                if queue_handler.has_pending_queue(str(chat_id)):
-                    queue = queue_handler.pending_queues[str(chat_id)]
+                if global_queue_handler.has_pending_queue(str(chat_id)):
+                    queue = global_queue_handler.pending_queues[str(chat_id)]
                     total_events = len(queue.get('events', []))
-                    del queue_handler.pending_queues[str(chat_id)]
+                    del global_queue_handler.pending_queues[str(chat_id)]
                     message = f"Operation cancelled. No events were {action}d."
                 else:
                     message = "Operation cancelled."
@@ -299,12 +300,9 @@ async def process_user_message(chat_id: int, user_message: str):
             # LLM-driven query result - pass data back to LLM for final response formatting
             await handle_llm_formatted_query(chat_id, intent_result, result, history)
         elif result.get("requires_user_action"):
-            # Send message with keyboard if needed
-            keyboard = result.get("keyboard")
-            if keyboard:
-                await send_telegram_message(chat_id, result["message"], reply_markup=keyboard)
-            else:
-                await send_telegram_message(chat_id, result["message"])
+            # Operation already sent the message - don't send again to avoid duplicates
+            # Operations like DeleteOperation and UpdateOperation handle their own messaging
+            pass
         elif result.get("success"):
             # Send success message
             await send_telegram_message(chat_id, result["message"])

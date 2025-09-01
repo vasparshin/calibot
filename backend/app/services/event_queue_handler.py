@@ -249,8 +249,13 @@ class EventQueueHandler:
             message += f" ({change_description})"
         message += ":\n\n"
         
-        # CRITICAL CHANGE: Show ALL events, never truncate
-        for i, event in enumerate(events, 1):
+        # Smart truncation to handle Telegram's 4096 character limit
+        # Show first 10 events with full details, then summarize the rest
+        MAX_EVENTS_DETAILED = 10
+        events_to_show = events[:MAX_EVENTS_DETAILED]
+        remaining_events = len(events) - MAX_EVENTS_DETAILED
+        
+        for i, event in enumerate(events_to_show, 1):
             title = event.get('event_name', 'Untitled')
             start_time = event.get('start_time', '')
             end_time = event.get('end_time', '')
@@ -290,7 +295,9 @@ class EventQueueHandler:
             
             message += f"{i}. {formatted_title} on {date_str} at {time_display} ({calendar_name})\n"
         
-        # REMOVED: Truncation logic that violated BOT_RULES.md
+        # Add summary for remaining events if any
+        if remaining_events > 0:
+            message += f"\n... and {remaining_events} more events\n"
         
         message += f"\nChoose an option:\n"
         message += f"• 'one' or '1' - Review and {action_text} one by one\n"

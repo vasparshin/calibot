@@ -130,14 +130,8 @@ class UpdateOperation(BaseOperation):
     async def handle_multi_event_update(self, chat_id: int, events: List[Dict], event_data: Dict[str, Any]) -> Dict[str, Any]:
         """Handle updates for multiple events using queue system."""
         try:
-            from app.services.event_queue_handler import EventQueueHandler
-
-            queue_handler = EventQueueHandler(
-                self.telegram_service,
-                self.conversation_state,
-                self.calendar_service,
-                self.calendar_agent
-            )
+            # Use global queue handler to maintain state across operations
+            from app.api.routes import global_queue_handler
 
             # Prepare events for queue - fix data structure mapping
             events_for_queue = []
@@ -159,7 +153,7 @@ class UpdateOperation(BaseOperation):
                 events_for_queue.append(queue_event)
 
             # Create queue using the proper method for multi-event operations
-            queue_result = queue_handler.create_event_queue_from_list(chat_id, events_for_queue)
+            queue_result = global_queue_handler.create_event_queue_from_list(chat_id, events_for_queue)
 
             if queue_result.get("keyboard"):
                 await self.send_message(chat_id, queue_result["message"], queue_result["keyboard"])
