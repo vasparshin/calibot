@@ -27,10 +27,15 @@ class DeleteOperation(BaseOperation):
                 tomorrow = datetime.now() + timedelta(days=1)
                 event_date = tomorrow.strftime("%Y-%m-%d")
 
+            # Handle "ANY" event name for "delete all events" requests
+            # Don't pass "ANY" to calendar service as it will search for events containing "ANY"
             query_params = {
-                "event_name": event_name,
                 "date": event_date
             }
+            
+            # Only add event_name filter if it's not "ANY" or empty
+            if event_name and event_name.upper() != "ANY":
+                query_params["event_name"] = event_name
 
             matched_events = await self.calendar_service.query_events(query_params)
 
