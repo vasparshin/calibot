@@ -89,10 +89,10 @@ async def handle_callback_query(callback_query):
         # Handle different callback types
         if callback_data.startswith("confirm_all_") or callback_data.startswith("confirm_one_") or callback_data.startswith("cancel_"):
             return await handle_multi_event_confirmation_callback(chat_id, message_id, callback_data, callback_query)
-        elif callback_data.startswith("confirm_"):
-            return await handle_confirmation_callback(chat_id, message_id, callback_data)
         elif callback_data.startswith("queue_"):
             return await handle_queue_callback(chat_id, message_id, callback_data)
+        elif callback_data.startswith("confirm_"):
+            return await handle_confirmation_callback(chat_id, message_id, callback_data)
         elif callback_data.startswith("schedule_"):
             return await handle_schedule_callback(chat_id, message_id, callback_data)
         elif callback_data == "update_one_by_one":
@@ -127,19 +127,24 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
             return {"status": "ok"}
         
         logger.info(f"🔘 Parsed: action={action}, choice={choice}")
+        
+        processing_message_id = None  # Initialize variable
 
         # Remove buttons from the original message (preserve content)
         # Get the original message from callback_query and edit to remove only keyboard
         if callback_query and callback_query.get("message", {}).get("text"):
             original_message = callback_query["message"]["text"]
-            # Add processing status to the end
-            status_message = f"{original_message}\n\n✅ Processing {choice} option..."
+            # Just remove buttons, don't add processing text to summary
             await edit_message_text(
                 chat_id, 
                 message_id, 
-                status_message,  # Keep original content + add status
+                original_message,  # Keep original content unchanged
                 reply_markup={}   # Remove buttons only
             )
+            
+            # Send separate processing message
+            processing_msg = await send_telegram_message(chat_id, f"✅ Processing {choice} option...")
+            processing_message_id = processing_msg.get("result", {}).get("message_id") if processing_msg else None
         else:
             # Fallback if we can't get original message
             await edit_message_text(
@@ -148,6 +153,7 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                 f"✅ Processing {choice} option for {action} operation...",
                 reply_markup={}
             )
+            processing_message_id = message_id
 
         # Handle the choice using the appropriate service
         if action in ["update", "delete"]:
@@ -164,7 +170,14 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
             if choice == "all":
                 logger.info(f"🔍 CALLBACK DEBUG: Processing ALL events for {action}")
                 result = await queue_handler._process_all_events(str(chat_id))
-                message = result.get("message", f"Processed all {action} operations")
+                success_message = result.get("message", f"Processed all {action} operations")
+                
+                # Replace the processing message with success message
+                if processing_message_id:
+                    await edit_message_text(chat_id, processing_message_id, success_message)
+                else:
+                    await send_telegram_message(chat_id, success_message)
+                return {"status": "ok"}
             elif choice == "one":
                 # Start one-by-one processing
                 result = queue_handler.get_next_event_confirmation(str(chat_id))
@@ -182,8 +195,12 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                     message = f"Operation cancelled. No events were {action}d."
                 else:
                     message = "Operation cancelled."
-            
-            await send_telegram_message(chat_id, message)
+                
+                # Replace the processing message with result message
+                if processing_message_id:
+                    await edit_message_text(chat_id, processing_message_id, message)
+                else:
+                    await send_telegram_message(chat_id, message)
         
         return {"status": "ok"}
 
@@ -221,18 +238,67 @@ async def handle_confirmation_callback(chat_id: int, message_id: int, callback_d
 async def handle_queue_callback(chat_id: int, message_id: int, callback_data: str):
     """Handle queue navigation callbacks."""
     try:
+        logger.info(f"🔘 Queue callback: {callback_data}")
+        
         # Parse queue action
         action = callback_data.replace("queue_", "")
+        logger.info(f"🔘 Queue action: {action}")
 
-        # Use confirmation handler for queue actions
-        await confirmation_handler.handle_queue_confirmation(chat_id, message_id, action)
+        # Use global queue handler for queue actions
+        from app.core.global_instances import get_global_queue_handler
+        queue_handler = get_global_queue_handler()
+        
+        if action.startswith("confirm_"):
+            # Handle individual event confirmation (e.g., "confirm_0", "confirm_1")
+            event_index = action.replace("confirm_", "")
+            if event_index.isdigit():
+                # Process this specific event confirmation
+                result = await queue_handler.process_queue_response(str(chat_id), "yes")
+                if result.get("success"):
+                    if result.get("queue_complete"):
+                        # All events processed
+                        await send_telegram_message(chat_id, result["message"])
+                    else:
+                        # More events to process
+                        next_confirmation = result.get("next_confirmation")
+                        if next_confirmation and next_confirmation.get("keyboard"):
+                            await send_telegram_message(chat_id, next_confirmation["message"], reply_markup=next_confirmation["keyboard"])
+                        else:
+                            await send_telegram_message(chat_id, result["message"])
+                else:
+                    await send_telegram_message(chat_id, result.get("message", "Error processing event"))
+                    
+        elif action.startswith("skip_"):
+            # Handle skip event (e.g., "skip_0", "skip_1")
+            result = await queue_handler.process_queue_response(str(chat_id), "skip")
+            if result.get("success"):
+                if result.get("queue_complete"):
+                    await send_telegram_message(chat_id, result["message"])
+                else:
+                    next_confirmation = result.get("next_confirmation")
+                    if next_confirmation and next_confirmation.get("keyboard"):
+                        await send_telegram_message(chat_id, next_confirmation["message"], reply_markup=next_confirmation["keyboard"])
+                    else:
+                        await send_telegram_message(chat_id, result["message"])
+            else:
+                await send_telegram_message(chat_id, result.get("message", "Error skipping event"))
+                
+        elif action == "stop_all":
+            # Cancel remaining queue
+            if queue_handler.has_pending_queue(str(chat_id)):
+                queue_handler.clear_queue(str(chat_id))
+                await send_telegram_message(chat_id, "Operation cancelled. Remaining events were not processed.")
+            else:
+                await send_telegram_message(chat_id, "No pending operations to cancel.")
 
-        # Process through operation factory (would need queue-specific handling)
-        # For now, return success
+        # Remove the keyboard from the original message
+        await edit_message_text(chat_id, message_id, f"✅ Processed", reply_markup={})
+
         return {"status": "ok"}
 
     except Exception as e:
         logger.error(f"Queue callback error: {e}")
+        await send_telegram_message(chat_id, f"Error processing queue action: {str(e)}")
         return {"status": "error"}
 
 async def handle_schedule_callback(chat_id: int, message_id: int, callback_data: str):

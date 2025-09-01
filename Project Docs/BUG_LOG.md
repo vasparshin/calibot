@@ -11,7 +11,7 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.197 - Current Version Testing
+## v0.1.201 - Current Version Testing
 
 ### 🔴 **ACTIVE BUGS**
 
@@ -29,8 +29,8 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 - **Description**: When buttons are pressed, the entire summary message is replaced with "Processing..." instead of just removing buttons
 - **Expected**: Summary should remain, only buttons should be removed
 - **Actual**: Entire message content replaced
-- **Status**: 🟡 IN PROGRESS
-- **Current Fix**: v0.1.198 - Preserve original message content, only remove buttons
+- **Status**: 🟢 FIXED
+- **User Confirmation**: "the summary message disappearing bug seems to have been fixed"
 
 ### 🔵 **LOW PRIORITY BUGS**
 
@@ -41,6 +41,36 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 - **Status**: 🔵 LOW PRIORITY (per user request)
 
 ### 🔴 **ACTIVE BUGS**
+
+#### **BUG-007: Calendar Query Only Accessing Primary Calendar**
+- **Description**: Query operations only access 'primary' calendar instead of all available calendars in Google account
+- **User Report**: "there are multiple calendars attached to the google account calendar and primary is just the name of one of the. we've previously created code to check and edit all available calendars and we currently have working capability to write to any of them. for example a calendar called 'tonya' ofc each calendar typically has a backend id but anyway currently on query we only access the primary calendar"
+- **Evidence**: All events show `'calendar_name': 'primary'` instead of actual calendar names like "Tonya"
+- **Expected**: Should query all calendars by default unless specifically requested
+- **Status**: 🔴 ACTIVE
+
+#### **BUG-008: Processing Message Flow Issues**
+- **Description**: "Processing all option" text added to summary message instead of being a separate message
+- **User Report**: "the 'processing all option' text thats being added to the summary message should be a new message while its processing and after the 'successfully deleted x events on x' message should replace this 'processing.. message'"
+- **Expected**: Separate processing message that gets replaced with success message
+- **Actual**: Processing text appended to summary message
+- **Affects**: Both delete and update operations
+- **Status**: 🔴 ACTIVE
+
+#### **BUG-009: One-by-One Logic Broken**
+- **Description**: One-by-one processing shows strange "Action: confirm_0" message instead of proper event confirmation
+- **User Report**: "one by one logic is broken, the first event comes up after the one by one button is pressed but after i click yes i get a strange 'Action: confirm_0' message instead of summary of event x being deleted and the next event in queue for deletion to process"
+- **Expected**: "DELETE Event X of Y" with proper event details and progression
+- **Actual**: Strange "Action: confirm_0" message
+- **Affects**: Both delete and update operations
+- **Status**: 🔴 ACTIVE
+
+#### **BUG-010: Update Operations Not Actually Executing**
+- **Description**: Update operations show success messages but don't actually modify events in Google Calendar
+- **User Report**: "update/edit multiple event - all functionality isn't working properly in the backend, the events aren't ACTUALLY being edited on my google calendar. this is a major bug"
+- **Expected**: Events should be modified in Google Calendar
+- **Actual**: Success message shown but no actual changes made
+- **Status**: 🔴 ACTIVE - MAJOR BUG
 
 #### **BUG-004: No Event Summary Message After Single Event Creation**
 - **Description**: Single event creation only shows "event created successfully" message instead of event summary
@@ -66,10 +96,11 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ### 🟡 **NEEDS VERIFICATION**
 
-#### **BUG-007: Delete Operations Not Appearing in Chat**
-- **Description**: Delete operations show in logs but messages don't appear in Telegram
-- **Last Status**: Possibly fixed with message length truncation in v0.1.195
-- **Status**: 🟡 NEEDS TESTING
+#### **BUG-011: Delete Operations Large Message Issue**
+- **Description**: Delete operations don't appear in chat when there are massive amounts of events/text
+- **User Report**: "delete operations bug appears to only occur when there is a massive amount of events/text due to telegram msg limit or something. works fine on 10-20 events at a time"
+- **Status**: 🔵 LOW PRIORITY
+- **User Classification**: "lets mark as low priority"
 
 ---
 
