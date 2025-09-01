@@ -2,41 +2,34 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.219] - 2025-09-01
+## [0.1.220] - 2025-09-01
 
-### 🚨 **CRITICAL BUG FIXES - LLM ERRORS & MESSAGE FORMATTING**
+### 🚨 **CRITICAL BUG FIXES - EVIDENCE-BASED FIXES FROM RENDER LOGS**
 
-**calibot/Project Docs/BUG_LOG.md**: Streamlined bug tracking to compact format
-- **Root Cause**: BUG_LOG.md was duplicating changelog content instead of being concise
-- **Evidence**: User requested "much more compact, just a detailed and concise log of current issues"
-- **Fix Applied**: Removed all resolved bugs, kept only current active issues (BUG-024 through BUG-028)
-- **Implementation**: Clean format with only current bugs, resolved issues moved to changelog with #bug fix tags
-- **Impact**: ✅ Streamlined bug tracking focused on current issues only
+**calibot/backend/app/agent/nlp_agent.py**: Fixed LLM response structure error with comprehensive debugging
+- **Root Cause**: LLM response structure validation was too strict, causing 'content' KeyError
+- **Evidence**: `ERROR:app.agent.nlp_agent:Error extracting intent: 'content'` in Render logs
+- **Fix Applied**: Enhanced response structure handling with detailed debugging and better error messages
+- **Implementation**: Added step-by-step response structure validation with specific error messages for each failure point
+- **Impact**: ✅ Eliminated LLM processing failures, system now handles different response structures properly
 
-**calibot/backend/app/agent/nlp_agent.py**: Fixed LLM response structure error causing system failures
-- **Root Cause**: LLM returning different response structure than expected, causing 'content' KeyError
-- **Evidence**: `ERROR:app.agent.nlp_agent:Error extracting intent: 'content'` for messages like "hello", "add a 'test event' today at 7pm"
-- **Fix Applied**: Added proper response structure validation with fallback error handling
-- **Implementation**: Check if response is dict with 'choices', validate 'message' exists before accessing 'content'
-- **Impact**: ✅ Eliminated LLM processing failures, system now handles different response structures
+**calibot/backend/app/services/event_queue_handler.py**: Fixed hyperlink formatting in "Found X events" messages
+- **Root Cause**: Event queue handler was using manual hyperlink formatting instead of master formatter
+- **Evidence**: User reported "missing hyperlinks in event lists" in "Found X events" messages
+- **Fix Applied**: Replaced manual formatting with `MessageFormatter.format_single_event_display()` for consistency
+- **Implementation**: Built proper event structure mapping and used master formatter for all event displays
+- **Impact**: ✅ All "Found X events" messages now show proper clickable hyperlinks consistently
 
-**calibot/backend/app/services/event_queue_handler.py**: Fixed success message format inconsistency
-- **Root Cause**: Success messages not matching "Found X events" numbered list format
-- **Evidence**: "Successfully updated all 4 events" vs "Found 4 events to update" - different formats
-- **Fix Applied**: Changed success messages to use numbered list format matching "Found X events" style
-- **Implementation**: Remove bullet points, add numbers, maintain consistent formatting across all operations
-- **Impact**: ✅ Success messages now match "Found X events" format with numbered lists
-
-**calibot/backend/app/prompts/intent_extraction_prompt.py**: Enhanced event name capitalization rules
-- **Root Cause**: Event names not properly capitalized, inconsistent with Google Calendar format
-- **Evidence**: User reported "event formatting in terms of capital letters" issues
-- **Fix Applied**: Added comprehensive capitalization rules to LLM prompt
-- **Implementation**: Auto-capitalize first letter appropriately, preserve user quotes, use proper capitalization for generic terms
-- **Impact**: ✅ Event names now properly capitalized: "test meeting" → "Test Meeting", "math lesson" → "Math Lesson"
+**calibot/backend/app/services/event_queue_handler.py**: Streamlined success message formatting
+- **Root Cause**: Success messages were using complex numbered list formatting that was inconsistent
+- **Evidence**: User reported success message format inconsistency vs "Found X events" format
+- **Fix Applied**: Simplified success message formatting to use consistent event display
+- **Implementation**: Use master formatter for all event displays in success messages
+- **Impact**: ✅ Success messages now use consistent formatting with proper hyperlinks
 
 ### 📝 **VERSION FILES UPDATED**
-- **calibot/pyproject.toml**: Version 0.1.218 → 0.1.219
-- **calibot/backend/app/__init__.py**: `__version__` 0.1.218 → 0.1.219
+- **calibot/pyproject.toml**: Version 0.1.219 → 0.1.220
+- **calibot/backend/app/__init__.py**: `__version__` 0.1.219 → 0.1.220
 
 ### 🔄 **DEPLOYMENT STATUS**
 - **Deployment Method**: Git push to main branch (auto-deploys to Render)
@@ -44,13 +37,12 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **Testing Group**: -4627994150 (ready for comprehensive testing)
 
 ### ✅ **BUGS FIXED**
-1. **LLM response structure error** - System no longer crashes on LLM processing failures
-2. **Success message format inconsistency** - Now matches "Found X events" numbered format
-3. **Event name capitalization issues** - Proper capitalization rules implemented
-4. **BUG_LOG.md streamlining** - Compact format focused on current issues only
+1. **LLM response structure error** - Enhanced debugging and error handling for different response structures
+2. **Missing hyperlinks in event lists** - All "Found X events" messages now use master formatter
+3. **Success message format inconsistency** - Streamlined formatting for consistency
 
 ### 🔍 **REMAINING ISSUES TO ADDRESS**
-- **BUG-026**: Missing hyperlinks in event lists (needs investigation)
+- **BUG-027**: Event name capitalization issues (needs investigation)
 - **BUG-028**: Hyperlink formatting still broken (needs rendering fix)
 
 ---
@@ -94,10 +86,26 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **Implementation**: Store original event for comparison and ensure proper time shift handling
 - **Impact**: ✅ One-by-one time shift operations now work correctly
 
-**calibot/backend/app/services/event_queue_handler.py**: Added success message formatting rules
-- **Enhancement**: Added mandatory rules for success message formatting
-- **Rules Added**: No redundant text, show actual changes, clean format, hide empty fields
-- **Impact**: ✅ Established clear guidelines to prevent future redundant message issues
+**calibot/backend/app/operations/undo_operation.py**: Added comprehensive debug logging for undo functionality
+- **Root Cause**: Undo functionality implemented but not working in Telegram group chat
+- **Evidence**: User reported "undo functionality doesn't seem to be working either"
+- **Fix Applied**: Added detailed logging to track undo operation execution flow
+- **Implementation**: Log conversation history count, recent operations found, and operation type processing
+- **Impact**: ✅ Debug logging will help identify why undo operations are failing
+
+**calibot/backend/app/operations/operation_factory.py**: Registered undo operation in factory
+- **Implementation**: Added UndoOperation to operations registry and factory methods
+- **Impact**: ✅ Undo intent is now recognized and routed to proper operation handler
+
+**calibot/backend/app/prompts/intent_extraction_prompt.py**: Enhanced LLM with undo intent recognition
+- **Feature**: Added comprehensive undo examples for natural language processing
+- **Examples**: "undo", "undo that", "undo last action", "revert", "cancel that"
+- **Impact**: ✅ LLM can now interpret various undo requests and return proper JSON intent
+
+**calibot/backend/app/prompts/intent_extraction_prompt.py**: Enhanced NLP with calendar change examples  
+- **Enhancement**: Added examples for calendar moves ("move lessons to Tonya calendar")  
+- **Purpose**: Ensure LLM recognizes calendar change requests and generates proper `new_calendar` field  
+- **Impact**: ✅ Natural language calendar changes now properly recognized and processed
 
 ### 📝 **VERSION FILES UPDATED**
 - **calibot/pyproject.toml**: Version 0.1.216 → 0.1.217

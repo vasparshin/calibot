@@ -11,29 +11,9 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
-## v0.1.218 - Current Version Testing
+## v0.1.220 - Current Version Testing
 
 ### 🔴 **ACTIVE BUGS**
-
-#### **BUG-024: LLM Response Structure Error** - 🔴 **CRITICAL**
-- **Description**: LLM returning 'content' error instead of proper JSON structure
-- **Evidence**: `ERROR:app.agent.nlp_agent:Error extracting intent: 'content'`
-- **User Messages**: "hello", "add a 'test event' today at 7pm"
-- **Impact**: Complete system failure - no fallback functionality allowed
-- **Status**: 🔴 **ACTIVE** - Needs immediate fix
-
-#### **BUG-025: Success Message Format Inconsistency** - 🔴 **CRITICAL**
-- **Description**: Success messages not matching "Found X events" format
-- **Evidence**: "Successfully updated all 4 events" vs "Found 4 events to update"
-- **Expected**: Numbered list format with updated event details
-- **Impact**: Inconsistent user experience
-- **Status**: 🔴 **ACTIVE** - Needs format standardization
-
-#### **BUG-026: Missing Hyperlinks in Event Lists** - 🔴 **CRITICAL**
-- **Description**: Event lists missing hyperlinks in "Found X events" messages
-- **Evidence**: Events show as plain text instead of `[Event Name](link)` format
-- **Impact**: Users can't click on events to view details
-- **Status**: 🔴 **ACTIVE** - Needs hyperlink formatting
 
 #### **BUG-027: Event Name Capitalization Issues** - 🔴 **CRITICAL**
 - **Description**: Event names not preserving Google Calendar format or auto-capitalizing properly

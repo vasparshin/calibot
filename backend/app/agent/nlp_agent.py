@@ -151,16 +151,33 @@ class NLPAgent:
 
             response = await _call_llm()
 
-            # CRITICAL FIX: Handle different response structures
-            if isinstance(response, dict) and 'choices' in response:
-                if response['choices'] and 'message' in response['choices'][0]:
-                    result = response['choices'][0]['message']['content']
+            # CRITICAL FIX: Handle different response structures with better error handling
+            logger.info(f"🔍 RESPONSE STRUCTURE DEBUG - Type: {type(response)}")
+            logger.info(f"🔍 RESPONSE STRUCTURE DEBUG - Keys: {list(response.keys()) if isinstance(response, dict) else 'Not a dict'}")
+            
+            if isinstance(response, dict):
+                if 'choices' in response:
+                    if response['choices'] and len(response['choices']) > 0:
+                        choice = response['choices'][0]
+                        if 'message' in choice:
+                            message = choice['message']
+                            if 'content' in message:
+                                result = message['content']
+                            else:
+                                logger.error(f"Message missing 'content' field: {message}")
+                                raise ValueError("Message missing content field")
+                        else:
+                            logger.error(f"Choice missing 'message' field: {choice}")
+                            raise ValueError("Choice missing message field")
+                    else:
+                        logger.error(f"Empty choices array: {response['choices']}")
+                        raise ValueError("Empty choices array")
                 else:
-                    logger.error(f"Unexpected response structure: {response}")
-                    raise ValueError("Invalid response structure")
+                    logger.error(f"Response missing 'choices' field: {response}")
+                    raise ValueError("Response missing choices field")
             else:
-                logger.error(f"Response is not a dict or missing choices: {type(response)} - {response}")
-                raise ValueError("Invalid response format")
+                logger.error(f"Response is not a dict: {type(response)} - {response}")
+                raise ValueError("Response is not a dict")
 
             logger.info(f"🔍 COMPLETE LLM RESPONSE: '{result}'")
             logger.info(f"Response length: {len(result)}")

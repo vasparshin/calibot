@@ -289,49 +289,23 @@ class EventQueueHandler:
         remaining_events = len(events) - MAX_EVENTS_DETAILED
         
         for i, event in enumerate(events_to_show, 1):
-            title = event.get('event_name', 'Untitled')
-            start_time = event.get('start_time', '')
-            end_time = event.get('end_time', '')
-            calendar_name = self._format_calendar_name(event.get('calendar_name', ''))
+            # CRITICAL FIX: Use master formatter for consistent hyperlink formatting
+            formatted_event = {
+                'summary': event.get('event_name', 'Untitled'),
+                'start': event.get('start_time', ''),
+                'end': event.get('end_time', ''),
+                'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                'id': event.get('event_id', event.get('id', '')),
+                'htmlLink': event.get('calendar_link', event.get('link', event.get('htmlLink', '')))
+            }
             
-            # CRITICAL FIX: Use consistent hyperlink formatting
-            event_id = event.get('event_id', event.get('id', ''))
-            calendar_link = event.get('calendar_link', event.get('link', event.get('htmlLink', '')))
+            # Use master formatter for consistent formatting
+            event_display = MessageFormatter.format_single_event_display(formatted_event, include_hyperlink=True)
             
-            # Use consistent hyperlink formatting
-            if calendar_link:
-                formatted_title = f"[{title}]({calendar_link})"
-                logger.info(f"🔗 QUEUE HYPERLINK: Created [{title}]({calendar_link})")
-            elif event_id:
-                generated_link = f"https://calendar.google.com/calendar/event?eid={event_id}"
-                formatted_title = f"[{title}]({generated_link})"
-                logger.info(f"🔗 QUEUE GENERATED: Created [{title}]({generated_link})")
-            else:
-                formatted_title = title
-                logger.info(f"🔗 QUEUE NO LINK: Using plain title '{title}'")
-            
-            # Format date and time
-            try:
-                if 'T' in str(start_time):
-                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                    date_str = start_dt.strftime('%A, %B %d, %Y')
-                    start_time_str = start_dt.strftime('%I:%M %p')
-                    
-                    if 'T' in str(end_time):
-                        end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                        end_time_str = end_dt.strftime('%I:%M %p')
-                        time_display = f"{start_time_str} - {end_time_str}"
-                    else:
-                        time_display = start_time_str
-                else:
-                    date_str = "Unknown date"
-                    time_display = "Unknown time"
-            except Exception as e:
-                logger.warning(f"Error formatting event time: {e}")
-                date_str = "Unknown date"
-                time_display = "Unknown time"
-            
-            message += f"{i}. {formatted_title} on {date_str} at {time_display} ({calendar_name})\n"
+            # Remove bullet point and add number
+            if event_display.startswith('• '):
+                event_display = event_display[2:]  # Remove bullet point
+            message += f"{i}. {event_display}\n"
         
         # Add summary for remaining events if any
         if remaining_events > 0:
@@ -774,16 +748,9 @@ class EventQueueHandler:
             # Legacy implementation for mixed results or when formatter unavailable
             if failed == 0:
                 if intent == 'update' and successful_events:
-                    # CRITICAL FIX: Format success message to match "Found X events" format
-                    # Instead of "Successfully updated all X events", show numbered list with updated details
+                    # For updates, show detailed changes made
                     date_suffix = f" on {date_info}" if date_info else ""
-                    message = f"Successfully updated all {total_events} events{date_suffix}:\n\n"
-                    
-                    for i, event_text in enumerate(successful_events, 1):
-                        # Remove bullet point if present and add number
-                        if event_text.startswith('• '):
-                            event_text = event_text[2:]  # Remove bullet point
-                        message += f"{i}. {event_text}\n"
+                    message = f"Successfully updated all {total_events} events{date_suffix}:\n\n" + "\n".join(successful_events)
                 elif intent == 'delete':
                     date_suffix = f" on {date_info}" if date_info else ""
                     message = f"Successfully deleted all {total_events} events{date_suffix}!"
