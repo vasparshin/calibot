@@ -25,6 +25,7 @@ from app.agent.calendar_agent import CalendarAgent
 from app.core.confirmation_handler import ConfirmationHandler
 from app.core.response_manager import ResponseManager
 from app.operations.operation_factory import OperationFactory
+from app.core.message_queue_handler import message_queue_handler
 
 # Initialize services
 router = APIRouter()
@@ -407,25 +408,47 @@ async def handle_multi_event_callback(chat_id: int, message_id: int, callback_da
         return {"status": "error"}
 
 async def process_user_message(chat_id: int, user_message: str):
-    """Process user message through the optimized pipeline."""
+    """Process user message through the optimized pipeline with deduplication and queuing."""
+    try:
+        # Use message queue handler for deduplication and queuing
+        result = await message_queue_handler.process_message(
+            str(chat_id), 
+            user_message, 
+            _process_single_message
+        )
+        
+        if result and result.get("status") == "ignored":
+            logger.info(f"🔒 Ignored duplicate message from chat {chat_id}")
+            return {"status": "ok"}
+        elif result and result.get("status") == "queued":
+            logger.info(f"🔒 Message queued for chat {chat_id}: {result.get('reason')}")
+            return {"status": "ok"}
+        
+        return result or {"status": "ok"}
+        
+    except Exception as e:
+        logger.error(f"Message processing error: {e}")
+        await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
+        return {"status": "error"}
+
+async def _process_single_message(chat_id: str, user_message: str):
+    """Process a single message (internal function for queue handler)."""
+    chat_id_int = int(chat_id)
+    
     try:
         # Check authentication
-        if not await check_authentication(chat_id):
+        if not await check_authentication(chat_id_int):
             return {"status": "ok"}
 
         # Add message to conversation
-        conversation_state.add_message(chat_id, "user", user_message)
-
-        # REMOVED: Fallback schedule detection - ALL requests must go through LLM
-        # This was bypassing LLM processing for creation requests that contained "today"
-        # Per PROJECT_RULES.md: NO FALLBACK FUNCTIONALITY - LLM handles everything
+        conversation_state.add_message(chat_id_int, "user", user_message)
 
         # Extract intent using NLP agent
-        history = conversation_state.get_conversation_history(chat_id)
+        history = conversation_state.get_conversation_history(chat_id_int)
         intent_result = await ai_agent.extract_intent(user_message, history)
 
         if not intent_result or not isinstance(intent_result, dict):
-            await send_telegram_message(chat_id, "Sorry, I had trouble understanding your request. Could you please try again?")
+            await send_telegram_message(chat_id_int, "Sorry, I had trouble understanding your request. Could you please try again?")
             return {"status": "ok"}
 
         # Debug logging for operation execution
@@ -433,7 +456,7 @@ async def process_user_message(chat_id: int, user_message: str):
         logger.info(f"🎯 Intent data: {intent_result}")
 
         # Execute operation through factory
-        result = await operation_factory.execute_operation(chat_id, intent_result)
+        result = await operation_factory.execute_operation(chat_id_int, intent_result)
 
         # Debug logging for operation result
         logger.info(f"📊 Operation result: success={result.get('success')}, requires_llm={result.get('requires_llm_formatting')}, requires_action={result.get('requires_user_action')}")
@@ -441,29 +464,29 @@ async def process_user_message(chat_id: int, user_message: str):
         # Handle result
         if result.get("requires_llm_formatting"):
             # LLM-driven query result - pass data back to LLM for final response formatting
-            await handle_llm_formatted_query(chat_id, intent_result, result, history)
+            await handle_llm_formatted_query(chat_id_int, intent_result, result, history)
         elif result.get("requires_user_action"):
             # CRITICAL FIX: Send the message and keyboard for user action
             message = result.get("message", "Please confirm your action:")
             keyboard = result.get("keyboard")
-            await send_telegram_message(chat_id, message, reply_markup=keyboard)
-            conversation_state.add_message(chat_id, "assistant", message)
+            await send_telegram_message(chat_id_int, message, reply_markup=keyboard)
+            conversation_state.add_message(chat_id_int, "assistant", message)
         elif result.get("success"):
             # Send success message and add to conversation state for undo functionality
             message = result["message"]
-            await send_telegram_message(chat_id, message)
-            conversation_state.add_message(chat_id, "assistant", message)  # CRITICAL: Store for undo
+            await send_telegram_message(chat_id_int, message)
+            conversation_state.add_message(chat_id_int, "assistant", message)  # CRITICAL: Store for undo
         else:
             # Send error message and add to conversation state
             error_msg = result.get("message", "An error occurred while processing your request.")
-            await send_telegram_message(chat_id, error_msg)
-            conversation_state.add_message(chat_id, "assistant", error_msg)
+            await send_telegram_message(chat_id_int, error_msg)
+            conversation_state.add_message(chat_id_int, "assistant", error_msg)
 
         return {"status": "ok"}
 
     except Exception as e:
-        logger.error(f"Message processing error: {e}")
-        await send_telegram_message(chat_id, "I'm experiencing technical difficulties. Please try again in a moment.")
+        logger.error(f"Single message processing error: {e}")
+        await send_telegram_message(chat_id_int, "I'm experiencing technical difficulties. Please try again in a moment.")
         return {"status": "error"}
 
 async def handle_llm_formatted_query(chat_id: int, original_intent: Dict, query_result: Dict, conversation_history: List):

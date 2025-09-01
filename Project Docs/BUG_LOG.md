@@ -11,6 +11,35 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ---
 
+## v0.1.230 - Message Deduplication and Queuing Fix
+
+**CRITICAL BUG FIX**: Implemented proper message deduplication and queuing to prevent concurrent operations.
+
+### Root Cause
+- Multiple messages sent quickly were causing LLM API overload and response corruption
+- No mechanism to ignore duplicate messages or queue subsequent messages
+- Concurrent operations were causing race conditions and "technical difficulties" errors
+- Pattern: First message fails, second message fails, callback works, next message fails
+
+### Fixes Applied
+1. **Added message deduplication**: Ignore duplicate messages within 30-second window
+2. **Implemented message queuing**: Queue subsequent messages until current operation completes
+3. **Sequential processing**: Process one operation at a time per chat_id
+4. **Removed rate limiting**: Replaced with proper message queue management
+
+### Technical Details
+- **Deduplication Window**: 30 seconds for identical messages
+- **Queue Management**: Messages queued when chat is processing
+- **Sequential Processing**: Only one operation active per chat_id at a time
+- **Automatic Queue Processing**: Queued messages processed after current operation completes
+- **Logging**: All deduplication and queuing events logged for debugging
+
+### Testing Required
+- Send duplicate message: "add a 'test event' today at 7pm" (same message twice within 30s)
+- First message should process, second should be ignored
+- Send different message while processing: Should be queued and processed after completion
+- All operations should complete without "technical difficulties"
+
 ## v0.1.229 - LLM Rate Limiting Fix
 
 **CRITICAL BUG FIX**: Fixed LLM API overload causing `'content'` errors when multiple messages sent quickly.

@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 import asyncio
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Tuple
+from collections import defaultdict
 
 load_dotenv()
 
@@ -19,6 +20,12 @@ API_PORT = int(os.getenv("API_PORT", 8060))  # Use 8060 by default
 LITELLM_MODEL = os.getenv("LITELLM_MODEL")
 if not LITELLM_MODEL:
     raise ValueError("LITELLM_MODEL environment variable must be set")
+
+# Message deduplication and queuing configuration
+DUPLICATE_WINDOW_SECONDS = 30  # Ignore duplicate messages within this window
+MESSAGE_QUEUE: Dict[str, List[Tuple[str, float]]] = defaultdict(list)  # chat_id -> [(message, timestamp)]
+PROCESSING_STATUS: Dict[str, bool] = defaultdict(bool)  # chat_id -> is_processing
+LAST_MESSAGE: Dict[str, Tuple[str, float]] = defaultdict(lambda: ("", 0))  # chat_id -> (last_message, timestamp)
 
 # Rate limiting configuration
 LLM_RATE_LIMIT_DELAY = 1.0  # Minimum delay between LLM calls in seconds
