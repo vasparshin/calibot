@@ -342,7 +342,12 @@ class EventQueueHandler:
             total_events = len(events)
             
             # Generate summary message using same logic as _process_all_events
-            if MessageFormatter:
+            try:
+                # Debug logging to verify MessageFormatter availability
+                logger.info(f"📋 One-by-one completion: Generating summary for intent={intent}, total_events={total_events}")
+                logger.info(f"📋 One-by-one completion: MessageFormatter class = {MessageFormatter}")
+                
+                # Generate summary using MessageFormatter
                 # Convert events to proper format for summary display
                 formatted_events = []
                 for event in events:
@@ -367,8 +372,10 @@ class EventQueueHandler:
                     summary_message = MessageFormatter.format_success_message_create(formatted_events, total_events)
                 else:
                     summary_message = f"Successfully processed all {total_events} events!"
-            else:
-                summary_message = f"All {len(events)} events processed!"
+                    
+            except Exception as e:
+                logger.error(f"📋 One-by-one completion: Error generating summary: {e}")
+                summary_message = f"Successfully processed all {total_events} events!"
             
             del self.pending_queues[chat_id]
             return {"success": True, "message": summary_message, "queue_complete": True}

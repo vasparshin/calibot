@@ -33,7 +33,7 @@ async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None,
         # Check if text contains hyperlinks - if so, use Markdown mode
         if '[' in text and '](' in text and ')' in text:
             parse_mode = "Markdown"
-            clean_text = strip_markdown(text)  # This now preserves hyperlinks
+            clean_text = text  # Keep hyperlinks intact for Markdown mode
         else:
             # Strip all markdown formatting for plain text
             clean_text = strip_markdown(text)
@@ -110,6 +110,11 @@ async def answer_callback_query(callback_query_id: str, text: str = None, show_a
 
 async def edit_message_text(chat_id: int, message_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
     """Edit existing message text and keyboard"""
+    # Auto-detect hyperlinks and set Markdown mode
+    if parse_mode is None and '[' in text and '](' in text and ')' in text:
+        parse_mode = "Markdown"
+        logger.info(f"📝 Auto-detected hyperlinks, using Markdown mode")
+        
     # Log the message edit for debugging
     logger.info(f"📝 Bot editing message {message_id} for chat {chat_id}: {text[:200]}{'...' if len(text) > 200 else ''}")
     

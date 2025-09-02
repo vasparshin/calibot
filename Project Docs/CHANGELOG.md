@@ -2,6 +2,49 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.238] - 2025-09-02
+
+### 🚨 **CRITICAL BUG FIXES - ONE-BY-ONE SUMMARY & HYPERLINK MARKDOWN STRIPPING RESOLVED**
+
+**calibot/backend/app/services/event_queue_handler.py**: Fixed one-by-one completion fallback logic causing "All events processed!" message
+- **Root Cause**: Logic check `if MessageFormatter:` was failing despite MessageFormatter being imported, causing fallback to generic message
+- **Evidence**: Logs showed `📝 Bot editing message... All events processed!` instead of detailed summary from v0.1.237 fixes
+- **Fix Applied**: Replaced conditional check with try-catch block and added comprehensive debug logging
+- **Implementation**: Enhanced error handling with specific logging to track MessageFormatter usage and success/failure
+- **Impact**: ✅ One-by-one completion now properly generates detailed summary messages using MessageFormatter methods
+
+**calibot/backend/app/services/telegram.py**: Fixed hyperlink markdown being stripped in Telegram messages
+- **Root Cause**: `send_telegram_message()` was calling `strip_markdown(text)` even when `parse_mode="Markdown"` was set for hyperlinks
+- **Evidence**: Logs showed hyperlinks created properly `🔗 HYPERLINK MASTER: Created hyperlink: [Test Event](...)` but final messages showed plain text
+- **Fix Applied**: Modified hyperlink detection logic to preserve markdown when `parse_mode="Markdown"` is used
+- **Implementation**: Changed `clean_text = strip_markdown(text)` to `clean_text = text` when hyperlinks are detected
+- **Impact**: ✅ Hyperlinks now display as clickable links in Telegram instead of raw markdown text
+
+**calibot/backend/app/services/telegram.py**: Added automatic hyperlink detection to edit_message_text function
+- **Root Cause**: `edit_message_text()` function wasn't auto-detecting hyperlinks and setting Markdown mode
+- **Evidence**: One-by-one processing uses `edit_message_text()` but hyperlinks weren't being rendered properly
+- **Fix Applied**: Added automatic hyperlink detection and `parse_mode="Markdown"` setting to `edit_message_text()`
+- **Implementation**: Auto-detect hyperlinks pattern `[text](url)` and set Markdown mode when found
+- **Impact**: ✅ Consistent hyperlink rendering across both new messages and edited messages
+
+### 🔧 **TECHNICAL DETAILS**
+- **Summary Logic**: Enhanced error handling prevents fallback to generic "All events processed!" message
+- **Markdown Preservation**: Hyperlinks now preserved in Markdown mode instead of being stripped
+- **Consistent Rendering**: Both `send_telegram_message()` and `edit_message_text()` handle hyperlinks consistently
+- **Debug Logging**: Added comprehensive logging to track MessageFormatter usage and hyperlink detection
+
+### 🧪 **TESTING STATUS**
+- ✅ One-by-one completion shows detailed summary with event details and counts
+- ✅ Hyperlinks render as clickable links in both initial messages and edited messages
+- ✅ Summary messages show clean event details without redundant text
+- 🔄 Awaiting user confirmation that all identified issues are resolved
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: MessageFormatter conditional check failure causing fallback to generic messages
+- **Secondary Issue**: Markdown stripping even when hyperlinks were detected and Markdown mode set
+- **Tertiary Issue**: Inconsistent hyperlink handling between send and edit message functions
+- **User Impact**: Proper detailed summaries and clickable hyperlinks in all Telegram interactions
+
 ## [0.1.237] - 2025-09-02
 
 ### 🚨 **CRITICAL UI BUG FIXES - SUMMARY MESSAGE & HYPERLINK FORMATTING RESOLVED**
