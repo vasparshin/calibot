@@ -532,10 +532,10 @@ async def _process_single_message(chat_id: str, user_message: str):
             # LLM-driven query result - pass data back to LLM for final response formatting
             await handle_llm_formatted_query(chat_id_int, intent_result, result, history)
         elif result.get("requires_user_action"):
-            # CRITICAL FIX: Send the message and keyboard for user action
+            # CRITICAL FIX: Don't send message if operation already sent it
+            # Operations like UpdateOperation and DeleteOperation already send messages via self.send_message()
+            # Only add to conversation state for undo functionality
             message = result.get("message", "Please confirm your action:")
-            keyboard = result.get("keyboard")
-            await send_telegram_message(chat_id_int, message, reply_markup=keyboard)
             # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
             clean_message = _clean_message_for_conversation_state(message)
             conversation_state.add_message(chat_id_int, "assistant", clean_message)

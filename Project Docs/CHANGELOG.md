@@ -2,6 +2,50 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.235] - 2025-09-02
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE MESSAGE PROCESSING RESOLVED**
+
+**calibot/backend/app/core/message_queue_handler.py**: Fixed duplicate message processing causing double responses
+- **Root Cause**: Message queue handler was not properly tracking Telegram message IDs, allowing same message to be processed twice
+- **Evidence**: User reported getting duplicate "Found 3 events to delete" responses for single "deete all test events today" message
+- **Pattern**: Same message processed twice → duplicate bot responses → user confusion
+- **Fix Applied**: Added message ID tracking to prevent processing same Telegram message multiple times
+- **Implementation**: Added `processed_message_ids` set to track processed message IDs per chat, enhanced `is_duplicate_message()` with message ID check
+- **Impact**: ✅ Eliminates duplicate responses for single user messages
+
+**calibot/backend/app/api/routes.py**: Enhanced webhook handler with message ID tracking
+- **Root Cause**: Webhook handler was not passing Telegram message IDs to queue handler for duplicate detection
+- **Evidence**: Same message could be processed multiple times if webhook called twice
+- **Fix Applied**: Extract message ID from Telegram update and pass to queue handler
+- **Implementation**: `message_id = str(message.get("message_id", ""))` and pass to `process_user_message()`
+- **Impact**: ✅ Provides unique message identification for duplicate prevention
+
+**calibot/backend/app/core/message_queue_handler.py**: Added comprehensive debug logging for duplicate detection
+- **Root Cause**: Lack of visibility into duplicate detection logic made debugging difficult
+- **Evidence**: Hard to track why messages were being processed multiple times
+- **Fix Applied**: Added detailed debug logging throughout message processing pipeline
+- **Implementation**: Log message ID, processing status, duplicate checks, and queue operations
+- **Impact**: ✅ Better visibility into message processing flow for future debugging
+
+### 🔧 **TECHNICAL DETAILS**
+- **Message ID Tracking**: Uses Telegram's unique message_id to prevent duplicate processing
+- **Memory Management**: Limits tracked message IDs to 100 per chat, keeps most recent 50
+- **Debug Logging**: Added `🔍 QUEUE DEBUG` and `🔍 WEBHOOK DEBUG` prefixes for easy log filtering
+- **Backward Compatibility**: Message ID parameter is optional, existing functionality preserved
+
+### 🧪 **TESTING STATUS**
+- ✅ Message ID tracking implemented for duplicate prevention
+- ✅ Debug logging added for better visibility
+- ✅ Memory management for tracked message IDs
+- 🔄 Awaiting user confirmation that duplicate responses are eliminated
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: Same Telegram message being processed multiple times
+- **Secondary Issue**: Lack of message ID tracking in queue handler
+- **User Impact**: Confusing duplicate responses for single user messages
+- **Fix Priority**: HIGH - Affects user experience and bot reliability
+
 ## [0.1.234] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - CONVERSATION STATE CORRUPTION AFTER DUPLICATE CONFIRMATIONS**
