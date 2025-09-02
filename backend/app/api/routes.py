@@ -90,6 +90,7 @@ async def telegram_webhook(request: Request):
 
         message = update_data["message"]
         chat_id = message["chat"]["id"]
+        message_id = str(message.get("message_id", ""))
 
         if "text" not in message:
             await send_telegram_message(chat_id, "I'm sorry, I didn't understand that. Can you please rephrase your message?")
@@ -97,9 +98,18 @@ async def telegram_webhook(request: Request):
 
         user_message = message["text"]
         logger.info(f"👤 User message from chat {chat_id}: '{user_message}'")
+        
+        # Add debug logging for duplicate detection
+        logger.info(f"🔍 WEBHOOK DEBUG: Processing message '{user_message}' for chat {chat_id} (ID: {message_id})")
+        logger.info(f"🔍 WEBHOOK DEBUG: Message queue handler instance: {id(message_queue_handler)}")
 
-        # Process the message
-        return await process_user_message(chat_id, user_message)
+        # Process the message with message ID for duplicate detection
+        result = await process_user_message(chat_id, user_message, message_id)
+        
+        # Add debug logging for result
+        logger.info(f"🔍 WEBHOOK DEBUG: Message processing result: {result}")
+        
+        return result
 
     except Exception as e:
         logger.error(f"Webhook error: {e}")
@@ -446,14 +456,15 @@ async def handle_multi_event_callback(chat_id: int, message_id: int, callback_da
         logger.error(f"Multi-event callback error: {e}")
         return {"status": "error"}
 
-async def process_user_message(chat_id: int, user_message: str):
+async def process_user_message(chat_id: int, user_message: str, message_id: str):
     """Process user message through the optimized pipeline with deduplication and queuing."""
     try:
         # Use message queue handler for deduplication and queuing
         result = await message_queue_handler.process_message(
             str(chat_id), 
             user_message, 
-            _process_single_message
+            _process_single_message,
+            message_id # Pass message_id to the queue handler
         )
         
         if result and result.get("status") == "ignored":
