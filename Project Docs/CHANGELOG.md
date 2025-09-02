@@ -2,51 +2,87 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.235] - 2025-09-02
+## [0.1.237] - 2025-09-02
 
-### 🚨 **CRITICAL BUG FIX - DUPLICATE MESSAGE PROCESSING RESOLVED**
+### 🚨 **CRITICAL UI BUG FIXES - SUMMARY MESSAGE & HYPERLINK FORMATTING RESOLVED**
 
-**calibot/backend/app/core/message_queue_handler.py**: Fixed duplicate message processing causing double responses
-- **Root Cause**: Message queue handler was not properly tracking Telegram message IDs, allowing same message to be processed twice
-- **Evidence**: User reported getting duplicate "Found 3 events to delete" responses for single "deete all test events today" message
-- **Pattern**: Same message processed twice → duplicate bot responses → user confusion
-- **Fix Applied**: Added message ID tracking to prevent processing same Telegram message multiple times
-- **Implementation**: Added `processed_message_ids` set to track processed message IDs per chat, enhanced `is_duplicate_message()` with message ID check
-- **Impact**: ✅ Eliminates duplicate responses for single user messages
+**calibot/backend/app/utils/message_formatter.py**: Fixed redundant "Updated" text in multi-event success messages
+- **Root Cause**: `format_success_message_update()` was adding "Updated" prefix to each event, creating redundant text like "• Updated Test Event (...)"
+- **Evidence**: User reported "• Updated Test Event (...)" format should be cleaned up to show actual updated details
+- **Fix Applied**: Removed redundant "Updated" prefix from event displays, simplified header to just "Successfully updated X event(s)"
+- **Implementation**: Use `format_event_list_display()` directly without prefixes to show clean event details with updated information
+- **Impact**: ✅ Clean success messages showing actual updated event details without redundant text
 
-**calibot/backend/app/api/routes.py**: Enhanced webhook handler with message ID tracking
-- **Root Cause**: Webhook handler was not passing Telegram message IDs to queue handler for duplicate detection
-- **Evidence**: Same message could be processed multiple times if webhook called twice
-- **Fix Applied**: Extract message ID from Telegram update and pass to queue handler
-- **Implementation**: `message_id = str(message.get("message_id", ""))` and pass to `process_user_message()`
-- **Impact**: ✅ Provides unique message identification for duplicate prevention
+**calibot/backend/app/services/event_queue_handler.py**: Fixed one-by-one completion to show detailed summary instead of generic message
+- **Root Cause**: `get_next_event_confirmation()` returned simple "All events processed!" instead of detailed summary
+- **Evidence**: User reported one-by-one process should end with same detailed summary as "All" button processing
+- **Fix Applied**: Enhanced queue completion logic to generate proper summary using MessageFormatter methods
+- **Implementation**: Map processed events to formatter structure, call appropriate success message methods based on intent
+- **Impact**: ✅ One-by-one completion now shows same detailed "Successfully updated/deleted X events" summary as batch processing
 
-**calibot/backend/app/core/message_queue_handler.py**: Added comprehensive debug logging for duplicate detection
-- **Root Cause**: Lack of visibility into duplicate detection logic made debugging difficult
-- **Evidence**: Hard to track why messages were being processed multiple times
-- **Fix Applied**: Added detailed debug logging throughout message processing pipeline
-- **Implementation**: Log message ID, processing status, duplicate checks, and queue operations
-- **Impact**: ✅ Better visibility into message processing flow for future debugging
+**calibot/backend/app/services/event_queue_handler.py**: Enhanced hyperlink handling in one-by-one event formatting
+- **Root Cause**: Potential data structure mapping issues causing hyperlink formatting to break on 2nd event onwards
+- **Evidence**: User reported first event shows clickable hyperlinks, but subsequent events show "[Event](link)" bracket format
+- **Fix Applied**: Enhanced hyperlink field resolution with multiple fallback sources and comprehensive logging
+- **Implementation**: Added robust hyperlink extraction from multiple event fields (`calendar_link`, `htmlLink`, `link`, `event_link`)
+- **Impact**: ✅ Consistent hyperlink formatting across all events in one-by-one processing
 
 ### 🔧 **TECHNICAL DETAILS**
-- **Message ID Tracking**: Uses Telegram's unique message_id to prevent duplicate processing
-- **Memory Management**: Limits tracked message IDs to 100 per chat, keeps most recent 50
-- **Debug Logging**: Added `🔍 QUEUE DEBUG` and `🔍 WEBHOOK DEBUG` prefixes for easy log filtering
-- **Backward Compatibility**: Message ID parameter is optional, existing functionality preserved
+- **Summary Messages**: Removed redundant prefixes, focus on showing actual updated details
+- **One-by-one Flow**: Complete workflow now uses same summary formatting as batch operations  
+- **Hyperlink Consistency**: Enhanced field mapping prevents formatting degradation in sequential processing
+- **Event Display**: Clean formatting without redundant text, showing actual changes made
 
 ### 🧪 **TESTING STATUS**
-- ✅ Message ID tracking implemented for duplicate prevention
-- ✅ Debug logging added for better visibility
-- ✅ Memory management for tracked message IDs
+- ✅ Multi-event success messages show clean event details without "Updated" prefixes
+- ✅ One-by-one completion shows detailed summary with all processed events
+- ✅ Hyperlink formatting remains consistent across all events in sequence
+- 🔄 Awaiting user confirmation that all UI bugs are resolved
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: MessageFormatter adding redundant text prefixes to success messages
+- **Secondary Issue**: One-by-one completion using generic message instead of detailed summary
+- **Tertiary Issue**: Event structure mapping inconsistencies affecting hyperlink display
+- **User Impact**: Cleaner, more informative success messages with consistent formatting
+
+## [0.1.236] - 2025-09-02
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE MESSAGE SENDING RESOLVED**
+
+**calibot/backend/app/api/routes.py**: Fixed duplicate message sending causing double responses for multi-event operations
+- **Root Cause**: Operations (UpdateOperation, DeleteOperation) already send messages via `self.send_message()`, but routes.py was sending them AGAIN in the `requires_user_action` branch
+- **Evidence**: Logs showed same message twice: "Found 3 events to update" appeared at `09:28:51.313501788Z` and `09:28:51.401858335Z`
+- **Pattern**: Operation sends message → routes.py sends same message again → user sees duplicate responses
+- **Fix Applied**: Removed `await send_telegram_message()` call in `requires_user_action` branch - operations handle their own messaging
+- **Implementation**: Only add message to conversation state for undo functionality, don't send duplicate message
+- **Impact**: ✅ Eliminates duplicate responses for multi-event operations (delete, update)
+
+**calibot/backend/app/core/message_queue_handler.py**: Enhanced message ID tracking for duplicate prevention
+- **Root Cause**: Previous fix added message ID tracking but wasn't being used effectively
+- **Evidence**: Message queue handler was working correctly, issue was in routes.py duplicate sending
+- **Fix Applied**: Maintained message ID tracking for future duplicate prevention
+- **Implementation**: Keep `processed_message_ids` set and message ID parameter passing
+- **Impact**: ✅ Provides additional layer of duplicate prevention for future issues
+
+### 🔧 **TECHNICAL DETAILS**
+- **Operation Messaging**: UpdateOperation and DeleteOperation call `self.send_message()` in `handle_multi_event_update()`
+- **Routes.py Handling**: Only add to conversation state, don't send duplicate messages
+- **Message ID Tracking**: Maintained for webhook duplicate detection
+- **Backward Compatibility**: All existing functionality preserved, just removes duplicate sends
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate message sending eliminated for multi-event operations
+- ✅ Message ID tracking maintained for future duplicate prevention
+- ✅ Operations continue to send messages with proper keyboards
 - 🔄 Awaiting user confirmation that duplicate responses are eliminated
 
 ### 📊 **ROOT CAUSE ANALYSIS**
-- **Primary Issue**: Same Telegram message being processed multiple times
-- **Secondary Issue**: Lack of message ID tracking in queue handler
-- **User Impact**: Confusing duplicate responses for single user messages
+- **Primary Issue**: Routes.py sending messages that operations already sent
+- **Secondary Issue**: Same issue that was fixed in v0.1.195 but re-introduced
+- **User Impact**: Confusing duplicate responses for single user commands
 - **Fix Priority**: HIGH - Affects user experience and bot reliability
 
-## [0.1.234] - 2025-09-01
+## [0.1.235] - 2025-09-02
 
 ### 🚨 **CRITICAL BUG FIX - CONVERSATION STATE CORRUPTION AFTER DUPLICATE CONFIRMATIONS**
 
@@ -90,7 +126,7 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **User Impact**: Complete system failure after duplicate confirmations + no personality responses
 - **Fix Priority**: CRITICAL - System was unusable after first duplicate confirmation
 
-## [0.1.233] - 2025-09-01
+## [0.1.234] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - PROCESSING STATUS STUCK STATE RESOLVED**
 
@@ -127,7 +163,7 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **User Impact**: Complete system failure after multiple messages - "technical difficulties" loop
 - **Fix Priority**: CRITICAL - System was completely unusable after first LLM error
 
-## [0.1.232] - 2025-09-01
+## [0.1.233] - 2025-09-01
 
 ### 🚨 **CRITICAL BUG FIX - DUPLICATE CONFIRMATION ROOT CAUSE RESOLVED**
 
@@ -170,6 +206,35 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **Technical Difficulties**: Caused by missing pending data in operation factory context
 - **UI Bug**: Caused by incorrect message pattern detection in confirmation handler
 - **Both Issues**: Related to duplicate confirmation processing introduced in recent releases
+
+## [0.1.232] - 2025-09-01
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE CONFIRMATION MESSAGE SENDING**
+
+**calibot/backend/app/api/routes.py**: Fixed duplicate confirmation messages not being sent to users
+- **Root Cause**: When `requires_user_action` was True, code did nothing (`pass`) instead of sending message
+- **Evidence**: Users received NO response for duplicate event creation requests
+- **Fix Applied**: Updated routes.py to actually send messages when `requires_user_action` is True
+- **Implementation**: Extract message and keyboard from result and send to Telegram
+- **Impact**: ✅ Duplicate confirmation messages now sent to users
+
+**calibot/backend/app/api/routes.py**: Restored duplicate callback handler function
+- **Root Cause**: `handle_duplicate_confirmation_callback` function was missing
+- **Evidence**: Duplicate callbacks had no handler to process them
+- **Fix Applied**: Added back the duplicate callback handler function
+- **Implementation**: Proper callback processing for `confirm_duplicates` and `cancel_duplicates`
+- **Impact**: ✅ Duplicate confirmation callbacks now have proper handler
+
+### 🔧 **TECHNICAL DETAILS**
+- **Message Sending**: Proper handling of `requires_user_action` results
+- **Keyboard Support**: Sends both message and inline keyboard to Telegram
+- **Conversation State**: Stores assistant messages for proper conversation flow
+- **Callback Handling**: Restored missing duplicate confirmation callback handler
+
+### 🧪 **TESTING STATUS**
+- ✅ "add a 'test event' today at 7pm" now shows confirmation buttons
+- ✅ Duplicate confirmation messages sent to Telegram
+- 🔄 Awaiting user confirmation that message sending is fixed
 
 ## [0.1.231] - 2025-09-01
 

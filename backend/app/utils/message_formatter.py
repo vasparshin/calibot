@@ -296,26 +296,16 @@ class MessageFormatter:
     
     @staticmethod
     def format_success_message_update(events: List[Dict], count: int = None, date: str = None) -> str:
-        """Format success message for event updates"""
+        """Format success message for event updates - show updated details without redundant text"""
         count = count or len(events)
         
-        if date:
-            date_formatted = MessageFormatter.format_date_full(date)
-            header = f"Successfully updated all {count} events on {date_formatted}:\n\n"
-        else:
-            header = f"Successfully updated {count} event(s):\n\n"
+        # Simplified header - just "Successfully updated X events"
+        header = f"Successfully updated {count} event(s):\n\n"
         
-        # For updates, prefix each event with "Updated"
-        formatted_events = []
-        for event in events:
-            event_display = MessageFormatter.format_single_event_display(event, include_hyperlink=True)
-            if event_display.startswith('• '):
-                event_display = f"• Updated {event_display[2:]}"
-            else:
-                event_display = f"• Updated {event_display}"
-            formatted_events.append(event_display)
-        
-        return header + "\n".join(formatted_events)
+        # Show updated events with NEW details (not original details)
+        # Remove redundant "Updated" prefix as per user requirements
+        event_list = MessageFormatter.format_event_list_display(events, numbered=False, include_hyperlink=True)
+        return header + event_list
     
     @staticmethod
     def format_success_message_delete(count: int, date: str = None) -> str:

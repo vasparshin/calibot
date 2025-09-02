@@ -337,9 +337,41 @@ class EventQueueHandler:
         events = queue['events']
         
         if current_index >= len(events):
-            # Queue completed
+            # Queue completed - show same detailed summary as batch processing
+            intent = events[0].get('intent', 'process') if events else 'process'
+            total_events = len(events)
+            
+            # Generate summary message using same logic as _process_all_events
+            if MessageFormatter:
+                # Convert events to proper format for summary display
+                formatted_events = []
+                for event in events:
+                    # Map event structure for formatter
+                    formatted_event = {
+                        'summary': event.get('event_name', event.get('summary', 'Untitled')),
+                        'start': event.get('new_start_time') or event.get('start_time') or event.get('start', ''),
+                        'end': event.get('new_end_time') or event.get('end_time') or event.get('end', ''),
+                        'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                        'id': event.get('event_id', event.get('id', '')),
+                        'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
+                        'link': event.get('calendar_link', event.get('link', ''))
+                    }
+                    formatted_events.append(formatted_event)
+                
+                # Generate appropriate summary message
+                if intent == 'update':
+                    summary_message = MessageFormatter.format_success_message_update(formatted_events, total_events)
+                elif intent == 'delete':
+                    summary_message = MessageFormatter.format_success_message_delete(total_events)
+                elif intent == 'create':
+                    summary_message = MessageFormatter.format_success_message_create(formatted_events, total_events)
+                else:
+                    summary_message = f"Successfully processed all {total_events} events!"
+            else:
+                summary_message = f"All {len(events)} events processed!"
+            
             del self.pending_queues[chat_id]
-            return {"success": True, "message": "All events processed!", "queue_complete": True}
+            return {"success": True, "message": summary_message, "queue_complete": True}
         
         current_event = events[current_index]
         total_events = len(events)
@@ -382,16 +414,26 @@ class EventQueueHandler:
             
             # Use centralized formatter for consistency with multi-event displays
             if MessageFormatter:
-                # CRITICAL: Build proper event structure for master formatter
+                # CRITICAL: Build proper event structure for master formatter with enhanced hyperlink handling
+                hyperlink = (
+                    event.get('calendar_link') or 
+                    event.get('htmlLink') or 
+                    event.get('link') or 
+                    event.get('event_link') or
+                    ''
+                )
+                
                 formatted_event = {
                     'summary': event.get('event_name', event.get('summary', 'Untitled')),
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
                     'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
                     'id': event.get('event_id', event.get('id', '')),
-                    'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
-                    'link': event.get('calendar_link', event.get('link', ''))
+                    'htmlLink': hyperlink,
+                    'link': hyperlink  # Backup field for formatter
                 }
+                
+                logger.info(f"🔗 One-by-one hyperlink debug: {hyperlink} from event: {event.get('calendar_link')} | {event.get('htmlLink')} | {event.get('link')}")
                 
                 logger.info(f"🎯 Formatted event structure for display: {formatted_event}")
                 
