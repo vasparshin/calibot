@@ -13,20 +13,37 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ## ACTIVE BUGS
 
-### BUG-029 - Technical Difficulties Loop After Duplicate Confirmations
+### BUG-031 - Google Workspace Link Preview Inconsistency in One-by-One Process
 - **Status**: 🟡 **IN PROGRESS**
-- **Description**: After duplicate event creation/editing logic is used, subsequent messages get "I'm experiencing technical difficulties. Please try again in a moment." response
-- **Pattern**: First message works → duplicate confirmation shown → after confirmation, all subsequent messages fail
-- **Root Cause**: Conversation state corruption from multi-line assistant messages containing formatting
-- **Fix Applied**: Added message cleaning before adding to conversation state to prevent LLM prompt corruption
-- **Testing Required**: Test duplicate event creation followed by normal messages
+- **Description**: Google Workspace link preview appears for 2nd+ events in one-by-one process but not first event
+- **Pattern**: First event shows clean hyperlink → subsequent events show "Google Workspace (link) Google Calendar - Easier Time Management..." preview
+- **Root Cause**: Telegram link preview behavior inconsistency, likely a client-side setting issue
+- **Fix Required**: Investigation of link preview suppression or consistent behavior
+- **Testing Required**: One-by-one event processing with multiple events
 
-### BUG-030 - No Small Talk Responses  
+### BUG-032 - "Current Event:" Prefix Still Appearing
 - **Status**: 🟡 **IN PROGRESS**
-- **Description**: CaliBOT not responding to messages like "hey" or "what's ur name" with proper small talk reply
-- **Root Cause**: Relevancy checking not integrated into message processing flow
-- **Fix Applied**: Added relevancy checking and small talk response handling before intent extraction
-- **Testing Required**: Test messages like "hey", "hello", "what's your name", "how are you"
+- **Description**: One-by-one messages still show "Current Event: [Event]..." instead of clean event display
+- **User Request**: Remove "Current Event: " prefix, show only event details like "UPDATE Event 3 of 3: [Event details]"
+- **Root Cause**: `_format_event_summary` method in event_queue_handler.py still includes this prefix
+- **Fix Required**: Remove prefix from one-by-one event formatting
+- **Testing Required**: One-by-one event processing
+
+### BUG-033 - One-by-One Final Summary Still Shows "All Events Processed!"
+- **Status**: 🟡 **IN PROGRESS**
+- **Description**: After one-by-one completion, shows "All events processed!" instead of detailed summary with NEW updated details
+- **Pattern**: MessageFormatter available but fallback still triggered
+- **Root Cause**: Logic issue in one-by-one completion even after v0.1.238 fixes
+- **Fix Required**: Debug why MessageFormatter summary generation fails
+- **Testing Required**: Complete one-by-one process and check final message
+
+### BUG-034 - Summary Messages Show Original Details Instead of NEW Updated Details
+- **Status**: 🟡 **IN PROGRESS**
+- **Description**: Both "All" button and one-by-one summaries show original event details instead of updated details
+- **Evidence**: Events updated to Sept 10 but summary shows Sept 03 dates
+- **Root Cause**: Summary formatter uses original event structure instead of updated event data from calendar response
+- **Fix Required**: Use updated event data from calendar service response for summaries
+- **Testing Required**: Multi-event updates with date changes, verify summary shows new dates
 
 ---
 

@@ -337,31 +337,50 @@ class EventQueueHandler:
         events = queue['events']
         
         if current_index >= len(events):
-            # Queue completed - show same detailed summary as batch processing
+            # Queue completed - show same detailed summary as batch processing using ACTUAL results
             intent = events[0].get('intent', 'process') if events else 'process'
             total_events = len(events)
             
-            # Generate summary message using same logic as _process_all_events
+            # Get updated event results from queue processing history
+            processed_results = queue.get('processed_results', [])
+            
+            # Generate summary message using actual processed results
             try:
-                # Debug logging to verify MessageFormatter availability
                 logger.info(f"📋 One-by-one completion: Generating summary for intent={intent}, total_events={total_events}")
-                logger.info(f"📋 One-by-one completion: MessageFormatter class = {MessageFormatter}")
+                logger.info(f"📋 One-by-one completion: Processed results count = {len(processed_results)}")
                 
-                # Generate summary using MessageFormatter
-                # Convert events to proper format for summary display
+                # Use actual updated event data from processing results
                 formatted_events = []
-                for event in events:
-                    # Map event structure for formatter
-                    formatted_event = {
-                        'summary': event.get('event_name', event.get('summary', 'Untitled')),
-                        'start': event.get('new_start_time') or event.get('start_time') or event.get('start', ''),
-                        'end': event.get('new_end_time') or event.get('end_time') or event.get('end', ''),
-                        'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
-                        'id': event.get('event_id', event.get('id', '')),
-                        'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
-                        'link': event.get('calendar_link', event.get('link', ''))
-                    }
-                    formatted_events.append(formatted_event)
+                for i, result in enumerate(processed_results):
+                    if result.get('success') and result.get('updated_event'):
+                        # Use the actual updated event data from calendar service
+                        updated_event = result['updated_event']
+                        formatted_event = {
+                            'summary': updated_event.get('summary', f'Event {i+1}'),
+                            'start': updated_event.get('start', ''),
+                            'end': updated_event.get('end', ''),
+                            'calendar_name': updated_event.get('calendar_name', 'Unknown Calendar'),
+                            'id': updated_event.get('id', ''),
+                            'htmlLink': updated_event.get('htmlLink', ''),
+                            'link': updated_event.get('htmlLink', '')
+                        }
+                        formatted_events.append(formatted_event)
+                        logger.info(f"📋 Using updated event data: {updated_event.get('summary')} -> {updated_event.get('start')}")
+                
+                # If no processed results available, fall back to original events
+                if not formatted_events:
+                    logger.warning(f"📋 No processed results found, using original events")
+                    for event in events:
+                        formatted_event = {
+                            'summary': event.get('event_name', event.get('summary', 'Untitled')),
+                            'start': event.get('start_time', event.get('start', '')),
+                            'end': event.get('end_time', event.get('end', '')),
+                            'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                            'id': event.get('event_id', event.get('id', '')),
+                            'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
+                            'link': event.get('calendar_link', event.get('link', ''))
+                        }
+                        formatted_events.append(formatted_event)
                 
                 # Generate appropriate summary message
                 if intent == 'update':
@@ -453,7 +472,7 @@ class EventQueueHandler:
                 
                 if intent == 'update':
                     # For updates, show what changes will be made
-                    summary = f"""Current Event: {event_display}
+                    summary = f"""{event_display}
 
 📋 Proposed Changes:"""
                     
@@ -629,6 +648,12 @@ class EventQueueHandler:
         if is_confirm:
             # Process current event
             result = await self._process_single_event(current_event)
+            
+            # Store the result for summary generation later
+            if 'processed_results' not in queue:
+                queue['processed_results'] = []
+            queue['processed_results'].append(result)
+            
             queue['current_index'] += 1
             next_result = self.get_next_event_confirmation(chat_id)
 
@@ -701,15 +726,21 @@ class EventQueueHandler:
         failed = 0
         failures = []
         
-        # Process each event
+        # Process each event and collect updated results
         successful_events = []
         failed_events = []
+        updated_event_data = []  # Store actual updated event data for summary
         
         for i, event in enumerate(events):
             try:
                 result = await self._process_single_event(event)
                 if result.get('success'):
                     successful += 1
+                    # Store updated event data for proper summary formatting
+                    if result.get('updated_event'):
+                        updated_event_data.append(result['updated_event'])
+                        logger.info(f"📋 Batch: Stored updated event data for {result['updated_event'].get('summary', 'Unknown')}")
+                    
                     # Collect successful event details for detailed summary
                     if result.get('message') and 'Updated' in result.get('message', ''):
                         successful_events.append(result.get('message'))
@@ -744,43 +775,60 @@ class EventQueueHandler:
         
         # Use centralized formatters if available
         if MessageFormatter and failed == 0:
-            # CRITICAL FIX: Convert events to proper format with enhanced debugging
+            # CRITICAL FIX: Use UPDATED event data instead of original events
             formatted_events = []
-            for i, event in enumerate(events):
+            
+            # Prefer updated event data from processing results
+            events_to_format = updated_event_data if updated_event_data else events
+            logger.info(f"📋 Batch: Using {'updated' if updated_event_data else 'original'} event data for formatting ({len(events_to_format)} events)")
+            
+            for i, event in enumerate(events_to_format):
                 logger.info(f"📋 Batch Formatting Event {i+1}: {event}")
                 
-                # CRITICAL: Use multiple field sources for datetime
-                start_time = (
-                    event.get('start_time') or 
-                    event.get('start') or 
-                    event.get('new_start_time') or 
-                    ''
-                )
-                end_time = (
-                    event.get('end_time') or 
-                    event.get('end') or 
-                    event.get('new_end_time') or 
-                    ''
-                )
-                
-                # CRITICAL: Use multiple field sources for hyperlink
-                hyperlink = (
-                    event.get('event_link') or 
-                    event.get('calendar_link') or 
-                    event.get('htmlLink') or 
-                    event.get('link') or 
-                    ''
-                )
-                
-                formatted_event = {
-                    'summary': event.get('event_name', event.get('summary', 'Untitled')),
-                    'start': start_time,
-                    'end': end_time,
-                    'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
-                    'id': event.get('event_id', event.get('id', '')),
-                    'htmlLink': hyperlink,
-                    'link': hyperlink  # Backup field
-                }
+                # Handle both updated event format and original event format
+                if updated_event_data:
+                    # Updated event data from calendar service
+                    formatted_event = {
+                        'summary': event.get('summary', f'Event {i+1}'),
+                        'start': event.get('start', ''),
+                        'end': event.get('end', ''),
+                        'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                        'id': event.get('id', ''),
+                        'htmlLink': event.get('htmlLink', ''),
+                        'link': event.get('htmlLink', '')  # Use htmlLink as backup
+                    }
+                else:
+                    # Original event data format (fallback)
+                    start_time = (
+                        event.get('start_time') or 
+                        event.get('start') or 
+                        event.get('new_start_time') or 
+                        ''
+                    )
+                    end_time = (
+                        event.get('end_time') or 
+                        event.get('end') or 
+                        event.get('new_end_time') or 
+                        ''
+                    )
+                    
+                    hyperlink = (
+                        event.get('event_link') or 
+                        event.get('calendar_link') or 
+                        event.get('htmlLink') or 
+                        event.get('link') or 
+                        ''
+                    )
+                    
+                    formatted_event = {
+                        'summary': event.get('event_name', event.get('summary', 'Untitled')),
+                        'start': start_time,
+                        'end': end_time,
+                        'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                        'id': event.get('event_id', event.get('id', '')),
+                        'htmlLink': hyperlink,
+                        'link': hyperlink  # Backup field
+                    }
                 
                 logger.info(f"📋 Formatted Event Structure: {formatted_event}")
                 formatted_events.append(formatted_event)

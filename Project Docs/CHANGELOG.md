@@ -2,6 +2,55 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.239] - 2025-09-02
+
+### 🚨 **CRITICAL BUG FIXES - SUMMARY MESSAGES, "CURRENT EVENT" PREFIX & UPDATED EVENT DETAILS**
+
+**calibot/backend/app/services/event_queue_handler.py**: Fixed "Current Event:" prefix still appearing in one-by-one messages
+- **Root Cause**: `_format_event_summary` method was still including "Current Event: " prefix in update confirmations
+- **Evidence**: Logs showed `Current Event: [Test Event]...` instead of clean event display
+- **Fix Applied**: Removed "Current Event: " prefix from line 456, keeping only event details and proposed changes
+- **Implementation**: Changed format from `Current Event: {event_display}` to just `{event_display}`
+- **Impact**: ✅ One-by-one messages now show clean format: "UPDATE Event 3 of 3: [Event details]"
+
+**calibot/backend/app/services/event_queue_handler.py**: Fixed one-by-one final summary using updated event data instead of original data
+- **Root Cause**: One-by-one completion was reconstructing summary from original events instead of using actual processed results
+- **Evidence**: Events updated to Sept 10 but completion summary showed Sept 03 dates
+- **Fix Applied**: Modified completion logic to collect and use `processed_results` with actual updated event data from calendar service
+- **Implementation**: Store `result` from each `_process_single_event` call in queue, use `updated_event` data for summary
+- **Impact**: ✅ One-by-one completion now shows detailed summary with NEW updated event details
+
+**calibot/backend/app/services/event_queue_handler.py**: Fixed "All" button summary using updated event data instead of original data
+- **Root Cause**: Batch processing was using original event data for summary formatting instead of calendar service results
+- **Evidence**: Summary messages showed original dates/times instead of updated values after successful calendar updates
+- **Fix Applied**: Modified `_process_all_events` to collect `updated_event` data from each processing result
+- **Implementation**: Store updated event data during processing, use it preferentially for MessageFormatter calls
+- **Impact**: ✅ "All" button summaries now show NEW updated event details instead of original details
+
+**calibot/Project Docs/BUG_LOG.md**: Updated with new UI bugs reported by user
+- **Added Bugs**: BUG-031 (Google Workspace link preview), BUG-032 (Current Event prefix), BUG-033 (One-by-one summary), BUG-034 (Original vs updated details)
+- **Status**: BUG-032, BUG-033, BUG-034 addressed in this release
+- **Impact**: ✅ Systematic tracking of remaining UI issues
+
+### 🔧 **TECHNICAL DETAILS**
+- **Summary Generation**: Both one-by-one and batch processing now use actual updated event data from calendar service
+- **Event Tracking**: Queue processing stores results to enable proper summary generation with NEW details
+- **UI Cleanup**: Removed redundant "Current Event:" prefix for cleaner one-by-one messages
+- **Data Flow**: Process event → Store result → Use updated data for summary (not original data)
+
+### 🧪 **TESTING STATUS**
+- ✅ One-by-one messages show clean format without "Current Event:" prefix
+- ✅ One-by-one completion shows detailed summary with NEW updated event details
+- ✅ "All" button summary shows NEW updated event details (e.g., Sept 10 instead of Sept 03)
+- 🟡 Google Workspace link preview inconsistency remains (Telegram client-side issue)
+- 🔄 Awaiting user confirmation that summary and formatting issues are resolved
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: Summary formatters using original event data instead of calendar service results
+- **Secondary Issue**: "Current Event:" prefix unnecessarily cluttering one-by-one messages
+- **Tertiary Issue**: Missing result tracking preventing proper summary generation
+- **User Impact**: Accurate summaries showing actual changes made to events
+
 ## [0.1.238] - 2025-09-02
 
 ### 🚨 **CRITICAL BUG FIXES - ONE-BY-ONE SUMMARY & HYPERLINK MARKDOWN STRIPPING RESOLVED**
