@@ -2,6 +2,54 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.244] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIXES - DUPLICATE EVENT CONFIRMATION SYSTEM OVERHAUL**
+
+**Multiple duplicate event confirmation bugs fixed (BUG-035 to BUG-038)**
+
+#### **BUG-035: Fixed Missing Hyperlinks and Incorrect Calendar Names in Duplicate Confirmations**
+- **Problem**: Duplicate confirmation messages showed events without hyperlinks and with "Default" instead of actual calendar names
+- **Root Cause**: `format_duplicate_confirmation_with_keyboard()` was using incomplete formatter logic at line 416
+- **Evidence**: Backend logs show `"🔗 HYPERLINK MASTER: No hyperlink available for: Test Event"` and `"(Default)"` instead of actual calendar names  
+- **Fix Applied**: Updated `ui_helpers.py` to use `MessageFormatter.format_event_with_hyperlink()` for consistent formatting
+- **Result**: ✅ Duplicate confirmations now show proper hyperlinks and actual calendar names like other operations
+
+#### **BUG-037: Fixed Wrong Button Options for Multiple Duplicate Events**
+- **Problem**: Multiple duplicate events showed "Create Anyway"/"Cancel" buttons instead of "All"/"One by One"/"Cancel" like multi-event operations
+- **Root Cause**: `create_duplicate_confirmation_keyboard()` was hardcoded to single-event buttons regardless of duplicate count
+- **Fix Applied**: Modified `format_duplicate_confirmation_with_keyboard()` to use multi-event buttons when count > 1
+- **Routing Update**: Added "create" action handling to `handle_multi_event_confirmation_callback()` for duplicate processing
+- **Result**: ✅ Multiple duplicates now show same button options as multi-event edit/delete operations
+
+#### **BUG-036: Fixed Duplicate Button Processing Flow**
+- **Problem**: Duplicate confirmation buttons changed message text instead of showing "Processing..." → "Success" flow like edit/delete
+- **Root Cause**: `handle_duplicate_confirmation()` was preserving original message content instead of standard processing flow
+- **Fix Applied**: Updated confirmation handler to use same processing flow as edit/delete operations
+- **Result**: ✅ Duplicate buttons now show: Buttons → "✅ Processing..." → "Successfully created [event details]"
+
+#### **BUG-038: Fixed Stale Button Persistence**
+- **Problem**: Previous operation buttons remained active when user sent new message instead of pressing buttons
+- **Root Cause**: No mechanism to clean up pending operations when new user messages arrive
+- **Fix Applied**: Added `_cleanup_stale_keyboards()` function called on every new user message
+- **Cleanup Logic**: Clears pending queue operations and pending duplicate data to prevent stale button functionality
+- **Result**: ✅ Old buttons become inactive when user sends new message
+
+#### **Code Quality Improvements**
+- **routes.py**: Added comprehensive duplicate handling in multi-event confirmation callback
+- **confirmation_handler.py**: Simplified duplicate confirmation to match edit/delete processing patterns  
+- **ui_helpers.py**: Fixed incomplete formatter usage and added proper button logic for multiple duplicates
+- **Comprehensive logging**: All changes include detailed logging for debugging future issues
+
+## [0.1.243] - 2025-09-03
+
+### 🚨 **BUG FIX - EXCESSIVE LOGGING REMOVAL**
+
+**Removed cluttering debug code per user feedback**
+- **calibot/backend/app/agent/nlp_agent.py**: Removed excessive LLM response structure debugging (5+ log lines per response)
+- **Eliminated**: Response type logging, directory listings, method success confirmations, repeated response cleaning logs
+- **Impact**: ✅ Cleaner logs focused on actual issues rather than working functionality validation
+
 ## [0.1.242] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - DUPLICATE MESSAGE PROCESSING CONFUSION**

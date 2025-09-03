@@ -420,12 +420,14 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
     
     message += f"\nDo you want to {action} these events anyway?"
     
-    # Legacy: now using InlineKeyboardHelper
-    if InlineKeyboardHelper:
-        keyboard = InlineKeyboardHelper.create_duplicate_confirmation_keyboard()
+    # CRITICAL FIX: Use multi-event buttons for multiple duplicates
+    if count > 1:
+        # Multiple duplicates should use same buttons as multi-event operations
+        keyboard = InlineKeyboardHelper.create_multi_event_confirmation_keyboard("create")
     else:
-        from app.utils.inline_keyboard import InlineKeyboardHelper as _IKH
-        keyboard = _IKH.create_duplicate_confirmation_keyboard()
+        # Single duplicate uses create anyway/cancel buttons
+        keyboard = InlineKeyboardHelper.create_duplicate_confirmation_keyboard()
+    
     return message, keyboard
 
 def format_multi_event_confirmation_with_keyboard(events, action="delete"):

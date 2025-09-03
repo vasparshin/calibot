@@ -66,22 +66,13 @@ class ConfirmationHandler:
 
     async def handle_duplicate_confirmation(self, chat_id: int, message_id: int, confirmed: bool) -> None:
         """Handle duplicate event confirmation response."""
-        # Get the original message content from conversation state
-        original_message = self.find_original_confirmation_message(chat_id)
-        
         if confirmed:
-            # Preserve original event summary and add status
-            if original_message:
-                status_text = f"{original_message}\n\n✅ **Creating duplicates** - Processing event creation..."
-            else:
-                status_text = "✅ **Creating duplicates** - Processing event creation..."
+            # CRITICAL FIX: Use same flow as edit/delete - remove buttons and show processing
+            status_text = "✅ **Processing** - Creating duplicate events..."
             await self.edit_message(chat_id, message_id, status_text)
         else:
-            # Preserve original event summary and add cancellation status
-            if original_message:
-                status_text = f"{original_message}\n\n❌ **Cancelled** - Duplicate creation cancelled"
-            else:
-                status_text = "❌ **Cancelled** - Duplicate creation cancelled"
+            # CRITICAL FIX: Use same flow as edit/delete - remove buttons and show cancellation
+            status_text = "❌ **Cancelled** - Duplicate creation cancelled"
             await self.edit_message(chat_id, message_id, status_text)
 
     async def send_confirmation_request(self, chat_id: int, message: str, keyboard: Dict) -> None:
