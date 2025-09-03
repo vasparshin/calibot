@@ -710,6 +710,13 @@ class GoogleCalendarService:
                     time_max = date_obj.replace(hour=23, minute=59, second=59).isoformat()  # End of day
                 except ValueError:
                     return {'success': False, 'message': 'Invalid date format. Use YYYY-MM-DD'}
+            else:
+                # FIXED: Add default date range when no specific date is provided
+                # Default to current date to prevent returning all events from all time periods
+                today = datetime.now().replace(tzinfo=timezone.utc)
+                time_min = today.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+                time_max = today.replace(hour=23, minute=59, second=59, microsecond=999999).isoformat()
+                logger.info(f"🔍 CALENDAR QUERY: No date specified, using default range: {time_min} to {time_max}")
 
             # Determine which calendars to search
             calendar_ids = []  # Start empty, will be populated

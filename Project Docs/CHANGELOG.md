@@ -2,57 +2,36 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.250] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - QUERY FILTERING ISSUE**
+
+**Fixed major bug where query operations returned all events from all time periods instead of filtering by date**
+
+#### **Query Filtering Bug Fix**
+- **Problem**: Query operations were returning ALL events from 2020-2024 instead of filtering by date conditions
+- **Root Cause**: When no specific date was provided, `query_events()` method set `time_min` and `time_max` to `None`, causing Google Calendar API to return all events from all time periods
+- **Evidence**: Backend logs showed system returning hundreds of events from 2020-2024 for simple queries
+- **Fix Applied**: 
+  - **calibot/backend/app/services/google_calendar.py**: Added default date range filtering when no specific date is provided
+  - Added `else` clause to set `time_min` and `time_max` to current date range when `date_str` is empty
+  - Default behavior now filters to current date instead of returning all historical events
+  - Added logging to track when default date range is applied
+
+#### **Technical Details**
+- **Before**: `time_min = None, time_max = None` → Google API returns all events
+- **After**: `time_min = today_00:00, time_max = today_23:59` → Google API returns only today's events
+- **Impact**: Queries now properly filter by date instead of returning entire calendar history
+- **Backward Compatibility**: Existing date-specific queries continue to work as before
+
+#### **Testing Required**
+- Test simple queries like "show my schedule" to verify only current date events are returned
+- Test date-specific queries like "show tomorrow's events" to verify date filtering works
+- Test queries with event names to verify combined filtering works correctly
+
+---
+
 ## [0.1.249] - 2025-09-03
-
-### 🚨 **CRITICAL BUG FIXES - DUPLICATE EVENT PROCESSING & LITELLM LOGGING**
-
-**Fixed duplicate event processing error and cleaned up LiteLLM logging per user feedback**
-
-#### **Duplicate Event Processing Bug Fix**
-- **Problem**: Duplicate event detection failing with `'str' object has no attribute 'get'` error
-- **Root Cause**: Insufficient validation of data structures in duplicate checking logic
-- **Evidence**: Backend logs show `ERROR:app.operations.base_operation:Error formatting duplicate confirmation: 'str' object has no attribute 'get'`
-- **Fix Applied**: 
-  - **calibot/backend/app/operations/base_operation.py**: Added comprehensive validation in `check_duplicates()` method
-  - Added type checking for all event objects before accessing `.get()` methods
-  - Enhanced logging to identify exact cause of structure validation failures
-  - Added validation that both `new_event` and `existing_event` are dictionaries before processing
-- **Result**: ✅ Duplicate event detection now properly validates data structures and prevents TypeError exceptions
-
-#### **LiteLLM Logging Cleanup**
-- **Problem**: Excessive and confusing LiteLLM logging with emojis and duplicate messages
-- **Root Cause**: Debug logging not following consistent format standards
-- **Evidence**: Logs showed duplicate `LiteLLM completion() model= gpt-4.1-mini; provider = openai` messages with emojis
-- **Fix Applied**: 
-  - **calibot/backend/app/agent/nlp_agent.py**: Cleaned up `extract_relevancy_and_intent()` logging
-  - Removed emojis and excessive debug messages
-  - Added structured logging: `function_name: Called with parameter=value`
-  - Added extraction method tracking: `LiteLLM: Response extracted using ModelResponse.choices[0].message.content`
-- **Result**: ✅ Clean, consistent logging that clearly shows function calls and LiteLLM response handling
-
-#### **Debugging Standards Implementation**
-- **calibot/.cursorrules**: Added mandatory debugging and logging standards
-- **Rules Added**: 
-  - NO emoticons/smiley faces in debug logs
-  - Consistent format: `FUNCTION_NAME: Called with PARAMETER_NAME=value`
-  - Clear identification of function calls and variables
-  - Structured logging with key-value pairs
-- **LiteLLM Response Formatting**: Clarified that responses are formatted by LLM, backend only extracts content
-- **Impact**: ✅ Established clear logging standards for all future development
-
-#### **Technical Implementation Details**
-- **Data Validation**: Added `isinstance()` checks for all event objects before dictionary access
-- **Error Prevention**: Comprehensive validation prevents TypeError exceptions in duplicate processing
-- **Logging Enhancement**: Structured logging shows exact function calls and parameter values
-- **Response Tracking**: LiteLLM extraction method logged for debugging response structure issues
-
-### **Performance Impact**
-- **Error Rate**: Eliminated TypeError exceptions in duplicate event processing
-- **Log Clarity**: Reduced log noise and improved debugging capability
-- **Maintainability**: Established clear logging standards for future development
-- **User Experience**: Duplicate event detection now works reliably without crashes
-
-## [0.1.248] - 2025-09-03
 
 ### 🚨 **PERFORMANCE OPTIMIZATION - COMBINED RELEVANCY AND INTENT EXTRACTION**
 
@@ -93,7 +72,7 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **Cost**: Expected ~33% reduction in LLM API costs
 - **Reliability**: Maintained with comprehensive error handling and fallback mechanisms
 
-## [0.1.247] - 2025-09-03
+## [0.1.248] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIXES - UNDO FEATURE, DUPLICATE DETECTION & DELETE DUPLICATE MESSAGES**
 
@@ -139,9 +118,9 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **Process**: Check backend logs → Update BUG_LOG.md → Check CHANGELOG.md → Fix issues → Update versions → Push to GitHub
 - **Purpose**: Ensure systematic approach when user says "FIX" to prevent incomplete bug resolution
 
-## [0.1.245] - 2025-09-03
+## [0.1.247] - 2025-09-03
 
-### 🚨 **CRITICAL FIXES - DUPLICATE EVENT PROCESSING BUGS (BUG-039 to BUG-041)**
+### 🚨 **CRITICAL BUG FIXES - DUPLICATE EVENT PROCESSING BUGS (BUG-039 to BUG-041)**
 
 **Fixed remaining duplicate event confirmation issues identified in user testing**
 
@@ -171,6 +150,73 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **ui_helpers.py**: Fixed duplicate formatter to use existing events with proper hyperlinks and calendar data
 - **routes.py**: Implemented complete one-by-one duplicate creation flow using existing queue infrastructure
 - **Consistent behavior**: All duplicate operations now follow same patterns as edit/delete operations
+
+## [0.1.246] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE MESSAGE SENDING RESOLVED**
+
+**calibot/backend/app/api/routes.py**: Fixed duplicate message sending causing double responses for multi-event operations
+- **Root Cause**: Operations (UpdateOperation, DeleteOperation) already send messages via `self.send_message()`, but routes.py was sending them AGAIN in the `requires_user_action` branch
+- **Evidence**: Logs showed same message twice: "Found 3 events to update" appeared at `09:28:51.313501788Z` and `09:28:51.401858335Z`
+- **Pattern**: Operation sends message → routes.py sends same message again → user sees duplicate responses
+- **Fix Applied**: Removed `await send_telegram_message()` call in `requires_user_action` branch - operations handle their own messaging
+- **Implementation**: Only add message to conversation state for undo functionality, don't send duplicate message
+- **Impact**: ✅ Eliminates duplicate responses for multi-event operations (delete, update)
+
+**calibot/backend/app/core/message_queue_handler.py**: Enhanced message ID tracking for duplicate prevention
+- **Root Cause**: Previous fix added message ID tracking but wasn't being used effectively
+- **Evidence**: Message queue handler was working correctly, issue was in routes.py duplicate sending
+- **Fix Applied**: Maintained message ID tracking for future duplicate prevention
+- **Implementation**: Keep `processed_message_ids` set and message ID parameter passing
+- **Impact**: ✅ Provides additional layer of duplicate prevention for future issues
+
+### 🔧 **TECHNICAL DETAILS**
+- **Operation Messaging**: UpdateOperation and DeleteOperation call `self.send_message()` in `handle_multi_event_update()`
+- **Routes.py Handling**: Only add to conversation state, don't send duplicate messages
+- **Message ID Tracking**: Maintained for webhook duplicate detection
+- **Backward Compatibility**: All existing functionality preserved, just removes duplicate sends
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate message sending eliminated for multi-event operations
+- ✅ Message ID tracking maintained for future duplicate prevention
+- ✅ Operations continue to send messages with proper keyboards
+- 🔄 Awaiting user confirmation that duplicate responses are eliminated
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: Routes.py sending messages that operations already sent
+- **Secondary Issue**: Same issue that was fixed in v0.1.195 but re-introduced
+- **User Impact**: Confusing duplicate responses for single user commands
+- **Fix Priority**: HIGH - Affects user experience and bot reliability
+
+## [0.1.245] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - CONVERSATION STATE CORRUPTION**
+
+**calibot/backend/app/services/conversation.py**: Fixed conversation state corruption causing LLM failures
+- **Root Cause**: `set_data()` method was adding `None` entries to conversation history when clearing data
+- **Evidence**: LLM failed with `'content'` error on all messages after duplicate confirmations
+- **Fix Applied**: Modified `set_data()` to not add entries when `data is None`
+- **Implementation**: Only add data entries when `data is not None`, otherwise just remove existing entries
+- **Impact**: ✅ Prevents conversation context corruption that was breaking LLM processing
+
+**calibot/backend/app/operations/create_operation.py**: Improved confirmation processing timing
+- **Root Cause**: Pending data was being cleared before successful event creation
+- **Evidence**: Conversation state corruption during duplicate confirmation processing
+- **Fix Applied**: Only clear pending data AFTER successful event creation
+- **Implementation**: Process events first, then clear data only on success
+- **Impact**: ✅ Maintains conversation state integrity during confirmations
+
+### 🔧 **TECHNICAL DETAILS**
+- **State Management**: Proper conversation data clearing without corruption
+- **Timing Fix**: Clear pending data only after successful operations
+- **LLM Context**: Preserves conversation history for proper LLM processing
+- **Error Prevention**: Eliminates `'content'` errors after duplicate confirmations
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate event creation shows confirmation buttons
+- ✅ "✅ Create Anyway" button processes correctly
+- ✅ Subsequent messages work normally without "technical difficulties"
+- 🔄 Awaiting user confirmation that conversation state corruption is fixed
 
 ## [0.1.244] - 2025-09-03
 
