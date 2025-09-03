@@ -32,10 +32,16 @@ class MessageQueueHandler:
         last_message, last_timestamp = self.last_messages[chat_id]
         current_time = time.time()
         
+        logger.info(f"🔍 DUPLICATE DEBUG: Checking duplicate for chat {chat_id}")
+        logger.info(f"🔍 DUPLICATE DEBUG: Current message: '{message}' (ID: {message_id})")
+        logger.info(f"🔍 DUPLICATE DEBUG: Last message: '{last_message}' (timestamp: {last_timestamp})")
+        logger.info(f"🔍 DUPLICATE DEBUG: Time difference: {current_time - last_timestamp:.2f}s")
+        logger.info(f"🔍 DUPLICATE DEBUG: Duplicate window: {DUPLICATE_WINDOW_SECONDS}s")
+        
         # Check if same message within time window
         if (message == last_message and 
             current_time - last_timestamp < DUPLICATE_WINDOW_SECONDS):
-            logger.info(f"🔒 Duplicate message ignored for chat {chat_id}: '{message}'")
+            logger.info(f"🔒 Duplicate message ignored for chat {chat_id}: '{message}' (within {DUPLICATE_WINDOW_SECONDS}s window)")
             return True
         
         # Check if message ID was already processed
@@ -43,6 +49,7 @@ class MessageQueueHandler:
             logger.info(f"🔒 Message ID already processed for chat {chat_id}: {message_id}")
             return True
         
+        logger.info(f"🔍 DUPLICATE DEBUG: Message is NOT duplicate for chat {chat_id}")
         return False
     
     def is_processing(self, chat_id: str) -> bool:
@@ -88,6 +95,7 @@ class MessageQueueHandler:
             # Check for duplicate message
             if self.is_duplicate_message(chat_id, message, message_id):
                 logger.info(f"🔍 QUEUE DEBUG: Message identified as duplicate for chat {chat_id}")
+                logger.info(f"🔍 QUEUE DEBUG: Returning ignored status - user will not see any response")
                 return {"status": "ignored", "reason": "duplicate"}
             
             logger.info(f"🔍 QUEUE DEBUG: Message is not duplicate, proceeding with processing")

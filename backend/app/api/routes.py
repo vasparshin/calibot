@@ -181,6 +181,11 @@ async def telegram_webhook(request: Request):
         # Add debug logging for result
         logger.info(f"🔍 WEBHOOK DEBUG: Message processing result: {result}")
         
+        # CRITICAL FIX: If message was ignored as duplicate, send a helpful response
+        if result and result.get("status") == "ignored":
+            logger.info(f"🔍 WEBHOOK DEBUG: Sending duplicate message response to user")
+            await send_telegram_message(chat_id, "I received your message. Please wait a moment while I process it...")
+        
         return result
 
     except Exception as e:

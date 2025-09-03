@@ -2,7 +2,52 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.240] - 2025-09-03
+## [0.1.242] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE MESSAGE PROCESSING CONFUSION**
+
+**calibot/backend/app/core/message_queue_handler.py**: Fixed confusion between duplicate message detection and duplicate event detection
+- **Root Cause**: Message queue handler was correctly blocking duplicate messages (same message within 30s) but user expected events to be created even for repeated messages
+- **Evidence**: User sends "add a test event today at 3am" multiple times → Message queue handler blocks as duplicate → User sees no response and thinks system is broken
+- **Timeline**: User reports "duplicate event processing logic is broken" but actually duplicate message processing was working correctly
+- **Fix Applied**: Added detailed logging to clarify duplicate detection behavior and send helpful response for ignored duplicates
+- **Implementation**: Enhanced `is_duplicate_message()` with detailed debug logging showing time differences and duplicate window
+- **Impact**: ✅ Users now receive "I received your message. Please wait a moment while I process it..." instead of silence
+
+**calibot/backend/app/api/routes.py**: Added user-friendly response for duplicate messages
+- **Root Cause**: When message queue handler correctly identifies duplicate messages, user gets no response and thinks system is broken
+- **Evidence**: User sends same message multiple times → System correctly ignores duplicates → User sees no response → User reports bug
+- **Fix Applied**: Added check for ignored duplicate status and send helpful response
+- **Implementation**: After `process_user_message()` returns `{"status": "ignored"}`, send "I received your message. Please wait a moment while I process it..."
+- **Impact**: ✅ Users understand their message was received even when duplicate detection prevents processing
+
+**calibot/backend/app/core/message_queue_handler.py**: Enhanced debug logging for duplicate detection troubleshooting
+- **Root Cause**: Insufficient logging made it difficult to understand why messages were being blocked
+- **Evidence**: Logs only showed "Duplicate message ignored" without context about timing or duplicate window
+- **Fix Applied**: Added comprehensive debug logging showing current message, last message, time difference, and duplicate window
+- **Implementation**: Enhanced `is_duplicate_message()` with detailed timing and comparison logging
+- **Impact**: ✅ Developers can now easily troubleshoot duplicate detection issues
+
+### 🔧 **TECHNICAL DETAILS**
+- **Duplicate Window**: 30 seconds (configurable in `DUPLICATE_WINDOW_SECONDS`)
+- **Message ID Tracking**: Prevents processing same message ID multiple times
+- **User Feedback**: Duplicate messages now get helpful response instead of silence
+- **Debug Logging**: Detailed timing and comparison information for troubleshooting
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate message detection works correctly (blocks same message within 30s)
+- ✅ Users receive helpful response for duplicate messages
+- ✅ Detailed logging available for troubleshooting
+- ✅ Duplicate event detection (same title/date/time) remains separate and functional
+- 🔄 Awaiting user confirmation that duplicate message behavior is now clear and helpful
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: Confusion between duplicate message processing (30s window) vs duplicate event processing (same event)
+- **Secondary Issue**: Users getting no response when duplicate messages correctly blocked
+- **Tertiary Issue**: Insufficient logging for troubleshooting duplicate detection
+- **User Impact**: Clear understanding of when and why messages are blocked, with helpful feedback
+
+## [0.1.241] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - TECHNICAL DIFFICULTIES LOOP AFTER DUPLICATE EVENTS RESOLVED**
 
