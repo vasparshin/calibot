@@ -567,12 +567,34 @@ async def _process_single_message(chat_id: str, user_message: str):
 
         # Check relevancy first for small talk handling
         history = conversation_state.get_conversation_history(chat_id_int)
-        relevancy_result = await ai_agent.check_relevancy(user_message, history)
+        logger.info(f"🔍 RELEVANCY DEBUG: About to check relevancy for message: '{user_message}'")
+        logger.info(f"🔍 RELEVANCY DEBUG: Conversation history length: {len(history)} messages")
+        
+        # Log the actual conversation history content to debug formatting issues
+        for i, msg in enumerate(history[-3:]):  # Last 3 messages only
+            logger.info(f"🔍 CONVERSATION DEBUG {i}: Role={msg.get('role')}, Content='{msg.get('content', '')[:100]}{'...' if len(str(msg.get('content', ''))) > 100 else ''}'")
+            if len(str(msg.get('content', ''))) > 200:
+                logger.warning(f"🔍 CONVERSATION WARNING: Message {i} is very long ({len(str(msg.get('content', '')))} chars) - potential corruption source")
+        
+        try:
+            relevancy_result = await ai_agent.check_relevancy(user_message, history)
+            logger.info(f"🔍 RELEVANCY DEBUG: Relevancy check completed successfully: {relevancy_result}")
+        except Exception as relevancy_error:
+            logger.error(f"🔍 RELEVANCY DEBUG: Relevancy check failed: {relevancy_error}")
+            # If relevancy check fails, assume it's relevant and continue to intent extraction
+            relevancy_result = {"relevant": True}
         
         if not relevancy_result.get("relevant", True):
             # Handle small talk or irrelevant messages
+            logger.info(f"🔍 SMALL_TALK DEBUG: Message marked as irrelevant, getting small talk response")
             from app.services.ai_service import get_small_talk_response
-            small_talk_response = await get_small_talk_response(user_message, history)
+            
+            try:
+                small_talk_response = await get_small_talk_response(user_message, history)
+                logger.info(f"🔍 SMALL_TALK DEBUG: Small talk response completed: {small_talk_response}")
+            except Exception as small_talk_error:
+                logger.error(f"🔍 SMALL_TALK DEBUG: Small talk response failed: {small_talk_error}")
+                small_talk_response = None
             if small_talk_response and small_talk_response.strip():
                 await send_telegram_message(chat_id_int, small_talk_response.strip())
                 clean_message = _clean_message_for_conversation_state(small_talk_response.strip())
@@ -586,8 +608,12 @@ async def _process_single_message(chat_id: str, user_message: str):
         _cleanup_conversation_state_if_corrupted(chat_id_int, conversation_state)
 
         # Extract intent using NLP agent for calendar-related messages
+        logger.info(f"🔍 INTENT DEBUG: About to extract intent for message: '{user_message}'")
+        logger.info(f"🔍 INTENT DEBUG: Using conversation history with {len(history)} messages")
+        
         try:
             intent_result = await ai_agent.extract_intent(user_message, history)
+            logger.info(f"🔍 INTENT DEBUG: Intent extraction completed successfully: {intent_result}")
         except Exception as intent_error:
             error_str = str(intent_error)
             if "'content'" in error_str:
