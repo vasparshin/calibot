@@ -63,8 +63,24 @@
 
 ### Version Management
 1. **Update BOTH `pyproject.toml` AND `backend/app/__init__.py`** with SAME version
-2. **Commit with version**: `git commit -m "v0.1.XXX: Description"`
-3. **Deploy to Render**: `git push origin main` (auto-deploys)
+2. **Stage changes**: `git add .`
+3. **Commit with version**: `git commit -m "v0.1.XXX: Description"`
+4. **Deploy to Render**: `git push origin main` (auto-deploys)
+5. **Verify deployment**: Check `git status` confirms "up to date with origin/main"
+
+### 🚨 MANDATORY GIT WORKFLOW (EXACT COMMANDS)
+```bash
+# Update version in both files first, then:
+git add .
+git commit -m "v0.1.XXX: Description"
+git push origin main
+# Wait for successful push confirmation before proceeding
+```
+
+### Git Troubleshooting
+- **If push fails/gets cut off**: Always check `git status` and retry `git push origin main`
+- **If ahead of origin**: Run `git push origin main` until status shows "up to date"
+- **Never assume push succeeded**: Wait for full command completion with remote confirmation
 
 ### Log Monitoring
 Use Render MCP server tools: `mcp_render_list_logs`, `mcp_render_get_metrics`, `mcp_render_list_deploys`
