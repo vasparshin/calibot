@@ -2,6 +2,56 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.249] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIXES - DUPLICATE EVENT PROCESSING & LITELLM LOGGING**
+
+**Fixed duplicate event processing error and cleaned up LiteLLM logging per user feedback**
+
+#### **Duplicate Event Processing Bug Fix**
+- **Problem**: Duplicate event detection failing with `'str' object has no attribute 'get'` error
+- **Root Cause**: Insufficient validation of data structures in duplicate checking logic
+- **Evidence**: Backend logs show `ERROR:app.operations.base_operation:Error formatting duplicate confirmation: 'str' object has no attribute 'get'`
+- **Fix Applied**: 
+  - **calibot/backend/app/operations/base_operation.py**: Added comprehensive validation in `check_duplicates()` method
+  - Added type checking for all event objects before accessing `.get()` methods
+  - Enhanced logging to identify exact cause of structure validation failures
+  - Added validation that both `new_event` and `existing_event` are dictionaries before processing
+- **Result**: ✅ Duplicate event detection now properly validates data structures and prevents TypeError exceptions
+
+#### **LiteLLM Logging Cleanup**
+- **Problem**: Excessive and confusing LiteLLM logging with emojis and duplicate messages
+- **Root Cause**: Debug logging not following consistent format standards
+- **Evidence**: Logs showed duplicate `LiteLLM completion() model= gpt-4.1-mini; provider = openai` messages with emojis
+- **Fix Applied**: 
+  - **calibot/backend/app/agent/nlp_agent.py**: Cleaned up `extract_relevancy_and_intent()` logging
+  - Removed emojis and excessive debug messages
+  - Added structured logging: `function_name: Called with parameter=value`
+  - Added extraction method tracking: `LiteLLM: Response extracted using ModelResponse.choices[0].message.content`
+- **Result**: ✅ Clean, consistent logging that clearly shows function calls and LiteLLM response handling
+
+#### **Debugging Standards Implementation**
+- **calibot/.cursorrules**: Added mandatory debugging and logging standards
+- **Rules Added**: 
+  - NO emoticons/smiley faces in debug logs
+  - Consistent format: `FUNCTION_NAME: Called with PARAMETER_NAME=value`
+  - Clear identification of function calls and variables
+  - Structured logging with key-value pairs
+- **LiteLLM Response Formatting**: Clarified that responses are formatted by LLM, backend only extracts content
+- **Impact**: ✅ Established clear logging standards for all future development
+
+#### **Technical Implementation Details**
+- **Data Validation**: Added `isinstance()` checks for all event objects before dictionary access
+- **Error Prevention**: Comprehensive validation prevents TypeError exceptions in duplicate processing
+- **Logging Enhancement**: Structured logging shows exact function calls and parameter values
+- **Response Tracking**: LiteLLM extraction method logged for debugging response structure issues
+
+### **Performance Impact**
+- **Error Rate**: Eliminated TypeError exceptions in duplicate event processing
+- **Log Clarity**: Reduced log noise and improved debugging capability
+- **Maintainability**: Established clear logging standards for future development
+- **User Experience**: Duplicate event detection now works reliably without crashes
+
 ## [0.1.248] - 2025-09-03
 
 ### 🚨 **PERFORMANCE OPTIMIZATION - COMBINED RELEVANCY AND INTENT EXTRACTION**
@@ -56,7 +106,7 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 - **Fix Applied**: 
   - **calibot/backend/app/prompts/relevancy_classifier_prompt.py**: Added "undoing recent calendar actions" to relevancy criteria
   - **calibot/backend/app/api/routes.py**: Implemented operation caching system using `_cache_operation_for_undo()` function
-  - **calibot/backend/app/operations/undo_operation.py**: Rewrote to use cached operation data instead of conversation parsing
+  - **calibot/backend/app/operations/undo_operation.py**: Rewritten to use cached operation data instead of conversation parsing
 - **Result**: ✅ Undo now recognized as calendar-relevant, operations cached for proper undo functionality
 
 #### **BUG-043: Duplicate Event Detection Broken - Error Fixed**

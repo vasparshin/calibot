@@ -117,6 +117,8 @@ class NLPAgent:
                 next_week_date_iso=next_week_date_iso
             )
 
+            logger.info(f"extract_relevancy_and_intent: Called with message='{user_message}', history_length={len(conversation_history)}")
+
             async def _call_llm():
                 messages = [
                     {"role": "system", "content": system_message},
@@ -136,6 +138,7 @@ class NLPAgent:
 
             # Extract content from LiteLLM ModelResponse
             result = None
+            extraction_method = "unknown"
             
             # Primary method: ModelResponse object attribute access
             if hasattr(response, 'choices') and response.choices:
@@ -143,6 +146,7 @@ class NLPAgent:
                 if hasattr(choice, 'message') and choice.message:
                     if hasattr(choice.message, 'content'):
                         result = choice.message.content
+                        extraction_method = "ModelResponse.choices[0].message.content"
             
             # Fallback method: Dict-like access for older response formats
             if result is None and isinstance(response, dict):
@@ -150,9 +154,12 @@ class NLPAgent:
                     choice = response['choices'][0]
                     if 'message' in choice and 'content' in choice['message']:
                         result = choice['message']['content']
+                        extraction_method = "dict.choices[0].message.content"
             
             if result is None:
                 raise ValueError("Could not extract content from LLM response")
+
+            logger.info(f"LiteLLM: Response extracted using {extraction_method}")
 
             # Clean the response
             cleaned_result = result.strip()
@@ -177,57 +184,25 @@ class NLPAgent:
                 
                 # Validate basic structure
                 if not isinstance(parsed_result, dict):
-                    logger.error(f"LLM returned non-dict JSON: {type(parsed_result)}")
-                    raise ValueError("Non-dict response")
+                    raise ValueError("Response is not a dictionary")
                 
-                # Check for required fields based on relevancy
-                if parsed_result.get("relevant", True):
-                    if 'intent' not in parsed_result:
-                        logger.error(f"LLM JSON missing 'intent' field for relevant message: {parsed_result}")
-                        raise ValueError("Missing intent field for relevant message")
-                else:
-                    if 'reason' not in parsed_result:
-                        logger.error(f"LLM JSON missing 'reason' field for irrelevant message: {parsed_result}")
-                        raise ValueError("Missing reason field for irrelevant message")
+                # Ensure required fields exist
+                if "relevant" not in parsed_result:
+                    parsed_result["relevant"] = True
                 
+                if "intent" not in parsed_result:
+                    parsed_result["intent"] = "query"
+                
+                logger.info(f"extract_relevancy_and_intent: Completed successfully, relevant={parsed_result.get('relevant')}, intent={parsed_result.get('intent')}")
                 return parsed_result
                 
-            except (json.JSONDecodeError, ValueError) as e:
-                logger.error(f"LLM JSON parsing failed: {e}")
-                logger.error(f"Raw response that failed: '{result}'")
-                logger.error(f"Cleaned response that failed: '{cleaned_result}'")
-                
-                # Secondary attempt: try to find JSON in the response
-                import re
-                json_match = re.search(r'\{.*\}', cleaned_result, re.DOTALL)
-                if json_match:
-                    try:
-                        secondary_result = json.loads(json_match.group())
-                        logger.info(f"✅ Secondary JSON extraction successful: {secondary_result}")
-                        return secondary_result
-                    except json.JSONDecodeError:
-                        pass
-                
-                # Fallback: return default query intent
-                logger.warning(f"Using fallback query intent due to parsing failure")
-                return {
-                    "relevant": True,
-                    "intent": "query",
-                    "event_name": "",
-                    "date": current_date_iso,
-                    "confirmation_needed": False
-                }
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON parsing failed: {e}, raw response: {cleaned_result}")
+                return {"relevant": True, "intent": "query", "error": "JSON parsing failed"}
                 
         except Exception as e:
-            logger.error(f"Combined extraction failed: {e}")
-            # Fallback: return default query intent
-            return {
-                "relevant": True,
-                "intent": "query",
-                "event_name": "",
-                "date": datetime.now().strftime("%Y-%m-%d"),
-                "confirmation_needed": False
-            }
+            logger.error(f"extract_relevancy_and_intent: Error processing message: {e}")
+            return {"relevant": True, "intent": "query", "error": str(e)}
 
     async def extract_intent(self, user_message, conversation_history):
         try:

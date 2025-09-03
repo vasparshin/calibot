@@ -110,4 +110,26 @@ When user says "FIX" - follow this EXACT process:
 6. **Push to GitHub** using proper git workflow commands
 7. **Verify deployment** and report completion
 
+## 🐛 DEBUGGING AND LOGGING STANDARDS (MANDATORY)
+
+### Debugging Format Rules
+- **NO EMOTICONS/SMILEY FACES**: All debug logs must use plain text without emojis or emoticons
+- **CONSISTENT FORMAT**: All debug messages must follow: `FUNCTION_NAME: Called with PARAMETER_NAME=value`
+- **CLEAR IDENTIFICATION**: Every log must clearly show which function is being called with what variables
+- **STRUCTURED LOGGING**: Use consistent key-value pairs: `function=extract_intent, message="user input", result=success`
+
+### LiteLLM Response Formatting
+- **RESPONSE SOURCE**: LiteLLM responses are formatted by the LLM itself, not backend logic
+- **BACKEND ROLE**: Backend only extracts and validates the LLM response structure
+- **FORMATTING FLOW**: User message → LLM processes with prompt → LLM returns formatted response → Backend extracts content
+- **DEBUG REQUIREMENT**: All LiteLLM calls must log: function name, input parameters, response structure, extraction method used
+
+### Logging Examples
+```
+✅ CORRECT: extract_intent: Called with message="add meeting today", history_length=5
+✅ CORRECT: LiteLLM: Response extracted using ModelResponse.choices[0].message.content
+❌ WRONG: 🔍 INTENT DEBUG: About to extract intent for message: 'user message'
+❌ WRONG: LiteLLM completion() model= gpt-4.1-mini; provider = openai
+```
+
 **REMEMBER**: Always test thoroughly, update CHANGELOG.md and BUG_LOG.md, and maintain high quality standards.

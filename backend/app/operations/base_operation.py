@@ -64,12 +64,14 @@ class BaseOperation(BaseHandler):
 
             for i, event in enumerate(events_to_create):
                 if not isinstance(event, dict):
+                    logger.warning(f"check_duplicates: Event {i} is not a dict, type: {type(event)}")
                     continue
 
                 event_name = event.get("event_name", "")
                 date = event.get("date", "")
 
                 if not event_name or not date:
+                    logger.warning(f"check_duplicates: Event {i} missing required fields, event_name='{event_name}', date='{date}'")
                     continue
 
                 query_params = {"event_name": event_name, "date": date}
@@ -82,6 +84,10 @@ class BaseOperation(BaseHandler):
                         event_end = event.get("end_time", "")
 
                         for existing in existing_events["events"]:
+                            if not isinstance(existing, dict):
+                                logger.warning(f"check_duplicates: Existing event is not a dict, type: {type(existing)}")
+                                continue
+                                
                             existing_start = existing.get("start", "")
                             existing_end = existing.get("end", "")
 
@@ -95,18 +101,22 @@ class BaseOperation(BaseHandler):
                                     })
                                     break
                 except Exception as e:
-                    logger.warning(f"Error checking duplicates: {e}")
+                    logger.warning(f"check_duplicates: Error checking duplicates for event {i}: {e}")
 
             if duplicates_found:
-                logger.info(f"Found {len(duplicates_found)} potential duplicates")
+                logger.info(f"check_duplicates: Found {len(duplicates_found)} potential duplicates")
                 
                 # CRITICAL FIX: Validate duplicates_found structure before passing to formatter
                 valid_duplicates = []
                 for duplicate in duplicates_found:
                     if isinstance(duplicate, dict) and all(key in duplicate for key in ["new_event", "existing_event", "index"]):
-                        valid_duplicates.append(duplicate)
+                        # Additional validation: ensure both new_event and existing_event are dicts
+                        if isinstance(duplicate["new_event"], dict) and isinstance(duplicate["existing_event"], dict):
+                            valid_duplicates.append(duplicate)
+                        else:
+                            logger.warning(f"check_duplicates: Invalid duplicate structure - new_event type: {type(duplicate['new_event'])}, existing_event type: {type(duplicate['existing_event'])}")
                     else:
-                        logger.warning(f"Invalid duplicate structure: {duplicate}, type: {type(duplicate)}")
+                        logger.warning(f"check_duplicates: Invalid duplicate structure: {duplicate}, type: {type(duplicate)}")
                 
                 if valid_duplicates:
                     try:
@@ -118,16 +128,16 @@ class BaseOperation(BaseHandler):
                             "duplicates": valid_duplicates
                         }
                     except Exception as e:
-                        logger.error(f"Error formatting duplicate confirmation: {e}")
+                        logger.error(f"check_duplicates: Error formatting duplicate confirmation: {e}")
                         # Fall through to create events anyway
                 else:
-                    logger.warning("No valid duplicates found after validation")
+                    logger.warning("check_duplicates: No valid duplicates found after validation")
                     # Fall through to create events anyway
 
             return None
 
         except Exception as e:
-            logger.error(f"Error in duplicate checking: {e}")
+            logger.error(f"check_duplicates: Error in duplicate checking: {e}")
             return None
 
     async def select_calendar(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
