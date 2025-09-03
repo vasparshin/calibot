@@ -2,6 +2,30 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.255] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - ONE-BY-ONE DUPLICATE PROCESSING**
+
+**Fixed critical bug where one-by-one duplicate event processing was failing**
+
+#### **BUG-051: One-by-One Duplicate Processing Error - RESOLVED**
+- **Problem**: "Error processing confirm_one_create: 'EventQueueHandler' object has no attribute 'create_queue'"
+- **Root Cause**: Routes.py was calling `queue_handler.create_queue()` but the actual method name is `create_event_queue()`
+- **Evidence**: Method name mismatch between routes.py and EventQueueHandler class
+- **Fix Applied**: 
+  - **calibot/backend/app/api/routes.py**: Fixed method call from `create_queue()` to `create_event_queue()`
+- **Result**: ✅ One-by-one duplicate event processing now works correctly
+
+#### **Technical Implementation Details**
+- **Method Name**: EventQueueHandler has `create_event_queue()` method, not `create_queue()`
+- **Functionality**: One-by-one processing for duplicate events now functional
+- **User Experience**: Users can now choose "1️⃣ One by One" option for duplicate confirmations
+
+#### **Impact**
+- **User Experience**: One-by-one duplicate processing workflow is now complete
+- **Functionality**: All duplicate confirmation options now work (All, One by One, Cancel)
+- **Reliability**: Complete duplicate event handling system
+
 ## [0.1.254] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - DUPLICATE EVENT MESSAGES NOT BEING SENT**

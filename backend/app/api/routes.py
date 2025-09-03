@@ -381,7 +381,7 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                                 queue_handler = get_global_queue_handler()
                                 
                                 # Create queue with create action
-                                queue_handler.create_queue(
+                                queue_handler.create_event_queue(
                                     str(chat_id), 
                                     events_to_create, 
                                     "create", 
