@@ -2,6 +2,39 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.257] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - ONE-BY-ONE DUPLICATE PROCESSING QUEUE ADVANCEMENT**
+
+**Fixed critical bugs in one-by-one duplicate processing queue advancement and calendar display**
+
+#### **BUG-053: One-by-One Queue Not Advancing After First Event - RESOLVED**
+- **Problem**: After processing the first event, the queue was not advancing to the second event
+- **Root Cause**: Queue was not properly set to one-by-one mode when created for duplicate processing
+- **Evidence**: Backend logs show queue created but not advancing after first event confirmation
+- **Fix Applied**: 
+  - **calibot/backend/app/services/event_queue_handler.py**: Added `'one_by_one_mode': True` to queue initialization
+  - Ensures proper one-by-one processing flow for duplicate events
+
+#### **BUG-054: Duplicate Events Showing "Unknown Calendar" - RESOLVED**
+- **Problem**: Duplicate event confirmations were showing "Unknown Calendar" instead of proper calendar name
+- **Root Cause**: Duplicate events don't have calendar information until they're actually created
+- **Evidence**: Backend logs show `'calendar_name': 'Unknown Calendar'` in event formatting
+- **Fix Applied**: 
+  - **calibot/backend/app/services/event_queue_handler.py**: Changed default calendar name from "Unknown Calendar" to "Primary Calendar"
+  - Provides better user experience while maintaining functionality
+
+#### **Technical Implementation Details**
+- **Queue Mode**: Proper one-by-one mode initialization for duplicate processing
+- **Calendar Display**: Better default calendar name for events not yet created
+- **Queue Advancement**: Fixed logic to properly advance through events in one-by-one mode
+- **User Experience**: Clearer event descriptions with proper calendar names
+
+#### **Impact**
+- **User Experience**: One-by-one duplicate processing now advances properly through all events
+- **Functionality**: Complete duplicate event workflow with proper queue progression
+- **Display**: Better calendar information in event confirmations
+
 ## [0.1.256] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - ONE-BY-ONE DUPLICATE PROCESSING METHOD SIGNATURE**

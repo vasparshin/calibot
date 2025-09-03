@@ -177,7 +177,8 @@ class EventQueueHandler:
             'events': validated_events,
             'current_index': 0,
             'created_at': datetime.now(),
-            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)}
+            'original_request': {"intent": "multi_operation", "event_count": len(validated_events)},
+            'one_by_one_mode': True  # CRITICAL FIX: Set one-by-one mode for duplicate processing
         }
         
         self.pending_queues[chat_id] = queue_data
@@ -453,7 +454,7 @@ class EventQueueHandler:
                     'summary': event.get('event_name', event.get('summary', 'Untitled')),
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
-                    'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                    'calendar_name': event.get('calendar_name', 'Primary Calendar'),  # CRITICAL FIX: Use better default
                     'id': event.get('event_id', event.get('id', '')),
                     'htmlLink': hyperlink,
                     'link': hyperlink  # Backup field for formatter
