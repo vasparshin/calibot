@@ -28,10 +28,20 @@ class CreateOperation(BaseOperation):
                 }
 
             # CRITICAL FIX: Check for duplicates for ALL events (single and batch)
+            # ENHANCEMENT: Handle mixed duplicate/non-duplicate scenarios properly
             duplicate_check = await self.check_duplicates(chat_id, events_to_create)
             if duplicate_check and duplicate_check.get("requires_confirmation"):
-                # Store pending operation and return confirmation request
-                await self.store_pending_duplicate_operation(chat_id, duplicate_check, events_to_create, event_data)
+                # CRITICAL FIX: Separate duplicate and non-duplicate events
+                # Problem: When some events are duplicates and some are not, non-duplicates were forgotten
+                # Solution: Store both duplicate and non-duplicate events separately
+                
+                duplicate_indices = {dup["index"] for dup in duplicate_check.get("duplicates", [])}
+                non_duplicate_events = [event for i, event in enumerate(events_to_create) if i not in duplicate_indices]
+                
+                logger.info(f"🔄 MIXED PROCESSING: Found {len(duplicate_indices)} duplicates, {len(non_duplicate_events)} non-duplicates")
+                
+                # Store both duplicate and non-duplicate events for proper processing
+                await self.store_pending_duplicate_operation(chat_id, duplicate_check, events_to_create, event_data, non_duplicate_events)
                 return {
                     "success": True,
                     "requires_user_action": True,
@@ -246,16 +256,19 @@ class CreateOperation(BaseOperation):
         return message
 
     async def store_pending_duplicate_operation(self, chat_id: int, duplicate_check: Dict,
-                                             events_to_create: List[Dict], original_request: Dict) -> None:
+                                             events_to_create: List[Dict], original_request: Dict, 
+                                             non_duplicate_events: List[Dict] = None) -> None:
         """Store pending operation for duplicate confirmation."""
-        # This would integrate with the multi-event operation handler
-        # For now, store in conversation state
+        # CRITICAL FIX: Store both duplicate and non-duplicate events
+        # This enables mixed processing where some events are duplicates and some are not
         self.set_conversation_data(chat_id, "pending_duplicates", {
             "duplicates": duplicate_check["duplicates"],
             "events_to_create": events_to_create,
+            "non_duplicate_events": non_duplicate_events or [],  # Store non-duplicates separately
             "original_request": original_request,
             "timestamp": datetime.now().isoformat()
         })
+        logger.info(f"🔄 DUPLICATE: Stored pending operation - {len(events_to_create)} total events, {len(non_duplicate_events or [])} non-duplicates")
 
     def format_success_message(self, result: Dict[str, Any], event_data: Dict[str, Any]) -> str:
         """Format success message for create operation."""
@@ -278,17 +291,42 @@ class CreateOperation(BaseOperation):
                         "message": "No pending duplicate operation found."
                     }
                 
-                # CRITICAL FIX: Don't clear conversation data immediately - process first
-                # Process the events that were waiting for confirmation
-                events_to_create = pending_data.get("events_to_create", [])
+                # CRITICAL FIX: Process both duplicate and non-duplicate events
+                # Problem: Mixed requests (some duplicate, some not) forgot non-duplicate events
+                # Solution: Process duplicates first, then continue with non-duplicates
                 
-                # Process the events
+                events_to_create = pending_data.get("events_to_create", [])
+                non_duplicate_events = pending_data.get("non_duplicate_events", [])
+                
+                logger.info(f"🔄 CONFIRMATION: Processing {len(events_to_create)} duplicate events, then {len(non_duplicate_events)} non-duplicates")
+                
+                # Process the duplicate events first
                 if len(events_to_create) == 1:
                     result = await self.create_single_event(chat_id, events_to_create[0])
                 else:
                     result = await self.create_batch_events(chat_id, events_to_create)
                 
-                # Only clear pending data AFTER successful processing
+                # CRITICAL FIX: After processing duplicates, process non-duplicate events
+                if result.get("success") and non_duplicate_events:
+                    logger.info(f"🔄 CONTINUATION: Now processing {len(non_duplicate_events)} non-duplicate events")
+                    
+                    # Process non-duplicate events
+                    if len(non_duplicate_events) == 1:
+                        non_dup_result = await self.create_single_event(chat_id, non_duplicate_events[0])
+                    else:
+                        non_dup_result = await self.create_batch_events(chat_id, non_duplicate_events)
+                    
+                    # Combine results
+                    if non_dup_result.get("success"):
+                        combined_message = result.get("message", "") + "\n\n" + non_dup_result.get("message", "")
+                        result["message"] = combined_message
+                        logger.info(f"🔄 COMPLETION: Successfully processed both duplicate and non-duplicate events")
+                    else:
+                        # Partial success - duplicates worked, non-duplicates failed
+                        result["message"] += f"\n\n⚠️ Failed to create {len(non_duplicate_events)} additional events: {non_dup_result.get('message', 'Unknown error')}"
+                        logger.warning(f"🔄 PARTIAL: Duplicates succeeded, non-duplicates failed")
+                
+                # Only clear pending data AFTER processing everything
                 if result.get("success"):
                     self.set_conversation_data(chat_id, "pending_duplicates", None)
                 

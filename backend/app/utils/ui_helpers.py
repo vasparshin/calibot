@@ -382,8 +382,21 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
             else:
                 end_time = event.get('end_time', '')
             
-            # Get proper calendar name from existing event
-            calendar_name = get_calendar_display_name(event.get('calendar_id', event.get('calendar_name', 'primary')))
+            # CRITICAL FIX: Get proper calendar name - use same logic as multi-event summaries
+            # Problem: Calendar IDs were being confused with calendar names, showing hash IDs
+            # Solution: Use MessageFormatter logic for consistent calendar naming
+            calendar_id = event.get('calendar_id', event.get('calendar_name', 'primary'))
+            calendar_name = get_calendar_display_name(calendar_id)
+            
+            # Additional fallback: if calendar_name is still a hash-like ID, clean it up
+            if calendar_name and len(calendar_name) > 20 and '@' in calendar_name:
+                # This is likely a calendar ID, not a display name - extract meaningful part
+                if 'group' in calendar_name.lower():
+                    calendar_name = 'Group Calendar'
+                elif 'primary' in calendar_name.lower():
+                    calendar_name = 'Primary Calendar'
+                else:
+                    calendar_name = 'Shared Calendar'
         else:
             # Direct event structure (fallback)
             event = duplicate_item
@@ -417,7 +430,19 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
             else:
                 end_time = event.get('end_time', '')
             
-            calendar_name = get_calendar_display_name(event.get('calendar_id', 'primary'))
+            # CRITICAL FIX: Get proper calendar name - use same logic as multi-event summaries
+            calendar_id = event.get('calendar_id', event.get('calendar_name', 'primary'))
+            calendar_name = get_calendar_display_name(calendar_id)
+            
+            # Additional fallback: if calendar_name is still a hash-like ID, clean it up
+            if calendar_name and len(calendar_name) > 20 and '@' in calendar_name:
+                # This is likely a calendar ID, not a display name - extract meaningful part
+                if 'group' in calendar_name.lower():
+                    calendar_name = 'Group Calendar'
+                elif 'primary' in calendar_name.lower():
+                    calendar_name = 'Primary Calendar'
+                else:
+                    calendar_name = 'Shared Calendar'
         
         # Format time and date
         if start_time:

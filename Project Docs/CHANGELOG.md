@@ -2,6 +2,77 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.259] - 2025-09-03
+
+### 🚨 **COMPREHENSIVE BUG FIXES - DUPLICATE MESSAGES, STALE BUTTONS, CALENDAR NAMING & MIXED EVENT PROCESSING**
+
+**Fixed five critical bugs affecting duplicate event processing, button behavior, and mixed event scenarios**
+
+#### **BUG-057: Duplicate Message Reply Bug Returned - RESOLVED**
+- **Problem**: Duplicate messages being sent again - operations sending messages + routes.py sending same message
+- **Root Cause**: Previous fix from v0.1.246 was partially broken - routes.py was sending messages that operations already sent
+- **Evidence**: Render logs show same message twice: `"Bot sending to chat -4627994150: Found 2 potential duplicate event(s)"` and follow-up message
+- **Fix Applied**: 
+  - **calibot/backend/app/api/routes.py**: Removed duplicate message sending in `requires_user_action` branch
+  - Operations handle their own messaging, routes.py only adds to conversation state for undo functionality
+  - Added detailed logging to track message flow
+- **Result**: ✅ Eliminated duplicate responses for all user action operations (duplicate confirmations, multi-event operations)
+
+#### **BUG-058: Stale Buttons Not Disappearing When User Sends New Message - RESOLVED**
+- **Problem**: Old buttons remained active when user sent new message instead of pressing buttons ("going back in time")
+- **Root Cause**: Cleanup function existed but wasn't comprehensive enough to clear all operation states
+- **Evidence**: Users could press old buttons after sending new messages, causing workflow confusion
+- **Fix Applied**: 
+  - **calibot/backend/app/api/routes.py**: Enhanced `_cleanup_stale_keyboards()` with comprehensive state clearing
+  - Added clearing of pending confirmations, temp operations, and all button-related states
+  - Made cleanup mandatory and comprehensive to prevent "going back in time"
+- **Result**: ✅ ALL old buttons become inactive when user sends new message, preventing workflow confusion
+
+#### **BUG-059: Calendar IDs Confused with Calendar Names in Duplicate Processing - RESOLVED**
+- **Problem**: Duplicate event summaries showing hash IDs like "70977Fb62227E6304Ce6060D51E99Ae977Ee37B6F91D63E19Ef164F8327F85F0@Group..Google.Com" instead of proper names
+- **Root Cause**: Calendar ID vs calendar name confusion in duplicate formatting logic
+- **Evidence**: Render logs show proper hyperlinks but calendar names as technical IDs
+- **Fix Applied**: 
+  - **calibot/backend/app/utils/ui_helpers.py**: Enhanced calendar name resolution with fallback logic
+  - Added hash ID detection and conversion to readable names (Group Calendar, Primary Calendar, etc.)
+  - Used same logic as multi-event summaries for consistency
+- **Result**: ✅ Duplicate confirmations now show proper calendar names instead of technical IDs
+
+#### **BUG-060: One-by-One Duplicate Processing Only Showing Last Event in Summary - RESOLVED**
+- **Problem**: After processing multiple duplicate events one-by-one, only the last created event appeared in final summary
+- **Root Cause**: `_process_single_event` for CREATE operations not returning `updated_event` data for queue storage
+- **Evidence**: Queue completion showed generic messages instead of detailed event summaries
+- **Fix Applied**: 
+  - **calibot/backend/app/services/event_queue_handler.py**: Enhanced `_process_single_event` to return complete `updated_event` data
+  - Queue now stores all processed results for comprehensive summary generation
+  - Fixed summary logic to show ALL created events, not just the last one
+- **Result**: ✅ One-by-one duplicate processing now shows complete summary with ALL events created
+
+#### **BUG-061: Mixed Duplicate/Non-Duplicate Event Processing Not Handling Both Types - RESOLVED**
+- **Problem**: When user requests multiple events where some are duplicates and some are not, non-duplicate events were forgotten after duplicate processing
+- **Root Cause**: Duplicate detection processed ALL duplicates but didn't continue with remaining non-duplicate events
+- **Evidence**: User creates 3 events, 2 are duplicates - after handling duplicates, 3rd event was never processed
+- **Fix Applied**: 
+  - **calibot/backend/app/operations/create_operation.py**: Implemented mixed event processing logic
+  - Separates duplicate and non-duplicate events during duplicate checking
+  - Stores both types separately for sequential processing
+  - After duplicate confirmation, processes duplicates first then continues with non-duplicates
+  - Combines results into single comprehensive response
+- **Result**: ✅ Mixed requests now handle duplicates AND non-duplicates properly without forgetting any events
+
+#### **Technical Implementation Details**
+- **Message Flow**: Operations send messages, routes.py only handles conversation state for undo
+- **Button Cleanup**: Comprehensive state clearing prevents all old button interactions
+- **Calendar Naming**: Consistent hash ID detection and conversion to readable names
+- **Summary Generation**: Complete event tracking for accurate one-by-one summaries
+- **Mixed Processing**: Sequential handling of duplicates then non-duplicates with combined results
+
+#### **Impact**
+- **User Experience**: No more duplicate messages, buttons disappear properly, clear calendar names
+- **Functionality**: Complete duplicate event workflow with proper mixed event handling
+- **Reliability**: Comprehensive button cleanup prevents workflow confusion
+- **Data Integrity**: All events processed correctly regardless of duplicate status
+
 ## [0.1.258] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - MESSAGEFORMATTER IMPORT AND CALENDAR NAMING**

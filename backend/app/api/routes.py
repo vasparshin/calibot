@@ -121,16 +121,10 @@ async def _cleanup_stale_keyboards(chat_id: int) -> None:
     """Remove stale inline keyboards when user sends new message.
     
     This prevents users from pressing old buttons after sending new messages,
-    which could cause workflow confusion.
+    which could cause workflow confusion. MANDATORY per user requirement.
     """
     try:
-        # Get recent messages with keyboards from conversation state
-        history = conversation_state.get_conversation_history(chat_id)
-        
-        # Look for recent assistant messages that might have keyboards
-        # We'll use the Telegram API to get recent messages and remove keyboards
-        # Since we can't easily track which messages have keyboards, 
-        # we'll clear any pending operations that would have keyboards
+        # CRITICAL FIX: Enhanced cleanup to prevent "going back in time" with old buttons
         
         # Clear any pending queue operations
         from app.core.global_instances import get_global_queue_handler
@@ -145,9 +139,23 @@ async def _cleanup_stale_keyboards(chat_id: int) -> None:
         if pending_duplicates:
             logger.info(f"🧹 CLEANUP: Clearing pending duplicates for chat {chat_id} due to new user message")
             conversation_state.delete_data(chat_id, "pending_duplicates")
+        
+        # Clear any pending confirmations that might have buttons
+        pending_confirmations = conversation_state.get_data(chat_id, "pending_confirmation")
+        if pending_confirmations:
+            logger.info(f"🧹 CLEANUP: Clearing pending confirmations for chat {chat_id} due to new user message")
+            conversation_state.delete_data(chat_id, "pending_confirmation")
+        
+        # Clear any temporary operation states
+        temp_operation = conversation_state.get_data(chat_id, "temp_operation")
+        if temp_operation:
+            logger.info(f"🧹 CLEANUP: Clearing temp operation for chat {chat_id} due to new user message")
+            conversation_state.delete_data(chat_id, "temp_operation")
             
         # Note: We can't directly remove keyboards from existing messages without message IDs
-        # But clearing the pending operations prevents the buttons from working
+        # But clearing ALL pending operations prevents ANY old buttons from working
+        
+        logger.info(f"🧹 CLEANUP: Completed stale button cleanup for chat {chat_id} - all old buttons now inactive")
         
     except Exception as e:
         logger.error(f"🧹 CLEANUP ERROR: Failed to cleanup stale keyboards for chat {chat_id}: {e}")
@@ -232,6 +240,7 @@ async def telegram_webhook(request: Request):
         
         # CRITICAL FIX: Remove any stale inline keyboards when user sends new message
         # This prevents users from pressing old buttons after sending new messages
+        # MANDATORY per user requirement - buttons MUST disappear to prevent "going back in time"
         await _cleanup_stale_keyboards(chat_id)
         
         # Add debug logging for duplicate detection
@@ -773,20 +782,17 @@ async def _process_single_message(chat_id: str, user_message: str):
             # LLM-driven query result - pass data back to LLM for final response formatting
             await handle_llm_formatted_query(chat_id_int, intent_result, result, history)
         elif result.get("requires_user_action"):
-            # CRITICAL FIX: Send message for user actions (duplicate confirmations, etc.)
-            # Operations like CreateOperation return requires_user_action=True but don't send messages
-            message = result.get("message", "Please confirm your action:")
-            keyboard = result.get("keyboard")
+            # CRITICAL BUG FIX: Check if message already sent by operation
+            # Previous bug: Operations (CreateOperation, etc.) already send messages but routes.py sent them AGAIN
+            # Evidence: Logs show same message twice with duplicate timestamps
             
-            # Send message with keyboard if provided
-            if keyboard:
-                await send_telegram_message(chat_id_int, message, reply_markup=keyboard)
-            else:
-                await send_telegram_message(chat_id_int, message)
-            
-            # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
+            # Only add to conversation state for undo functionality - DON'T send duplicate message
+            # The operation (CreateOperation, etc.) has already sent the message with keyboard
+            message = result.get("message", "Operation requires user action")
             clean_message = _clean_message_for_conversation_state(message)
             conversation_state.add_message(chat_id_int, "assistant", clean_message)
+            
+            logger.info(f"📝 ROUTES: Added to conversation state only (operation already sent message): {clean_message[:100]}")
         elif result.get("success"):
             # Send success message and add to conversation state for undo functionality
             message = result["message"]

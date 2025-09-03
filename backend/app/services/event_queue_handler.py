@@ -899,21 +899,28 @@ class EventQueueHandler:
                     })
                     
                     if result.get('success'):
-                        # Use proper event formatting for success message
+                        # CRITICAL FIX: Store complete event data for summary generation
+                        # Problem: One-by-one processing only showed last event in summary
+                        # Solution: Return updated_event data for queue storage
                         event_name = event.get('event_name', 'Untitled Event')
-                        formatted_event = {
+                        
+                        # Build complete event data for summary storage
+                        updated_event = {
                             'summary': event_name,
                             'start': event.get('start_time', ''),
                             'end': event.get('end_time', ''),
                             'calendar_name': result.get('calendar_used', 'Calendar'),
                             'id': result.get('event_id', ''),
-                            'htmlLink': result.get('event_link', '')
+                            'htmlLink': result.get('event_link', ''),
+                            'event_id': result.get('event_id', '')
                         }
-                        success_display = MessageFormatter.format_single_event_display(formatted_event, include_hyperlink=True)
+                        
+                        success_display = MessageFormatter.format_single_event_display(updated_event, include_hyperlink=True)
                         return {
                             "success": True,
                             "message": f"Successfully created:\n{success_display}",
-                            "event_id": result.get('event_id', 'unknown')
+                            "event_id": result.get('event_id', 'unknown'),
+                            "updated_event": updated_event  # CRITICAL: Include for summary generation
                         }
                     else:
                         return {
