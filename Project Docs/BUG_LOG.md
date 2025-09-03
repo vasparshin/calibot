@@ -13,6 +13,32 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ## ACTIVE BUGS
 
+### BUG-052 - Excessive Calendar API Calls and Verbose Logging
+- **Status**: 🔴 **ACTIVE**
+- **Description**: Calendar service is making unnecessary API calls to check available calendars on every operation, resulting in verbose logging and performance issues
+- **User Report**: "these logs are way too long and unnecessary and also point out an issue in the logic, it shouldn't be necessary to call API to check calendars every time, maybe just once the service has restarted and every hr following that, then store in cache and just reference the cache when needed"
+- **Evidence**: Backend logs show repeated calendar API calls:
+  ```
+  WARNING:app.services.google_calendar:🔍 CALENDAR QUERY: User specified calendar '' not found, searching all
+  INFO:app.services.google_calendar:🔍 CALENDAR QUERY: Searching ALL available calendars
+  INFO:app.services.google_calendar:Using existing service instance.
+  INFO:app.services.google_calendar:🔍 CALENDAR QUERY: Found 7 calendars from API
+  INFO:app.services.google_calendar:🔍 CALENDAR QUERY: Calendar IDs: ['en.russian#holiday@group.v.calendar.google.com', 'en-gb.french#holiday@group.v.calendar.google.com', '078fcf72a779cba761164b6f231e9d1e3aac536f1aabbec2a636c5eaba216ab9@group.calendar.google.com', '1c3d431671a62702aa3e5dc9b93f6b85253a402aaff68fb45431023eccb34a2a@group.calendar.google.com', 'f7061a760a233c897cdaf34ddd5a4a7a130adaba1ee2369ae59c3e698c96fca1@group.calendar.google.com', 'zoutna@gmail.com', '70977fb62227e6304ce6060d51e99ae977ee37b6f91d63e19ef164f8327f85f0@group.calendar.google.com']
+  INFO:app.agent.calendar_agent:Updated calendar cache with 7 calendars
+  INFO:app.services.google_calendar:🔍 CALENDAR QUERY: Final search scope - 7 calendars: ['en.russian#holiday@group.v.calendar.google.com', 'en-gb.french#holiday@group.v.calendar.google.com', '078fcf72a779cba761164b6f231e9d1e3aac536f1aabbec2a636c5eaba216ab9@group.calendar.google.com', '1c3d431671a62702aa3e5dc9b93f6b85253a402aaff68fb45431023eccb34a2a@group.calendar.google.com', 'f7061a760a233c897cdaf34ddd5a4a7a130adaba1ee2369ae59c3e698c96fca1@group.calendar.google.com', 'zoutna@gmail.com', '70977fb62227e6304ce6060d51e99ae977ee37b6f91d63e19ef164f8327f85f0@group.calendar.google.com']
+  INFO:app.services.google_calendar:🔍 CALENDAR QUERY: Calendar cache contains: ['en.russian#holiday@group.v.calendar.google.com', 'en-gb.french#holiday@group.v.calendar.google.com', '078fcf72a779cba761164b6f231e9d1e3aac536f1aabbec2a636c5eaba216ab9@group.calendar.google.com', '1c3d431671a62702aa3e5dc9b93f6b85253a402aaff68fb45431023eccb34a2a@group.calendar.google.com', 'f7061a760a233c897cdaf34ddd5a4a7a130adaba1ee2369ae59c3e698c96fca1@group.calendar.google.com', 'zoutna@gmail.com', '70977fb62227e6304ce6060d51e99ae977ee37b6f91d63e19ef164f8327f85f0@group.calendar.google.com']
+  ```
+- **Root Cause**: Calendar service is calling Google Calendar API to fetch available calendars on every operation instead of using cached data
+- **Performance Impact**: Unnecessary API calls slow down operations and increase Google API quota usage
+- **Logging Impact**: Verbose calendar logging clutters logs and makes debugging harder
+- **Proposed Fix**: Implement calendar caching with TTL (Time To Live):
+  - Cache calendar list on service startup
+  - Refresh cache every hour (configurable TTL)
+  - Use cached data for all operations unless cache is expired
+  - Reduce logging verbosity for calendar operations
+  - Add cache hit/miss logging instead of full calendar list logging
+- **Testing Required**: Verify calendar operations work with cached data and reduced API calls
+
 ### BUG-042 - Undo Feature Not Working
 - **Status**: 🔴 **ACTIVE**  
 - **Description**: Undo functionality is not working - LLM classifies "undo" as irrelevant and sends to small talk instead of undo operation

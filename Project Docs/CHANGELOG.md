@@ -2,6 +2,33 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.256] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - ONE-BY-ONE DUPLICATE PROCESSING METHOD SIGNATURE**
+
+**Fixed critical bug where one-by-one duplicate processing was failing due to incorrect method call**
+
+#### **BUG-052: One-by-One Duplicate Processing Method Signature Error - RESOLVED**
+- **Problem**: "Error processing confirm_one_create: EventQueueHandler.create_event_queue() got an unexpected keyword argument 'one_by_one'"
+- **Root Cause**: Routes.py was calling `create_event_queue()` with wrong parameters - it was passing a list and keyword arguments to a method that only accepts `chat_id` and `intent_data`
+- **Evidence**: Method signature mismatch between routes.py call and EventQueueHandler implementation
+- **Fix Applied**: 
+  - **calibot/backend/app/api/routes.py**: Changed from `create_event_queue()` to `create_event_queue_from_list()` for proper list handling
+  - Removed incorrect parameters: `"create"` and `one_by_one=True`
+  - Used correct method signature: `create_event_queue_from_list(chat_id, events_list)`
+- **Result**: ✅ One-by-one duplicate processing now works with correct method signature
+
+#### **Technical Implementation Details**
+- **Method Selection**: `create_event_queue_from_list()` is designed for list-based operations
+- **Parameter Handling**: Proper handling of `events_to_create` list parameter
+- **Queue Creation**: Correct queue initialization for one-by-one processing
+- **Backward Compatibility**: All existing functionality preserved
+
+#### **Impact**
+- **User Experience**: One-by-one duplicate processing workflow is now functional
+- **Functionality**: Complete duplicate event handling system working
+- **Reliability**: Proper method signatures prevent runtime errors
+
 ## [0.1.255] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - ONE-BY-ONE DUPLICATE PROCESSING**
