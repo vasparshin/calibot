@@ -711,8 +711,9 @@ async def _process_single_message(chat_id: str, user_message: str):
 
         # Check relevancy first for small talk handling
         history = conversation_state.get_conversation_history(chat_id_int)
-        logger.info(f"🔍 RELEVANCY DEBUG: About to check relevancy for message: '{user_message}'")
-        logger.info(f"🔍 RELEVANCY DEBUG: Conversation history length: {len(history)} messages")
+        logger.info(f"🔍 COMBINED DEBUG: About to extract relevancy and intent for message: '{user_message}'")
+        logger.info(f"🔍 COMBINED DEBUG: Using prompt: COMBINED_EXTRACTION_PROMPT")
+        logger.info(f"🔍 COMBINED DEBUG: Conversation history length: {len(history)} messages")
         
         # Log the actual conversation history content to debug formatting issues
         for i, msg in enumerate(history[-3:]):  # Last 3 messages only
@@ -721,14 +722,14 @@ async def _process_single_message(chat_id: str, user_message: str):
                 logger.warning(f"🔍 CONVERSATION WARNING: Message {i} is very long ({len(str(msg.get('content', '')))} chars) - potential corruption source")
         
         try:
-            relevancy_result = await ai_agent.check_relevancy(user_message, history)
-            logger.info(f"🔍 RELEVANCY DEBUG: Relevancy check completed successfully: {relevancy_result}")
-        except Exception as relevancy_error:
-            logger.error(f"🔍 RELEVANCY DEBUG: Relevancy check failed: {relevancy_error}")
-            # If relevancy check fails, assume it's relevant and continue to intent extraction
-            relevancy_result = {"relevant": True}
+            combined_result = await ai_agent.extract_relevancy_and_intent(user_message, history)
+            logger.info(f"🔍 COMBINED DEBUG: Combined extraction completed: {combined_result}")
+        except Exception as combined_error:
+            logger.error(f"🔍 COMBINED DEBUG: Combined extraction failed: {combined_error}")
+            # If combined extraction fails, assume it's relevant and continue with fallback
+            combined_result = {"relevant": True, "intent": "query", "event_name": "", "date": "today", "confirmation_needed": False}
         
-        if not relevancy_result.get("relevant", True):
+        if not combined_result.get("relevant", True):
             # Handle small talk or irrelevant messages
             logger.info(f"🔍 SMALL_TALK DEBUG: Message marked as irrelevant, getting small talk response")
             from app.services.ai_service import get_small_talk_response
@@ -751,32 +752,9 @@ async def _process_single_message(chat_id: str, user_message: str):
         # CRITICAL: Clean up conversation state if it might be corrupted
         _cleanup_conversation_state_if_corrupted(chat_id_int, conversation_state)
 
-        # Extract intent using NLP agent for calendar-related messages
-        logger.info(f"🔍 INTENT DEBUG: About to extract intent for message: '{user_message}'")
-        logger.info(f"🔍 INTENT DEBUG: Using conversation history with {len(history)} messages")
-        
-        try:
-            intent_result = await ai_agent.extract_intent(user_message, history)
-            logger.info(f"🔍 INTENT DEBUG: Intent extraction completed successfully: {intent_result}")
-        except Exception as intent_error:
-            error_str = str(intent_error)
-            if "'content'" in error_str:
-                # CRITICAL: This is the LLM response structure corruption issue
-                logger.error(f"🧹 Detected LLM response structure corruption for chat {chat_id_int}: {intent_error}")
-                # Emergency conversation state cleanup
-                try:
-                    conversation_state.conversations[chat_id_int] = []
-                    logger.warning(f"🧹 Emergency reset conversation state for chat {chat_id_int} due to LLM corruption")
-                except:
-                    pass
-                
-                await send_telegram_message(chat_id_int, "I'm having trouble processing your request right now. Let's start fresh - what can I help you with?")
-                return {"status": "ok"}
-            else:
-                # Other intent extraction errors
-                logger.error(f"Intent extraction error for chat {chat_id_int}: {intent_error}")
-                await send_telegram_message(chat_id_int, "Sorry, I had trouble understanding your request. Could you please try again?")
-                return {"status": "ok"}
+        # Extract intent from combined result
+        intent_result = combined_result
+        logger.info(f"🔍 INTENT DEBUG: Intent extracted from combined result: {intent_result}")
 
         if not intent_result or not isinstance(intent_result, dict):
             await send_telegram_message(chat_id_int, "Sorry, I had trouble understanding your request. Could you please try again?")

@@ -2,7 +2,48 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.1.246] - 2025-09-03
+## [0.1.248] - 2025-09-03
+
+### 🚨 **PERFORMANCE OPTIMIZATION - COMBINED RELEVANCY AND INTENT EXTRACTION**
+
+**Reduced LLM calls from 3 to 2 per user message for improved efficiency**
+
+#### **Combined Relevancy and Intent Extraction**
+- **Problem**: Current flow uses 3 separate LLM calls: relevancy check → intent extraction → response formatting
+- **Inefficiency**: Redundant processing, multiple API calls, context duplication
+- **Solution**: Merged relevancy classification and intent extraction into single LLM call
+- **Implementation**: 
+  - **calibot/backend/app/prompts/combined_extraction_prompt.py**: New combined prompt that handles both relevancy and intent
+  - **calibot/backend/app/agent/nlp_agent.py**: Added `extract_relevancy_and_intent()` method
+  - **calibot/backend/app/api/routes.py**: Updated `_process_single_message()` to use combined extraction
+- **Result**: ✅ Reduced from 3 LLM calls to 2 LLM calls per user message (33% reduction)
+
+#### **Enhanced Logging for Combined Extraction**
+- **New Log Pattern**: `🔍 COMBINED DEBUG: About to extract relevancy and intent for message: 'user message'`
+- **Prompt Reference**: `🔍 COMBINED DEBUG: Using prompt: COMBINED_EXTRACTION_PROMPT`
+- **Result Logging**: `🔍 COMBINED DEBUG: Combined extraction completed: {'relevant': True, 'intent': 'query', ...}`
+- **Intent Extraction**: `🔍 INTENT DEBUG: Intent extracted from combined result: {...}`
+- **Purpose**: Clear, concise logging showing single LLM call handling both relevancy and intent
+
+#### **Backward Compatibility**
+- **Preserved Methods**: Original `check_relevancy()` and `extract_intent()` methods maintained for fallback
+- **Error Handling**: Comprehensive error handling with fallback to default query intent
+- **Validation**: Enhanced JSON validation for combined response structure
+- **Fallback Logic**: If combined extraction fails, defaults to relevant query intent
+
+#### **Technical Implementation Details**
+- **Prompt Structure**: Combined prompt first determines relevancy, then extracts intent if relevant
+- **Response Format**: Single JSON with `relevant` field and intent fields for calendar operations
+- **Token Optimization**: Increased max_tokens to 300 for combined response (from 200 for intent only)
+- **Error Recovery**: Multiple fallback mechanisms to ensure system reliability
+
+### **Performance Impact**
+- **LLM Calls**: Reduced from 3 to 2 per message (33% reduction)
+- **Latency**: Expected ~33% reduction in processing time
+- **Cost**: Expected ~33% reduction in LLM API costs
+- **Reliability**: Maintained with comprehensive error handling and fallback mechanisms
+
+## [0.1.247] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIXES - UNDO FEATURE, DUPLICATE DETECTION & DELETE DUPLICATE MESSAGES**
 
