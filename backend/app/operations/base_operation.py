@@ -99,13 +99,30 @@ class BaseOperation(BaseHandler):
 
             if duplicates_found:
                 logger.info(f"Found {len(duplicates_found)} potential duplicates")
-                message, keyboard = self.response_manager.format_duplicate_confirmation(duplicates_found)
-                return {
-                    "requires_confirmation": True,
-                    "message": message,
-                    "keyboard": keyboard,
-                    "duplicates": duplicates_found
-                }
+                
+                # CRITICAL FIX: Validate duplicates_found structure before passing to formatter
+                valid_duplicates = []
+                for duplicate in duplicates_found:
+                    if isinstance(duplicate, dict) and all(key in duplicate for key in ["new_event", "existing_event", "index"]):
+                        valid_duplicates.append(duplicate)
+                    else:
+                        logger.warning(f"Invalid duplicate structure: {duplicate}, type: {type(duplicate)}")
+                
+                if valid_duplicates:
+                    try:
+                        message, keyboard = self.response_manager.format_duplicate_confirmation(valid_duplicates)
+                        return {
+                            "requires_confirmation": True,
+                            "message": message,
+                            "keyboard": keyboard,
+                            "duplicates": valid_duplicates
+                        }
+                    except Exception as e:
+                        logger.error(f"Error formatting duplicate confirmation: {e}")
+                        # Fall through to create events anyway
+                else:
+                    logger.warning("No valid duplicates found after validation")
+                    # Fall through to create events anyway
 
             return None
 

@@ -94,6 +94,28 @@ def _clean_message_for_conversation_state(message: str) -> str:
     return cleaned
 
 
+async def _cache_operation_for_undo(chat_id: int, intent_data: Dict[str, Any], operation_result: Dict[str, Any]) -> None:
+    """Cache the completed operation for undo functionality."""
+    try:
+        operation_type = intent_data.get("intent", "unknown")
+        
+        # Only cache operations that can be undone
+        if operation_type in ["create", "delete", "update"]:
+            cache_data = {
+                "operation_type": operation_type,
+                "intent_data": intent_data.copy(),
+                "operation_result": operation_result.copy(),
+                "timestamp": time.time(),
+                "chat_id": chat_id
+            }
+            
+            # Store in conversation state under special key
+            conversation_state.set_data(chat_id, "last_operation", cache_data)
+            logger.info(f"🔄 UNDO CACHE: Stored {operation_type} operation for chat {chat_id}")
+        
+    except Exception as e:
+        logger.warning(f"Failed to cache operation for undo: {e}")
+
 async def _cleanup_stale_keyboards(chat_id: int) -> None:
     """Remove stale inline keyboards when user sends new message.
     
@@ -774,17 +796,10 @@ async def _process_single_message(chat_id: str, user_message: str):
             # LLM-driven query result - pass data back to LLM for final response formatting
             await handle_llm_formatted_query(chat_id_int, intent_result, result, history)
         elif result.get("requires_user_action"):
-            # CRITICAL FIX: Always send messages for requires_user_action
-            # This includes duplicate confirmations and other user action requests
+            # CRITICAL FIX: Don't send message if operation already sent it
+            # Operations like DeleteOperation, UpdateOperation, and CreateOperation (duplicates) already send messages via self.send_message()
+            # Only add to conversation state for undo functionality
             message = result.get("message", "Please confirm your action:")
-            keyboard = result.get("keyboard")
-            
-            # Send message with keyboard if present
-            if keyboard:
-                await send_telegram_message(chat_id_int, message, reply_markup=keyboard)
-            else:
-                await send_telegram_message(chat_id_int, message)
-            
             # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
             clean_message = _clean_message_for_conversation_state(message)
             conversation_state.add_message(chat_id_int, "assistant", clean_message)
@@ -795,6 +810,9 @@ async def _process_single_message(chat_id: str, user_message: str):
             # CRITICAL FIX: Clean message before adding to conversation state to prevent LLM corruption
             clean_message = _clean_message_for_conversation_state(message)
             conversation_state.add_message(chat_id_int, "assistant", clean_message)  # CRITICAL: Store for undo
+            
+            # CRITICAL FIX: Cache operation for undo functionality
+            await _cache_operation_for_undo(chat_id_int, intent_result, result)
         else:
             # Send error message and add to conversation state
             error_msg = result.get("message", "An error occurred while processing your request.")

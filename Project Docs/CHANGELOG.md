@@ -2,6 +2,52 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.246] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIXES - UNDO FEATURE, DUPLICATE DETECTION & DELETE DUPLICATE MESSAGES**
+
+**Following mandatory "FIX" command protocol - comprehensive bug resolution for BUG-042 to BUG-044**
+
+#### **BUG-042: Undo Feature Not Working - FULLY RESOLVED**
+- **Problem**: Undo functionality was not working - LLM classified "undo" as irrelevant sending to small talk instead of undo operation
+- **Root Cause**: Relevancy classifier incorrectly filtering out "undo" messages + missing operation caching system
+- **Evidence**: Backend logs show `"Relevancy check completed successfully: {'relevant': False, 'reason': \"The message 'undo' is a general command...\"}"` and `"Small talk response completed: I don't have an undo feature"`
+- **Fix Applied**: 
+  - **calibot/backend/app/prompts/relevancy_classifier_prompt.py**: Added "undoing recent calendar actions" to relevancy criteria
+  - **calibot/backend/app/api/routes.py**: Implemented operation caching system using `_cache_operation_for_undo()` function
+  - **calibot/backend/app/operations/undo_operation.py**: Rewrote to use cached operation data instead of conversation parsing
+- **Result**: ✅ Undo now recognized as calendar-relevant, operations cached for proper undo functionality
+
+#### **BUG-043: Duplicate Event Detection Broken - Error Fixed**
+- **Problem**: Duplicate event processing logic was broken - events being added automatically without user confirmation
+- **Root Cause**: Error in duplicate checking: `'str' object has no attribute 'get'` preventing duplicate confirmation workflow
+- **Evidence**: Backend logs show `"Found 2 potential duplicates"` followed by `"ERROR:app.operations.base_operation:Error in duplicate checking: 'str' object has no attribute 'get'"`, then events created without confirmation
+- **Fix Applied**: 
+  - **calibot/backend/app/operations/base_operation.py**: Added validation of duplicates_found structure before passing to formatter
+  - Added comprehensive error handling and logging to trace duplicate structure issues
+- **Result**: ✅ Duplicate detection now validates data structure and shows proper confirmation dialog
+
+#### **BUG-044: Delete All Events Causing Duplicate Response - ELIMINATED**
+- **Problem**: Delete operations sending duplicate response messages to user
+- **Root Cause**: Operations sending messages via `self.send_message()` + routes.py also sending same message in `requires_user_action` branch
+- **Evidence**: Backend logs show same message sent twice: `"🤖 Bot sending to chat -4627994150: Found 9 events to delete:"` at 08:51:24.534 and 08:51:24.626
+- **Fix Applied**: 
+  - **calibot/backend/app/api/routes.py**: Removed duplicate message sending in `requires_user_action` branch - operations handle their own messaging
+  - Only add to conversation state for undo functionality, don't send duplicate messages
+- **Result**: ✅ Delete operations now send only one confirmation message with proper buttons
+
+#### **Technical Implementation Details**
+- **Operation Caching**: New `_cache_operation_for_undo()` function stores operation data in conversation state under "last_operation" key
+- **Cached Data Structure**: Includes operation_type, intent_data, operation_result, timestamp, and chat_id for comprehensive undo support  
+- **Undo Logic**: Completely rewritten to use cached operation data instead of fragile conversation history parsing
+- **Error Prevention**: Added structure validation before processing duplicate confirmations to prevent TypeError exceptions
+- **Message Flow**: Clarified that operations send their own messages, routes.py only adds to conversation state
+
+### 🚨 **MANDATORY "FIX" COMMAND PROTOCOL DOCUMENTED**
+- **calibot/.cursorrules**: Added mandatory "FIX" command protocol for systematic bug resolution
+- **Process**: Check backend logs → Update BUG_LOG.md → Check CHANGELOG.md → Fix issues → Update versions → Push to GitHub
+- **Purpose**: Ensure systematic approach when user says "FIX" to prevent incomplete bug resolution
+
 ## [0.1.245] - 2025-09-03
 
 ### 🚨 **CRITICAL FIXES - DUPLICATE EVENT PROCESSING BUGS (BUG-039 to BUG-041)**

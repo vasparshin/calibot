@@ -13,6 +13,33 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ## ACTIVE BUGS
 
+### BUG-042 - Undo Feature Not Working
+- **Status**: 🔴 **ACTIVE**  
+- **Description**: Undo functionality is not working - LLM classifies "undo" as irrelevant and sends to small talk instead of undo operation
+- **User Report**: "undo feature not working. the way this should work is the agent should be able to extract 'undo' intent while the logic should store the last operation performed (delete/edit/add single or multiple events) in a cache and if the agent detects undo intent the logic should perform the opposite of the cached action"
+- **Evidence**: Backend logs show `"Relevancy check completed successfully: {'relevant': False, 'reason': \"The message 'undo' is a general command...\"}"` and `"Small talk response completed: I don't have an undo feature"`
+- **Root Cause**: Relevancy classifier incorrectly filtering out "undo" messages before intent extraction reaches UndoOperation
+- **Fix Required**: Update relevancy classifier to recognize "undo" as calendar-relevant, implement operation caching system
+- **Testing Required**: Send "undo" message after creating/editing/deleting events
+
+### BUG-043 - Duplicate Event Detection Broken - No User Confirmation  
+- **Status**: 🔴 **ACTIVE**
+- **Description**: Duplicate event processing logic is broken - events are being added automatically instead of showing duplicate confirmation to user
+- **User Report**: "adding single/multiple duplicate events processing logic is now broken for some reason - there is no notification of duplicate events being found and the events are being added automatically instead of allowing the user to decide what to do"
+- **Evidence**: Backend logs show `"Found 2 potential duplicates"` followed by `"ERROR:app.operations.base_operation:Error in duplicate checking: 'str' object has no attribute 'get'"`, then events are created successfully without user confirmation
+- **Root Cause**: Error in duplicate checking preventing proper duplicate confirmation workflow from executing
+- **Fix Required**: Fix the base_operation duplicate checking error and restore duplicate confirmation UI
+- **Testing Required**: Create duplicate events and verify confirmation dialog appears
+
+### BUG-044 - Delete All Events Causing Duplicate Response 
+- **Status**: 🔴 **ACTIVE**
+- **Description**: Delete operations are sending duplicate response messages to user 
+- **User Report**: "delete all events message is causing a duplicate response from the service - we had this bug recently and i was under impression it was fixed from previous testing but now its back"
+- **Evidence**: Backend logs show same message sent twice: `"🤖 Bot sending to chat -4627994150: Found 9 events to delete:"` appears twice in logs at 08:51:24.534 and 08:51:24.626
+- **Root Cause**: Duplicate message sending in delete operation - likely routes.py sending message that operation already sent
+- **Fix Required**: Remove duplicate message sending in delete operation workflow  
+- **Testing Required**: Delete multiple events and verify only one confirmation message appears
+
 ### BUG-039 - Duplicate Event Summary Still Missing Hyperlinks and Wrong Calendar Names
 - **Status**: 🔴 **ACTIVE**
 - **Description**: Despite BUG-035 fix, duplicate confirmation messages still show events without hyperlinks and "Default" instead of actual calendar names

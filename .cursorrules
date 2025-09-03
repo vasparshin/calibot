@@ -100,4 +100,15 @@ Use Render MCP server tools: `mcp_render_list_logs`, `mcp_render_get_metrics`, `
 3. **SYSTEMATIC APPROACH**: Identify root cause first, then targeted fix
 4. **COMPLETE TASKS**: Finish work, update todos, report results
 
+## 🚨 MANDATORY "FIX" COMMAND PROTOCOL
+
+When user says "FIX" - follow this EXACT process:
+1. **Check backend Render logs thoroughly** via MCP tools against user report
+2. **Update BUG_LOG.md** with all reported issues as 🔴 ACTIVE
+3. **Check CHANGELOG.md** for what may have caused or fixed these bugs in past
+4. **Fix the issues** with targeted code changes
+5. **Update version numbers** in both pyproject.toml and backend/app/__init__.py  
+6. **Push to GitHub** using proper git workflow commands
+7. **Verify deployment** and report completion
+
 **REMEMBER**: Always test thoroughly, update CHANGELOG.md and BUG_LOG.md, and maintain high quality standards.

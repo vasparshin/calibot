@@ -7,7 +7,8 @@ This also includes adding or modifying event details such as time, participants,
 If the message is related to scheduling events (e.g., "Schedule a meeting", "Book an appointment"),
 updating events (e.g., "Change my meeting time", "Move my event"),
 deleting events (e.g., "Cancel my meeting", "Remove this event"),
-or querying events (e.g., "What do I have tomorrow?", "Show my schedule"), then it is relevant.
+querying events (e.g., "What do I have tomorrow?", "Show my schedule"),
+or undoing recent calendar actions (e.g., "undo", "undo that", "revert", "undo last action"), then it is relevant.
 
 Otherwise, it is irrelevant. Irrelevant messages include:
 - Greetings ("Hi", "Hello", "Good morning")

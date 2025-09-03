@@ -15,43 +15,33 @@ class UndoOperation(BaseOperation):
     """Handles undo operations by analyzing recent conversation history."""
 
     async def execute(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute undo operation based on recent conversation context."""
+        """Execute undo operation based on cached operation data."""
         try:
             logger.info(f"🔧 UndoOperation: Starting undo for chat_id {chat_id}")
             
-            # Get recent conversation history to determine what to undo
-            conversation_history = self.conversation_state.get_conversation_history(chat_id)
-            logger.info(f"🔧 UndoOperation: Found {len(conversation_history)} messages in conversation history")
+            # CRITICAL FIX: Use cached operation data instead of conversation history parsing
+            cached_operation = self.conversation_state.get_data(chat_id, "last_operation")
             
-            if not conversation_history:
-                logger.warning(f"🔧 UndoOperation: No conversation history found for chat_id {chat_id}")
+            if not cached_operation:
+                logger.warning(f"🔧 UndoOperation: No cached operation found for chat_id {chat_id}")
                 return {
                     "success": False,
-                    "message": "No recent actions found to undo."
+                    "message": "No recent actions found to undo. Only operations from this session can be undone."
                 }
 
-            # Analyze recent messages to find the last operation
-            recent_operations = self._extract_recent_operations(conversation_history)
-            logger.info(f"🔧 UndoOperation: Found {len(recent_operations)} recent operations: {[op.get('type') for op in recent_operations]}")
+            operation_type = cached_operation.get("operation_type")
+            operation_result = cached_operation.get("operation_result", {})
+            intent_data = cached_operation.get("intent_data", {})
             
-            if not recent_operations:
-                logger.warning(f"🔧 UndoOperation: No recent calendar operations found in conversation history")
-                return {
-                    "success": False,
-                    "message": "No recent calendar operations found to undo."
-                }
-
-            # Get the most recent operation
-            last_operation = recent_operations[0]
-            operation_type = last_operation.get("type")
+            logger.info(f"🔧 UndoOperation: Found cached {operation_type} operation from {cached_operation.get('timestamp')}")
             logger.info(f"🔧 UndoOperation: Processing undo for operation type: {operation_type}")
             
             if operation_type == "create":
-                return await self._undo_creation(chat_id, last_operation)
+                return await self._undo_creation(chat_id, cached_operation)
             elif operation_type == "delete":
-                return await self._undo_deletion(chat_id, last_operation)
+                return await self._undo_deletion(chat_id, cached_operation)
             elif operation_type == "update":
-                return await self._undo_update(chat_id, last_operation)
+                return await self._undo_update(chat_id, cached_operation)
             else:
                 logger.warning(f"🔧 UndoOperation: Unknown operation type: {operation_type}")
                 return {
@@ -128,16 +118,55 @@ class UndoOperation(BaseOperation):
         
         return events
 
-    async def _undo_creation(self, chat_id: int, operation: Dict) -> Dict[str, Any]:
-        """Undo event creation by deleting the created events."""
+    async def _undo_creation(self, chat_id: int, cached_operation: Dict) -> Dict[str, Any]:
+        """Undo event creation by deleting the created events using cached operation data."""
         try:
-            events = operation.get("events", [])
+            operation_result = cached_operation.get("operation_result", {})
+            
+            # Extract events from the operation result
+            events = []
+            
+            # Handle different result structures
+            if "successful_events" in operation_result:
+                # Multiple events structure
+                for event_data in operation_result["successful_events"]:
+                    calendar_response = event_data.get("calendar_response", {})
+                    event_id = calendar_response.get("event_id")
+                    formatted_text = event_data.get("formatted", "")
+                    
+                    # Extract event name from formatted text
+                    import re
+                    name_match = re.search(r'\[([^\]]+)\]', formatted_text)
+                    event_name = name_match.group(1) if name_match else "Event"
+                    
+                    if event_id:
+                        events.append({
+                            "id": event_id,
+                            "name": event_name,
+                            "calendar_id": calendar_response.get("calendar_id", "primary")
+                        })
+            elif "calendar_response" in operation_result:
+                # Single event structure
+                calendar_response = operation_result["calendar_response"]
+                event_data = operation_result.get("event_data", {})
+                event_id = calendar_response.get("event_id")
+                event_name = event_data.get("event_name", "Event")
+                
+                if event_id:
+                    events.append({
+                        "id": event_id,
+                        "name": event_name,
+                        "calendar_id": calendar_response.get("calendar_id", "primary")
+                    })
             
             if not events:
+                logger.warning(f"🔧 UndoOperation: No events found in cached operation result: {operation_result}")
                 return {
                     "success": False,
                     "message": "No events found to undo from creation operation."
                 }
+
+            logger.info(f"🔧 UndoOperation: Found {len(events)} events to undo: {[e['name'] for e in events]}")
 
             # Delete each created event
             successful_deletions = 0
@@ -148,7 +177,7 @@ class UndoOperation(BaseOperation):
                 if event.get("id"):
                     try:
                         # Try to delete the event
-                        delete_result = self.calendar_service.delete_event(event["id"])
+                        delete_result = await self.calendar_service.delete_event(event["id"], event.get("calendar_id", "primary"))
                         
                         if delete_result.get("success"):
                             successful_deletions += 1
