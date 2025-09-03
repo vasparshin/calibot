@@ -454,7 +454,7 @@ class EventQueueHandler:
                     'summary': event.get('event_name', event.get('summary', 'Untitled')),
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
-                    'calendar_name': event.get('calendar_name', 'Primary Calendar'),  # CRITICAL FIX: Use better default
+                    'calendar_name': event.get('calendar_name', event.get('calendar_id', 'Primary Calendar')),  # CRITICAL FIX: Use actual calendar name from event data
                     'id': event.get('event_id', event.get('id', '')),
                     'htmlLink': hyperlink,
                     'link': hyperlink  # Backup field for formatter
@@ -1095,7 +1095,7 @@ class EventQueueHandler:
                             actual_changes.append(f"moved to {event.get('new_calendar')}")
                         
                         # CRITICAL FIX: Use master formatter for consistent hyperlink formatting
-                        from app.utils.message_formatter import MessageFormatter
+                        # MessageFormatter is already imported at the top of the file
                         
                         event_link = result.get('event_link', '') or updated_event.get('htmlLink', '')
                         event_title = event.get('event_name', 'Event')

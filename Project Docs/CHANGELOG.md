@@ -2,6 +2,48 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.258] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - MESSAGEFORMATTER IMPORT AND CALENDAR NAMING**
+
+**Fixed critical bugs in one-by-one processing with MessageFormatter import and calendar naming**
+
+#### **BUG-055: MessageFormatter Import Error in Event Processing - RESOLVED**
+- **Problem**: "Error: Failed to process event: cannot access local variable 'MessageFormatter' where it is not associated with a value"
+- **Root Cause**: Local import of MessageFormatter inside `_process_single_event` method was conflicting with the global import
+- **Evidence**: Import error when processing events in one-by-one mode
+- **Fix Applied**: 
+  - **calibot/backend/app/services/event_queue_handler.py**: Removed local import and used global MessageFormatter import
+  - Fixed indentation issues in the update event processing section
+- **Result**: ✅ Event processing now works correctly without import errors
+
+#### **BUG-056: Calendar Naming in Individual Event Summaries - RESOLVED**
+- **Problem**: Individual event summaries were showing "Primary Calendar" instead of actual calendar names
+- **Root Cause**: Duplicate events don't have proper calendar information, defaulting to generic names
+- **Evidence**: Event summaries showing incorrect calendar names in one-by-one processing
+- **Fix Applied**: 
+  - **calibot/backend/app/services/event_queue_handler.py**: Updated `_format_event_summary` to use `calendar_id` as fallback for calendar name
+  - Enhanced calendar name extraction from event data
+- **Result**: ✅ Individual event summaries now show correct calendar names
+
+#### **Technical Implementation Details**
+- **Import Fix**: Removed conflicting local import in `_process_single_event` method
+- **Calendar Name Enhancement**: Added fallback to `calendar_id` when `calendar_name` is not available
+- **Indentation Fix**: Corrected indentation issues in update event processing section
+- **Code Quality**: Improved error handling and logging for calendar name resolution
+
+#### **Testing Instructions**
+1. Test one-by-one duplicate event processing
+2. Verify individual event summaries show correct calendar names
+3. Confirm no MessageFormatter import errors occur
+4. Check that event processing completes successfully
+
+#### **Files Modified**
+- **calibot/backend/app/services/event_queue_handler.py**: Fixed MessageFormatter import and calendar naming
+- **calibot/pyproject.toml**: Updated version to 0.1.258
+- **calibot/backend/app/__init__.py**: Updated version to 0.1.258
+- **calibot/Project Docs/CHANGELOG.md**: Added version 0.1.258 entry
+
 ## [0.1.257] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - ONE-BY-ONE DUPLICATE PROCESSING QUEUE ADVANCEMENT**
