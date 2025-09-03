@@ -62,5 +62,16 @@ class ConversationState:
                 "data": data,
                 "timestamp": datetime.now().isoformat()
             })
+    
+    def delete_data(self, user_id: int, key: str):
+        """Delete data for a user by key."""
+        if user_id not in self.conversations:
+            return
+        
+        # Remove data with this key
+        self.conversations[user_id] = [
+            msg for msg in self.conversations[user_id]
+            if not (msg.get("type") == "data" and msg.get("key") == key)
+        ]
 
 conversation_state = ConversationState()

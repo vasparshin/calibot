@@ -340,21 +340,26 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
     
     for duplicate_item in duplicates:
         # Handle different data structures
-        if isinstance(duplicate_item, dict) and 'new_event' in duplicate_item:
-            # New structure from check_for_duplicate_events
-            event = duplicate_item['new_event']
-            event_name = format_event_title(event.get('event_name', 'Untitled Event'))
-            start_time = event.get('start_time', '')
-            end_time = event.get('end_time', '')
-            date = event.get('date', '')
-            # Get proper calendar name
-            raw_calendar_name = event.get('calendar_name', 'Default')
-            if 'calendar' in raw_calendar_name.lower():
-                calendar_name = get_calendar_display_name(raw_calendar_name)
+        if isinstance(duplicate_item, dict) and 'existing_event' in duplicate_item:
+            # CRITICAL FIX: Use existing_event (from calendar) instead of new_event (from user input)
+            # The existing_event has proper hyperlinks and calendar information
+            event = duplicate_item['existing_event']
+            event_name = format_event_title(event.get('summary', event.get('event_name', 'Untitled Event')))
+            
+            # Handle Google Calendar datetime format
+            if event.get('start', {}).get('dateTime'):
+                start_time = event['start']['dateTime']
+                end_time = event.get('end', {}).get('dateTime', '')
+                date = event['start']['dateTime']
             else:
-                calendar_name = raw_calendar_name
+                start_time = event.get('start_time', event.get('start', ''))
+                end_time = event.get('end_time', event.get('end', ''))
+                date = event.get('date', start_time)
+            
+            # Get proper calendar name from existing event
+            calendar_name = get_calendar_display_name(event.get('calendar_id', event.get('calendar_name', 'primary')))
         else:
-            # Direct event structure
+            # Direct event structure (fallback)
             event = duplicate_item
             event_name = format_event_title(event.get('summary', event.get('event_name', 'Untitled Event')))
             

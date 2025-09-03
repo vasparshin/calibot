@@ -2,6 +2,39 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.245] - 2025-09-03
+
+### 🚨 **CRITICAL FIXES - DUPLICATE EVENT PROCESSING BUGS (BUG-039 to BUG-041)**
+
+**Fixed remaining duplicate event confirmation issues identified in user testing**
+
+#### **BUG-040: Fixed Technical Difficulties After Duplicate Cancellation**
+- **Problem**: After cancelling duplicate confirmation, subsequent messages triggered "technical difficulties" response
+- **Root Cause**: `ConversationState` missing `delete_data()` method causing cleanup errors
+- **Evidence**: Backend logs show `'ConversationState' object has no attribute 'delete_data'` and LLM `'content'` errors  
+- **Fix Applied**: Added `delete_data()` method to `conversation.py` for proper state cleanup
+- **Result**: ✅ Duplicate cancellation now properly resets conversation state without causing LLM processing errors
+
+#### **BUG-039: Fixed Duplicate Summary Still Missing Hyperlinks and Wrong Calendar Names**
+- **Problem**: Despite v0.1.244 fix, duplicate confirmation messages still showed events without hyperlinks and "Default" calendar names
+- **Root Cause**: Duplicate formatter was using `new_event` (user input) instead of `existing_event` (calendar data with hyperlinks)
+- **Evidence**: Message showed `"• Test Event on Wednesday, September 03, 2025 at 03:00 (Default)"` without hyperlinks
+- **Fix Applied**: Modified `format_duplicate_confirmation_with_keyboard()` to use `existing_event` with proper hyperlinks and calendar names
+- **Result**: ✅ Duplicate confirmations now show proper hyperlinks and actual calendar names from calendar service
+
+#### **BUG-041: Fixed One-by-One Duplicate Creation Not Working**
+- **Problem**: "One by One" button for duplicate creation behaved same as "All" button instead of individual confirmations
+- **Root Cause**: One-by-one duplicate creation logic was not implemented - fell back to "all" processing
+- **Fix Applied**: Implemented proper one-by-one flow in `handle_multi_event_confirmation_callback()`
+- **Implementation**: Converts duplicates to events and uses queue handler for individual confirmations like edit/delete operations
+- **Result**: ✅ One-by-one duplicate creation now shows individual confirmations matching edit/delete behavior
+
+#### **Code Quality Improvements**
+- **conversation.py**: Added missing `delete_data()` method for proper state management
+- **ui_helpers.py**: Fixed duplicate formatter to use existing events with proper hyperlinks and calendar data
+- **routes.py**: Implemented complete one-by-one duplicate creation flow using existing queue infrastructure
+- **Consistent behavior**: All duplicate operations now follow same patterns as edit/delete operations
+
 ## [0.1.244] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIXES - DUPLICATE EVENT CONFIRMATION SYSTEM OVERHAUL**

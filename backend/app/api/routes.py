@@ -343,8 +343,49 @@ async def handle_multi_event_confirmation_callback(chat_id: int, message_id: int
                             # Create all duplicates
                             result = await operation_factory.handle_confirmation(chat_id, "duplicates", pending_data)
                         else:
-                            # One-by-one duplicate creation (not implemented yet, fallback to all)
-                            result = await operation_factory.handle_confirmation(chat_id, "duplicates", pending_data)
+                            # CRITICAL FIX: Implement one-by-one duplicate creation
+                            # Convert duplicates to events and use queue handler for one-by-one processing
+                            duplicates = pending_data.get("duplicates", [])
+                            events_to_create = []
+                            
+                            for dup in duplicates:
+                                if "new_event" in dup:
+                                    events_to_create.append(dup["new_event"])
+                            
+                            if events_to_create:
+                                # Create a queue for one-by-one duplicate creation
+                                from app.core.global_instances import get_global_queue_handler
+                                queue_handler = get_global_queue_handler()
+                                
+                                # Create queue with create action
+                                queue_handler.create_queue(
+                                    str(chat_id), 
+                                    events_to_create, 
+                                    "create", 
+                                    one_by_one=True
+                                )
+                                
+                                # Get first confirmation
+                                confirmation_result = queue_handler.get_next_event_confirmation(str(chat_id))
+                                
+                                success_message = confirmation_result.get("message", "Starting one-by-one duplicate creation...")
+                                if processing_message_id:
+                                    if confirmation_result.get("keyboard"):
+                                        await edit_message_text(chat_id, processing_message_id, success_message, reply_markup=confirmation_result["keyboard"])
+                                    else:
+                                        await edit_message_text(chat_id, processing_message_id, success_message)
+                                else:
+                                    if confirmation_result.get("keyboard"):
+                                        await send_telegram_message(chat_id, success_message, reply_markup=confirmation_result["keyboard"])
+                                    else:
+                                        await send_telegram_message(chat_id, success_message)
+                            else:
+                                error_message = "No events found for one-by-one creation."
+                                if processing_message_id:
+                                    await edit_message_text(chat_id, processing_message_id, error_message)
+                                else:
+                                    await send_telegram_message(chat_id, error_message)
+                            return {"status": "ok"}
                         
                         success_message = result.get("message", "Duplicate events processed")
                         if processing_message_id:

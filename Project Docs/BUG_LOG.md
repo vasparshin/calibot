@@ -13,6 +13,32 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ## ACTIVE BUGS
 
+### BUG-039 - Duplicate Event Summary Still Missing Hyperlinks and Wrong Calendar Names
+- **Status**: 🔴 **ACTIVE**
+- **Description**: Despite BUG-035 fix, duplicate confirmation messages still show events without hyperlinks and "Default" instead of actual calendar names
+- **User Report**: "in this sumamry message the hyperlinks are missing and calendar name is wrong - you need ot make sure that all summary messages follow the SAME logic/function for formatting"
+- **Evidence**: Message shows "• Test Event on Wednesday, September 03, 2025 at 03:00 (Default)" instead of proper hyperlinks and calendar names
+- **Root Cause**: The fix in v0.1.244 may not be fully working or there's a different code path being used
+- **Fix Required**: Ensure ALL summary messages use same MessageFormatter logic regardless of operation type
+- **Testing Required**: Create duplicate events and verify summary has hyperlinks and correct calendar names
+
+### BUG-040 - Technical Difficulties After Duplicate Cancellation
+- **Status**: 🔴 **ACTIVE**
+- **Description**: After cancelling duplicate confirmation, subsequent messages trigger "technical difficulties" response
+- **User Report**: "after i pressed cancel and so the conversation state in the backneed should reset. after i send another message to test duplication logic and got the technical difficulties reponse"
+- **Root Cause**: Conversation state or duplicate handling not properly reset after cancellation, causing LLM processing errors
+- **Fix Required**: Ensure proper cleanup of duplicate state after cancellation
+- **Testing Required**: Cancel duplicate confirmation, then send new message and verify normal processing
+
+### BUG-041 - One by One Duplicate Creation Not Working
+- **Status**: 🔴 **ACTIVE**
+- **Description**: "One by One" button for duplicate creation behaves same as "All" button instead of individual confirmations
+- **User Report**: "I tested the logic of 'one by one' duplicate event creation hwoever it did not work, the functionality is the same as pressing 'all button'"
+- **Expected Behavior**: Should show individual confirmation for each duplicate like edit/delete one-by-one processing
+- **Root Cause**: One-by-one duplicate creation logic not implemented or incorrectly routed to "all" processing
+- **Fix Required**: Implement proper one-by-one duplicate creation flow matching edit/delete patterns
+- **Testing Required**: Create multiple duplicates, press "One by One", verify individual confirmations
+
 ### BUG-035 - Duplicate Event Summary Missing Hyperlinks and Incorrect Calendar Names
 - **Status**: 🔴 **ACTIVE**
 - **Description**: Duplicate event confirmation message shows events without hyperlinks and incorrect calendar names (should be same formatting as edit/delete summaries)
