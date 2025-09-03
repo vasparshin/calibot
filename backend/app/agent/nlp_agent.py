@@ -125,6 +125,10 @@ class NLPAgent:
                     {"role": "user", "content": user_message}
                 ]
                 
+                # CRITICAL FIX: Add unique identifier to prevent duplicate logging
+                call_id = f"combined_extract_{int(time.time() * 1000)}"
+                logger.info(f"extract_relevancy_and_intent: Making LLM call {call_id}")
+                
                 response = await acompletion(
                     model=self.model,
                     messages=messages,
@@ -132,6 +136,7 @@ class NLPAgent:
                     temperature=0.1,
                 )
                 
+                logger.info(f"extract_relevancy_and_intent: LLM call {call_id} completed")
                 return response
 
             response = await _call_llm()

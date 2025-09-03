@@ -9,6 +9,12 @@ class ConversationState:
         if user_id not in self.conversations:
             self.conversations[user_id] = []
         
+        # CRITICAL FIX: Limit conversation history to prevent LLM confusion
+        # Keep only the last 20 messages to maintain context without overwhelming the LLM
+        if len(self.conversations[user_id]) >= 20:
+            # Remove oldest messages, keeping the most recent 20
+            self.conversations[user_id] = self.conversations[user_id][-19:]
+        
         self.conversations[user_id].append({
             "role": role,
             "content": content,
@@ -16,12 +22,26 @@ class ConversationState:
             "timestamp": datetime.now().isoformat()
         })
         
-    def get_conversation_history(self, user_id: int, max_messages: int = 10) -> list:
+    def get_conversation_history(self, user_id: int, max_messages: int = 2) -> list:
+        # CRITICAL FIX: Default to only 2 messages for LLM processing
+        # This prevents the LLM from being confused by too much context
         return self.conversations.get(user_id, [])[-max_messages:]
     
-    def get_recent_messages(self, user_id: int, count: int = 5) -> list:
+    def get_recent_messages(self, user_id: int, count: int = 2) -> list:
         """Get the most recent messages for a user"""
+        # CRITICAL FIX: Default to only 2 messages for better LLM performance
         return self.conversations.get(user_id, [])[-count:]
+    
+    def get_operation_history(self, user_id: int, max_operations: int = 1) -> list:
+        """Get recent operations for undo functionality"""
+        # CRITICAL FIX: Only keep the last operation for undo
+        # This prevents confusion and ensures clean undo behavior
+        operations = []
+        if user_id in self.conversations:
+            for msg in reversed(self.conversations[user_id]):
+                if msg.get("type") == "operation" and len(operations) < max_operations:
+                    operations.append(msg)
+        return operations
     
     def remove_system_message(self, user_id: int, content_pattern: str):
         """Remove system messages containing the pattern"""

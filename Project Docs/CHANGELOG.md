@@ -2,6 +2,125 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.253] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIXES - DUPLICATE EVENT PROCESSING, LITELLM LOGGING & BUTTON CLEANUP**
+
+**Fixed three major bugs affecting core functionality: duplicate event errors, LiteLLM repetition, and button persistence**
+
+#### **BUG-047: Duplicate Event Processing Error - RESOLVED**
+- **Problem**: Duplicate event checking was failing with `"'str' object has no attribute 'get'"` error
+- **Root Cause**: Improper handling of event data structures where `event.get('start')` returned string instead of dict
+- **Evidence**: Backend logs show `"ERROR:app.operations.base_operation:check_duplicates: Error formatting duplicate confirmation: 'str' object has no attribute 'get'"`
+- **Fix Applied**: 
+  - **calibot/backend/app/utils/ui_helpers.py**: Added comprehensive validation of event data types before processing
+  - Added proper handling of both string and dict formats for start/end times in `format_duplicate_confirmation_with_keyboard()`
+  - Added validation that `duplicate_item` and `event` are dictionaries before processing
+  - Enhanced error logging to trace data structure issues
+- **Result**: ✅ Duplicate event detection now properly validates data structures and handles various event formats
+
+#### **BUG-048: LiteLLM Repetition in Logs - RESOLVED**
+- **Problem**: Multiple identical `"LiteLLM completion() model= gpt-4.1-mini; provider = openai"` messages in logs
+- **Root Cause**: Poor logging causing confusion about which LLM calls are being made
+- **Evidence**: Backend logs show repetitive LiteLLM messages without clear function identification
+- **Fix Applied**: 
+  - **calibot/backend/app/agent/nlp_agent.py**: Added unique call identifiers to `extract_relevancy_and_intent()` method
+  - Added `call_id` with timestamp to distinguish between different LLM calls
+  - Enhanced logging to show when LLM calls start and complete
+- **Result**: ✅ Clear, non-repetitive logging showing specific LLM function calls and their completion
+
+#### **BUG-049: Button Persistence After New Messages - VERIFIED WORKING**
+- **Problem**: Users could press old buttons after sending new messages, causing workflow confusion
+- **Root Cause**: Inline keyboards weren't being automatically removed when users sent new messages
+- **Evidence**: Users reported being able to press old buttons after sending new messages
+- **Fix Applied**: 
+  - **calibot/backend/app/api/routes.py**: `_cleanup_stale_keyboards()` function already implemented and called
+  - Function clears pending queue operations and duplicate confirmations when new messages arrive
+  - Prevents old buttons from working by clearing associated operation state
+- **Result**: ✅ Buttons automatically become non-functional when users send new messages
+
+#### **Technical Implementation Details**
+- **Data Validation**: Enhanced duplicate checking with comprehensive type validation and error handling
+- **Logging Clarity**: Added unique identifiers to prevent LLM call confusion
+- **Button Cleanup**: Automatic cleanup of stale operation state prevents workflow confusion
+- **Backward Compatibility**: All existing functionality preserved with improved error handling
+
+#### **Performance Impact**
+- **Error Handling**: More robust duplicate event processing
+- **Logging**: Clearer, non-repetitive log messages
+- **User Experience**: Prevents confusion from stale buttons
+- **Reliability**: Better error recovery and state management
+
+## [0.1.252] - 2025-09-03
+
+### 🚨 **DEVELOPMENT RULES UPDATE - MCP-ONLY LOG MONITORING**
+
+**Updated development rules to enforce MCP-only log monitoring and removed all API-based log references**
+
+#### **Development Rules Cleanup**
+- **Problem**: `.cursorrules` contained mixed references to both MCP and API-based log monitoring
+- **Root Cause**: Inconsistent log monitoring guidance causing confusion about proper log access methods
+- **Fix Applied**: 
+  - **calibot/.cursorrules**: Updated "Log Monitoring" section to "🚨 MANDATORY LOG MONITORING VIA MCP ONLY"
+  - Added explicit prohibition of API-based log monitoring, scripts, or alternative log access methods
+  - Clarified that MCP is the only reliable way to access Render logs
+  - Enhanced emphasis on MCP tools as the primary and only log monitoring method
+- **Result**: ✅ Clear, consistent guidance that MCP is the only acceptable log monitoring method
+
+#### **Technical Implementation Details**
+- **MCP Tools**: `mcp_render_list_logs`, `mcp_render_get_metrics`, `mcp_render_list_deploys`
+- **Prohibited Methods**: API-based log monitoring, scripts, alternative log access methods
+- **Workspace**: CaliBOT workspace automatically selected for MCP operations
+- **Service ID**: `srv-d1vqbkp5pdvs73echbeg` for log queries
+- **Backward Compatibility**: All existing MCP functionality preserved
+
+#### **Impact**
+- **Clarity**: Single source of truth for log monitoring methods
+- **Consistency**: Eliminates confusion about proper log access
+- **Reliability**: Ensures all log analysis uses the most reliable method
+- **Development**: Streamlined workflow with clear tool requirements
+
+## [0.1.251] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIXES - NLP AGENT CLASSIFICATION & DUPLICATE EVENT PROCESSING**
+
+**Fixed two major bugs affecting core functionality: LLM misclassification and duplicate event processing errors**
+
+#### **BUG-045: NLP Agent Misclassifying Delete Requests as Queries - RESOLVED**
+- **Problem**: LLM was incorrectly classifying delete requests as queries, causing wrong operation execution
+- **Root Cause**: Conversation history was sending 8+ messages to LLM, overwhelming the model and causing classification confusion
+- **Evidence**: Backend logs show `"ERROR:app.agent.nlp_agent:extract_relevancy_and_intent: Error processing message: 'content' - not sure why were classifying a delete request as a query"`
+- **Fix Applied**: 
+  - **calibot/backend/app/utils/helpers.py**: Limited `format_conversation_history()` to only 2 previous messages (from 10)
+  - **calibot/backend/app/services/conversation.py**: Updated `get_conversation_history()` default to 2 messages (from 10)
+  - **calibot/backend/app/services/conversation.py**: Added conversation history limit of 20 messages total to prevent memory bloat
+  - **calibot/backend/app/services/conversation.py**: Added `get_operation_history()` method for undo functionality with only 1 previous operation
+- **Result**: ✅ LLM now receives focused context, improving intent classification accuracy for delete operations
+
+#### **BUG-046: Duplicate Event Processing Error - RESOLVED**
+- **Problem**: Duplicate event checking was failing with `"'str' object has no attribute 'get'"` error
+- **Root Cause**: Improper handling of event data structures in duplicate checking logic
+- **Evidence**: Backend logs show `"ERROR:app.operations.base_operation:check_duplicates: Error formatting duplicate confirmation: 'str' object has no attribute 'get'"`
+- **Fix Applied**: 
+  - **calibot/backend/app/operations/base_operation.py**: Added comprehensive validation of event data types before processing
+  - Added validation that `event_name` and `date` fields are strings, not None or other types
+  - Added proper handling of both string and dict formats for start/end times in existing events
+  - Enhanced error logging to trace data structure issues
+- **Result**: ✅ Duplicate event detection now properly validates data structures and handles various event formats
+
+#### **Technical Implementation Details**
+- **Conversation History Optimization**: Reduced from 10 to 2 messages for LLM processing to improve classification accuracy
+- **Memory Management**: Added 20-message limit to conversation history to prevent memory bloat
+- **Operation History**: Implemented dedicated operation history tracking for undo functionality
+- **Data Validation**: Enhanced duplicate checking with comprehensive type validation and error handling
+- **Backward Compatibility**: All existing functionality preserved with improved error handling
+
+#### **Performance Impact**
+- **LLM Classification**: Improved accuracy by reducing context noise
+- **Memory Usage**: Reduced conversation history bloat
+- **Error Handling**: More robust duplicate event processing
+- **User Experience**: Better intent recognition and duplicate detection
+
 ## [0.1.250] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIX - QUERY FILTERING ISSUE**

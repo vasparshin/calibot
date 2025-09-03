@@ -334,44 +334,88 @@ def is_confirmation_one(text):
 
 def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
     """Format duplicate confirmation message with inline keyboard"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     count = len(duplicates)
     
     message = f"Found {count} potential duplicate event(s):\n\n"
     
     for duplicate_item in duplicates:
+        # CRITICAL FIX: Validate duplicate_item structure before processing
+        if not isinstance(duplicate_item, dict):
+            logger.warning(f"format_duplicate_confirmation_with_keyboard: Invalid duplicate_item type: {type(duplicate_item)}")
+            continue
+            
         # Handle different data structures
-        if isinstance(duplicate_item, dict) and 'existing_event' in duplicate_item:
+        if 'existing_event' in duplicate_item:
             # CRITICAL FIX: Use existing_event (from calendar) instead of new_event (from user input)
             # The existing_event has proper hyperlinks and calendar information
             event = duplicate_item['existing_event']
+            
+            # CRITICAL FIX: Validate event is a dictionary
+            if not isinstance(event, dict):
+                logger.warning(f"format_duplicate_confirmation_with_keyboard: existing_event is not a dict, type: {type(event)}")
+                continue
+                
             event_name = format_event_title(event.get('summary', event.get('event_name', 'Untitled Event')))
             
-            # Handle Google Calendar datetime format
-            if event.get('start', {}).get('dateTime'):
-                start_time = event['start']['dateTime']
-                end_time = event.get('end', {}).get('dateTime', '')
-                date = event['start']['dateTime']
+            # CRITICAL FIX: Handle start/end time extraction with proper validation
+            start_data = event.get('start', {})
+            end_data = event.get('end', {})
+            
+            # Handle both string and dict formats for start/end times
+            if isinstance(start_data, dict) and start_data.get('dateTime'):
+                start_time = start_data['dateTime']
+                date = start_time
+            elif isinstance(start_data, str):
+                start_time = start_data
+                date = start_time
             else:
-                start_time = event.get('start_time', event.get('start', ''))
-                end_time = event.get('end_time', event.get('end', ''))
-                date = event.get('date', start_time)
+                start_time = event.get('start_time', '')
+                date = event.get('date', '')
+                
+            if isinstance(end_data, dict) and end_data.get('dateTime'):
+                end_time = end_data['dateTime']
+            elif isinstance(end_data, str):
+                end_time = end_data
+            else:
+                end_time = event.get('end_time', '')
             
             # Get proper calendar name from existing event
             calendar_name = get_calendar_display_name(event.get('calendar_id', event.get('calendar_name', 'primary')))
         else:
             # Direct event structure (fallback)
             event = duplicate_item
+            
+            # CRITICAL FIX: Validate event is a dictionary
+            if not isinstance(event, dict):
+                logger.warning(f"format_duplicate_confirmation_with_keyboard: event is not a dict, type: {type(event)}")
+                continue
+                
             event_name = format_event_title(event.get('summary', event.get('event_name', 'Untitled Event')))
             
-            # Handle different datetime formats
-            if event.get('start', {}).get('dateTime'):
-                start_time = event['start']['dateTime']
-                end_time = event.get('end', {}).get('dateTime', '')
-                date = event['start']['dateTime']
+            # CRITICAL FIX: Handle start/end time extraction with proper validation
+            start_data = event.get('start', {})
+            end_data = event.get('end', {})
+            
+            # Handle both string and dict formats for start/end times
+            if isinstance(start_data, dict) and start_data.get('dateTime'):
+                start_time = start_data['dateTime']
+                date = start_time
+            elif isinstance(start_data, str):
+                start_time = start_data
+                date = start_time
             else:
                 start_time = event.get('start_time', '')
-                end_time = event.get('end_time', '')
                 date = event.get('date', '')
+                
+            if isinstance(end_data, dict) and end_data.get('dateTime'):
+                end_time = end_data['dateTime']
+            elif isinstance(end_data, str):
+                end_time = end_data
+            else:
+                end_time = event.get('end_time', '')
             
             calendar_name = get_calendar_display_name(event.get('calendar_id', 'primary'))
         

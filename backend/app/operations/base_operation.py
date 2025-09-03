@@ -63,12 +63,19 @@ class BaseOperation(BaseHandler):
             duplicates_found = []
 
             for i, event in enumerate(events_to_create):
+                # CRITICAL FIX: Validate event is a dictionary before processing
                 if not isinstance(event, dict):
                     logger.warning(f"check_duplicates: Event {i} is not a dict, type: {type(event)}")
                     continue
 
+                # CRITICAL FIX: Ensure all required fields exist and are strings
                 event_name = event.get("event_name", "")
                 date = event.get("date", "")
+                
+                # Validate that both fields are strings, not None or other types
+                if not isinstance(event_name, str) or not isinstance(date, str):
+                    logger.warning(f"check_duplicates: Event {i} has invalid field types - event_name type: {type(event_name)}, date type: {type(date)}")
+                    continue
 
                 if not event_name or not date:
                     logger.warning(f"check_duplicates: Event {i} missing required fields, event_name='{event_name}', date='{date}'")
@@ -84,12 +91,29 @@ class BaseOperation(BaseHandler):
                         event_end = event.get("end_time", "")
 
                         for existing in existing_events["events"]:
+                            # CRITICAL FIX: Validate existing event is a dictionary
                             if not isinstance(existing, dict):
                                 logger.warning(f"check_duplicates: Existing event is not a dict, type: {type(existing)}")
                                 continue
                                 
-                            existing_start = existing.get("start", "")
-                            existing_end = existing.get("end", "")
+                            # CRITICAL FIX: Ensure start field exists and is properly formatted
+                            existing_start_data = existing.get("start", {})
+                            existing_end_data = existing.get("end", {})
+                            
+                            # Handle both string and dict formats for start/end times
+                            if isinstance(existing_start_data, dict):
+                                existing_start = existing_start_data.get("dateTime", "")
+                            elif isinstance(existing_start_data, str):
+                                existing_start = existing_start_data
+                            else:
+                                existing_start = ""
+                                
+                            if isinstance(existing_end_data, dict):
+                                existing_end = existing_end_data.get("dateTime", "")
+                            elif isinstance(existing_end_data, str):
+                                existing_end = existing_end_data
+                            else:
+                                existing_end = ""
 
                             # Check for time overlap (simplified)
                             if event_start and existing_start:

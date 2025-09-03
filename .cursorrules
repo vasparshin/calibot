@@ -82,8 +82,8 @@ git push origin main
 - **If ahead of origin**: Run `git push origin main` until status shows "up to date"
 - **Never assume push succeeded**: Wait for full command completion with remote confirmation
 
-### Log Monitoring
-**🚨 MANDATORY**: Use Render MCP server tools for ALL log analysis - this is the ONLY way to check logs
+### 🚨 MANDATORY LOG MONITORING VIA MCP ONLY
+**CRITICAL RULE**: Use Render MCP server tools for ALL log analysis - this is the ONLY way to check logs
 - **Primary Tools**: `mcp_render_list_logs`, `mcp_render_get_metrics`, `mcp_render_list_deploys`
 - **Workspace**: CaliBOT workspace is automatically selected
 - **Service ID**: `srv-d1vqbkp5pdvs73echbeg`
@@ -91,6 +91,7 @@ git push origin main
 - **FAILURE NOTIFICATION**: If MCP log access fails, immediately notify user and document in changelog
 - **EVIDENCE-BASED FIXES**: All fixes must be based on actual log evidence, not assumptions
 - **NO ALTERNATIVES**: Do not use scripts or other methods - MCP is the only reliable way to access Render logs
+- **PROHIBITED**: Any references to API-based log monitoring, scripts, or alternative log access methods
 
 ## 🚨 ANTI-STUCK RULES
 

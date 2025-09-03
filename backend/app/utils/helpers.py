@@ -3,8 +3,10 @@ def format_conversation_history(history: list) -> str:
         if not history:
             return "No previous conversation."
         
-        # Take last 10 messages to keep context manageable but relevant
-        recent_history = history[-10:] if len(history) > 10 else history
+        # CRITICAL FIX: Limit to only 2 previous messages to prevent LLM confusion
+        # This prevents the LLM from being overwhelmed with too much context
+        # and improves intent classification accuracy
+        recent_history = history[-2:] if len(history) > 2 else history
         
         formatted_messages = []
         for i, msg in enumerate(recent_history):
