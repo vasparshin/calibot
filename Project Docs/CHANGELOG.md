@@ -2,6 +2,33 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.254] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - DUPLICATE EVENT MESSAGES NOT BEING SENT**
+
+**Fixed critical bug where duplicate event confirmation messages were not being sent to Telegram**
+
+#### **BUG-050: Duplicate Event Messages Not Being Sent - RESOLVED**
+- **Problem**: Duplicate event detection was working correctly but no message was being sent to Telegram
+- **Root Cause**: Routes.py incorrectly assumed CreateOperation sends its own messages, but it doesn't for duplicate confirmations
+- **Evidence**: Backend logs show `requires_user_action=True` but no `"Bot sending to chat"` message
+- **Fix Applied**: 
+  - **calibot/backend/app/api/routes.py**: Updated `requires_user_action` handling to actually send messages
+  - Added proper keyboard support for duplicate confirmation messages
+  - Fixed incorrect comment that assumed operations handle their own messaging
+- **Result**: ✅ Duplicate event confirmation messages now properly sent to Telegram with inline keyboards
+
+#### **Technical Implementation Details**
+- **Message Sending**: Routes.py now sends messages when `requires_user_action=True`
+- **Keyboard Support**: Proper handling of inline keyboards for duplicate confirmations
+- **Operation Pattern**: CreateOperation returns `requires_user_action=True` but doesn't send messages itself
+- **Backward Compatibility**: All existing functionality preserved
+
+#### **Impact**
+- **User Experience**: Users now receive duplicate confirmation messages
+- **Functionality**: Duplicate event detection workflow is now complete
+- **Reliability**: Proper message delivery for all user action scenarios
+
 ## [0.1.253] - 2025-09-03
 
 ### 🚨 **CRITICAL BUG FIXES - DUPLICATE EVENT PROCESSING, LITELLM LOGGING & BUTTON CLEANUP**
