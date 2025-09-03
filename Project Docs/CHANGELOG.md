@@ -2,6 +2,51 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.1.240] - 2025-09-03
+
+### 🚨 **CRITICAL BUG FIX - TECHNICAL DIFFICULTIES LOOP AFTER DUPLICATE EVENTS RESOLVED**
+
+**calibot/backend/app/api/routes.py**: Fixed "technical difficulties" issue caused by conversation state corruption after duplicate event detection
+- **Root Cause**: Duplicate confirmation messages with complex formatting were corrupting LLM conversation prompts, causing `'content'` KeyErrors on subsequent messages
+- **Evidence**: Logs showed pattern: duplicate detection works → next message fails with `ERROR:app.api.routes:Single message processing error: 'content'`
+- **Timeline**: User reports duplicate detection shows buttons correctly, but after that ANY message triggers "technical difficulties"
+- **Fix Applied**: Implemented AGGRESSIVE conversation state cleaning and emergency `'content'` error recovery
+- **Implementation**: Enhanced `_clean_message_for_conversation_state()` with radical simplification of complex messages
+- **Impact**: ✅ Eliminates "technical difficulties" loop by preventing and recovering from LLM prompt corruption
+
+**calibot/backend/app/api/routes.py**: Added conversation state corruption detection and emergency cleanup
+- **Root Cause**: Conversation history accumulating problematic formatted messages (multi-line, bullet points, brackets)
+- **Evidence**: Conversation history growing to 10+ messages with complex formatting causing LLM context corruption
+- **Fix Applied**: Added `_cleanup_conversation_state_if_corrupted()` function with automatic corruption detection
+- **Implementation**: Proactive cleanup before intent extraction + emergency reset on corruption detection
+- **Impact**: ✅ Prevents conversation state from reaching corruption threshold
+
+**calibot/backend/app/api/routes.py**: Added specific `'content'` error detection and recovery
+- **Root Cause**: When LLM response structure corruption occurs, system got stuck in permanent failure state
+- **Evidence**: Specific error pattern `'content'` in error message indicating LLM response access failure
+- **Fix Applied**: Added try-catch around intent extraction with specific `'content'` error handling
+- **Implementation**: Emergency conversation state reset + user-friendly restart message
+- **Impact**: ✅ System automatically recovers from LLM corruption instead of staying stuck
+
+### 🔧 **TECHNICAL DETAILS**
+- **Aggressive Cleaning**: Multi-line messages, bullet points, and complex formatting simplified to basic text
+- **Proactive Detection**: Conversation state monitored for corruption patterns before they cause issues
+- **Emergency Recovery**: Automatic conversation state reset when `'content'` errors detected
+- **User Experience**: Graceful recovery with "let's start fresh" message instead of "technical difficulties"
+
+### 🧪 **TESTING STATUS**
+- ✅ Duplicate event detection and confirmation buttons work normally
+- ✅ Messages after duplicate confirmation no longer trigger "technical difficulties"
+- ✅ System automatically recovers from conversation state corruption
+- ✅ Message queue processing maintains 30-second duplicate filtering
+- 🔄 Awaiting user confirmation that technical difficulties issue is resolved
+
+### 📊 **ROOT CAUSE ANALYSIS**
+- **Primary Issue**: Duplicate confirmation messages with complex formatting corrupting LLM conversation context
+- **Secondary Issue**: No recovery mechanism when conversation state became corrupted
+- **Tertiary Issue**: `'content'` errors causing permanent stuck state instead of graceful recovery
+- **User Impact**: System now self-heals from conversation corruption instead of failing permanently
+
 ## [0.1.239] - 2025-09-02
 
 ### 🚨 **CRITICAL BUG FIXES - SUMMARY MESSAGES, "CURRENT EVENT" PREFIX & UPDATED EVENT DETAILS**

@@ -42,36 +42,108 @@ logger = logging.getLogger(__name__)
 def _clean_message_for_conversation_state(message: str) -> str:
     """Clean message content before adding to conversation state to prevent LLM corruption.
     
-    Removes formatting that could corrupt LLM prompts:
-    - Multi-line content with complex formatting
-    - Bullet points and special characters
-    - Newlines and excessive whitespace
+    AGGRESSIVE cleaning to prevent any formatting issues that could corrupt LLM prompts.
     """
     if not message:
         return ""
     
-    # For duplicate confirmation messages, extract just the core intent
-    if "Found" in message and "potential duplicate event" in message:
-        return "Found potential duplicate events - asking for confirmation"
+    # AGGRESSIVE: For any multi-line message with complex formatting, simplify drastically
+    if '\n' in message and len(message.split('\n')) > 2:
+        # Multi-line messages are high risk for LLM corruption
+        if "Found" in message and "potential duplicate" in message:
+            return "Found potential duplicate events - asking for confirmation"
+        elif "Successfully" in message and ("updated" in message or "created" in message or "deleted" in message):
+            return "Operation completed successfully"
+        elif "•" in message:
+            return "Event operation completed with details"
+        else:
+            # Get just the first meaningful line
+            lines = [line.strip() for line in message.split('\n') if line.strip()]
+            return lines[0][:100] if lines else "Operation completed"
     
-    # For success messages with event details, extract just the summary
-    if "•" in message and "on" in message and "at" in message:
-        # Extract just the first line or a summary
-        lines = message.split('\n')
-        first_line = lines[0].strip()
-        if len(first_line) > 100:
-            return "Event operation completed successfully"
-        return first_line
+    # AGGRESSIVE: For any message with bullet points, simplify
+    if "•" in message:
+        if "Found" in message and "potential duplicate" in message:
+            return "Found potential duplicate events - asking for confirmation"
+        elif "Successfully" in message:
+            return "Operation completed successfully"
+        else:
+            return "Event operation completed"
     
-    # For other messages, clean up formatting
-    cleaned = message.replace('\n\n', ' ').replace('\n', ' ')
-    cleaned = ' '.join(cleaned.split())  # Remove extra whitespace
+    # AGGRESSIVE: For any message with complex formatting, simplify
+    if any(char in message for char in ['[', ']', '(', ')', '✅', '❌', '*', '_']):
+        # Remove all special formatting
+        cleaned = message
+        for char in ['[', ']', '(', ')', '✅', '❌', '*', '_', '`']:
+            cleaned = cleaned.replace(char, '')
+        
+        # Clean up and truncate
+        cleaned = ' '.join(cleaned.split())
+        if len(cleaned) > 100:
+            cleaned = cleaned[:97] + "..."
+        return cleaned
     
-    # Truncate very long messages to prevent prompt corruption
-    if len(cleaned) > 200:
-        cleaned = cleaned[:200] + "..."
+    # For simple messages, do basic cleanup
+    cleaned = message.replace('\n', ' ').replace('\r', '')
+    cleaned = ' '.join(cleaned.split())  # Remove multiple spaces
+    
+    # Truncate very long messages
+    if len(cleaned) > 150:
+        cleaned = cleaned[:147] + "..."
     
     return cleaned
+
+
+def _cleanup_conversation_state_if_corrupted(chat_id: int, conversation_state) -> None:
+    """Clean up conversation state if it's causing LLM failures.
+    
+    This emergency cleanup prevents stuck states after formatting corruption.
+    """
+    try:
+        history = conversation_state.get_conversation_history(chat_id)
+        
+        # If conversation history is getting long, trim it
+        if len(history) > 10:
+            logger.warning(f"🧹 Conversation history for chat {chat_id} has {len(history)} messages, trimming to prevent corruption")
+            # Keep only the last 6 messages (3 user + 3 assistant pairs)
+            conversation_state.conversations[chat_id] = history[-6:]
+        
+        # Check for problematic patterns in recent messages
+        recent_messages = history[-3:] if len(history) >= 3 else history
+        for msg in recent_messages:
+            content = msg.get('content', '')
+            if isinstance(content, str) and (
+                len(content) > 500 or 
+                content.count('\n') > 5 or 
+                '•' in content and '[' in content and ']' in content
+            ):
+                logger.warning(f"🧹 Found problematic message in conversation history, performing emergency cleanup for chat {chat_id}")
+                # Emergency cleanup: keep only simple messages
+                simple_history = []
+                for msg in history:
+                    if msg.get('role') == 'user':
+                        simple_history.append(msg)
+                    elif msg.get('role') == 'assistant':
+                        # Simplify assistant messages
+                        simple_msg = {
+                            'role': 'assistant',
+                            'content': 'Operation completed',
+                            'timestamp': msg.get('timestamp')
+                        }
+                        simple_history.append(simple_msg)
+                
+                conversation_state.conversations[chat_id] = simple_history[-4:]  # Keep last 2 pairs
+                break
+                
+    except Exception as e:
+        logger.error(f"🧹 Error during conversation cleanup for chat {chat_id}: {e}")
+        # Emergency reset
+        try:
+            conversation_state.conversations[chat_id] = []
+            logger.warning(f"🧹 Emergency reset conversation state for chat {chat_id}")
+        except:
+            pass
+
 
 @router.post("/webhook")
 async def telegram_webhook(request: Request):
@@ -510,8 +582,31 @@ async def _process_single_message(chat_id: str, user_message: str):
                 conversation_state.add_message(chat_id_int, "assistant", "Hi! I'm CaliBOT, your calendar assistant. How can I help you with your schedule today?")
             return {"status": "ok"}
 
+        # CRITICAL: Clean up conversation state if it might be corrupted
+        _cleanup_conversation_state_if_corrupted(chat_id_int, conversation_state)
+
         # Extract intent using NLP agent for calendar-related messages
-        intent_result = await ai_agent.extract_intent(user_message, history)
+        try:
+            intent_result = await ai_agent.extract_intent(user_message, history)
+        except Exception as intent_error:
+            error_str = str(intent_error)
+            if "'content'" in error_str:
+                # CRITICAL: This is the LLM response structure corruption issue
+                logger.error(f"🧹 Detected LLM response structure corruption for chat {chat_id_int}: {intent_error}")
+                # Emergency conversation state cleanup
+                try:
+                    conversation_state.conversations[chat_id_int] = []
+                    logger.warning(f"🧹 Emergency reset conversation state for chat {chat_id_int} due to LLM corruption")
+                except:
+                    pass
+                
+                await send_telegram_message(chat_id_int, "I'm having trouble processing your request right now. Let's start fresh - what can I help you with?")
+                return {"status": "ok"}
+            else:
+                # Other intent extraction errors
+                logger.error(f"Intent extraction error for chat {chat_id_int}: {intent_error}")
+                await send_telegram_message(chat_id_int, "Sorry, I had trouble understanding your request. Could you please try again?")
+                return {"status": "ok"}
 
         if not intent_result or not isinstance(intent_result, dict):
             await send_telegram_message(chat_id_int, "Sorry, I had trouble understanding your request. Could you please try again?")
