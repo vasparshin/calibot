@@ -15,11 +15,11 @@ This approach reuses existi        # Build event summaries for display
                 if 'T' in str(start_time):
                     start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
                     date_part = start_dt.strftime('%a %b %d')
-                    start_time_part = start_dt.strftime('%I:%M %p')
+                    start_time_part = start_dt.strftime('%H:%M')
                     
                     if 'T' in str(end_time):
                         end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                        end_time_part = end_dt.strftime('%I:%M %p')
+                        end_time_part = end_dt.strftime('%H:%M')
                         date_time_str = f"{date_part}, {start_time_part} - {end_time_part}"
                     else:
                         date_time_str = f"{date_part}, {start_time_part}"
@@ -433,30 +433,6 @@ class EventQueueHandler:
             "queue_position": f"{current_index + 1}/{total_events}"
         }
     
-    def _get_proper_calendar_name(self, event: Dict) -> str:
-        """Get the proper calendar display name from event data"""
-        # First try to get from calendar service if available
-        calendar_id = event.get('calendar_id', 'primary')
-        
-        if self.calendar_service and hasattr(self.calendar_service, 'get_calendar_display_name'):
-            try:
-                return self.calendar_service.get_calendar_display_name(calendar_id)
-            except Exception:
-                pass
-        
-        # Use calendar name from event if available and not a technical ID
-        calendar_name = event.get('calendar_name', '')
-        if calendar_name and not ('@' in calendar_name and len(calendar_name) > 20):
-            return calendar_name
-        
-        # Map common IDs to user-friendly names
-        if calendar_id == 'primary' or calendar_id == 'zoutna@gmail.com':
-            return 'Zoutna'
-        elif 'group.calendar.google.com' in calendar_id:
-            return 'Shared Calendar'
-        else:
-            return calendar_name or 'Calendar'
-
     def _format_event_summary(self, event: Dict) -> str:
         """Format a single event for user confirmation using centralized formatter"""
         try:
@@ -478,7 +454,7 @@ class EventQueueHandler:
                     'summary': event.get('event_name', event.get('summary', 'Untitled')),
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
-                    'calendar_name': self._get_proper_calendar_name(event),  # CRITICAL FIX: Use proper calendar name resolution
+                    'calendar_name': event.get('calendar_name', event.get('calendar_id', 'zoutna@gmail.com')),  # CRITICAL FIX: Use actual calendar name from event data
                     'id': event.get('event_id', event.get('id', '')),
                     'htmlLink': hyperlink,
                     'link': hyperlink  # Backup field for formatter
@@ -549,11 +525,11 @@ class EventQueueHandler:
                 # Parse ISO format datetime
                 dt_start = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
                 date_str = dt_start.strftime('%A, %B %d, %Y')  # "Monday, August 06, 2025"
-                start_str = dt_start.strftime('%I:%M %p')  # "08:00 AM"
+                start_str = dt_start.strftime('%H:%M')  # "08:00"
                 
                 if end_time and 'T' in str(end_time):
                     dt_end = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                    end_str = dt_end.strftime('%I:%M %p')
+                    end_str = dt_end.strftime('%H:%M')
                     time_str = f"{start_str} - {end_str}"
                 else:
                     time_str = start_str
@@ -571,7 +547,7 @@ class EventQueueHandler:
         try:
             if 'T' in str(start_time):
                 dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                return dt.strftime('%I:%M %p')  # "08:00 AM"
+                return dt.strftime('%H:%M')  # "08:00"
             else:
                 return str(start_time)
         except:
@@ -583,7 +559,7 @@ class EventQueueHandler:
             if 'T' in str(start_time):
                 dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
                 # Format as "Sat Aug 09, 08:00 AM"
-                return dt.strftime('%a %b %d, %I:%M %p')
+                return dt.strftime('%a %b %d, %H:%M')
             else:
                 return str(start_time)
         except:
@@ -594,16 +570,9 @@ class EventQueueHandler:
         if not calendar_name or calendar_name == 'Default calendar':
             return 'Personal Calendar'
         
-        # If it's an email address, extract the name part
+        # Return actual calendar name instead of converting
         if '@' in calendar_name:
-            if calendar_name == 'zoutna@gmail.com':
-                return 'Personal'
-            elif 'group.calendar.google.com' in calendar_name:
-                return 'Shared Calendar'
-            else:
-                # Extract name before @ symbol
-                name = calendar_name.split('@')[0]
-                return name.title()
+            return calendar_name  # Keep the actual email address
         
         return calendar_name
     
@@ -1096,11 +1065,11 @@ class EventQueueHandler:
                             try:
                                 new_start_dt = datetime.fromisoformat(new_start.replace('Z', '+00:00'))
                                 date_info = new_start_dt.strftime('%A, %B %d, %Y')
-                                start_time_display = new_start_dt.strftime('%I:%M %p')
+                                start_time_display = new_start_dt.strftime('%H:%M')
                                 
                                 if new_end and 'T' in str(new_end):
                                     new_end_dt = datetime.fromisoformat(new_end.replace('Z', '+00:00'))
-                                    end_time_display = new_end_dt.strftime('%I:%M %p')
+                                    end_time_display = new_end_dt.strftime('%H:%M')
                                     time_info = f"at {start_time_display} - {end_time_display}"
                                 else:
                                     time_info = f"at {start_time_display}"
@@ -1109,7 +1078,7 @@ class EventQueueHandler:
                                 if original_start and original_start != new_start:
                                     try:
                                         orig_start_dt = datetime.fromisoformat(original_start.replace('Z', '+00:00'))
-                                        orig_time = orig_start_dt.strftime('%I:%M %p')
+                                        orig_time = orig_start_dt.strftime('%H:%M')
                                         actual_changes.append(f"time changed from {orig_time} to {start_time_display}")
                                     except:
                                         actual_changes.append(f"time updated to {start_time_display}")

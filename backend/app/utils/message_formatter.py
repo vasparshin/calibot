@@ -164,17 +164,13 @@ class MessageFormatter:
         start_time = event.get('start')
         end_time = event.get('end')
         
-        # CRITICAL FIX: If no start time, try to get date from event data first
-        if not start_time:
-            event_date = event.get('date')
-            if event_date:
-                # Use the date from the event data
-                start_time = f"{event_date}T{event.get('start_time', '00:00')}:00" if ':' not in str(event.get('start_time', '')) else f"{event_date}T{event.get('start_time', '00:00:00')}"
-                logger.info(f"🔗 HYPERLINK MASTER: Using event date {event_date} for event: {event_name}")
-            else:
-                # Only fallback to current date if no date in event
-                start_time = f"{datetime.now().strftime('%Y-%m-%d')}T00:00:00"
-                logger.info(f"🔗 HYPERLINK MASTER: Using current date fallback for event: {event_name}")
+        # Build date from event data - no current date fallback
+        event_date = event.get('date')
+        if not start_time and event_date:
+            start_time = f"{event_date}T00:00:00"
+            logger.info(f"🔗 HYPERLINK MASTER: Using event date {event_date} for event: {event_name}")
+        elif not start_time:
+            logger.warning(f"🔗 HYPERLINK MASTER: No start time or date available for event: {event_name}")
         
         # Parse start time
         if isinstance(start_time, str):
@@ -188,8 +184,15 @@ class MessageFormatter:
                     date_str = current_date
                     time_str = "Unknown time"
             else:
-                # Time-only string, use current date
-                date_str = current_date
+                # Time-only string, use event date if available
+                if event_date:
+                    try:
+                        date_dt = datetime.fromisoformat(event_date)
+                        date_str = date_dt.strftime("%A, %B %d, %Y")
+                    except:
+                        date_str = current_date
+                else:
+                    date_str = current_date
                 time_str = start_time
         elif isinstance(start_time, dict):
             # Google Calendar API format

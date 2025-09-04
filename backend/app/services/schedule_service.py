@@ -164,14 +164,14 @@ class ScheduleService:
             # Parse start time
             if 'T' in start_time:
                 start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                start_formatted = start_dt.strftime('%I:%M %p').lstrip('0')
+                start_formatted = start_dt.strftime('%H:%M').lstrip('0')
             else:
                 return "All day"
             
             # Parse end time
             if end_time and 'T' in end_time:
                 end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                end_formatted = end_dt.strftime('%I:%M %p').lstrip('0')
+                end_formatted = end_dt.strftime('%H:%M').lstrip('0')
                 return f"{start_formatted} - {end_formatted}"
             else:
                 return start_formatted

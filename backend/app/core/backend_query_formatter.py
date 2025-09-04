@@ -188,11 +188,11 @@ class BackendQueryFormatter:
                 if 'T' in start_time:
                     dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
                     formatted_date = dt.strftime('%A, %B %d, %Y')
-                    formatted_start = dt.strftime('%I:%M %p')
+                    formatted_start = dt.strftime('%H:%M')
                     
                     if 'T' in end_time:
                         end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                        formatted_end = end_dt.strftime('%I:%M %p')
+                        formatted_end = end_dt.strftime('%H:%M')
                         time_display = f"at {formatted_start} - {formatted_end}"
                     else:
                         time_display = f"at {formatted_start}"

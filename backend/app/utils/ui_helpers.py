@@ -126,7 +126,7 @@ def format_time_12hour(time_str):
         if 'T' in time_str:
             # ISO datetime format
             time_obj = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
-            return time_obj.strftime('%I:%M %p')
+            return time_obj.strftime('%H:%M')
         else:
             # NO MANUAL TIME PARSING - per PROJECT_RULES.md
             # LLM should provide properly formatted time data
@@ -177,8 +177,8 @@ def format_event_for_display(event_data, calendar_result=None, calendar_service=
         try:
             start_dt = datetime.fromisoformat(event_data['start']['dateTime'].replace('Z', '+00:00'))
             end_dt = datetime.fromisoformat(event_data['end']['dateTime'].replace('Z', '+00:00'))
-            start_formatted = start_dt.strftime('%I:%M %p')
-            end_formatted = end_dt.strftime('%I:%M %p')
+            start_formatted = start_dt.strftime('%H:%M')
+            end_formatted = end_dt.strftime('%H:%M')
             time_str = f"{start_formatted} - {end_formatted}"
         except:
             pass
@@ -450,13 +450,13 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
                 # ISO format
                 try:
                     start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-                    formatted_start = start_dt.strftime('%I:%M %p')
+                    formatted_start = start_dt.strftime('%H:%M')
                     formatted_date = start_dt.strftime('%A, %B %d, %Y')
                     
                     # Handle end time
                     if end_time and 'T' in end_time:
                         end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                        formatted_end = end_dt.strftime('%I:%M %p')
+                        formatted_end = end_dt.strftime('%H:%M')
                         time_display = f"at {formatted_start} - {formatted_end}"
                     else:
                         time_display = f"at {formatted_start}"
@@ -532,14 +532,14 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
             # Google Calendar format with dict
             try:
                 start_dt = datetime.fromisoformat(start_data['dateTime'].replace('Z', '+00:00'))
-                start_time = start_dt.strftime('%I:%M %p')
+                start_time = start_dt.strftime('%H:%M')
                 date_display = start_dt.strftime('%A, %B %d, %Y')
                 
                 # Get end time if available
                 end_data = event.get('end')
                 if isinstance(end_data, dict) and end_data.get('dateTime'):
                     end_dt = datetime.fromisoformat(end_data['dateTime'].replace('Z', '+00:00'))
-                    end_time = end_dt.strftime('%I:%M %p')
+                    end_time = end_dt.strftime('%H:%M')
             except:
                 start_time = "Unknown time"
                 date_display = "Unknown date"
@@ -548,7 +548,7 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
             try:
                 if 'T' in start_data:
                     start_dt = datetime.fromisoformat(start_data.replace('Z', '+00:00'))
-                    start_time = start_dt.strftime('%I:%M %p')
+                    start_time = start_dt.strftime('%H:%M')
                     date_display = start_dt.strftime('%A, %B %d, %Y')
                 else:
                     start_time = format_time_12hour(start_data)

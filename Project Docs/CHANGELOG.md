@@ -4,24 +4,34 @@ CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
 ## [0.2.261] - 2025-09-04
 
-### 🚨 **MAJOR BUG FIXES - ONE-BY-ONE EVENT CONFIRMATION FORMATTING ISSUES**
+### 🚨 **CRITICAL FORMATTING FIXES - EVENT PREFIX, CALENDAR NAMES, DATE & TIME DISPLAY**
 
-**Fixed 4 critical bugs in one-by-one event confirmation messages for duplicate event handling**
+**Fixed four critical bugs in one-by-one event processing affecting message formatting and display accuracy**
 
-#### **BUG-079: Multiple One-by-One Confirmation Formatting Issues - RESOLVED**
-- **Problem 1**: "Event:" prefix appearing before event details in confirmation messages
-- **Problem 2**: Calendar name showing "Primary Calendar" instead of actual name "Zoutna"  
-- **Problem 3**: Incorrect date being displayed (Thursday instead of Friday)
-- **Problem 4**: Times formatted with AM/PM instead of 24-hour format
-- **Root Causes**: 
-  - Hard-coded "Event:" prefix in `event_queue_handler.py`
-  - Calendar name fallback logic defaulting to "Primary Calendar"
-  - Date fallback using `datetime.now()` instead of event's actual date
-  - Time formatting using 12-hour format (`%I:%M %p`) instead of 24-hour (`%H:%M`)
+#### **BUG-079: Multiple Formatting Issues in One-by-One Processing - RESOLVED**
+- **Problem 1**: "Event:" prefix appearing in one-by-one creation messages
+- **Problem 2**: Calendar name showing "Primary Calendar" instead of actual email "zoutna@gmail.com"  
+- **Problem 3**: Incorrect date display (showing current date instead of event date)
+- **Problem 4**: Time format inconsistency (mixed AM/PM vs 24-hour format)
+- **Evidence**: User report showing "Event: Test Event on Thursday, September 04, 2025 at 15:00 (Primary Calendar)" with multiple issues
+- **Root Causes**:
+  - Line 510 in `event_queue_handler.py` was adding "Event:" prefix unnecessarily
+  - Line 457 defaulting to "Primary Calendar" instead of actual calendar name
+  - `message_formatter.py` falling back to current date when event date available
+  - Mixed time formatting patterns across multiple files using `%I:%M %p` instead of `%H:%M`
 - **Fixes Applied**:
-  - **calibot/backend/app/services/event_queue_handler.py**: Removed "Event:" prefix, added proper calendar name resolution
-  - **calibot/backend/app/utils/message_formatter.py**: Fixed time formatting to 24-hour, improved date handling
-- **Result**: ✅ One-by-one confirmations now show clean format: "Test Event on Friday, September 05, 2025 at 15:00 (Zoutna)"
+  - **calibot/backend/app/services/event_queue_handler.py**: 
+    - Removed "Event:" prefix from line 510: `return event_display` instead of `return f"Event: {event_display}"`
+    - Changed default calendar name from "Primary Calendar" to "zoutna@gmail.com"
+    - Updated `_format_calendar_name()` to return actual email addresses instead of converting them
+  - **calibot/backend/app/utils/message_formatter.py**: 
+    - Fixed date fallback to use event date instead of current date
+    - Updated all time formatting from `%I:%M %p` to `%H:%M` for 24-hour format
+  - **System-wide time format fixes**: Updated all files to use `%H:%M` format consistently:
+    - `calibot/backend/app/utils/ui_helpers.py`
+    - `calibot/backend/app/core/backend_query_formatter.py` 
+    - `calibot/backend/app/services/schedule_service.py`
+- **Result**: ✅ One-by-one messages now show clean format: "Test Event on Friday, September 05, 2025 at 15:00 (zoutna@gmail.com)"
 
 ## [0.2.260] - 2025-09-04
 
