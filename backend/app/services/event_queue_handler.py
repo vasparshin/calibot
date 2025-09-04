@@ -433,6 +433,30 @@ class EventQueueHandler:
             "queue_position": f"{current_index + 1}/{total_events}"
         }
     
+    def _get_proper_calendar_name(self, event: Dict) -> str:
+        """Get the proper calendar display name from event data"""
+        # First try to get from calendar service if available
+        calendar_id = event.get('calendar_id', 'primary')
+        
+        if self.calendar_service and hasattr(self.calendar_service, 'get_calendar_display_name'):
+            try:
+                return self.calendar_service.get_calendar_display_name(calendar_id)
+            except Exception:
+                pass
+        
+        # Use calendar name from event if available and not a technical ID
+        calendar_name = event.get('calendar_name', '')
+        if calendar_name and not ('@' in calendar_name and len(calendar_name) > 20):
+            return calendar_name
+        
+        # Map common IDs to user-friendly names
+        if calendar_id == 'primary' or calendar_id == 'zoutna@gmail.com':
+            return 'Zoutna'
+        elif 'group.calendar.google.com' in calendar_id:
+            return 'Shared Calendar'
+        else:
+            return calendar_name or 'Calendar'
+
     def _format_event_summary(self, event: Dict) -> str:
         """Format a single event for user confirmation using centralized formatter"""
         try:
@@ -454,7 +478,7 @@ class EventQueueHandler:
                     'summary': event.get('event_name', event.get('summary', 'Untitled')),
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
-                    'calendar_name': event.get('calendar_name', event.get('calendar_id', 'Primary Calendar')),  # CRITICAL FIX: Use actual calendar name from event data
+                    'calendar_name': self._get_proper_calendar_name(event),  # CRITICAL FIX: Use proper calendar name resolution
                     'id': event.get('event_id', event.get('id', '')),
                     'htmlLink': hyperlink,
                     'link': hyperlink  # Backup field for formatter
@@ -507,7 +531,7 @@ class EventQueueHandler:
                     return summary
                 else:
                     # For delete/create, show basic details with consistent formatting
-                    return f"Event: {event_display}"
+                    return event_display
             else:
                 # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
                 raise ValueError("MessageFormatter not available and no fallback allowed")

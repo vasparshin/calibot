@@ -2,6 +2,27 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.2.261] - 2025-09-04
+
+### 🚨 **MAJOR BUG FIXES - ONE-BY-ONE EVENT CONFIRMATION FORMATTING ISSUES**
+
+**Fixed 4 critical bugs in one-by-one event confirmation messages for duplicate event handling**
+
+#### **BUG-079: Multiple One-by-One Confirmation Formatting Issues - RESOLVED**
+- **Problem 1**: "Event:" prefix appearing before event details in confirmation messages
+- **Problem 2**: Calendar name showing "Primary Calendar" instead of actual name "Zoutna"  
+- **Problem 3**: Incorrect date being displayed (Thursday instead of Friday)
+- **Problem 4**: Times formatted with AM/PM instead of 24-hour format
+- **Root Causes**: 
+  - Hard-coded "Event:" prefix in `event_queue_handler.py`
+  - Calendar name fallback logic defaulting to "Primary Calendar"
+  - Date fallback using `datetime.now()` instead of event's actual date
+  - Time formatting using 12-hour format (`%I:%M %p`) instead of 24-hour (`%H:%M`)
+- **Fixes Applied**:
+  - **calibot/backend/app/services/event_queue_handler.py**: Removed "Event:" prefix, added proper calendar name resolution
+  - **calibot/backend/app/utils/message_formatter.py**: Fixed time formatting to 24-hour, improved date handling
+- **Result**: ✅ One-by-one confirmations now show clean format: "Test Event on Friday, September 05, 2025 at 15:00 (Zoutna)"
+
 ## [0.2.260] - 2025-09-04
 
 ### 🚨 **CRITICAL FIX - DUPLICATE EVENT CONFIRMATION MESSAGES NOT SENT TO TELEGRAM**

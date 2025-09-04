@@ -1,6 +1,6 @@
 [project]
 name = "calibot"
-version = "0.2.260"
+version = "0.2.261"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -164,10 +164,17 @@ class MessageFormatter:
         start_time = event.get('start')
         end_time = event.get('end')
         
-        # CRITICAL FIX: If no start time, fall back to current date for display
+        # CRITICAL FIX: If no start time, try to get date from event data first
         if not start_time:
-            start_time = f"{datetime.now().strftime('%Y-%m-%d')}T00:00:00"
-            logger.info(f"🔗 HYPERLINK MASTER: Using current date fallback for event: {event_name}")
+            event_date = event.get('date')
+            if event_date:
+                # Use the date from the event data
+                start_time = f"{event_date}T{event.get('start_time', '00:00')}:00" if ':' not in str(event.get('start_time', '')) else f"{event_date}T{event.get('start_time', '00:00:00')}"
+                logger.info(f"🔗 HYPERLINK MASTER: Using event date {event_date} for event: {event_name}")
+            else:
+                # Only fallback to current date if no date in event
+                start_time = f"{datetime.now().strftime('%Y-%m-%d')}T00:00:00"
+                logger.info(f"🔗 HYPERLINK MASTER: Using current date fallback for event: {event_name}")
         
         # Parse start time
         if isinstance(start_time, str):
@@ -175,7 +182,7 @@ class MessageFormatter:
                 try:
                     start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
                     date_str = start_dt.strftime("%A, %B %d, %Y")
-                    time_str = start_dt.strftime("%I:%M %p")
+                    time_str = start_dt.strftime("%H:%M")
                 except ValueError:
                     logger.warning(f"🔗 HYPERLINK MASTER: Could not parse start time: {start_time}")
                     date_str = current_date
@@ -190,7 +197,7 @@ class MessageFormatter:
                 try:
                     start_dt = datetime.fromisoformat(start_time['dateTime'].replace('Z', '+00:00'))
                     date_str = start_dt.strftime("%A, %B %d, %Y")
-                    time_str = start_dt.strftime("%I:%M %p")
+                    time_str = start_dt.strftime("%H:%M")
                 except ValueError:
                     logger.warning(f"🔗 HYPERLINK MASTER: Could not parse start time dict: {start_time}")
                     date_str = current_date
@@ -211,7 +218,7 @@ class MessageFormatter:
             if isinstance(end_time, str) and 'T' in end_time:
                 try:
                     end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                    end_time_str = end_dt.strftime("%I:%M %p")
+                    end_time_str = end_dt.strftime("%H:%M")
                 except ValueError:
                     logger.warning(f"🔗 HYPERLINK MASTER: Could not parse end time: {end_time}")
                     end_time_str = "Unknown time"
@@ -219,7 +226,7 @@ class MessageFormatter:
                 if 'dateTime' in end_time:
                     try:
                         end_dt = datetime.fromisoformat(end_time['dateTime'].replace('Z', '+00:00'))
-                        end_time_str = end_dt.strftime("%I:%M %p")
+                        end_time_str = end_dt.strftime("%H:%M")
                     except ValueError:
                         logger.warning(f"🔗 HYPERLINK MASTER: Could not parse end time dict: {end_time}")
                         end_time_str = "Unknown time"
