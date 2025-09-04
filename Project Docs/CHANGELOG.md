@@ -2,6 +2,26 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.2.260] - 2025-09-04
+
+### 🚨 **CRITICAL FIX - DUPLICATE EVENT CONFIRMATION MESSAGES NOT SENT TO TELEGRAM**
+### 🔄 **VERSION BUMP - Changed to v0.2.x to avoid git conflicts from recent rollback**
+
+**Fixed critical bug where duplicate event confirmation messages were prepared but never sent to users**
+
+#### **BUG-078: Duplicate Event Confirmations Not Appearing in Telegram - RESOLVED**
+- **Problem**: When users request to create duplicate events, they receive no response in Telegram
+- **Root Cause**: CreateOperation prepares confirmation message and keyboard but never calls `send_message()` 
+- **Evidence**: Render logs show "operation already sent message" but no actual Telegram send logs for duplicate confirmations
+- **Technical Details**: 
+  - `CreateOperation.execute()` returns `requires_user_action=True` with message/keyboard
+  - `routes.py` assumes operation already sent message when `requires_user_action=True`
+  - But `CreateOperation` only prepares message, unlike `DeleteOperation` which calls `send_message()`
+- **Fix Applied**:
+  - **calibot/backend/app/operations/create_operation.py**: Added `await self.send_message()` call before returning confirmation
+  - Now matches pattern used by DeleteOperation and other operations that require user confirmation
+- **Result**: ✅ Duplicate event confirmations now appear correctly in Telegram with proper inline keyboards
+
 ## [0.1.259] - 2025-09-03
 
 ### 🚨 **COMPREHENSIVE BUG FIXES - DUPLICATE MESSAGES, STALE BUTTONS, CALENDAR NAMING & MIXED EVENT PROCESSING**

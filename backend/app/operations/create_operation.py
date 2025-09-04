@@ -42,6 +42,12 @@ class CreateOperation(BaseOperation):
                 
                 # Store both duplicate and non-duplicate events for proper processing
                 await self.store_pending_duplicate_operation(chat_id, duplicate_check, events_to_create, event_data, non_duplicate_events)
+                
+                # CRITICAL FIX: Send confirmation message to Telegram
+                # Problem: CreateOperation was preparing message but not sending it, unlike DeleteOperation
+                # Solution: Send message before returning requires_user_action=True
+                await self.send_message(chat_id, duplicate_check["message"], duplicate_check["keyboard"])
+                
                 return {
                     "success": True,
                     "requires_user_action": True,
