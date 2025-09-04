@@ -903,3 +903,50 @@ class GoogleCalendarService:
         except Exception as e:
             logger.error(f"Error listing calendars: {e}")
             return f"Error listing calendars: {str(e)}"
+    
+    def get_primary_calendar_id(self):
+        """Get the primary calendar ID - first tries 'primary', then first available calendar"""
+        try:
+            calendars = self.list_calendars()
+            if isinstance(calendars, list) and calendars:
+                # First try to find the primary calendar
+                for calendar in calendars:
+                    if calendar.get('primary', False):
+                        logger.info(f"Found primary calendar: {calendar.get('id', 'primary')}")
+                        return calendar.get('id', 'primary')
+                
+                # If no primary found, use first calendar
+                first_calendar = calendars[0]
+                calendar_id = first_calendar.get('id', 'primary')
+                logger.info(f"No primary calendar found, using first: {calendar_id}")
+                return calendar_id
+            else:
+                logger.warning("No calendars available, defaulting to 'primary'")
+                return 'primary'
+        except Exception as e:
+            logger.error(f"Error getting primary calendar: {e}")
+            return 'primary'
+    
+    def get_calendar_display_name(self, calendar_id):
+        """Get display name for a calendar ID - moved from ui_helpers for proper location"""
+        if not calendar_id:
+            return self.get_primary_calendar_id()
+        
+        try:
+            calendars = self.list_calendars()
+            if isinstance(calendars, list):
+                for calendar in calendars:
+                    if calendar.get('id') == calendar_id:
+                        return calendar.get('summary', calendar_id)
+            
+            # If calendar not found, try calendar agent cache
+            if hasattr(self, 'calendar_agent') and self.calendar_agent:
+                calendar_info = self.calendar_agent.get_calendar_info(calendar_id)
+                if calendar_info and calendar_info.get('name'):
+                    return calendar_info['name']
+            
+            # Return calendar ID as fallback
+            return calendar_id
+        except Exception as e:
+            logger.error(f"Error getting calendar display name for {calendar_id}: {e}")
+            return calendar_id

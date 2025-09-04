@@ -111,6 +111,8 @@ class CalendarAgent:
     async def _ai_suggest_calendar(self, event_data: Dict) -> Optional[str]:
         """Use AI to suggest the best calendar based on event content"""
         
+        logger.info(f"🤖 AI CALENDAR SELECTION: Starting calendar suggestion for event: {event_data.get('event_name', 'Untitled')}")
+        
         # Prepare calendar options for AI
         calendar_options = []
         for cal_id, cal_info in self.calendar_cache.items():
@@ -120,23 +122,20 @@ class CalendarAgent:
                 'themes': cal_info['themes'],
                 'primary': cal_info['primary']
             })
-            
-        system_prompt = f"""You are a calendar organization expert. Based on the event details and available calendars, select the most appropriate calendar.
-
-Available Calendars:
-{json.dumps(calendar_options, indent=2)}
-
-Rules:
-1. Match event content with calendar themes/names
-2. Consider calendar purpose (work, personal, sports, etc.)
-3. If no clear match, prefer primary calendar
-4. Return only the calendar ID, nothing else
-
-Event to analyze: {json.dumps(event_data, indent=2)}
-
-Respond with only the calendar ID (e.g., "primary" or the specific calendar ID)."""
-
+        
+        logger.info(f"🤖 AI CALENDAR SELECTION: Available calendars: {len(calendar_options)} options")
+        
+        # Import prompt from prompts folder
+        from app.prompts.calendar_selection_prompt import get_calendar_selection_prompt
+        
         try:
+            system_prompt = get_calendar_selection_prompt(
+                json.dumps(calendar_options, indent=2),
+                json.dumps(event_data, indent=2)
+            )
+            
+            logger.info(f"🤖 AI CALENDAR SELECTION: Calling LLM with model {self.model}")
+            
             response = await acompletion(
                 model=self.model,
                 messages=[
@@ -153,6 +152,7 @@ Respond with only the calendar ID (e.g., "primary" or the specific calendar ID).
                 if hasattr(choice, 'message') and choice.message:
                     if hasattr(choice.message, 'content'):
                         suggested_id = choice.message.content.strip().strip('"\'')
+                        logger.info(f"🤖 AI CALENDAR SELECTION: LLM response: '{suggested_id}'")
                     else:
                         raise ValueError("Message missing content field")
                 else:
@@ -162,12 +162,16 @@ Respond with only the calendar ID (e.g., "primary" or the specific calendar ID).
             
             # Validate the suggested ID exists
             if suggested_id in self.calendar_cache or suggested_id == 'primary':
-                logger.info(f"AI suggested calendar: {suggested_id}")
+                logger.info(f"🤖 AI CALENDAR SELECTION: ✅ Validated suggestion: {suggested_id}")
                 return suggested_id
+            else:
+                logger.warning(f"🤖 AI CALENDAR SELECTION: ❌ Invalid suggestion '{suggested_id}', not in available calendars")
                 
         except Exception as e:
-            logger.error(f"AI calendar suggestion failed: {e}")
+            logger.error(f"🤖 AI CALENDAR SELECTION: ❌ Failed: {e}")
+            logger.error(f"🤖 AI CALENDAR SELECTION: Event data: {event_data}")
             
+        logger.info(f"🤖 AI CALENDAR SELECTION: ❌ No valid suggestion, returning None")
         return None
         
 

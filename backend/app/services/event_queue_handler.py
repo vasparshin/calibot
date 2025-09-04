@@ -377,7 +377,7 @@ class EventQueueHandler:
                             'start': event.get('start_time', event.get('start', '')),
                             'end': event.get('end_time', event.get('end', '')),
                             'date': event.get('date'),  # CRITICAL FIX: Include date for proper formatting
-                            'calendar_name': event.get('calendar_name', event.get('calendar_id', 'Unknown Calendar')),
+                            'calendar_name': self._get_proper_calendar_name(event),
                             'id': event.get('event_id', event.get('id', '')),
                             'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
                             'link': event.get('calendar_link', event.get('link', ''))
@@ -456,7 +456,7 @@ class EventQueueHandler:
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
                     'date': event.get('date'),  # CRITICAL FIX: Include date for proper formatting
-                    'calendar_name': event.get('calendar_name', event.get('calendar_id', 'Unknown Calendar')),  # CRITICAL FIX: Use actual calendar name from event data - no hardcoding
+                    'calendar_name': self._get_proper_calendar_name(event),  # CRITICAL FIX: Use proper calendar lookup instead of unknown fallback
                     'id': event.get('event_id', event.get('id', '')),
                     'htmlLink': hyperlink,
                     'link': hyperlink  # Backup field for formatter
@@ -873,6 +873,27 @@ class EventQueueHandler:
             "queue_complete": True,
             "stats": {"successful": successful, "failed": failed, "total": total_events}
         }
+
+    def _get_proper_calendar_name(self, event: Dict) -> str:
+        """Get proper calendar name using calendar service lookup instead of 'Unknown Calendar'"""
+        # First try to get from event data
+        calendar_name = event.get('calendar_name')
+        calendar_id = event.get('calendar_id')
+        
+        if calendar_name and calendar_name != 'Unknown Calendar':
+            return calendar_name
+        
+        # Use calendar service to get proper name
+        if self.calendar_service and hasattr(self.calendar_service, 'get_calendar_display_name'):
+            if calendar_id:
+                return self.calendar_service.get_calendar_display_name(calendar_id)
+            else:
+                # Get primary calendar
+                primary_id = self.calendar_service.get_primary_calendar_id()
+                return self.calendar_service.get_calendar_display_name(primary_id)
+        
+        # Fallback to primary if no calendar service
+        return calendar_id or 'primary'
 
     async def _process_single_event(self, event: Dict) -> Dict:
         """Process a single event using existing logic"""

@@ -25,27 +25,13 @@ def format_event_title(title):
     return title.title()
 
 def get_calendar_display_name(calendar_id, calendar_service=None):
-    """Return raw calendar name without any formatting - display exactly as provided by Google Calendar"""
-    if not calendar_id:
-        return "Unknown Calendar"
-    
-    # If we have calendar service, try to get actual name from API
+    """DEPRECATED: Use GoogleCalendarService.get_calendar_display_name() instead"""
+    # This function is deprecated and moved to GoogleCalendarService for proper location
     if calendar_service and hasattr(calendar_service, 'get_calendar_display_name'):
-        try:
-            display_name = calendar_service.get_calendar_display_name(calendar_id)
-            return display_name  # Return exactly as provided by Google Calendar
-        except Exception:
-            # Return calendar ID if name lookup fails
-            pass
+        return calendar_service.get_calendar_display_name(calendar_id)
     
-    # Try calendar agent method
-    if calendar_service and hasattr(calendar_service, 'calendar_agent'):
-        calendar_info = calendar_service.calendar_agent.get_calendar_info(calendar_id)
-        if calendar_info and calendar_info.get('name'):
-            return calendar_info['name']  # Return exactly as provided by Google Calendar
-    
-    # Return calendar ID exactly as is - no formatting
-    return calendar_id
+    # Fallback if no calendar service
+    return calendar_id or 'primary'
 
 def format_date_full(date_str):
     """Format date in full format: 'Day, Month DD, YYYY'"""
