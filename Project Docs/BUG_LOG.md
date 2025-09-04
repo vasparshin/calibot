@@ -13,6 +13,29 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ## ACTIVE BUGS
 
+### BUG-081 - Critical Universal User Support and Mixed Processing Issues 
+- **Status**: 🟡 **IN PROGRESS** - Fixed in v0.2.263
+- **Description**: Multiple critical bugs affecting universal user support and duplicate event processing
+- **User Report**: "why is the event calendar name hardcoded in the logic? this shouldnt be allowed - we need to ensure @.cursorrules doesnt allow this in hte future. we need the logic to work for any user with any calendars that are conencted to their google account. Im considering this park of the calendar name diplay bug so i want it fixed now."
+- **Critical Issues Identified**:
+  1. **HARDCODED CALENDAR NAME**: `'zoutna@gmail.com'` hardcoded in event_queue_handler.py - breaks universal user support
+  2. **TIME FORMAT REGRESSION**: AM/PM format showing instead of 24-hour in duplicate confirmations  
+  3. **DELETE COMPLETION**: Missing event details in delete success messages
+  4. **MIXED PROCESSING**: Final summary never sent to user after duplicate+non-duplicate processing
+- **Evidence**: Backend logs show `format_time_12hour` calls and hardcoded calendar fallbacks
+- **Root Causes**:
+  - **Hardcoding**: Specific user calendar email hardcoded as fallback
+  - **Time formatting**: UI helpers still calling 12-hour format methods
+  - **Delete summaries**: Using count-only formatter instead of detailed list
+  - **Mixed processing**: routes.py missing final message send after confirmation processing
+- **Fixes Applied**:
+  - ✅ Removed all hardcoded 'zoutna@gmail.com' references - universal 'Unknown Calendar' fallback
+  - ✅ Fixed all time formatting to use 24-hour format consistently
+  - ✅ Enhanced delete completion to show detailed event list like create/update  
+  - ✅ Added final success message send in duplicate confirmation callback
+  - ✅ Updated .cursorrules to prevent future hardcoding
+- **Testing**: Deploy v0.2.263 and verify universal calendar support, 24-hour times, detailed summaries
+
 ### BUG-080 - Regression Bugs in v0.2.261 After Previous Fixes
 - **Status**: 🟡 **IN PROGRESS** - Fixed in v0.2.262
 - **Description**: Multiple formatting regressions appeared after v0.2.261 deployment, undoing some previous chat fixes

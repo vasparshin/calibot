@@ -59,6 +59,18 @@
 4. **User reports still broken** → Return to 🔴 ACTIVE with new details
 5. **🚨 NEVER self-promote**: Assistant cannot declare own fixes successful
 
+### 🚨 UNIVERSAL USER SUPPORT RULES
+
+#### Calendar Name Handling (CRITICAL)
+- **🚨 NEVER HARDCODE CALENDAR NAMES**: No user-specific calendar names (like 'zoutna@gmail.com') in any code
+- **🚨 UNIVERSAL FALLBACKS ONLY**: Use 'Unknown Calendar', 'primary', or dynamic calendar service lookups
+- **🚨 NO EMAIL HARDCODING**: Calendar logic must work for ANY user with ANY Google Calendar setup
+- **PRESERVE RAW NAMES**: Display calendar names exactly as provided by Google Calendar API - no formatting/conversion
+- **EXAMPLES**:
+  - ❌ WRONG: `'calendar_name': 'zoutna@gmail.com'` or `if calendar == 'zoutna@gmail.com':`
+  - ✅ CORRECT: `'calendar_name': event.get('calendar_name', 'Unknown Calendar')`
+  - ✅ CORRECT: Display calendar names without any @ symbol manipulation or email parsing
+
 ## 🚨 DEVELOPMENT WORKFLOW
 
 ### Version Management

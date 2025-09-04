@@ -25,36 +25,16 @@ def format_event_title(title):
     return title.title()
 
 def get_calendar_display_name(calendar_id, calendar_service=None):
-    """Get proper calendar display name, not technical name"""
+    """Return raw calendar name without any formatting - display exactly as provided by Google Calendar"""
     if not calendar_id:
         return "Unknown Calendar"
-    
-    # Handle common calendar IDs
-    if calendar_id == 'primary':
-        return "Personal"
-    
-    # Handle calendar names (not IDs) directly
-    if isinstance(calendar_id, str) and 'calendar' in calendar_id.lower():
-        # Handle "tonyas calendar" → "Tonya"
-        clean_name = calendar_id.lower().replace(' calendar', '').replace('calendar', '').strip()
-        if clean_name == 'tonyas':
-            return 'Tonya'
-        elif clean_name == 'work':
-            return 'Work'
-        elif clean_name == 'personal':
-            return 'Personal'
-        elif clean_name:
-            return clean_name.title()
-        else:
-            return 'Personal'
     
     # If we have calendar service, try to get actual name from API
     if calendar_service and hasattr(calendar_service, 'get_calendar_display_name'):
         try:
             display_name = calendar_service.get_calendar_display_name(calendar_id)
-            return display_name
+            return display_name  # Return exactly as provided by Google Calendar
         except Exception:
-            # NO MANUAL PARSING - per PROJECT_RULES.md
             # Return calendar ID if name lookup fails
             pass
     
@@ -62,32 +42,9 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
     if calendar_service and hasattr(calendar_service, 'calendar_agent'):
         calendar_info = calendar_service.calendar_agent.get_calendar_info(calendar_id)
         if calendar_info and calendar_info.get('name'):
-            display_name = calendar_info['name']
-            
-            # Clean up technical names
-            if '@' in display_name:
-                if 'group.calendar.google.com' in display_name:
-                    return 'Shared Calendar'
-                else:
-                    # Return actual email address as requested
-                    return display_name
-            elif 'calendar' in display_name.lower():
-                # Handle "tonyas calendar" → "Tonya"
-                clean_name = display_name.lower().replace(' calendar', '').replace('calendar', '').strip()
-                return clean_name.title()
-            return display_name
+            return calendar_info['name']  # Return exactly as provided by Google Calendar
     
-    # Fallback for known patterns
-    if '@' in calendar_id:
-        if 'group.calendar.google.com' in calendar_id:
-            return 'Shared Calendar'
-        else:
-            # Return actual email address as requested
-            return calendar_id
-    elif '.' in calendar_id and not calendar_id.startswith('http'):
-        # Handle patterns like "some.calendar.id"
-        return calendar_id.replace('.', ' ').title()
-    
+    # Return calendar ID exactly as is - no formatting
     return calendar_id
 
 def format_date_full(date_str):
@@ -182,11 +139,13 @@ def format_event_for_display(event_data, calendar_result=None, calendar_service=
             pass
     # Try our internal format
     elif event_data.get('start_time') and event_data.get('end_time'):
-        start_formatted = format_time_12hour(event_data['start_time'])
-        end_formatted = format_time_12hour(event_data['end_time'])
+        from app.utils.message_formatter import MessageFormatter
+        start_formatted = MessageFormatter.format_time_24hour(event_data['start_time'])
+        end_formatted = MessageFormatter.format_time_24hour(event_data['end_time'])
         time_str = f"{start_formatted} - {end_formatted}"
     elif event_data.get('start_time'):
-        time_str = format_time_12hour(event_data['start_time'])
+        from app.utils.message_formatter import MessageFormatter
+        time_str = MessageFormatter.format_time_24hour(event_data['start_time'])
     
     # Get proper calendar name
     calendar_id = (
@@ -236,11 +195,13 @@ def format_event_list_item(event, index, include_calendar=True):
     # Format times
     time_str = ""
     if start_time and end_time:
-        start_formatted = format_time_12hour(start_time)
-        end_formatted = format_time_12hour(end_time)
+        from app.utils.message_formatter import MessageFormatter
+        start_formatted = MessageFormatter.format_time_24hour(start_time)
+        end_formatted = MessageFormatter.format_time_24hour(end_time)
         time_str = f"{start_formatted} - {end_formatted}"
     elif start_time:
-        time_str = format_time_12hour(start_time)
+        from app.utils.message_formatter import MessageFormatter
+        time_str = MessageFormatter.format_time_24hour(start_time)
     
     # Build the formatted string
     result = f"{index}. {title}"
@@ -460,11 +421,13 @@ def format_duplicate_confirmation_with_keyboard(duplicates, action="create"):
                         time_display = f"at {formatted_start}"
                         
                 except:
-                    formatted_time = format_time_12hour(start_time)
+                    from app.utils.message_formatter import MessageFormatter
+                    formatted_time = MessageFormatter.format_time_24hour(start_time)
                     formatted_date = format_date_full(date) if date else "Unknown date"
                     time_display = f"at {formatted_time}"
             else:
-                formatted_time = format_time_12hour(start_time)
+                from app.utils.message_formatter import MessageFormatter
+                formatted_time = MessageFormatter.format_time_24hour(start_time)
                 formatted_date = format_date_full(date) if date else "Unknown date"
                 time_display = f"at {formatted_time}"
         else:
@@ -549,7 +512,8 @@ def format_multi_event_confirmation_with_keyboard(events, action="delete"):
                     start_time = start_dt.strftime('%H:%M')
                     date_display = start_dt.strftime('%A, %B %d, %Y')
                 else:
-                    start_time = format_time_12hour(start_data)
+                    from app.utils.message_formatter import MessageFormatter
+                    start_time = MessageFormatter.format_time_24hour(start_data)
                     date_display = start_data
             except:
                 start_time = "Unknown time"

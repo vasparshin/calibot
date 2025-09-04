@@ -560,6 +560,12 @@ async def handle_duplicate_confirmation_callback(chat_id: int, message_id: int, 
                 result.get("message", "Processing..."),
                 result.get("keyboard")
             )
+        elif result.get("success") and is_confirmed:
+            # CRITICAL FIX: Send final success message to user
+            # Problem: Confirmation processing was successful but final result never sent
+            # Solution: Send the combined result message directly to user
+            final_message = result.get("message", "Operation completed successfully.")
+            await send_telegram_message(chat_id, final_message)
 
         return {"status": "ok"}
 

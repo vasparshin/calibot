@@ -2,6 +2,38 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.2.263] - 2025-09-04
+
+### 🚨 **CRITICAL UNIVERSAL USER SUPPORT & MIXED PROCESSING FIXES**
+
+**Fixed critical hardcoded calendar names and completed missing functionality for universal user support**
+
+#### **BUG-081: Universal User Support & Mixed Processing Issues - RESOLVED**
+- **Problem 1**: Hardcoded 'zoutna@gmail.com' calendar name breaks universal user support  
+- **Problem 2**: Time format regression - AM/PM showing instead of 24-hour in duplicate confirmations
+- **Problem 3**: Delete completion missing event details (only showing count)  
+- **Problem 4**: Mixed duplicate+non-duplicate processing never sends final summary to user
+- **Evidence**: Backend logs showed hardcoded fallbacks and `format_time_12hour` calls
+- **Root Causes**:
+  - **Hardcoding**: Specific user email hardcoded as fallback in event_queue_handler.py
+  - **Time regression**: ui_helpers.py still calling 12-hour format methods after previous fixes  
+  - **Delete summaries**: Using count-only formatter instead of detailed event list
+  - **Mixed processing**: routes.py missing final message send after confirmation processing completes
+- **CRITICAL FIXES APPLIED**:
+  - **Universal Support**: Removed ALL hardcoded 'zoutna@gmail.com' → universal 'Unknown Calendar' fallback
+  - **Calendar Display**: Removed ALL calendar name formatting - display raw names from Google Calendar API
+  - **Time Format**: Fixed ALL remaining format_time_12hour() calls → MessageFormatter.format_time_24hour()
+  - **Delete Completion**: Enhanced to show detailed event list like create/update operations
+  - **Mixed Processing**: Added final success message send in handle_duplicate_confirmation_callback()
+  - **Future Protection**: Updated .cursorrules with UNIVERSAL USER SUPPORT rules to prevent hardcoding
+- **Files Changed**: 
+  - `event_queue_handler.py`: Removed hardcoded calendar names, enhanced delete completion formatting
+  - `ui_helpers.py`: Removed calendar name formatting logic, fixed time format calls  
+  - `routes.py`: Added final message send for confirmation processing
+  - `.cursorrules`: Added universal user support rules and calendar name handling guidelines
+- **IMPACT**: System now works for ANY user with ANY Google Calendar setup - no user-specific dependencies
+- **Testing**: Verify universal calendar support, 24-hour time consistency, detailed completion summaries
+
 ## [0.2.262] - 2025-09-04
 
 ### 🚨 **CRITICAL REGRESSION FIXES - DATE DISPLAY & CALENDAR NAMES IN v0.2.261**

@@ -377,7 +377,7 @@ class EventQueueHandler:
                             'start': event.get('start_time', event.get('start', '')),
                             'end': event.get('end_time', event.get('end', '')),
                             'date': event.get('date'),  # CRITICAL FIX: Include date for proper formatting
-                            'calendar_name': event.get('calendar_name', 'zoutna@gmail.com'),
+                            'calendar_name': event.get('calendar_name', event.get('calendar_id', 'Unknown Calendar')),
                             'id': event.get('event_id', event.get('id', '')),
                             'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
                             'link': event.get('calendar_link', event.get('link', ''))
@@ -456,7 +456,7 @@ class EventQueueHandler:
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
                     'date': event.get('date'),  # CRITICAL FIX: Include date for proper formatting
-                    'calendar_name': event.get('calendar_name', event.get('calendar_id', 'zoutna@gmail.com')),  # CRITICAL FIX: Use actual calendar name from event data
+                    'calendar_name': event.get('calendar_name', event.get('calendar_id', 'Unknown Calendar')),  # CRITICAL FIX: Use actual calendar name from event data - no hardcoding
                     'id': event.get('event_id', event.get('id', '')),
                     'htmlLink': hyperlink,
                     'link': hyperlink  # Backup field for formatter
@@ -834,7 +834,13 @@ class EventQueueHandler:
             elif intent == 'update':
                 message = MessageFormatter.format_success_message_update(formatted_events, total_events, date_info)
             elif intent == 'delete':
-                message = MessageFormatter.format_success_message_delete(total_events, date_info)
+                # For delete, show detailed list of deleted events like create/update
+                if formatted_events:
+                    header = f"Successfully deleted {total_events} event(s):\n\n"
+                    event_list = MessageFormatter.format_event_list_display(formatted_events, numbered=False, include_hyperlink=True)
+                    message = header + event_list
+                else:
+                    message = MessageFormatter.format_success_message_delete(total_events, date_info)
             else:
                 message = f"Successfully {action_text} all {total_events} events!"
         else:
