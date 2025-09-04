@@ -13,6 +13,25 @@ Track specific bugs reported by user testing. Bugs are only marked as FIXED afte
 
 ## ACTIVE BUGS
 
+### BUG-080 - Regression Bugs in v0.2.261 After Previous Fixes
+- **Status**: 🟡 **IN PROGRESS** - Fixed in v0.2.262
+- **Description**: Multiple formatting regressions appeared after v0.2.261 deployment, undoing some previous chat fixes
+- **User Report**: "in the initial duplicate event summary message 'Found 3 duplicate...' the name of the calendar is now displayed incorrectly but in ther previous .260 version was shouwing correctly. The inidividual event processing notification message is still showing the wrong date like in .260. The 2nd summayr message after the onne by one process is finished 'All events processed!' is missing the details of the processed events"
+- **Evidence**: Backend logs show:
+  - `'date': '2025-09-05'` in intent but `"Test Event on Thursday, September 04, 2025"` in final message  
+  - Calendar names showing as "Zoutna" instead of "zoutna@gmail.com"
+  - Completion messages showing "All events processed!" without event details
+- **Root Causes**:
+  1. **Date issue**: `event_queue_handler.py` line 457 creates formatted_event without `'date'` field, so MessageFormatter falls back to current date instead of event date
+  2. **Calendar name issue**: `get_calendar_display_name()` in `ui_helpers.py` converts email addresses to shortened names instead of preserving actual emails
+  3. **Missing summary**: Completion logic exists but formatted_events may be empty due to missing processed results
+- **Fixes Applied**:
+  - **event_queue_handler.py**: Added `'date': event.get('date')` to formatted_event structure for both one-by-one processing and completion summaries
+  - **ui_helpers.py**: Modified `get_calendar_display_name()` to return actual email addresses instead of converting them to short names
+- **Testing Required**: Verify one-by-one processing shows correct dates and calendar names, completion summary includes event details
+
+## ACTIVE BUGS
+
 ### BUG-052 - Excessive Calendar API Calls and Verbose Logging
 - **Status**: 🔴 **ACTIVE**
 - **Description**: Calendar service is making unnecessary API calls to check available calendars on every operation, resulting in verbose logging and performance issues

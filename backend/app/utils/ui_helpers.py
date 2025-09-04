@@ -68,12 +68,9 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
             if '@' in display_name:
                 if 'group.calendar.google.com' in display_name:
                     return 'Shared Calendar'
-                elif display_name == 'zoutna@gmail.com':
-                    return 'Personal'
                 else:
-                    # Extract name before @ and clean it up
-                    name = display_name.split('@')[0].replace('.', ' ').title()
-                    return name
+                    # Return actual email address as requested
+                    return display_name
             elif 'calendar' in display_name.lower():
                 # Handle "tonyas calendar" → "Tonya"
                 clean_name = display_name.lower().replace(' calendar', '').replace('calendar', '').strip()
@@ -85,7 +82,8 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
         if 'group.calendar.google.com' in calendar_id:
             return 'Shared Calendar'
         else:
-            return calendar_id.split('@')[0].replace('.', ' ').title()
+            # Return actual email address as requested
+            return calendar_id
     elif '.' in calendar_id and not calendar_id.startswith('http'):
         # Handle patterns like "some.calendar.id"
         return calendar_id.replace('.', ' ').title()

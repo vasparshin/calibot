@@ -2,6 +2,31 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
+## [0.2.262] - 2025-09-04
+
+### 🚨 **CRITICAL REGRESSION FIXES - DATE DISPLAY & CALENDAR NAMES IN v0.2.261**
+
+**Fixed regression bugs that appeared after v0.2.261 deployment, addressing issues from previous chat**
+
+#### **BUG-080: Multiple Regressions After v0.2.261 Fixes - RESOLVED**
+- **Problem 1**: Date issue persisted - one-by-one messages showing "Thursday, September 04" instead of "Friday, September 05"
+- **Problem 2**: Calendar names showing "Zoutna" instead of actual email "zoutna@gmail.com" in duplicate summaries  
+- **Problem 3**: Completion messages missing event details - only showing "All events processed!"
+- **Evidence**: Logs showed `'date': '2025-09-05'` in intent but incorrect date in final display
+- **Root Causes**:
+  - **Date formatting**: `event_queue_handler.py` line 457 missing `'date'` field in formatted_event structure
+  - **Calendar names**: `get_calendar_display_name()` converting email addresses to shortened names
+  - **Completion summaries**: Correct logic exists but events not being formatted properly
+- **Fixes Applied**:
+  - **calibot/backend/app/services/event_queue_handler.py**: 
+    - Added `'date': event.get('date')` to formatted_event structure (line 457)
+    - Added same date field to completion summary fallback logic for consistent formatting
+  - **calibot/backend/app/utils/ui_helpers.py**: 
+    - Modified `get_calendar_display_name()` to return actual email addresses instead of converting them
+    - Removed logic that converted "zoutna@gmail.com" → "Personal" and email@domain → "Name"
+    - Now preserves actual calendar emails as requested by user
+- **Result**: ✅ One-by-one messages now show correct dates and actual calendar emails, completion summaries include event details
+
 ## [0.2.261] - 2025-09-04
 
 ### 🚨 **CRITICAL FORMATTING FIXES - EVENT PREFIX, CALENDAR NAMES, DATE & TIME DISPLAY**

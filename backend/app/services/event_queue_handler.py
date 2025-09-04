@@ -376,7 +376,8 @@ class EventQueueHandler:
                             'summary': event.get('event_name', event.get('summary', 'Untitled')),
                             'start': event.get('start_time', event.get('start', '')),
                             'end': event.get('end_time', event.get('end', '')),
-                            'calendar_name': event.get('calendar_name', 'Unknown Calendar'),
+                            'date': event.get('date'),  # CRITICAL FIX: Include date for proper formatting
+                            'calendar_name': event.get('calendar_name', 'zoutna@gmail.com'),
                             'id': event.get('event_id', event.get('id', '')),
                             'htmlLink': event.get('calendar_link', event.get('htmlLink', event.get('link', ''))),
                             'link': event.get('calendar_link', event.get('link', ''))
@@ -454,6 +455,7 @@ class EventQueueHandler:
                     'summary': event.get('event_name', event.get('summary', 'Untitled')),
                     'start': event.get('start_time', event.get('start', '')),
                     'end': event.get('end_time', event.get('end', '')),
+                    'date': event.get('date'),  # CRITICAL FIX: Include date for proper formatting
                     'calendar_name': event.get('calendar_name', event.get('calendar_id', 'zoutna@gmail.com')),  # CRITICAL FIX: Use actual calendar name from event data
                     'id': event.get('event_id', event.get('id', '')),
                     'htmlLink': hyperlink,
