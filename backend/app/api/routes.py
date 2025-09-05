@@ -72,7 +72,7 @@ async def telegram_webhook(request: Request):
         # CRITICAL FIX: Remove any stale inline keyboards when user sends new message
         # This prevents users from pressing old buttons after sending new messages
         # MANDATORY per user requirement - buttons MUST disappear to prevent "going back in time"
-        await _cleanup_stale_keyboards(chat_id)
+       # await _cleanup_stale_keyboards(chat_id)
         
         # Add debug logging for duplicate detection
         logger.info(f"🔍 WEBHOOK DEBUG: Processing message '{user_message}' for chat {chat_id} (ID: {message_id})")
@@ -586,7 +586,7 @@ async def _process_single_message(chat_id: str, user_message: str):
             return {"status": "ok"}
 
         # CRITICAL: Clean up conversation state if it might be corrupted
-        _cleanup_conversation_state_if_corrupted(chat_id_int, conversation_state)
+        #_cleanup_conversation_state_if_corrupted(chat_id_int, conversation_state)
 
         # Extract intent from combined result
         intent_result = combined_result
