@@ -1,0 +1,154 @@
+import httpx
+import logging
+from app.config import TELEGRAM_API_TOKEN
+
+logger = logging.getLogger(__name__)
+TELEGRAM_API_BASE = f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}"
+
+def strip_markdown(text: str) -> str:
+    """Remove Markdown formatting characters from text, but preserve hyperlinks and URLs"""
+    import re
+    # Remove bold **text**
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    # Remove italic *text* (but not hyperlinks)
+    text = re.sub(r'(?<!\])\*(.*?)\*(?!\()', r'\1', text)
+    # Remove other common markdown
+    text = re.sub(r'`(.*?)`', r'\1', text)  # code
+    
+    # CRITICAL FIX: Only remove underscores for markdown formatting (_text_), 
+    # NOT for URL parameters like response_type=code or client_id=xxx
+    # This regex only matches underscores that are used for markdown emphasis:
+    # - Must be surrounded by word boundaries or spaces
+    # - Must not be within URLs (containing = or &)
+    text = re.sub(r'(?<![=&\w])_([^_]+?)_(?![=&\w])', r'\1', text)  # underline markdown only
+    
+    # Keep hyperlinks [text](url) intact
+    return text
+
+async def send_telegram_message(chat_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
+        """Send message to Telegram chat with optional inline keyboard"""
+        import time
+        start_time = time.time()
+        
+        # Check if text contains hyperlinks - if so, use Markdown mode
+        if '[' in text and '](' in text and ')' in text:
+            parse_mode = "Markdown"
+            clean_text = text  # Keep hyperlinks intact for Markdown mode
+        else:
+            # Strip all markdown formatting for plain text
+            clean_text = strip_markdown(text)
+        
+        # Log the bot response for debugging    
+        logger.info(f"🤖 Bot sending to chat {chat_id}: {clean_text[:200]}{'...' if len(clean_text) > 200 else ''}")
+            
+        async with httpx.AsyncClient() as client:
+            payload = {
+                "chat_id": chat_id,
+                "text": clean_text,
+                "disable_web_page_preview": True  # Disable Google Workspace banner previews
+            }
+            # Only add parse_mode if specified
+            if parse_mode:
+                payload["parse_mode"] = parse_mode
+
+            # Add inline keyboard if provided
+            if reply_markup:
+                payload["reply_markup"] = reply_markup
+                logger.info(f"🎹 Keyboard attached: {len(reply_markup.get('inline_keyboard', []))} button rows")
+                
+            response = await client.post(
+                f"{TELEGRAM_API_BASE}/sendMessage",
+                json=payload
+            )
+            
+            # Log timing information
+            end_time = time.time()
+            delivery_time = (end_time - start_time) * 1000  # Convert to milliseconds
+            logger.info(f"⏱️ TELEGRAM API: Message delivery took {delivery_time:.0f}ms")
+            
+            result = response.json()
+            if not result.get("ok"):
+                logger.warning(f"⚠️ TELEGRAM API: Message failed: {result}")
+            
+            return result
+
+
+def create_event_selection_keyboard(events: list) -> dict:
+    """Create inline keyboard for selecting individual events"""
+    keyboard = []
+    
+    # Add event buttons (max 5 per row, limit to first 20 events)
+    events_to_show = events[:20]
+    for i, event in enumerate(events_to_show, 1):
+        event_name = event.get('summary', f'Event {i}')[:30]  # Truncate long names
+        keyboard.append([{"text": f"{i}. {event_name}", "callback_data": f"select_event_{i-1}"}])
+    
+    # Add control buttons
+    keyboard.append([
+        {"text": "✅ Select All", "callback_data": "select_all"},
+        {"text": "❌ Cancel", "callback_data": "select_cancel"}
+    ])
+    
+    return {"inline_keyboard": keyboard}
+
+async def answer_callback_query(callback_query_id: str, text: str = None, show_alert: bool = False):
+    """Answer callback query from inline keyboard button press"""
+    async with httpx.AsyncClient() as client:
+        payload = {
+            "callback_query_id": callback_query_id,
+        }
+        if text:
+            payload["text"] = text
+        if show_alert:
+            payload["show_alert"] = show_alert
+            
+        response = await client.post(
+            f"{TELEGRAM_API_BASE}/answerCallbackQuery",
+            json=payload
+        )
+        return response.json()
+
+async def edit_message_text(chat_id: int, message_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
+    """Edit existing message text and keyboard"""
+    # Auto-detect hyperlinks and set Markdown mode
+    if parse_mode is None and '[' in text and '](' in text and ')' in text:
+        parse_mode = "Markdown"
+        logger.info(f"📝 Auto-detected hyperlinks, using Markdown mode")
+        
+    # Log the message edit for debugging
+    logger.info(f"📝 Bot editing message {message_id} for chat {chat_id}: {text[:200]}{'...' if len(text) > 200 else ''}")
+    
+    async with httpx.AsyncClient() as client:
+        payload = {
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": text,
+        }
+        if parse_mode:
+            payload["parse_mode"] = parse_mode
+        if reply_markup:
+            payload["reply_markup"] = reply_markup
+            logger.info(f"🎹 Keyboard updated: {len(reply_markup.get('inline_keyboard', []))} button rows")
+            
+        response = await client.post(
+            f"{TELEGRAM_API_BASE}/editMessageText",
+            json=payload
+        )
+        return response.json()
+
+
+class TelegramBotService:
+    def start(self):
+        print("Telegram bot started...")  # For debugging
+
+    def stop(self):
+        print("Telegram bot stopped...")  # For debugging
+    
+    async def send_telegram_message(self, chat_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
+        """Send message to Telegram chat with optional inline keyboard"""
+        return await send_telegram_message(chat_id, text, parse_mode, reply_markup)
+    
+    async def edit_message_text(self, chat_id: int, message_id: int, text: str, parse_mode: str = None, reply_markup: dict = None):
+        """Edit existing message text and keyboard"""
+        return await edit_message_text(chat_id, message_id, text, parse_mode, reply_markup)
+

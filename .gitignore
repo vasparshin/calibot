@@ -1,0 +1,93 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+.env
+/backend/.env
+/backend/app/.env
+/backend/*.pickle
+
+# Test result files
+tests/*_results_*.json
+comprehensive_demo_results_*.json
+*_results_*.json
+/backend/*.txt
+/backend/client.json
+/backend/app/credentials.json
+
+# Test files organization rules
+# Test files should only exist in the tests/ folder
+# This helps prevent test files from accidentally being placed in the root or other folders
+test_*.py
+*_test.py
+demo*.py
+queue_demo.py
+simple_queue_demo.py
+*_debug.py
+
+# Allow test files only in the tests folder
+!tests/test_*.py
+!tests/*_test.py  
+!tests/demo*.py
+!tests/queue_demo.py
+!tests/simple_queue_demo.py
+
+# Development and documentation files (not needed in production)
+immediate_changes.md
+test_plan.md
+ISSUE_LOG.md
+*_SUMMARY.md
+*SUMMARY*.md
+FIXES_*.md
+DEPLOY_AND_TEST.bat
+DEPLOYMENT_STATUS_REPORT.md
+CREATE_TEST_BOT.md
+
+# Development binaries and media
+*.mp4
+*.tgz
+*.tar.gz
+*.zip
+
+# Development directories with large assets
+info/
+
+# Test result files and logs (reduce deployment size)
+tests/logs/
+tests/*_results_*.json
+tests/telegram_simulation_*.json
+tests/automated_test_*.json
+tests/comprehensive_test_*.json
+tests/critical_test_results_*.json
+tests/api_test_report_*.json
+
+# Development utilities (not needed in production)
+scripts/stream_logs*
+scripts/working_logs.py
+scripts/analyze_llm_logs.py
+scripts/explore_api.py
+scripts/test_*.py
+check_deployment_status.py
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.orig
