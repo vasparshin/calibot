@@ -14,10 +14,13 @@ from app.config import (
     GOOGLE_API_SCOPES, 
     API_HOST, 
     API_PORT,
-    OAUTH_REDIRECT_PATH
+    OAUTH_REDIRECT_PATH,
+    LITELLM_MODEL
 )
-from app.agent.calendar_agent import CalendarAgent
+from litellm import acompletion
 import logging
+import json
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +30,9 @@ class GoogleCalendarService:
         self.token_path = '/data/token.pickle'
         self.service = None
         self.redirect_uri = os.getenv("BACKEND_URL", f"http://{API_HOST}:{API_PORT}") + OAUTH_REDIRECT_PATH
-        self.calendar_agent = CalendarAgent()
+        self.calendar_cache = {}  # Cache for available calendars
         self._calendars_loaded = False
+        self.model = LITELLM_MODEL
     
     def get_auth_url(self, force_fresh=True):
         """Generate OAuth authorization URL with proper parameters
@@ -249,29 +253,29 @@ class GoogleCalendarService:
         return self.get_calendar_service() is not None
 
     async def ensure_calendars_loaded(self):
-        """Ensure calendars are loaded into the calendar agent"""
+        """Ensure calendars are loaded into the calendar cache"""
         if not self._calendars_loaded and self.is_authenticated():
             try:
                 calendars = self.list_calendars()
                 if isinstance(calendars, list):
-                    self.calendar_agent.update_calendar_cache(calendars)
+                    self.update_calendar_cache(calendars)
                     self._calendars_loaded = True
-                    logger.info(f"Loaded {len(calendars)} calendars into calendar agent")
+                    logger.info(f"Loaded {len(calendars)} calendars into calendar cache")
             except Exception as e:
                 logger.error(f"Failed to load calendars: {e}")
 
     async def get_available_calendars(self) -> List[Dict]:
         """Get all available calendars with theme information"""
         await self.ensure_calendars_loaded()
-        return self.calendar_agent.list_all_calendars()
+        return self.list_all_calendars()
 
     async def suggest_calendar(self, event_data: Dict, query: str = "") -> List[Dict]:
         """Get calendar suggestions based on event data or query"""
         await self.ensure_calendars_loaded()
         if event_data:
-            suggested_id = await self.calendar_agent.select_calendar_for_event(event_data)
+            suggested_id = await self.select_calendar_for_event(event_data)
             # Return the suggested calendar with high relevance, plus others
-            suggestions = self.calendar_agent.get_calendar_suggestions(query)
+            suggestions = self.get_calendar_suggestions(query)
             # Move suggested calendar to top
             for i, cal in enumerate(suggestions):
                 if cal['id'] == suggested_id:
@@ -280,7 +284,7 @@ class GoogleCalendarService:
                     break
             return suggestions
         else:
-            return self.calendar_agent.get_calendar_suggestions(query)
+            return self.get_calendar_suggestions(query)
     
 
     def get_user_timezone(self):
@@ -307,8 +311,8 @@ class GoogleCalendarService:
         if calendar_id == 'primary':
             return "Personal"
         
-        # Try to get from calendar agent cache first
-        calendar_info = self.calendar_agent.get_calendar_info(calendar_id)
+        # Try to get from calendar cache first
+        calendar_info = self.get_calendar_info(calendar_id)
         if calendar_info and calendar_info.get('name'):
             return calendar_info['name']
         
@@ -324,7 +328,7 @@ class GoogleCalendarService:
             display_name = calendar.get('summary', calendar_id)
             
             # Update cache with new information
-            self.calendar_agent.update_single_calendar_cache(calendar_id, {
+            self.update_single_calendar_cache(calendar_id, {
                 'name': display_name,
                 'id': calendar_id
             })
@@ -348,7 +352,7 @@ class GoogleCalendarService:
         await self.ensure_calendars_loaded()
         
         # Intelligently select calendar
-        selected_calendar_id = await self.calendar_agent.select_calendar_for_event(event_data)
+        selected_calendar_id = await self.select_calendar_for_event(event_data)
         
         # Get user's time zone
         user_timezone = self.get_user_timezone()
@@ -402,7 +406,7 @@ class GoogleCalendarService:
                 logger.info(f"Added {len(valid_attendees)} attendees to event")
             
         # Get calendar name for logging
-        calendar_info = self.calendar_agent.get_calendar_info(selected_calendar_id)
+        calendar_info = self.get_calendar_info(selected_calendar_id)
         calendar_name = calendar_info['name'] if calendar_info else selected_calendar_id
         
         logger.info(f"Creating event '{event['summary']}' in calendar '{calendar_name}' ({selected_calendar_id})")
@@ -453,10 +457,10 @@ class GoogleCalendarService:
                 specified_calendar = event_data.get('calendar') or event_data.get('calendar_name')
                 logger.info(f"Calendar move requested to: '{specified_calendar}'")
                 
-                # Use calendar agent if available and loaded
-                if hasattr(self, 'calendar_agent') and self.calendar_agent.calendar_cache:
-                    logger.info(f"Calendar agent available with {len(self.calendar_agent.calendar_cache)} calendars")
-                    new_calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
+                # Use calendar cache if available and loaded
+                if self.calendar_cache:
+                    logger.info(f"Calendar cache available with {len(self.calendar_cache)} calendars")
+                    new_calendar_id = self._find_calendar_by_name(specified_calendar)
                     logger.info(f"Calendar lookup result for '{specified_calendar}': {new_calendar_id}")
                     
                     if new_calendar_id and new_calendar_id != calendar_id:
@@ -469,18 +473,17 @@ class GoogleCalendarService:
                 else:
                     logger.error(f"Calendar agent not available or cache empty - cannot move to '{specified_calendar}'")
                     # Try to update calendar cache
-                    if hasattr(self, 'calendar_agent'):
-                        try:
-                            calendars = self.get_calendars()
-                            if calendars:
-                                self.calendar_agent.update_calendar_cache(calendars)
-                                logger.info(f"Updated calendar cache with {len(calendars)} calendars")
-                                new_calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
-                                if new_calendar_id and new_calendar_id != calendar_id:
-                                    target_calendar_id = new_calendar_id
-                                    logger.info(f"After cache update - moving event from '{calendar_id}' to '{new_calendar_id}'")
-                        except Exception as e:
-                            logger.error(f"Failed to update calendar cache: {e}")
+                    try:
+                        calendars = self.get_calendars()
+                        if calendars:
+                            self.update_calendar_cache(calendars)
+                            logger.info(f"Updated calendar cache with {len(calendars)} calendars")
+                            new_calendar_id = self._find_calendar_by_name(specified_calendar)
+                            if new_calendar_id and new_calendar_id != calendar_id:
+                                target_calendar_id = new_calendar_id
+                                logger.info(f"After cache update - moving event from '{calendar_id}' to '{new_calendar_id}'")
+                    except Exception as e:
+                        logger.error(f"Failed to update calendar cache: {e}")
             
             # Update fields
             if 'event_name' in event_data:
@@ -724,7 +727,7 @@ class GoogleCalendarService:
             # If user specified a calendar, search only that one
             if 'calendar' in query_params or 'calendar_name' in query_params:
                 specified_calendar = query_params.get('calendar') or query_params.get('calendar_name')
-                calendar_id = self.calendar_agent._find_calendar_by_name(specified_calendar)
+                calendar_id = self._find_calendar_by_name(specified_calendar)
                 if calendar_id:
                     calendar_ids = [calendar_id]
                     logger.info(f"🔍 CALENDAR QUERY: User specified calendar '{specified_calendar}' -> '{calendar_id}'")
@@ -745,11 +748,11 @@ class GoogleCalendarService:
                         logger.info(f"🔍 CALENDAR QUERY: Calendar IDs: {calendar_ids}")
                         
                         # Also update calendar cache with fresh data
-                        self.calendar_agent.update_calendar_cache(available_calendars_list)
+                        self.update_calendar_cache(available_calendars_list)
                     else:
                         # Fallback to calendar cache if API call fails
-                        if hasattr(self.calendar_agent, 'calendar_cache') and self.calendar_agent.calendar_cache:
-                            calendar_ids = list(self.calendar_agent.calendar_cache.keys())
+                        if self.calendar_cache:
+                            calendar_ids = list(self.calendar_cache.keys())
                             logger.warning(f"🔍 CALENDAR QUERY: API failed, using cache - {len(calendar_ids)} calendars")
                         else:
                             # Last resort - use primary only
@@ -761,8 +764,8 @@ class GoogleCalendarService:
                     calendar_ids = ['primary']
                 
                 logger.info(f"🔍 CALENDAR QUERY: Final search scope - {len(calendar_ids)} calendars: {calendar_ids}")
-                if hasattr(self.calendar_agent, 'calendar_cache'):
-                    logger.info(f"🔍 CALENDAR QUERY: Calendar cache contains: {list(self.calendar_agent.calendar_cache.keys())}")
+                if self.calendar_cache:
+                    logger.info(f"🔍 CALENDAR QUERY: Calendar cache contains: {list(self.calendar_cache.keys())}")
             
             # Ensure we have at least one calendar to search
             if not calendar_ids:
@@ -797,7 +800,7 @@ class GoogleCalendarService:
                     )
                     
                     events = events_result.get('items', [])
-                    calendar_info = self.calendar_agent.get_calendar_info(calendar_id)
+                    calendar_info = self.get_calendar_info(calendar_id)
                     calendar_name = calendar_info['name'] if calendar_info else calendar_id
                     
                     # Add calendar info to each event
@@ -903,3 +906,214 @@ class GoogleCalendarService:
         except Exception as e:
             logger.error(f"Error listing calendars: {e}")
             return f"Error listing calendars: {str(e)}"
+
+    # Calendar Agent Methods (consolidated from calendar_agent.py)
+    
+    def update_calendar_cache(self, calendars: List[Dict]):
+        """Update the internal cache of available calendars"""
+        self.calendar_cache = {
+            cal['id']: {
+                'id': cal['id'],
+                'name': cal.get('summary', 'Unknown'),
+                'description': cal.get('description', ''),
+                'primary': cal.get('primary', False),
+                'color': cal.get('backgroundColor', '#ffffff'),
+                'themes': self._extract_themes_from_name(cal.get('summary', ''))
+            }
+            for cal in calendars
+        }
+        logger.info(f"Updated calendar cache with {len(self.calendar_cache)} calendars")
+
+    def update_single_calendar_cache(self, calendar_id: str, calendar_data: Dict):
+        """Update a single calendar in the cache"""
+        if not self.calendar_cache:
+            self.calendar_cache = {}
+        
+        self.calendar_cache[calendar_id] = {
+            'id': calendar_id,
+            'name': calendar_data.get('name', calendar_data.get('summary', 'Unknown')),
+            'description': calendar_data.get('description', ''),
+            'primary': calendar_data.get('primary', False),
+            'color': calendar_data.get('backgroundColor', '#ffffff'),
+            'themes': self._extract_themes_from_name(calendar_data.get('name', calendar_data.get('summary', '')))
+        }
+        logger.info(f"Updated single calendar cache for {calendar_id}")
+        
+    def _extract_themes_from_name(self, calendar_name: str) -> List[str]:
+        """Extract potential themes from calendar name"""
+        themes = []
+        name_lower = calendar_name.lower()
+        
+        # Common theme patterns
+        theme_patterns = {
+            'work': ['work', 'office', 'business', 'professional', 'meetings', 'corporate'],
+            'personal': ['personal', 'private', 'life', 'family'],
+            'sports': ['sports', 'fitness', 'gym', 'exercise', 'workout', 'training', 'football', 'basketball', 'tennis', 'running'],
+            'education': ['lessons', 'school', 'university', 'education', 'learning', 'study', 'class', 'course', 'tutor'],
+            'health': ['health', 'medical', 'doctor', 'dentist', 'appointment', 'hospital', 'clinic'],
+            'travel': ['travel', 'trip', 'vacation', 'holiday', 'flight'],
+            'social': ['social', 'friends', 'party', 'event', 'dinner', 'lunch'],
+            'hobbies': ['hobby', 'music', 'art', 'reading', 'gaming']
+        }
+        
+        # NO KEYWORD-BASED MATCHING - per PROJECT_RULES.md
+        # LLM should provide calendar selection directly
+        # Theme matching removed - calendars should be selected by LLM
+                
+        return themes
+        
+    async def select_calendar_for_event(self, event_data: Dict) -> Optional[str]:
+        """
+        Intelligently select the best calendar for an event based on content and available calendars
+        """
+        if not self.calendar_cache:
+            logger.warning("No calendars in cache, defaulting to primary")
+            return 'primary'
+            
+        # Check if user specified a calendar
+        if 'calendar' in event_data or 'calendar_name' in event_data:
+            specified_calendar = event_data.get('calendar') or event_data.get('calendar_name')
+            calendar_id = self._find_calendar_by_name(specified_calendar)
+            if calendar_id:
+                return calendar_id
+                
+        # Use AI to analyze event and suggest calendar
+        try:
+            calendar_suggestion = await self._ai_suggest_calendar(event_data)
+            if calendar_suggestion:
+                return calendar_suggestion
+        except Exception as e:
+            logger.error(f"Error in AI calendar suggestion: {e}")
+
+        # NO FALLBACK FUNCTIONALITY - per PROJECT_RULES.md
+        # If AI calendar suggestion fails, default to primary calendar
+        # LLM should provide calendar information through proper prompting
+        logger.warning("AI calendar suggestion failed, defaulting to primary calendar")
+        return 'primary'
+        
+    def _find_calendar_by_name(self, calendar_name: str) -> Optional[str]:
+        """Find calendar ID by name (case insensitive partial match)"""
+        if not calendar_name:
+            return None
+            
+        calendar_name_lower = calendar_name.lower()
+        
+        for cal_id, cal_info in self.calendar_cache.items():
+            if (calendar_name_lower in cal_info['name'].lower() or 
+                cal_info['name'].lower() in calendar_name_lower):
+                return cal_id
+                
+        return None
+        
+    async def _ai_suggest_calendar(self, event_data: Dict) -> Optional[str]:
+        """Use AI to suggest the best calendar based on event content"""
+        
+        # Prepare calendar options for AI
+        calendar_options = []
+        for cal_id, cal_info in self.calendar_cache.items():
+            calendar_options.append({
+                'id': cal_id,
+                'name': cal_info['name'],
+                'themes': cal_info['themes'],
+                'primary': cal_info['primary']
+            })
+            
+        system_prompt = f"""You are a calendar organization expert. Based on the event details and available calendars, select the most appropriate calendar.
+
+Available Calendars:
+{json.dumps(calendar_options, indent=2)}
+
+Rules:
+1. Match event content with calendar themes/names
+2. Consider calendar purpose (work, personal, sports, etc.)
+3. If no clear match, prefer primary calendar
+4. Return only the calendar ID, nothing else
+
+Event to analyze: {json.dumps(event_data, indent=2)}
+
+Respond with only the calendar ID (e.g., "primary" or the specific calendar ID)."""
+
+        try:
+            response = await acompletion(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": "Select the best calendar for this event."}
+                ],
+                max_tokens=50,
+                temperature=0.1
+            )
+            
+            # CRITICAL FIX: Use comprehensive response handling like extract_intent
+            if hasattr(response, 'choices') and response.choices:
+                choice = response.choices[0]
+                if hasattr(choice, 'message') and choice.message:
+                    if hasattr(choice.message, 'content'):
+                        suggested_id = choice.message.content.strip().strip('"\'')
+                    else:
+                        raise ValueError("Message missing content field")
+                else:
+                    raise ValueError("Choice missing message field")
+            else:
+                raise ValueError("Response missing choices field")
+            
+            # Validate the suggested ID exists
+            if suggested_id in self.calendar_cache or suggested_id == 'primary':
+                logger.info(f"AI suggested calendar: {suggested_id}")
+                return suggested_id
+                
+        except Exception as e:
+            logger.error(f"AI calendar suggestion failed: {e}")
+            
+        return None
+        
+    def get_calendar_suggestions(self, query: str = "") -> List[Dict]:
+        """Get list of calendars with relevance scoring for user selection"""
+        if not query:
+            return [
+                {
+                    'id': cal_id,
+                    'name': cal_info['name'],
+                    'themes': cal_info['themes'],
+                    'primary': cal_info['primary'],
+                    'relevance': 'default'
+                }
+                for cal_id, cal_info in self.calendar_cache.items()
+            ]
+            
+        # Score calendars based on query relevance
+        scored_calendars = []
+        query_lower = query.lower()
+        
+        for cal_id, cal_info in self.calendar_cache.items():
+            relevance_score = 0
+            
+            # Name matching
+            if query_lower in cal_info['name'].lower():
+                relevance_score += 5
+                
+            # Theme matching
+            for theme in cal_info['themes']:
+                if theme in query_lower:
+                    relevance_score += 3
+                    
+            scored_calendars.append({
+                'id': cal_id,
+                'name': cal_info['name'],
+                'themes': cal_info['themes'],
+                'primary': cal_info['primary'],
+                'relevance_score': relevance_score,
+                'relevance': 'high' if relevance_score >= 5 else 'medium' if relevance_score >= 3 else 'low'
+            })
+            
+        # Sort by relevance score
+        scored_calendars.sort(key=lambda x: x['relevance_score'], reverse=True)
+        return scored_calendars
+
+    def get_calendar_info(self, calendar_id: str) -> Optional[Dict]:
+        """Get information about a specific calendar"""
+        return self.calendar_cache.get(calendar_id)
+        
+    def list_all_calendars(self) -> List[Dict]:
+        """Get all cached calendars"""
+        return list(self.calendar_cache.values())

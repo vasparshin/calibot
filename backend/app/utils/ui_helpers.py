@@ -29,7 +29,7 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
     if not calendar_id:
         return "Unknown Calendar"
     
-    # If we have calendar service, try to get actual name from API
+    # Try calendar service method
     if calendar_service and hasattr(calendar_service, 'get_calendar_display_name'):
         try:
             display_name = calendar_service.get_calendar_display_name(calendar_id)
@@ -38,9 +38,9 @@ def get_calendar_display_name(calendar_id, calendar_service=None):
             # Return calendar ID if name lookup fails
             pass
     
-    # Try calendar agent method
-    if calendar_service and hasattr(calendar_service, 'calendar_agent'):
-        calendar_info = calendar_service.calendar_agent.get_calendar_info(calendar_id)
+    # Try calendar service calendar info method
+    if calendar_service and hasattr(calendar_service, 'get_calendar_info'):
+        calendar_info = calendar_service.get_calendar_info(calendar_id)
         if calendar_info and calendar_info.get('name'):
             return calendar_info['name']  # Return exactly as provided by Google Calendar
     

@@ -17,20 +17,19 @@ logger = logging.getLogger(__name__)
 class OperationFactory:
     """Factory for creating and executing operations based on intent."""
 
-    def __init__(self, telegram_service, conversation_state, calendar_service, calendar_agent=None):
+    def __init__(self, telegram_service, conversation_state, calendar_service):
         self.telegram_service = telegram_service
         self.conversation_state = conversation_state
         self.calendar_service = calendar_service
-        self.calendar_agent = calendar_agent
 
         # Initialize operation instances
         self.operations = {
-            "create": CreateOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
-            "batch_create": CreateOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
-            "update": UpdateOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
-            "delete": DeleteOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
-            "query": QueryOperation(telegram_service, conversation_state, calendar_service, calendar_agent),
-            "undo": UndoOperation(telegram_service, conversation_state, calendar_service, calendar_agent)
+            "create": CreateOperation(telegram_service, conversation_state, calendar_service),
+            "batch_create": CreateOperation(telegram_service, conversation_state, calendar_service),
+            "update": UpdateOperation(telegram_service, conversation_state, calendar_service),
+            "delete": DeleteOperation(telegram_service, conversation_state, calendar_service),
+            "query": QueryOperation(telegram_service, conversation_state, calendar_service),
+            "undo": UndoOperation(telegram_service, conversation_state, calendar_service)
         }
 
     async def execute_operation(self, chat_id: int, event_data: Dict[str, Any]) -> Dict[str, Any]:

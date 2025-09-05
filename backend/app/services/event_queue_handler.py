@@ -50,11 +50,10 @@ from ..utils.inline_keyboard import InlineKeyboardHelper
 logger = logging.getLogger(__name__)
 
 class EventQueueHandler:
-    def __init__(self, telegram_service, conversation_state, calendar_service=None, calendar_agent=None):
+    def __init__(self, telegram_service, conversation_state, calendar_service=None):
         self.telegram_service = telegram_service
         self.conversation_state = conversation_state
         self.calendar_service = calendar_service
-        self.calendar_agent = calendar_agent
         self.pending_queues = {}  # Store event queues by chat_id
     
     def _format_date_for_user(self, date_str: str) -> str:
@@ -884,8 +883,8 @@ class EventQueueHandler:
             if self.calendar_service:
                 if intent == 'create':
                     # Select appropriate calendar for creation
-                    if self.calendar_agent:
-                        calendar_id = await self.calendar_agent.select_calendar_for_event(event)
+                    if self.calendar_service:
+                        calendar_id = await self.calendar_service.select_calendar_for_event(event)
                     else:
                         calendar_id = 'primary'
                     

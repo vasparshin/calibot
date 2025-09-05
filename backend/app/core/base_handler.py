@@ -12,11 +12,10 @@ logger = logging.getLogger(__name__)
 class BaseHandler:
     """Base class for all operation handlers providing common functionality."""
 
-    def __init__(self, telegram_service, conversation_state, calendar_service=None, calendar_agent=None):
+    def __init__(self, telegram_service, conversation_state, calendar_service=None):
         self.telegram_service = telegram_service
         self.conversation_state = conversation_state
         self.calendar_service = calendar_service
-        self.calendar_agent = calendar_agent
 
     async def send_message(self, chat_id: int, message: str, keyboard: Optional[Dict] = None) -> None:
         """Send message with optional keyboard through telegram service."""
