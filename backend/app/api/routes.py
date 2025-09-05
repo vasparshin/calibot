@@ -719,22 +719,6 @@ async def _process_single_message(chat_id: str, user_message: str):
         if not await check_authentication(chat_id_int):
             return {"status": "ok"}
 
-        # CRITICAL: Ensure calendar IDs/names are synced at start of every query
-        # This prevents "Unknown Calendar" issues by refreshing calendar data
-        try:
-            logger.info(f"📅 CALENDAR SYNC: Refreshing calendar data for chat {chat_id}")
-            await calendar_service.ensure_calendars_loaded()
-            # Update calendar agent cache with fresh data
-            calendars = calendar_service.list_calendars()
-            if isinstance(calendars, list) and calendars:
-                calendar_service.calendar_agent.update_calendar_cache(calendars)
-                logger.info(f"📅 CALENDAR SYNC: ✅ Updated cache with {len(calendars)} calendars")
-            else:
-                logger.warning(f"📅 CALENDAR SYNC: ⚠️ No calendars retrieved from API")
-        except Exception as e:
-            logger.error(f"📅 CALENDAR SYNC: ❌ Failed to sync calendars: {e}")
-            # Continue processing even if calendar sync fails
-
         # Add message to conversation
         conversation_state.add_message(chat_id_int, "user", user_message)
 

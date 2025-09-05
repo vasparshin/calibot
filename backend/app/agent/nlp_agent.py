@@ -2,8 +2,6 @@ from datetime import datetime
 from litellm import acompletion
 from app.utils.helpers import format_conversation_history
 from app.config import LITELLM_MODEL
-from app.prompts.intent_extraction_prompt import INTENT_EXTRACTION_PROMPT
-from app.prompts.relevancy_classifier_prompt import RELEVANCY_CLASSIFIER_PROMPT
 from app.prompts.combined_extraction_prompt import COMBINED_EXTRACTION_PROMPT
 import json
 import logging
@@ -16,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 class NLPAgent:
     def __init__(self):
-        self.system_prompt = INTENT_EXTRACTION_PROMPT
         self.model = LITELLM_MODEL
 
 
@@ -24,46 +21,7 @@ class NLPAgent:
 
 
         
-    async def check_relevancy(self, user_message: str, history: list) -> dict:
-        """Check if the user message is relevant to calendar tasks."""
-        
-        system_prompt = RELEVANCY_CLASSIFIER_PROMPT
-
-        formatted_history = format_conversation_history(history)
-        
-        response = await acompletion(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt.format(conversation_history=formatted_history)},
-                {"role": "user", "content": f"User message: {user_message}"}
-            ],
-        )
-
-        try:
-            # CRITICAL FIX: Use same comprehensive response handling as extract_intent
-            result = None
-            
-            # Method 1: Direct attribute access (ModelResponse object)
-            if hasattr(response, 'choices') and response.choices:
-                choice = response.choices[0]
-                if hasattr(choice, 'message') and choice.message:
-                    if hasattr(choice.message, 'content'):
-                        result = choice.message.content
-            
-            # Method 2: Dict-like access (if response is dict-like)
-            if result is None and isinstance(response, dict):
-                if 'choices' in response and response['choices']:
-                    choice = response['choices'][0]
-                    if 'message' in choice and 'content' in choice['message']:
-                        result = choice['message']['content']
-            
-            if result is None:
-                raise ValueError("Could not extract content from LLM response")
-            
-            return json.loads(result.strip())
-        except Exception as e:
-            logger.error(f"Relevancy check failed: {e}")
-            return {"relevant": True, "reason": "Fallback to relevant due to processing error"}
+    # Removed unused check_relevancy method - now using combined extraction
 
     async def generate_response(self, prompt: str, conversation_history: list) -> str:
         """Generate a natural language response using LLM."""

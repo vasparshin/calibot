@@ -2,42 +2,6 @@
 
 CHANGELOG RULES - BE SPECIFIC AND TECHNICAL
 
-## [0.2.264] - 2025-09-04
-
-### 🚨 **CALENDAR ARCHITECTURE IMPROVEMENTS - PROPER CALENDAR HANDLING**
-
-**Fixed calendar name/selection architecture issues for proper universal support and AI integration**
-
-#### **Calendar Name & Selection Architecture Fixes - RESOLVED**
-- **Problem 1**: "Unknown Calendar" fallback when proper calendar lookup should be used
-- **Problem 2**: AI calendar selection prompt embedded in code instead of prompts folder  
-- **Problem 3**: Missing backend logging for AI calendar suggestion function
-- **Problem 4**: Calendar functions scattered across ui_helpers instead of proper google_calendar.py location
-- **Problem 5**: Calendar IDs/names not synced at start of every query leading to stale data
-- **User Feedback**: "why do we have uknownd calendar in event queu handler? if the calendar uknown then somethign is broken and this isnt right. need to rething logic here"
-- **Root Causes**:
-  - **Poor fallback logic**: Using "Unknown Calendar" instead of proper primary/first calendar lookup
-  - **Misplaced code**: AI prompts embedded in business logic instead of prompts folder
-  - **Missing logging**: AI calendar selection had no backend system logging for debugging
-  - **Architecture issues**: Calendar functions in wrong location (ui_helpers vs google_calendar.py)
-  - **Stale data**: No calendar sync at query start causing outdated calendar information
-- **CRITICAL FIXES APPLIED**:
-  - **Proper Calendar Fallback**: Added `get_primary_calendar_id()` and `get_calendar_display_name()` to GoogleCalendarService
-  - **Updated Event Queue**: Replaced "Unknown Calendar" with `_get_proper_calendar_name()` method using calendar service lookup  
-  - **AI Prompt Organization**: Moved AI calendar selection prompt to `prompts/calendar_selection_prompt.py`
-  - **Enhanced AI Logging**: Added comprehensive logging with 🤖 AI CALENDAR SELECTION prefix for debugging
-  - **Function Migration**: Moved calendar functions from ui_helpers to google_calendar.py (proper architecture)
-  - **Calendar Sync**: Added automatic calendar refresh at start of every query in `_process_single_message()`
-- **Files Changed**:
-  - `google_calendar.py`: Added `get_primary_calendar_id()` and unified `get_calendar_display_name()` methods
-  - `event_queue_handler.py`: Added `_get_proper_calendar_name()` method, removed "Unknown Calendar" fallbacks
-  - `calendar_agent.py`: Enhanced AI logging, imported prompt from prompts folder
-  - `prompts/calendar_selection_prompt.py`: NEW FILE - Centralized AI calendar selection prompt
-  - `ui_helpers.py`: Deprecated local calendar functions, redirect to google_calendar.py
-  - `routes.py`: Added calendar sync at start of every query processing
-- **IMPACT**: Calendar names now show actual calendar data instead of "Unknown", AI calendar selection properly logged, architecture follows proper separation of concerns
-- **Testing**: Verify proper calendar names display, AI calendar selection logging in backend, no "Unknown Calendar" fallbacks
-
 ## [0.2.263] - 2025-09-04
 
 ### 🚨 **CRITICAL UNIVERSAL USER SUPPORT & MIXED PROCESSING FIXES**

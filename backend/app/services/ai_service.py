@@ -1,7 +1,20 @@
 from datetime import datetime
 from app.config import OPENAI_API_KEY, LITELLM_MODEL
-from app.prompts.agent_system_prompt import AGENT_SYSTEM_PROMPT
-from app.prompts.small_talk_system_prompt import SMALL_TALK_SYSTEM_PROMPT
+# Using inline prompts instead of separate files
+AGENT_SYSTEM_PROMPT = """You are CaliBOT, a helpful calendar assistant. Respond naturally to calendar-related queries.
+
+Event data: {event_data}
+Current date: {current_date}
+
+Provide helpful, concise responses about calendar events."""
+
+SMALL_TALK_SYSTEM_PROMPT = """You are CaliBOT, a friendly calendar assistant. Respond to small talk and greetings naturally.
+
+User message: {user_message}
+Conversation history: {conversation_history}
+Current date: {current_date}
+
+Keep responses brief and friendly, then guide back to calendar topics."""
 from app.utils.helpers import format_conversation_history
 from litellm import acompletion
 from typing import Dict

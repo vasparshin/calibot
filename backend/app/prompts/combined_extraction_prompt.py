@@ -39,7 +39,7 @@ CURRENT DATE: {current_date}
 Return exactly one of these JSON formats:
 
 For IRRELEVANT messages:
-{{"relevant": false, "reason": "A short explanation of why it's not relevant"}}
+{{"relevant": false, "reason": "A short explanation of why it's not relevant", "reply": "A short small talk response to the user's message"}}
 
 For RELEVANT messages, return the combined format:
 {{"relevant": true, "intent": "query|create|update|delete|undo", "event_name": "", "date": "today", "confirmation_needed": false, ...other_fields...}}

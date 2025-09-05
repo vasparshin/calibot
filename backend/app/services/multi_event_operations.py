@@ -10,7 +10,15 @@ from datetime import datetime
 import json
 from litellm import acompletion
 from app.config import LITELLM_MODEL
-from app.prompts.multi_event_operation_prompt import MULTI_EVENT_OPERATION_PROMPT
+# Using inline prompt instead of separate file
+MULTI_EVENT_OPERATION_PROMPT = """You are a calendar assistant analyzing multiple event operations.
+
+User message: {user_message}
+Calendar events: {calendar_events}
+Total events: {total_events}
+
+Analyze the user's request and return JSON with operations to perform.
+Return format: {{"intent": "update|delete", "operations": [{{"type": "update", "event_name": "lesson", "target": "last 3", "time_shift": "1 hour"}}]}}"""
 
 logger = logging.getLogger(__name__)
 
