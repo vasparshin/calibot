@@ -165,7 +165,18 @@ class BaseOperation(BaseHandler):
             return None
 
     async def select_calendar(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Select appropriate calendar for event. Can be overridden."""
+        """Select appropriate calendar for event. Uses calendar_suggestion from combined prompt if available."""
+        # Check for calendar suggestion from combined prompt first
+        calendar_suggestion = event_data.get("calendar_suggestion")
+        if calendar_suggestion and calendar_suggestion != "primary":
+            logger.info(f"📅 CALENDAR SUGGESTION: Using '{calendar_suggestion}' from combined prompt")
+            return {
+                "success": True,
+                "calendar_id": calendar_suggestion.lower(),  # Convert to lowercase for consistency
+                "calendar_name": calendar_suggestion
+            }
+        
+        # Fallback to calendar agent if no suggestion
         if self.calendar_agent and hasattr(self.calendar_agent, 'select_calendar') and callable(self.calendar_agent.select_calendar):
             try:
                 calendar_result = await self.calendar_agent.select_calendar(event_data)
@@ -174,7 +185,7 @@ class BaseOperation(BaseHandler):
             except Exception as e:
                 logger.warning(f"Calendar agent selection failed: {e}")
 
-        # Fallback to default calendar
+        # Final fallback to default calendar
         calendar_name = event_data.get('calendar_name', 'Primary Calendar')
         return {
             "success": True,

@@ -50,10 +50,10 @@ For viewing schedule (use generic parameters, let code handle date resolution):
 {{"relevant": true, "intent": "query", "event_name": "meeting", "date": "today", "confirmation_needed": false}}
 
 For creating single events:
-{{"relevant": true, "intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "start_time": "09:00", "end_time": "10:00", "confirmation_needed": false}}
+{{"relevant": true, "intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "start_time": "09:00", "end_time": "10:00", "calendar_suggestion": "Education", "confirmation_needed": false}}
 
 For creating multiple events in one message (MANDATORY for multiple times):
-{{"relevant": true, "intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}]}}
+{{"relevant": true, "intent": "create", "event_name": "lesson", "date": "{current_date_iso}", "calendar_suggestion": "Education", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}]}}
 
 For deleting events:
 {{"relevant": true, "intent": "delete", "event_name": "lesson", "date": "{current_date_iso}", "target": "last", "confirmation_needed": true}}
@@ -104,6 +104,15 @@ CALENDAR SPECIFICATION:
 - "Tonya's calendar" or "to Tonya" → "calendar_name": "Tonya"
 - "personal calendar" → "calendar_name": "Personal"
 - "work calendar" → "calendar_name": "Work"
+- If no calendar specified, use "primary" for default calendar
+
+CALENDAR SELECTION (for create operations):
+- Analyze event content and suggest appropriate calendar
+- Work-related events → "Work" calendar
+- Personal events → "Personal" calendar  
+- Education/lessons → "Education" calendar
+- Health/medical → "Health" calendar
+- Return "calendar_suggestion": "Work|Personal|Education|Health|primary"
 
 SCHEDULE QUERY EXAMPLES (use generic parameters):
 - "what's my schedule today" → {{"relevant": true, "intent": "query", "event_name": "", "date": "today", "confirmation_needed": false}}
@@ -117,8 +126,8 @@ TIME SHIFT EXAMPLES (MANDATORY - use proper format):
 - "change first lesson to 3pm" → {{"relevant": true, "intent": "update", "event_name": "lesson", "target": "first", "new_start_time": "15:00", "confirmation_needed": true}}
 
 MULTI-EVENT CREATION EXAMPLES:
-- "add lessons at 8, 10, 11, 12 tomorrow" → {{"relevant": true, "intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
-- "create two events at 10am and 12pm" → {{"relevant": true, "intent": "create", "event_name": "event", "date": "{current_date_iso}", "confirmation_needed": false, "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
+- "add lessons at 8, 10, 11, 12 tomorrow" → {{"relevant": true, "intent": "create", "event_name": "lesson", "date": "{tomorrow_date_iso}", "calendar_suggestion": "Education", "confirmation_needed": false, "events": [{{"start_time": "08:00", "end_time": "09:00"}}, {{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "11:00", "end_time": "12:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
+- "create two events at 10am and 12pm" → {{"relevant": true, "intent": "create", "event_name": "event", "date": "{current_date_iso}", "calendar_suggestion": "primary", "confirmation_needed": false, "events": [{{"start_time": "10:00", "end_time": "11:00"}}, {{"start_time": "12:00", "end_time": "13:00"}}]}}
 
 DELETE EXAMPLES:
 - "delete first 2 meetings" → {{"relevant": true, "intent": "delete", "event_name": "meeting", "target": "first 2", "confirmation_needed": true}}

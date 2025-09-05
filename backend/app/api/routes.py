@@ -743,23 +743,15 @@ async def _process_single_message(chat_id: str, user_message: str):
             combined_result = {"relevant": True, "intent": "query", "event_name": "", "date": "today", "confirmation_needed": False}
         
         if not combined_result.get("relevant", True):
-            # Handle small talk or irrelevant messages
-            logger.info(f"🔍 SMALL_TALK DEBUG: Message marked as irrelevant, getting small talk response")
-            from app.services.ai_service import get_small_talk_response
+            # Handle small talk using reply from combined prompt
+            logger.info(f"🔍 SMALL_TALK DEBUG: Message marked as irrelevant, using combined prompt reply")
             
-            try:
-                small_talk_response = await get_small_talk_response(user_message, history)
-                logger.info(f"🔍 SMALL_TALK DEBUG: Small talk response completed: {small_talk_response}")
-            except Exception as small_talk_error:
-                logger.error(f"🔍 SMALL_TALK DEBUG: Small talk response failed: {small_talk_error}")
-                small_talk_response = None
-            if small_talk_response and small_talk_response.strip():
-                await send_telegram_message(chat_id_int, small_talk_response.strip())
-                clean_message = _clean_message_for_conversation_state(small_talk_response.strip())
-                conversation_state.add_message(chat_id_int, "assistant", clean_message)
-            else:
-                await send_telegram_message(chat_id_int, "Hi! I'm CaliBOT, your calendar assistant. How can I help you with your schedule today?")
-                conversation_state.add_message(chat_id_int, "assistant", "Hi! I'm CaliBOT, your calendar assistant. How can I help you with your schedule today?")
+            small_talk_response = combined_result.get("reply", "Hi! I'm CaliBOT, your calendar assistant. How can I help you with your schedule today?")
+            logger.info(f"🔍 SMALL_TALK DEBUG: Using combined prompt reply: {small_talk_response}")
+            
+            await send_telegram_message(chat_id_int, small_talk_response.strip())
+            clean_message = _clean_message_for_conversation_state(small_talk_response.strip())
+            conversation_state.add_message(chat_id_int, "assistant", clean_message)
             return {"status": "ok"}
 
         # CRITICAL: Clean up conversation state if it might be corrupted
