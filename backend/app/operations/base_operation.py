@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 class BaseOperation(BaseHandler):
     """Base class for all calendar operations providing common functionality."""
 
-    def __init__(self, telegram_service, conversation_state, calendar_service):
-        super().__init__(telegram_service, conversation_state, calendar_service)
+    def __init__(self, telegram_service, conversation_state, calendar_service, calendar_agent=None):
+        super().__init__(telegram_service, conversation_state, calendar_service, calendar_agent)
         self.response_manager = ResponseManager()
         self.error_handler = ErrorHandler()
 
@@ -176,18 +176,14 @@ class BaseOperation(BaseHandler):
                 "calendar_name": calendar_suggestion
             }
         
-        # Fallback to calendar service's select_calendar_for_event method
-        if self.calendar_service and hasattr(self.calendar_service, 'select_calendar_for_event'):
+        # Fallback to calendar agent if no suggestion
+        if self.calendar_agent and hasattr(self.calendar_agent, 'select_calendar') and callable(self.calendar_agent.select_calendar):
             try:
-                selected_calendar_id = await self.calendar_service.select_calendar_for_event(event_data)
-                if selected_calendar_id:
-                    return {
-                        "success": True,
-                        "calendar_id": selected_calendar_id,
-                        "calendar_name": self.calendar_service.get_calendar_display_name(selected_calendar_id)
-                    }
+                calendar_result = await self.calendar_agent.select_calendar(event_data)
+                if calendar_result.get("success"):
+                    return calendar_result
             except Exception as e:
-                logger.warning(f"Calendar service selection failed: {e}")
+                logger.warning(f"Calendar agent selection failed: {e}")
 
         # Final fallback to default calendar
         calendar_name = event_data.get('calendar_name', 'Primary Calendar')

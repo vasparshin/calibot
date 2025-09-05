@@ -59,19 +59,6 @@
 4. **User reports still broken** → Return to 🔴 ACTIVE with new details
 5. **🚨 NEVER self-promote**: Assistant cannot declare own fixes successful
 
-### 🚨 PROMPT ORGANIZATION RULES (MANDATORY)
-
-#### Prompt File Structure (CRITICAL)
-- **🚨 ALL PROMPTS MUST BE IN `backend/app/prompts/` FOLDER**: No inline prompts in service files
-- **🚨 NO PROMPTS IN SERVICE FILES**: All LLM prompts must be separate files with descriptive names
-- **🚨 PROMPT NAMING**: Use descriptive names like `combined_extraction_prompt.py`, `response_formatting_prompt.py`
-- **🚨 IMPORT PATTERN**: Always import prompts: `from app.prompts.prompt_name import PROMPT_CONSTANT`
-- **🚨 NO HARDCODED PROMPTS**: Never embed prompts directly in routes, services, or operations
-- **EXAMPLES**:
-  - ✅ CORRECT: `from app.prompts.response_formatting_prompt import RESPONSE_FORMATTING_PROMPT`
-  - ❌ WRONG: Inline prompt strings in `routes.py` or service files
-  - ❌ WRONG: `prompt = "You are a calendar assistant..."` in service code
-
 ### 🚨 UNIVERSAL USER SUPPORT RULES
 
 #### Calendar Name Handling (CRITICAL)
@@ -135,6 +122,31 @@ When user says "FIX" - follow this EXACT process:
 5. **Update version numbers** in both pyproject.toml and backend/app/__init__.py  
 6. **Push to GitHub** using proper git workflow commands
 7. **Verify deployment** and report completion
+
+## 📁 PROMPT ORGANIZATION RULES (MANDATORY)
+
+### Prompt File Structure
+- **ALL prompts MUST be in `backend/app/prompts/` folder**
+- **NO hardcoded prompts in service files or routes**
+- **Each prompt must have its own dedicated file**
+- **Prompt files must be imported, not embedded**
+
+### Current Prompt Files
+- `combined_extraction_prompt.py` - Relevancy + Intent extraction
+- `response_formatting_prompt.py` - Telegram response formatting
+- Inline prompts in services (to be moved to dedicated files)
+
+### Prompt File Requirements
+- Clear docstring explaining purpose
+- Single responsibility per prompt file
+- Consistent naming: `{purpose}_prompt.py`
+- Import pattern: `from app.prompts.{name} import {CONSTANT_NAME}`
+
+### Prohibited Practices
+- Hardcoded prompts in routes.py, services, or operations
+- Multiple prompts in single file
+- Prompts without dedicated files
+- Inline prompt strings longer than 3 lines
 
 ## 🐛 DEBUGGING AND LOGGING STANDARDS (MANDATORY)
 

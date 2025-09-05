@@ -36,16 +36,19 @@ def initialize_global_services():
         from app.services.google_calendar import GoogleCalendarService
         from app.services.conversation import conversation_state
         from app.services.event_queue_handler import EventQueueHandler
+        from app.agent.calendar_agent import CalendarAgent
         
         # Initialize services
         telegram_service = TelegramBotService()
         calendar_service = GoogleCalendarService()
+        calendar_agent = CalendarAgent()
         
         # Create global queue handler
         _global_queue_handler = EventQueueHandler(
             telegram_service, 
             conversation_state, 
-            calendar_service
+            calendar_service, 
+            calendar_agent
         )
         
         _services_initialized = True

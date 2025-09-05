@@ -22,6 +22,7 @@ from app.services.telegram import (
 from app.services.google_calendar import GoogleCalendarService
 from app.services.conversation import conversation_state
 from app.agent.nlp_agent import NLPAgent
+from app.agent.calendar_agent import CalendarAgent
 from app.core.confirmation_handler import ConfirmationHandler
 from app.core.response_manager import ResponseManager
 from app.operations.operation_factory import OperationFactory
@@ -31,10 +32,11 @@ from app.core.message_queue_handler import message_queue_handler
 router = APIRouter()
 telegram_service = TelegramBotService()
 calendar_service = GoogleCalendarService()
+calendar_agent = CalendarAgent()
 ai_agent = NLPAgent()
 confirmation_handler = ConfirmationHandler(telegram_service, conversation_state, calendar_service)
 response_manager = ResponseManager()
-operation_factory = OperationFactory(telegram_service, conversation_state, calendar_service)
+operation_factory = OperationFactory(telegram_service, conversation_state, calendar_service, calendar_agent)
 
 logger = logging.getLogger(__name__)
 
@@ -837,12 +839,16 @@ async def handle_llm_formatted_query(chat_id: int, original_intent: Dict, query_
         events_data = format_events_for_llm(query_data.get("events", []))
         query_params = query_data.get("query_params", {})
 
-        # Create LLM prompt for response formatting
+        # Create LLM prompt for response formatting using dedicated prompt file
         from app.prompts.response_formatting_prompt import RESPONSE_FORMATTING_PROMPT
+        
         formatting_prompt = RESPONSE_FORMATTING_PROMPT.format(
-            original_message=original_intent.get('original_message', ''),
-            events_data=events_data,
-            query_params=query_params
+            event_data=f"""
+User Query: "{original_intent.get('original_message', '')}"
+Retrieved Calendar Data: {events_data}
+Query Parameters: {query_params}
+""",
+            current_date=datetime.now().strftime("%Y-%m-%d %H:%M")
         )
 
         # Get LLM response

@@ -1,27 +1,28 @@
-# Used for formatting Telegram responses to users
-RESPONSE_FORMATTING_PROMPT = """You received this query from the user: "{original_message}"
+"""
+Response Formatting Prompt for Telegram Messages
 
-I retrieved the following calendar data:
-{events_data}
+This prompt handles formatting query results and event lists for Telegram display.
+Used in routes.py handle_llm_formatted_query() function.
+"""
 
-Query parameters used: {query_params}
+RESPONSE_FORMATTING_PROMPT = """You are CaliBOT, a helpful calendar assistant. Format the following calendar events for Telegram display.
 
-Based on the user's request and the retrieved data, provide a natural, helpful response.
-If no events were found, explain this clearly and suggest alternatives if appropriate.
+CRITICAL FORMATTING RULES:
+- Use EXACT format: • [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+- Include clickable hyperlinks for all events
+- Show full date and time information
+- Display actual calendar names (not IDs)
+- Use bullet points (•) for each event
+- Keep responses concise but informative
 
-CRITICAL: Format ALL events using this EXACT format (MANDATORY):
-• [Event Name](calendar_link) on Day, Month DD, YYYY at HH:MM AM/PM - HH:MM AM/PM (Calendar Name)
+EVENT DATA:
+{event_data}
 
-Examples:
-• [Math Lesson](https://calendar.google.com/calendar/event?eid=abc123) on Monday, September 02, 2025 at 09:00 AM - 10:00 AM (Personal)
-• [Team Meeting](https://calendar.google.com/calendar/event?eid=def456) on Tuesday, September 03, 2025 at 02:00 PM - 03:00 PM (Work)
+CURRENT DATE: {current_date}
 
-RULES:
-- ALWAYS use bullet points (•)
-- ALWAYS create hyperlinks with [Event Name](link)
-- ALWAYS use full date format: Day, Month DD, YYYY
-- ALWAYS use 12-hour time format with AM/PM
-- ALWAYS include calendar name in parentheses
-- Use the Link field from the event data for hyperlinks
+FORMAT THE EVENTS:
+Format each event using the exact format specified above. Include all available information and ensure hyperlinks are properly formatted for Telegram markdown.
 
-Return only the response message that should be sent to the user."""
+If no events are found, respond with: "No events found for the specified criteria."
+
+RESPONSE:"""
