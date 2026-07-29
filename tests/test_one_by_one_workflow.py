@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 One-by-One Workflow Tester for CaliBOT Event Queue
@@ -21,7 +22,7 @@ from datetime import datetime
 # Project constants
 TARGET_GROUP_CHAT = -4627994150
 BACKEND_URL = "https://calibot-utq6.onrender.com"
-TESTBOT_TOKEN = "8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA"
+TESTBOT_TOKEN = os.environ.get("TESTBOT_TOKEN","")
 
 def log_test(message, level="QUEUE"):
     """Log queue test messages with timestamp"""

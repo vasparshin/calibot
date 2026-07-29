@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Telegram-like Tester for CaliBOT
@@ -18,7 +19,7 @@ from datetime import datetime
 # Project constants from PROJECT_RULES.md
 TARGET_GROUP_CHAT = -4627994150  # Your actual group chat ID
 BACKEND_URL = "https://calibot-utq6.onrender.com"
-TESTBOT_TOKEN = "8347695824:AAHWuCUM9hJR1BoCJHNwsIFX4fH84N2qYUA"  # @calibot_testbot
+TESTBOT_TOKEN = os.environ.get("TESTBOT_TOKEN","")  # @calibot_testbot
 
 def log_test(message, level="TEST"):
     """Log test messages with timestamp"""
